@@ -8,12 +8,12 @@ plugins {
 
 android {
     namespace 'com.iskorsukov.aniwatcher'
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.iskorsukov.aniwatcher"
         minSdk 24
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -50,7 +50,7 @@ android {
 }
 
 apollo {
-    packageName.set("com.iskorsukov.aniwatcher.graphql")
+    packageName.set("com.iskorsukov.aniwatcher")
 }
 
 dependencies {
@@ -64,6 +64,9 @@ dependencies {
     // JUnit
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+
+    // Truth
+    testImplementation "com.google.truth:truth:1.1.3"
 
     // Espresso
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'

@@ -1,0 +1,34 @@
+query WeekAiringData($weekStart: Int!, $weekEnd: Int!) {
+    Page {
+        airingSchedules(
+            airingAt_greater: $weekStart,
+            airingAt_lesser: $weekEnd,
+            sort: TIME
+        ) {
+            id
+            airingAt
+            episode
+            media {
+                id
+                title {
+                    romaji
+                    english
+                    native
+                }
+                description
+                coverImage {
+                    medium,
+                    color
+                }
+                rankings {
+                    type
+                    rank
+                    season
+                }
+                meanScore
+                genres
+                siteUrl
+            }
+        }
+    }
+}
