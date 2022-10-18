@@ -1,4 +1,4 @@
-package com.iskorsukov.aniwatcher.domain.airing
+package com.iskorsukov.aniwatcher.data.executor
 
 import com.apollographql.apollo3.ApolloClient
 import com.iskorsukov.aniwatcher.WeekAiringDataQuery

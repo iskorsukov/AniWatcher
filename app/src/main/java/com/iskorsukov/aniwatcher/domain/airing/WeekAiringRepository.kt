@@ -1,5 +1,6 @@
 package com.iskorsukov.aniwatcher.domain.airing
 
+import com.iskorsukov.aniwatcher.data.executor.AniListQueryExecutor
 import com.iskorsukov.aniwatcher.data.mapper.QueryDataToDomainMapper
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 
