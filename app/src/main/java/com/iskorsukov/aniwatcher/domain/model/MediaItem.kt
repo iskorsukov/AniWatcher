@@ -10,7 +10,7 @@ data class MediaItem(
     val coverImageUrl: String?,
     val colorStr: String?,
     val seasonRanking: Ranking?,
-    val meanScore: Int,
+    val meanScore: Int?,
     val genres: List<String>,
     val siteUrl: String?
 ) {
@@ -22,11 +22,10 @@ data class MediaItem(
 
     data class Ranking(
         val rank: Int,
-        val season: String?
+        val season: String
     )
 
     companion object {
-        const val NO_MEAN_SCORE = -1
 
         fun fromData(data: WeekAiringDataQuery.Media): MediaItem {
             return data.run {
@@ -40,7 +39,7 @@ data class MediaItem(
                     description = description,
                     coverImageUrl = coverImage?.medium,
                     colorStr = coverImage?.color,
-                    seasonRanking = rankings?.filterNotNull()?.first { ranking ->
+                    seasonRanking = rankings?.filterNotNull()?.firstOrNull() { ranking ->
                         ranking.type == MediaRankType.POPULAR && ranking.season != null
                     }?.run {
                           Ranking(
@@ -48,7 +47,7 @@ data class MediaItem(
                               season!!.name
                           )
                     },
-                    meanScore = meanScore ?: NO_MEAN_SCORE,
+                    meanScore = meanScore,
                     genres = genres?.filterNotNull() ?: emptyList(),
                     siteUrl = siteUrl
                 )
