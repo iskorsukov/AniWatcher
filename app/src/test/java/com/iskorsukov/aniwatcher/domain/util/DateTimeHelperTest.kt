@@ -4,29 +4,61 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import java.util.*
 
-class WeekTimestampHelperTest {
+class DateTimeHelperTest {
 
     private val testCalendar = Calendar.getInstance().apply { time = TEST_CALENDAR.time }
 
     @Test
     fun currentWeekStartToEnd() {
-        val startToEnd = WeekTimestampHelper.currentWeekStartToEndSeconds(testCalendar)
+        val startToEnd = DateTimeHelper.currentWeekStartToEndSeconds(testCalendar)
         assertThat(startToEnd.first).isEqualTo(TEST_WEEK_START)
         assertThat(startToEnd.second).isEqualTo(TEST_WEEK_END)
     }
 
     @Test
     fun previousWeekStartToEnd() {
-        val startToEnd = WeekTimestampHelper.weekStartToEndSeconds(testCalendar, -1)
+        val startToEnd = DateTimeHelper.weekStartToEndSeconds(testCalendar, -1)
         assertThat(startToEnd.first).isEqualTo(TEST_WEEK_START - SEVEN_DAYS_IN_SECONDS)
         assertThat(startToEnd.second).isEqualTo(TEST_WEEK_END - SEVEN_DAYS_IN_SECONDS)
     }
 
     @Test
     fun nextWeekStartToEnd() {
-        val startToEnd = WeekTimestampHelper.weekStartToEndSeconds(testCalendar, 1)
+        val startToEnd = DateTimeHelper.weekStartToEndSeconds(testCalendar, 1)
         assertThat(startToEnd.first).isEqualTo(TEST_WEEK_START + SEVEN_DAYS_IN_SECONDS)
         assertThat(startToEnd.second).isEqualTo(TEST_WEEK_END + SEVEN_DAYS_IN_SECONDS)
+    }
+
+    @Test
+    fun currentSeason() {
+        val inputCalendars = buildList<Calendar> {
+            for (i in 0..11) {
+                add((Calendar.getInstance().apply { set(Calendar.MONTH, i) }))
+            }
+        }
+
+        val seasonOutputs = inputCalendars.map { DateTimeHelper.currentSeason(it) }
+        assertThat(seasonOutputs).containsExactlyElementsIn(
+            listOf(
+                "WINTER",
+                "WINTER",
+                "SPRING",
+                "SPRING",
+                "SPRING",
+                "SUMMER",
+                "SUMMER",
+                "SUMMER",
+                "FALL",
+                "FALL",
+                "FALL",
+                "WINTER"
+            )
+        ).inOrder()
+    }
+
+    @Test
+    fun currentYear() {
+        assertThat(DateTimeHelper.currentYear(testCalendar)).isEqualTo(2022)
     }
 
     companion object {

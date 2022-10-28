@@ -1,7 +1,7 @@
 package com.iskorsukov.aniwatcher.domain.model
 
-import com.iskorsukov.aniwatcher.WeekAiringDataQuery
-import com.iskorsukov.aniwatcher.type.MediaRankType
+import com.iskorsukov.aniwatcher.data.entity.FollowingEntity
+import com.iskorsukov.aniwatcher.data.entity.MediaItemEntity
 
 data class MediaItem(
     val id: Int,
@@ -12,7 +12,8 @@ data class MediaItem(
     val seasonRanking: Ranking?,
     val meanScore: Int?,
     val genres: List<String>,
-    val siteUrl: String?
+    val siteUrl: String?,
+    val isFollowing: Boolean
 ) {
     data class Title(
         val romaji: String?,
@@ -26,30 +27,28 @@ data class MediaItem(
     )
 
     companion object {
-
-        fun fromData(data: WeekAiringDataQuery.Media): MediaItem {
-            return data.run {
+        fun fromEntity(mediaItemEntity: MediaItemEntity, followingEntity: FollowingEntity?): MediaItem {
+            return mediaItemEntity.run {
                 MediaItem(
-                    id = id,
+                    id = mediaId,
                     title = Title(
-                        title?.romaji,
-                        title?.english,
-                        title?.native
+                        title.titleRomaji,
+                        title.titleEnglish,
+                        title.titleNative
                     ),
                     description = description,
-                    coverImageUrl = coverImage?.medium,
-                    colorStr = coverImage?.color,
-                    seasonRanking = rankings?.filterNotNull()?.firstOrNull() { ranking ->
-                        ranking.type == MediaRankType.POPULAR && ranking.season != null
-                    }?.run {
-                          Ranking(
-                              rank,
-                              season!!.name
-                          )
+                    coverImageUrl = coverImageUrl,
+                    colorStr = colorStr,
+                    seasonRanking = seasonRanking?.run {
+                        Ranking(
+                            rank,
+                            season
+                        )
                     },
                     meanScore = meanScore,
-                    genres = genres?.filterNotNull() ?: emptyList(),
-                    siteUrl = siteUrl
+                    genres = genresSpaceSeparated?.split(" ") ?: emptyList(),
+                    siteUrl = siteUrl,
+                    isFollowing = followingEntity != null
                 )
             }
         }

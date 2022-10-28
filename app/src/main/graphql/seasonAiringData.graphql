@@ -1,0 +1,37 @@
+query SeasonAiringData($year: Int!, $season: MediaSeason!, $page: Int!) {
+    Page(page: $page) {
+        pageInfo {
+            currentPage
+            hasNextPage
+        }
+        media(season: $season, seasonYear: $year) {
+            id
+            title {
+                romaji
+                english
+                native
+            }
+            description
+            coverImage {
+                medium
+                color
+            }
+            rankings {
+                type
+                rank
+                season
+            }
+            meanScore
+            genres
+            siteUrl
+            airingSchedule(notYetAired: true) {
+                nodes {
+                    id
+                    airingAt
+                    episode
+                    mediaId
+                }
+            }
+        }
+    }
+}

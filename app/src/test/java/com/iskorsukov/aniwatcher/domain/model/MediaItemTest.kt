@@ -1,32 +1,102 @@
 package com.iskorsukov.aniwatcher.domain.model
 
 import com.google.common.truth.Truth.assertThat
-import com.iskorsukov.aniwatcher.domain.model.ModelTestData.MEDIA_ITEM
-import com.iskorsukov.aniwatcher.domain.model.ModelTestData.MEDIA_ITEM_FILTER_RANKING
+import com.iskorsukov.aniwatcher.*
 import org.junit.Test
 
 class MediaItemTest {
 
     @Test
-    fun fromData() {
-        val mediaItem = MediaItem.fromData(MEDIA_ITEM)
+    fun fromEntity() {
+        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
+        val followingEntity = EntityTestDataCreator.baseFollowingEntity()
 
-        assertThat(mediaItem.id).isEqualTo(MEDIA_ITEM.id)
-        assertThat(mediaItem.title.romaji).isEqualTo(MEDIA_ITEM.title?.romaji)
-        assertThat(mediaItem.title.english).isEqualTo(MEDIA_ITEM.title?.english)
-        assertThat(mediaItem.title.native).isEqualTo(MEDIA_ITEM.title?.native)
-        assertThat(mediaItem.description).isEqualTo(MEDIA_ITEM.description)
-        assertThat(mediaItem.coverImageUrl).isEqualTo(MEDIA_ITEM.coverImage?.medium)
-        assertThat(mediaItem.colorStr).isEqualTo(MEDIA_ITEM.coverImage?.color)
-        assertThat(mediaItem.seasonRanking?.rank).isEqualTo(MEDIA_ITEM.rankings?.get(0)?.rank)
-        assertThat(mediaItem.seasonRanking?.season).isEqualTo(MEDIA_ITEM.rankings?.get(0)?.season?.name)
-        assertThat(mediaItem.siteUrl).isEqualTo(MEDIA_ITEM.siteUrl)
+        val mediaItem = MediaItem.fromEntity(mediaItemEntity, followingEntity)
+
+        assertThat(mediaItem).isEqualTo(ModelTestDataCreator.baseMediaItem().isFollowing(true))
     }
 
     @Test
-    fun fromData_filteredRanking() {
-        val mediaItem = MediaItem.fromData(MEDIA_ITEM_FILTER_RANKING)
+    fun fromEntity_noFollowingEntity() {
+        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
 
-        assertThat(mediaItem.seasonRanking).isNull()
+        val mediaItem = MediaItem.fromEntity(mediaItemEntity, null)
+
+        assertThat(mediaItem).isEqualTo(ModelTestDataCreator.baseMediaItem())
+    }
+
+    @Test
+    fun fromEntity_emptyTitle() {
+        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity().emptyTitle()
+
+        val mediaItem = MediaItem.fromEntity(mediaItemEntity, null)
+
+        assertThat(mediaItem).isEqualTo(ModelTestDataCreator.baseMediaItem().emptyTitle())
+    }
+
+    @Test
+    fun fromEntity_nullDescription() {
+        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity().nullDescription()
+
+        val mediaItem = MediaItem.fromEntity(mediaItemEntity, null)
+
+        assertThat(mediaItem).isEqualTo(ModelTestDataCreator.baseMediaItem().nullDescription())
+    }
+
+    @Test
+    fun fromEntity_nullRanking() {
+        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity().nullRanking()
+
+        val mediaItem = MediaItem.fromEntity(mediaItemEntity, null)
+
+        assertThat(mediaItem).isEqualTo(ModelTestDataCreator.baseMediaItem().nullRanking())
+    }
+
+    @Test
+    fun fromEntity_nullGenres() {
+        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity().nullGenres()
+
+        val mediaItem = MediaItem.fromEntity(mediaItemEntity, null)
+
+        assertThat(mediaItem).isEqualTo(ModelTestDataCreator.baseMediaItem().emptyGenres())
+    }
+
+    @Test
+    fun fromEntity_nullCoverImageUrl() {
+        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity().nullCoverImageUrl()
+
+        val mediaItem = MediaItem.fromEntity(mediaItemEntity, null)
+
+        assertThat(mediaItem).isEqualTo(ModelTestDataCreator.baseMediaItem().nullCoverImageUrl())
+
+    }
+
+    @Test
+    fun fromEntity_nullColorStr() {
+        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity().nullColorStr()
+
+        val mediaItem = MediaItem.fromEntity(mediaItemEntity, null)
+
+        assertThat(mediaItem).isEqualTo(ModelTestDataCreator.baseMediaItem().nullColorStr())
+
+    }
+
+    @Test
+    fun fromEntity_nullMeanScore() {
+        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity().nullMeanScore()
+
+        val mediaItem = MediaItem.fromEntity(mediaItemEntity, null)
+
+        assertThat(mediaItem).isEqualTo(ModelTestDataCreator.baseMediaItem().nullMeanScore())
+
+    }
+
+    @Test
+    fun fromEntity_nullSiteUrl() {
+        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity().nullSiteUrl()
+
+        val mediaItem = MediaItem.fromEntity(mediaItemEntity, null)
+
+        assertThat(mediaItem).isEqualTo(ModelTestDataCreator.baseMediaItem().nullSiteUrl())
     }
 }
