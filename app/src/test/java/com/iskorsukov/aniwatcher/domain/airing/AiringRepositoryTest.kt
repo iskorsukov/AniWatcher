@@ -11,7 +11,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import java.io.IOException
 
-@ExperimentalCoroutinesApi
+@OptIn(ExperimentalCoroutinesApi::class)
 class AiringRepositoryTest {
     private val aniListQueryExecutor: AniListQueryExecutor = mockk(relaxed = true)
     private val mapper: QueryDataToEntityMapper = mockk(relaxed = true)

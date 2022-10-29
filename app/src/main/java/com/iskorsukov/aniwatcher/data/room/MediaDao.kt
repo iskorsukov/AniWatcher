@@ -14,20 +14,20 @@ interface MediaDao {
 
     @Transaction
     @Query("SELECT * FROM media")
-    fun getAll(): Flow<MediaItemWithAiringSchedulesAndFollowingEntity>
+    fun getAll(): Flow<List<MediaItemWithAiringSchedulesAndFollowingEntity>>
 
     @Insert
-    fun followMedia(followingEntity: FollowingEntity)
+    suspend fun followMedia(followingEntity: FollowingEntity)
 
     @Query("DELETE FROM following where mediaItemRelationId = :mediaId")
-    fun unfollowMedia(mediaId: Int)
+    suspend fun unfollowMedia(mediaId: Int)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertMedia(mediaItemEntityList: List<MediaItemEntity>)
+    suspend fun insertMedia(mediaItemEntityList: List<MediaItemEntity>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertSchedules(airingScheduleEntityList: List<AiringScheduleEntity>)
+    suspend fun insertSchedules(airingScheduleEntityList: List<AiringScheduleEntity>)
 
     @Query("DELETE FROM media")
-    fun clearMedia()
+    suspend fun clearMedia()
 }

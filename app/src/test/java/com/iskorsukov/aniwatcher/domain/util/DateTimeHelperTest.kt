@@ -33,7 +33,10 @@ class DateTimeHelperTest {
     fun currentSeason() {
         val inputCalendars = buildList<Calendar> {
             for (i in 0..11) {
-                add((Calendar.getInstance().apply { set(Calendar.MONTH, i) }))
+                add((Calendar.getInstance().apply {
+                    set(Calendar.MONTH, i)
+                    set(Calendar.DAY_OF_MONTH, 10)
+                }))
             }
         }
 
