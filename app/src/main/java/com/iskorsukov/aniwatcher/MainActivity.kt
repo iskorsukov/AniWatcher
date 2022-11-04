@@ -16,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -35,6 +34,8 @@ import com.iskorsukov.aniwatcher.ui.theme.AniWatcherTheme
 import com.iskorsukov.aniwatcher.ui.theme.CardFooterBackgroundColor
 import com.iskorsukov.aniwatcher.ui.theme.CardTextColorLight
 import com.iskorsukov.aniwatcher.ui.theme.TitleOverlayColor
+import com.iskorsukov.aniwatcher.ui.util.getBackgroundColorForChip
+import com.iskorsukov.aniwatcher.ui.util.getContrastTextColorForChip
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -84,7 +85,9 @@ fun AiringScreen(airingViewModel: AiringViewModel = viewModel()) {
                         text = it.key.name,
                         fontSize = 20.sp,
                         color = CardTextColorLight,
-                        modifier = Modifier.padding(8.dp).fillMaxWidth()
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .fillMaxWidth()
                     )
                 }
                 it.value.map {
@@ -116,7 +119,9 @@ fun AiringScreenPreview() {
                     text = it.key.name,
                     fontSize = 18.sp,
                     color = CardTextColorLight,
-                    modifier = Modifier.padding(horizontal = 8.dp).fillMaxWidth()
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp)
+                        .fillMaxWidth()
                 )
             }
             it.value.map {
@@ -222,9 +227,11 @@ fun AiringScheduleItemCardConstraint(airingScheduleItem: AiringScheduleItem, tim
 
 @Composable
 fun GenreChip(genre: String, colorStr: String?) {
+    val bgColor = getBackgroundColorForChip(bgColorStr = colorStr)
+    val textColor = getContrastTextColorForChip(bgColor = bgColor)
     Text(
         text = genre,
-        color = Color.White,
+        color = textColor,
         fontSize = 8.sp,
         modifier = Modifier
             .padding(
@@ -234,11 +241,7 @@ fun GenreChip(genre: String, colorStr: String?) {
             )
             .background(
                 shape = RoundedCornerShape(10.dp),
-                color = if (colorStr == null) {
-                    MaterialTheme.colors.primary
-                } else {
-                    Color(android.graphics.Color.parseColor(colorStr))
-                }
+                color = bgColor
             )
             .padding(4.dp)
     )
