@@ -15,7 +15,7 @@ data class MediaItemEntity(
     val colorStr: String?,
     @Embedded val seasonRanking: Ranking?,
     val meanScore: Int?,
-    val genresSpaceSeparated: String?,
+    val genresCommaSeparated: String?,
     val siteUrl: String?
 ) {
     data class Title(
@@ -51,7 +51,7 @@ data class MediaItemEntity(
                         )
                     },
                     meanScore = meanScore,
-                    genresSpaceSeparated = genres?.filterNotNull()?.joinToString(separator = " "),
+                    genresCommaSeparated = genres?.filterNotNull()?.joinToString(separator = ","),
                     siteUrl = siteUrl
                 )
             }

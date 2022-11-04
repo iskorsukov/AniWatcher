@@ -25,7 +25,7 @@ class AiringRepositoryTest {
 
     @Test
     fun loadWeekAiringData() = runTest {
-        repository.loadSeasonAiringData(year, season, page)
+        repository.loadSeasonAiringData(year, season)
 
         coVerify {
             aniListQueryExecutor.seasonAiringDataQuery(year, season, page)
@@ -38,7 +38,7 @@ class AiringRepositoryTest {
     fun loadWeekAiringData_queryException() = runTest {
         coEvery { aniListQueryExecutor.seasonAiringDataQuery(any(), any(), any()) } throws IOException()
 
-        repository.loadSeasonAiringData(year, season, page)
+        repository.loadSeasonAiringData(year, season)
 
         coVerify {
             aniListQueryExecutor.seasonAiringDataQuery(year, season, page)
@@ -49,7 +49,7 @@ class AiringRepositoryTest {
     fun loadWeekAiringData_mapperException() = runTest {
         coEvery { mapper.mapMediaWithSchedulesList(any()) } throws IllegalArgumentException()
 
-        repository.loadSeasonAiringData(year, season, page)
+        repository.loadSeasonAiringData(year, season)
 
         coVerify {
             aniListQueryExecutor.seasonAiringDataQuery(year, season, page)
@@ -61,7 +61,7 @@ class AiringRepositoryTest {
     fun loadWeekAiringData_databaseException() = runTest {
         coEvery { mediaDatabaseExecutor.updateMedia(any()) } throws IOException()
 
-        repository.loadSeasonAiringData(year, season, page)
+        repository.loadSeasonAiringData(year, season)
 
         coVerify {
             aniListQueryExecutor.seasonAiringDataQuery(year, season, page)

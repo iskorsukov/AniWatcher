@@ -19,7 +19,19 @@ data class MediaItem(
         val romaji: String?,
         val english: String?,
         val native: String?
-    )
+    ) {
+        fun baseText(): String {
+            val orderedTitles = listOf(english, romaji, native)
+            val filteredTitles = orderedTitles.filterNotNull()
+            return filteredTitles.getOrNull(0) ?: ""
+        }
+
+        fun subText(): String {
+            val orderedTitles = listOf(english, romaji, native)
+            val filteredTitles = orderedTitles.filterNotNull()
+            return filteredTitles.getOrNull(1) ?: ""
+        }
+    }
 
     data class Ranking(
         val rank: Int,
@@ -46,7 +58,7 @@ data class MediaItem(
                         )
                     },
                     meanScore = meanScore,
-                    genres = genresSpaceSeparated?.split(" ") ?: emptyList(),
+                    genres = genresCommaSeparated?.split(",") ?: emptyList(),
                     siteUrl = siteUrl,
                     isFollowing = followingEntity != null
                 )

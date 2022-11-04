@@ -1,7 +1,7 @@
 package com.iskorsukov.aniwatcher.domain.model
 
 import com.google.common.truth.Truth.assertThat
-import com.iskorsukov.aniwatcher.*
+import com.iskorsukov.aniwatcher.test.*
 import org.junit.Test
 
 class MediaItemTest {
@@ -98,5 +98,28 @@ class MediaItemTest {
         val mediaItem = MediaItem.fromEntity(mediaItemEntity, null)
 
         assertThat(mediaItem).isEqualTo(ModelTestDataCreator.baseMediaItem().nullSiteUrl())
+    }
+
+    @Test
+    fun baseText() {
+        val mediaItem = ModelTestDataCreator.baseMediaItem()
+
+        assertThat(mediaItem.title.baseText()).isEqualTo(mediaItem.title.english)
+    }
+
+    @Test
+    fun baseText_noEnglish() {
+        var mediaItem = ModelTestDataCreator.baseMediaItem()
+        mediaItem = mediaItem.title(mediaItem.title.copy(english = null))
+
+        assertThat(mediaItem.title.baseText()).isEqualTo(mediaItem.title.romaji)
+    }
+
+    @Test
+    fun baseText_noEnglishOrRomaji() {
+        var mediaItem = ModelTestDataCreator.baseMediaItem()
+        mediaItem = mediaItem.title(mediaItem.title.copy(english = null, romaji = null))
+
+        assertThat(mediaItem.title.baseText()).isEqualTo(mediaItem.title.native)
     }
 }

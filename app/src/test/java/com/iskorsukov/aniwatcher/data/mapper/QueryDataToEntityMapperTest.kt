@@ -1,10 +1,10 @@
 package com.iskorsukov.aniwatcher.data.mapper
 
 import com.google.common.truth.Truth.assertThat
-import com.iskorsukov.aniwatcher.EntityTestDataCreator
-import com.iskorsukov.aniwatcher.QueryTestDataCreator
 import com.iskorsukov.aniwatcher.SeasonAiringDataQuery
-import com.iskorsukov.aniwatcher.nullAiringSchedule
+import com.iskorsukov.aniwatcher.test.EntityTestDataCreator
+import com.iskorsukov.aniwatcher.test.QueryTestDataCreator
+import com.iskorsukov.aniwatcher.test.nullAiringSchedule
 import org.junit.Test
 
 class QueryDataToEntityMapperTest {

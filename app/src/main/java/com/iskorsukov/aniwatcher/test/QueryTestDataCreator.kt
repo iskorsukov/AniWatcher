@@ -1,5 +1,6 @@
-package com.iskorsukov.aniwatcher
+package com.iskorsukov.aniwatcher.test
 
+import com.iskorsukov.aniwatcher.SeasonAiringDataQuery
 import com.iskorsukov.aniwatcher.type.MediaRankType
 import com.iskorsukov.aniwatcher.type.MediaSeason
 
@@ -15,8 +16,8 @@ object QueryTestDataCreator {
             ),
             description = "Description",
             coverImage = SeasonAiringDataQuery.CoverImage(
-                medium = "CoverImageMedium",
-                color = "CoverImageColor"
+                medium = "https://img1.goodfon.ru/original/1024x768/9/d6/kotionok-malysh-vzgliad-trava-boke.jpg",
+                color = "#43aee4"
             ),
             rankings = listOf(
                 SeasonAiringDataQuery.Ranking(
@@ -51,7 +52,7 @@ object QueryTestDataCreator {
     fun baseSeasonAiringDataNode(): SeasonAiringDataQuery.Node {
         return SeasonAiringDataQuery.Node(
             1,
-            1,
+            1667833200,
             1,
             1
         )
@@ -61,9 +62,9 @@ object QueryTestDataCreator {
         return SeasonAiringDataQuery.AiringSchedule(
             nodes = listOf(
                 baseSeasonAiringDataNode(),
-                baseSeasonAiringDataNode().id(2).episode(2),
-                baseSeasonAiringDataNode().id(3).episode(3),
-                baseSeasonAiringDataNode().id(4).episode(4)
+                baseSeasonAiringDataNode().id(2).episode(2).airingAt(1667385638),
+                baseSeasonAiringDataNode().id(3).episode(3).airingAt(1667644838),
+                baseSeasonAiringDataNode().id(4).episode(4).airingAt(1667029460)
             )
         )
     }
@@ -75,6 +76,10 @@ fun SeasonAiringDataQuery.Node.id(id: Int): SeasonAiringDataQuery.Node {
 
 fun SeasonAiringDataQuery.Node.episode(episode: Int): SeasonAiringDataQuery.Node {
     return this.copy(episode = episode)
+}
+
+fun SeasonAiringDataQuery.Node.airingAt(airingAt: Int): SeasonAiringDataQuery.Node {
+    return this.copy(airingAt = airingAt)
 }
 
 fun SeasonAiringDataQuery.Medium.nullGenres(): SeasonAiringDataQuery.Medium {

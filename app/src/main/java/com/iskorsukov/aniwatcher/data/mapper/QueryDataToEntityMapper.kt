@@ -4,8 +4,9 @@ import com.iskorsukov.aniwatcher.SeasonAiringDataQuery
 import com.iskorsukov.aniwatcher.data.entity.AiringScheduleEntity
 import com.iskorsukov.aniwatcher.data.entity.MediaItemEntity
 import com.iskorsukov.aniwatcher.data.entity.MediaItemWithAiringSchedulesEntity
+import javax.inject.Inject
 
-class QueryDataToEntityMapper {
+class QueryDataToEntityMapper @Inject constructor() {
 
     fun mapMediaWithSchedulesList(data: SeasonAiringDataQuery.Data): List<MediaItemWithAiringSchedulesEntity> {
         if (data.Page?.media == null || data.Page.media.any { it?.airingSchedule?.nodes == null }) {

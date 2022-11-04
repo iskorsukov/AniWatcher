@@ -1,10 +1,10 @@
 package com.iskorsukov.aniwatcher.data.entity
 
 import com.google.common.truth.Truth.assertThat
-import com.iskorsukov.aniwatcher.EntityTestDataCreator
-import com.iskorsukov.aniwatcher.QueryTestDataCreator
-import com.iskorsukov.aniwatcher.emptyGenres
-import com.iskorsukov.aniwatcher.nullGenres
+import com.iskorsukov.aniwatcher.test.EntityTestDataCreator
+import com.iskorsukov.aniwatcher.test.QueryTestDataCreator
+import com.iskorsukov.aniwatcher.test.emptyGenres
+import com.iskorsukov.aniwatcher.test.nullGenres
 import org.junit.Test
 
 class MediaItemEntityTest {

@@ -1,4 +1,4 @@
-package com.iskorsukov.aniwatcher
+package com.iskorsukov.aniwatcher.test
 
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
@@ -14,8 +14,8 @@ object ModelTestDataCreator {
                 "TitleNative"
             ),
             description = "Description",
-            coverImageUrl = "CoverImageMedium",
-            colorStr = "CoverImageColor",
+            coverImageUrl = "https://img1.goodfon.ru/original/1024x768/9/d6/kotionok-malysh-vzgliad-trava-boke.jpg",
+            colorStr = "#43aee4",
             seasonRanking = MediaItem.Ranking(
                 1,
                 "FALL"
@@ -30,7 +30,7 @@ object ModelTestDataCreator {
     fun baseAiringScheduleItem(): AiringScheduleItem {
         return AiringScheduleItem(
             1,
-            1,
+            1667833200,
             1,
             baseMediaItem()
         )
@@ -39,9 +39,9 @@ object ModelTestDataCreator {
     fun baseAiringScheduleItemList(): List<AiringScheduleItem> {
         return listOf(
             baseAiringScheduleItem(),
-            baseAiringScheduleItem().id(2).episode(2),
-            baseAiringScheduleItem().id(3).episode(3),
-            baseAiringScheduleItem().id(4).episode(4)
+            baseAiringScheduleItem().id(2).episode(2).airingAt(1667385638),
+            baseAiringScheduleItem().id(3).episode(3).airingAt(1667644838),
+            baseAiringScheduleItem().id(4).episode(4).airingAt(1667029460)
         )
     }
 }
@@ -52,6 +52,10 @@ fun MediaItem.emptyTitle(): MediaItem {
         null,
         null
     ))
+}
+
+fun MediaItem.title(title: MediaItem.Title): MediaItem {
+    return this.copy(title = title)
 }
 
 fun MediaItem.nullDescription(): MediaItem {
@@ -92,6 +96,10 @@ fun AiringScheduleItem.id(id: Int): AiringScheduleItem {
 
 fun AiringScheduleItem.episode(episode: Int): AiringScheduleItem {
     return this.copy(episode = episode)
+}
+
+fun AiringScheduleItem.airingAt(airingAt: Int): AiringScheduleItem {
+    return this.copy(airingAt = airingAt)
 }
 
 fun AiringScheduleItem.mediaItem(mediaItem: MediaItem): AiringScheduleItem {

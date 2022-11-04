@@ -1,4 +1,4 @@
-package com.iskorsukov.aniwatcher
+package com.iskorsukov.aniwatcher.test
 
 import com.iskorsukov.aniwatcher.data.entity.*
 
@@ -12,14 +12,14 @@ object EntityTestDataCreator {
                 "TitleNative"
             ),
             description = "Description",
-            coverImageUrl = "CoverImageMedium",
-            colorStr = "CoverImageColor",
+            coverImageUrl = "https://img1.goodfon.ru/original/1024x768/9/d6/kotionok-malysh-vzgliad-trava-boke.jpg",
+            colorStr = "#43aee4",
             seasonRanking = MediaItemEntity.Ranking(
                 1,
                 "FALL"
             ),
             meanScore = 1,
-            genresSpaceSeparated = "Action Comedy",
+            genresCommaSeparated = "Action,Comedy",
             siteUrl = "AniListUrl"
         )
     }
@@ -34,7 +34,7 @@ object EntityTestDataCreator {
     fun baseAiringScheduleEntity(): AiringScheduleEntity {
         return AiringScheduleEntity(
             id = 1,
-            airingAt = 1,
+            airingAt = 1667833200,
             episode = 1,
             mediaItemRelationId = 1
         )
@@ -46,9 +46,9 @@ object EntityTestDataCreator {
                 mediaItemEntity = baseMediaItemEntity(),
                 airingScheduleEntityList = listOf(
                     baseAiringScheduleEntity(),
-                    baseAiringScheduleEntity().id(2).episode(2),
-                    baseAiringScheduleEntity().id(3).episode(3),
-                    baseAiringScheduleEntity().id(4).episode(4)
+                    baseAiringScheduleEntity().id(2).episode(2).airingAt(1667385638),
+                    baseAiringScheduleEntity().id(3).episode(3).airingAt(1667644838),
+                    baseAiringScheduleEntity().id(4).episode(4).airingAt(1667029460)
                 )
             ),
             followingEntity = null
@@ -73,11 +73,11 @@ fun MediaItemEntity.nullRanking(): MediaItemEntity {
 }
 
 fun MediaItemEntity.nullGenres(): MediaItemEntity {
-    return this.copy(genresSpaceSeparated = null)
+    return this.copy(genresCommaSeparated = null)
 }
 
 fun MediaItemEntity.emptyGenres(): MediaItemEntity {
-    return this.copy(genresSpaceSeparated = "")
+    return this.copy(genresCommaSeparated = "")
 }
 
 fun MediaItemEntity.nullMeanScore(): MediaItemEntity {
