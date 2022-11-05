@@ -4,55 +4,64 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.Dimension
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
-import com.iskorsukov.aniwatcher.domain.mapper.AiringSchedulesMapper
-import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
-import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.iskorsukov.aniwatcher.ui.Screen
+import com.iskorsukov.aniwatcher.ui.airing.AiringScreen
 import com.iskorsukov.aniwatcher.ui.airing.AiringViewModel
-import com.iskorsukov.aniwatcher.ui.theme.AniWatcherTheme
-import com.iskorsukov.aniwatcher.ui.theme.CardFooterBackgroundColor
-import com.iskorsukov.aniwatcher.ui.theme.CardTextColorLight
-import com.iskorsukov.aniwatcher.ui.theme.TitleOverlayColor
-import com.iskorsukov.aniwatcher.ui.util.getBackgroundColorForChip
-import com.iskorsukov.aniwatcher.ui.util.getContrastTextColorForChip
+import com.iskorsukov.aniwatcher.ui.following.FollowingScreen
+import com.iskorsukov.aniwatcher.ui.following.FollowingViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flow
+import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val airingViewModel: AiringViewModel by viewModels()
+    private val followingViewModel: FollowingViewModel by viewModels()
+
+    private val timeInMinutesFlow = flow {
+        while (true) {
+            val timeInMillis = System.currentTimeMillis()
+            emit(TimeUnit.MILLISECONDS.toMinutes(timeInMillis))
+            delay(TimeUnit.SECONDS.toMillis(10))
+        }
+    }.distinctUntilChanged()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            AniWatcherTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
+            val navController = rememberNavController()
+
+            Scaffold(
+                bottomBar = { BottomNavigationBar(navController = navController) }
+            ) { innerPadding ->
+                NavHost(
+                    navController = navController,
+                    startDestination = "airing",
+                    modifier = Modifier.padding(innerPadding)
                 ) {
-                    AiringScreen(airingViewModel)
+                    composable("airing") {
+                        AiringScreen(airingViewModel, timeInMinutesFlow)
+                    }
+                    composable("following") {
+                        FollowingScreen(followingViewModel, timeInMinutesFlow)
+                    }
                 }
             }
         }
@@ -60,189 +69,38 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
-@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
-fun AiringScreen(airingViewModel: AiringViewModel = viewModel()) {
-    val airingScheduleItemList by airingViewModel
-        .airingSchedulesByDayOfWeekFlow.collectAsStateWithLifecycle(initialValue = emptyMap())
-
-    val timeInMinutes by airingViewModel
-        .timeInMinutesFlow.collectAsStateWithLifecycle(initialValue = 0)
-
-    if (airingScheduleItemList.isEmpty()) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
-        }
-    } else {
-        LazyColumn {
-            airingScheduleItemList.entries.map {
-                item {
-                    Text(
-                        text = it.key.name,
-                        fontSize = 20.sp,
-                        color = CardTextColorLight,
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .fillMaxWidth()
-                    )
-                }
-                it.value.map {
-                    item {
-                        AiringScheduleItemCardConstraint(
-                            airingScheduleItem = it,
-                            timeInMinutes = timeInMinutes
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-@Preview
-fun AiringScreenPreview() {
-    val timeInMinutes = 27785711L
-
-    LazyColumn {
-        AiringSchedulesMapper.groupAiringSchedulesByDayOfWeek(
-            mapOf(
-                ModelTestDataCreator.baseMediaItem() to ModelTestDataCreator.baseAiringScheduleItemList()
-            )
-        ).toSortedMap().map {
-            item {
-                Text(
-                    text = it.key.name,
-                    fontSize = 18.sp,
-                    color = CardTextColorLight,
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp)
-                        .fillMaxWidth()
-                )
-            }
-            it.value.map {
-                item {
-                    AiringScheduleItemCardConstraint(airingScheduleItem = it, timeInMinutes = timeInMinutes)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun AiringScheduleItemCardConstraint(airingScheduleItem: AiringScheduleItem, timeInMinutes: Long) {
-    val media = airingScheduleItem.mediaItem
-    Card(
-        modifier = Modifier
-            .height(200.dp)
-            .fillMaxWidth()
-            .padding(8.dp),
-        elevation = 10.dp
-    ) {
-        ConstraintLayout {
-            val (image, titleOverlay, cardContent, genresFooter) = createRefs()
-            val imageEndGuideline = createGuidelineFromStart(0.35f)
-            val titleOverlayTopGuideline = createGuidelineFromBottom(0.25f)
-            val genresFooterTopGuideline = createGuidelineFromBottom(0.15f)
-
-            AsyncImage(
-                model = media.coverImageUrl,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.constrainAs(image) {
-                    start.linkTo(parent.start)
-                    end.linkTo(imageEndGuideline)
-                    height = Dimension.matchParent
-                    width = Dimension.fillToConstraints
-                }
-            )
-
-            Column(
-                modifier = Modifier
-                    .background(color = TitleOverlayColor)
-                    .padding(4.dp)
-                    .constrainAs(titleOverlay) {
-                        top.linkTo(titleOverlayTopGuideline)
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(image.start)
-                        end.linkTo(image.end)
-                        width = Dimension.fillToConstraints
-                        height = Dimension.fillToConstraints
-                    },
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = media.title.baseText(),
-                    color = Color.White,
-                    fontSize = 12.sp,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-            Column(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .constrainAs(cardContent) {
-                        top.linkTo(parent.top)
-                        bottom.linkTo(genresFooter.top)
-                        start.linkTo(image.end)
-                        end.linkTo(parent.end)
-                        width = Dimension.fillToConstraints
-                        height = Dimension.fillToConstraints
-                    }
-            ) {
-                Text(text = "Episode ${airingScheduleItem.episode} airing in", color = CardTextColorLight, fontSize = 10.sp)
-                Text(text = airingScheduleItem.getAiringInFormatted(timeInMinutes), color = CardTextColorLight, fontSize = 12.sp)
-                Text(text = "at ${airingScheduleItem.getAiringAtFormatted()}", color = CardTextColorLight, fontSize = 10.sp)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(text = media.description.orEmpty(), color = CardTextColorLight, fontSize = 10.sp, overflow = TextOverflow.Ellipsis)
-            }
-
-            LazyRow(
-                modifier = Modifier
-                    .background(color = CardFooterBackgroundColor)
-                    .constrainAs(genresFooter) {
-                        top.linkTo(genresFooterTopGuideline)
-                        bottom.linkTo(parent.bottom)
-                        start.linkTo(image.end)
-                        end.linkTo(parent.end)
-                        width = Dimension.fillToConstraints
-                        height = Dimension.fillToConstraints
-                    },
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Start
-            ) {
-                media.genres.map {
-                    item {
-                        GenreChip(genre = it, colorStr = media.colorStr)
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun GenreChip(genre: String, colorStr: String?) {
-    val bgColor = getBackgroundColorForChip(bgColorStr = colorStr)
-    val textColor = getContrastTextColorForChip(bgColor = bgColor)
-    Text(
-        text = genre,
-        color = textColor,
-        fontSize = 8.sp,
-        modifier = Modifier
-            .padding(
-                top = 4.dp,
-                bottom = 4.dp,
-                start = 4.dp
-            )
-            .background(
-                shape = RoundedCornerShape(10.dp),
-                color = bgColor
-            )
-            .padding(4.dp)
+fun BottomNavigationBar(navController: NavHostController) {
+    val items = listOf(
+        Screen.AiringScreen,
+        Screen.FollowingScreen
     )
+    BottomNavigation {
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentDestination = navBackStackEntry?.destination
+        items.forEach { screen ->
+            BottomNavigationItem(
+                icon = { Icon(painter = painterResource(id = screen.iconDrawableId), contentDescription = null) },
+                label = { Text(stringResource(screen.labelStringId)) },
+                selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                onClick = {
+                    navController.navigate(screen.route) {
+                        // Pop up to the start destination of the graph to
+                        // avoid building up a large stack of destinations
+                        // on the back stack as users select items
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        // Avoid multiple copies of the same destination when
+                        // reselecting the same item
+                        launchSingleTop = true
+                        // Restore state when reselecting a previously selected item
+                        restoreState = true
+                    }
+                }
+            )
+        }
+    }
 }
+
+

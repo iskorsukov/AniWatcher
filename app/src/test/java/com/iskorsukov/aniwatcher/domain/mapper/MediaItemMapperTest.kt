@@ -5,7 +5,7 @@ import com.iskorsukov.aniwatcher.domain.util.DayOfWeekLocal
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import org.junit.Test
 
-class AiringSchedulesMapperTest {
+class MediaItemMapperTest {
 
     @Test
     fun groupAiringSchedulesByDayOfWeek() {
@@ -13,7 +13,7 @@ class AiringSchedulesMapperTest {
             ModelTestDataCreator.baseMediaItem() to ModelTestDataCreator.baseAiringScheduleItemList()
         )
 
-        val result = AiringSchedulesMapper.groupAiringSchedulesByDayOfWeek(testData)
+        val result = MediaItemMapper.groupAiringSchedulesByDayOfWeek(testData)
 
         assertThat(result.keys).containsExactlyElementsIn(listOf(
             DayOfWeekLocal.MONDAY,

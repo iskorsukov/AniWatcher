@@ -5,7 +5,7 @@ import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.util.DayOfWeekLocal
 import java.util.*
 
-object AiringSchedulesMapper {
+object MediaItemMapper {
 
     fun groupAiringSchedulesByDayOfWeek(
         mediaItemToAiringSchedulesMap: Map<MediaItem, List<AiringScheduleItem>>
@@ -32,5 +32,21 @@ object AiringSchedulesMapper {
             }
         }
         return dowToSchedulesMap
+    }
+
+    fun groupMediaWithNextAiringSchedule(
+        mediaItemToAiringSchedulesMap: Map<MediaItem, List<AiringScheduleItem>>
+    ): Map<MediaItem, AiringScheduleItem?> {
+        val map = mutableMapOf<MediaItem, AiringScheduleItem?>()
+        mediaItemToAiringSchedulesMap.forEach {
+            map[it.key] = it.value.reduceOrNull { first, second ->
+                if (first.airingAt < second.airingAt) {
+                    first
+                } else {
+                    second
+                }
+            }
+        }
+        return map
     }
 }
