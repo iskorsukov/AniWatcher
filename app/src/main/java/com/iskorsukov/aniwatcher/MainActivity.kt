@@ -23,6 +23,8 @@ import com.iskorsukov.aniwatcher.ui.airing.AiringScreen
 import com.iskorsukov.aniwatcher.ui.airing.AiringViewModel
 import com.iskorsukov.aniwatcher.ui.following.FollowingScreen
 import com.iskorsukov.aniwatcher.ui.following.FollowingViewModel
+import com.iskorsukov.aniwatcher.ui.media.MediaScreen
+import com.iskorsukov.aniwatcher.ui.media.MediaViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -34,6 +36,7 @@ class MainActivity : ComponentActivity() {
 
     private val airingViewModel: AiringViewModel by viewModels()
     private val followingViewModel: FollowingViewModel by viewModels()
+    private val mediaViewModel: MediaViewModel by viewModels()
 
     private val timeInMinutesFlow = flow {
         while (true) {
@@ -56,6 +59,9 @@ class MainActivity : ComponentActivity() {
                     startDestination = "airing",
                     modifier = Modifier.padding(innerPadding)
                 ) {
+                    composable("media") {
+                        MediaScreen(mediaViewModel, timeInMinutesFlow)
+                    }
                     composable("airing") {
                         AiringScreen(airingViewModel, timeInMinutesFlow)
                     }
@@ -72,6 +78,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {
     val items = listOf(
+        Screen.MediaScreen,
         Screen.AiringScreen,
         Screen.FollowingScreen
     )

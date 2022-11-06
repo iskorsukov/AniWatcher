@@ -121,6 +121,70 @@ fun MediaItemCardExtended(
 }
 
 @Composable
+fun MediaItemCardCollapsed(
+    airingScheduleItem: AiringScheduleItem, timeInMinutes: Long
+) {
+    val mediaItem = airingScheduleItem.mediaItem
+    Card(
+        modifier = Modifier
+            .height(100.dp)
+            .fillMaxWidth()
+            .padding(8.dp),
+        elevation = 10.dp
+    ) {
+        ConstraintLayout {
+            val (image, cardContent) = createRefs()
+            val imageEndGuideline = createGuidelineFromStart(0.2f)
+
+            AsyncImage(
+                model = mediaItem.coverImageUrl,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.constrainAs(image) {
+                    start.linkTo(parent.start)
+                    end.linkTo(imageEndGuideline)
+                    height = Dimension.matchParent
+                    width = Dimension.fillToConstraints
+                }
+            )
+            Column(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .constrainAs(cardContent) {
+                        start.linkTo(imageEndGuideline)
+                        end.linkTo(parent.end)
+                        width = Dimension.fillToConstraints
+                        height = Dimension.matchParent
+                    }
+            ) {
+                Text(
+                    text = mediaItem.title.baseText(),
+                    color = CardTextColorLight,
+                    fontSize = 12.sp,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1
+                )
+                Text(
+                    text = "Episode ${airingScheduleItem.episode} airing in",
+                    color = CardTextColorLight,
+                    fontSize = 10.sp
+                )
+                Text(
+                    text = airingScheduleItem.getAiringInFormatted(timeInMinutes),
+                    color = CardTextColorLight,
+                    fontSize = 12.sp
+                )
+                Text(
+                    text = "at ${airingScheduleItem.getAiringAtFormatted()}",
+                    color = CardTextColorLight,
+                    fontSize = 10.sp
+                )
+            }
+        }
+    }
+}
+
+@Composable
 fun GenreChip(genre: String, colorStr: String?) {
     val bgColor = getBackgroundColorForChip(bgColorStr = colorStr)
     val textColor = getContrastTextColorForChip(bgColor = bgColor)

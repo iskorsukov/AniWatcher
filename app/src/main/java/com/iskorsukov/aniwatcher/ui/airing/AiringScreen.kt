@@ -16,6 +16,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
+import com.iskorsukov.aniwatcher.ui.media.MediaItemCardCollapsed
 import com.iskorsukov.aniwatcher.ui.media.MediaItemCardExtended
 import com.iskorsukov.aniwatcher.ui.theme.CardTextColorLight
 import kotlinx.coroutines.flow.Flow
@@ -51,8 +52,7 @@ fun AiringScreen(airingViewModel: AiringViewModel = viewModel(), timeInMinutesFl
                 }
                 it.value.map {
                     item {
-                        MediaItemCardExtended(
-                            mediaItem = it.mediaItem,
+                        MediaItemCardCollapsed(
                             airingScheduleItem = it,
                             timeInMinutes = timeInMinutes
                         )
@@ -86,8 +86,7 @@ fun AiringScreenPreview() {
             }
             it.value.map {
                 item {
-                    MediaItemCardExtended(
-                        mediaItem = it.mediaItem,
+                    MediaItemCardCollapsed(
                         airingScheduleItem = it,
                         timeInMinutes = timeInMinutes
                     )

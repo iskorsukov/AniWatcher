@@ -8,6 +8,11 @@ sealed class Screen(
     val route: String,
     @StringRes val labelStringId: Int,
     @DrawableRes val iconDrawableId: Int) {
+    object MediaScreen : Screen(
+        "media",
+        R.string.media_screen_label,
+        R.drawable.ic_outline_video_library_24_white
+    )
     object AiringScreen : Screen(
         "airing",
         R.string.airing_screen_label,

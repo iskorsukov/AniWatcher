@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
+import com.iskorsukov.aniwatcher.domain.util.DayOfWeekLocal
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -18,9 +19,17 @@ class AiringViewModel @Inject constructor(
     private val airingRepository: AiringRepository
 ): ViewModel() {
 
+    private val currentDayOfWeekLocal = DayOfWeekLocal.ofCalendar(Calendar.getInstance())
+
     val airingSchedulesByDayOfWeekFlow by lazy {
         airingRepository.mediaWithSchedulesFlow.map {
-            MediaItemMapper.groupAiringSchedulesByDayOfWeek(it).toSortedMap()
+            MediaItemMapper.groupAiringSchedulesByDayOfWeek(it).toSortedMap { first, second ->
+                var firstDiff = first.ordinal - currentDayOfWeekLocal.ordinal
+                if (firstDiff < 0) firstDiff += 7
+                var secondDiff = second.ordinal - currentDayOfWeekLocal.ordinal
+                if (secondDiff < 0) secondDiff += 7
+                firstDiff - secondDiff
+            }
         }.distinctUntilChanged()
     }
 

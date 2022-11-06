@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">AniWatcher</string>
 
+    <string name="media_screen_label">Media</string>
     <string name="airing_screen_label">Airing</string>
     <string name="following_screen_label">Following</string>
 </resources>

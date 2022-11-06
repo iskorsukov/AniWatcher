@@ -28,6 +28,7 @@ object MediaItemMapper {
                     if (list != null) addAll(list)
                     add(item)
                 }
+                newList.sortBy { scheduleItem -> scheduleItem.airingAt }
                 dowToSchedulesMap[dayOfWeek] = newList
             }
         }
