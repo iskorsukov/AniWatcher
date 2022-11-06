@@ -6,11 +6,16 @@ import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.test.*
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -57,5 +62,29 @@ class FollowingViewModelTest {
 
         assertThat(result).isNotNull()
         assertThat(result!!.size).isEqualTo(0)
+    }
+
+    @Test
+    fun onFollowMediaClicked() = runTest {
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+
+        val mediaItem = ModelTestDataCreator.baseMediaItem()
+
+        viewModel.onFollowClicked(mediaItem)
+        advanceUntilIdle()
+
+        coVerify { airingRepository.followMedia(mediaItem) }
+    }
+
+    @Test
+    fun onFollowMediaClicked_unfollow() = runTest {
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+
+        val mediaItem = ModelTestDataCreator.baseMediaItem().isFollowing(true)
+
+        viewModel.onFollowClicked(mediaItem)
+        advanceUntilIdle()
+
+        coVerify { airingRepository.unfollowMedia(mediaItem) }
     }
 }

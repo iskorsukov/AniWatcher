@@ -17,14 +17,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.ui.media.MediaItemCardCollapsed
-import com.iskorsukov.aniwatcher.ui.media.MediaItemCardExtended
 import com.iskorsukov.aniwatcher.ui.theme.CardTextColorLight
 import kotlinx.coroutines.flow.Flow
 
 @OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
-fun AiringScreen(airingViewModel: AiringViewModel = viewModel(), timeInMinutesFlow: Flow<Long>) {
-    val airingScheduleItemList by airingViewModel
+fun AiringScreen(viewModel: AiringViewModel = viewModel(), timeInMinutesFlow: Flow<Long>) {
+    val airingScheduleItemList by viewModel
         .airingSchedulesByDayOfWeekFlow.collectAsStateWithLifecycle(initialValue = emptyMap())
 
     val timeInMinutes by timeInMinutesFlow
@@ -38,7 +37,7 @@ fun AiringScreen(airingViewModel: AiringViewModel = viewModel(), timeInMinutesFl
             CircularProgressIndicator()
         }
     } else {
-        LazyColumn {
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
             airingScheduleItemList.entries.map {
                 item {
                     Text(
@@ -54,7 +53,8 @@ fun AiringScreen(airingViewModel: AiringViewModel = viewModel(), timeInMinutesFl
                     item {
                         MediaItemCardCollapsed(
                             airingScheduleItem = it,
-                            timeInMinutes = timeInMinutes
+                            timeInMinutes = timeInMinutes,
+                            onFollowClicked = viewModel::onFollowClicked
                         )
                     }
                 }
@@ -88,8 +88,9 @@ fun AiringScreenPreview() {
                 item {
                     MediaItemCardCollapsed(
                         airingScheduleItem = it,
-                        timeInMinutes = timeInMinutes
-                    )
+                        timeInMinutes = timeInMinutes) {
+
+                    }
                 }
             }
         }

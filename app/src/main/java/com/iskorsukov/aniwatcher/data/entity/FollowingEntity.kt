@@ -8,6 +8,6 @@ import androidx.room.PrimaryKey
     tableName = "following"
 )
 data class FollowingEntity(
-    @PrimaryKey(autoGenerate = true) val followingEntryId: Int,
+    @PrimaryKey(autoGenerate = true) val followingEntryId: Int?,
     val mediaItemRelationId: Int
 )

@@ -1,9 +1,11 @@
 package com.iskorsukov.aniwatcher.data.executor
 
 import androidx.room.withTransaction
+import com.iskorsukov.aniwatcher.data.entity.FollowingEntity
 import com.iskorsukov.aniwatcher.data.entity.MediaItemWithAiringSchedulesAndFollowingEntity
 import com.iskorsukov.aniwatcher.data.entity.MediaItemWithAiringSchedulesEntity
 import com.iskorsukov.aniwatcher.data.room.MediaDatabase
+import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.util.DispatcherProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
@@ -23,6 +25,18 @@ class MediaDatabaseExecutor @Inject constructor(
                 mediaDao.insertMedia(mediaEntityList.map { it.mediaItemEntity })
                 mediaDao.insertSchedules(mediaEntityList.map { it.airingScheduleEntityList }.flatten())
             }
+        }
+    }
+
+    suspend fun followMedia(mediaItemId: Int) {
+        withContext(DispatcherProvider.io()) {
+            mediaDao.followMedia(FollowingEntity(null, mediaItemId))
+        }
+    }
+
+    suspend fun unfollowMedia(mediaItemId: Int) {
+        withContext(DispatcherProvider.io()) {
+            mediaDao.unfollowMedia(mediaItemId)
         }
     }
 }

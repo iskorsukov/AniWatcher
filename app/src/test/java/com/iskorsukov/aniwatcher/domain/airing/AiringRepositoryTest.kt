@@ -3,6 +3,7 @@ package com.iskorsukov.aniwatcher.domain.airing
 import com.iskorsukov.aniwatcher.data.executor.AniListQueryExecutor
 import com.iskorsukov.aniwatcher.data.executor.MediaDatabaseExecutor
 import com.iskorsukov.aniwatcher.data.mapper.QueryDataToEntityMapper
+import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -68,5 +69,23 @@ class AiringRepositoryTest {
             mapper.mapMediaWithSchedulesList(any())
             mediaDatabaseExecutor.updateMedia(any())
         }
+    }
+
+    @Test
+    fun followMedia() = runTest {
+        val mediaItem = ModelTestDataCreator.baseMediaItem()
+
+        repository.followMedia(mediaItem)
+
+        coVerify { mediaDatabaseExecutor.followMedia(mediaItem.id) }
+    }
+
+    @Test
+    fun unfollowMedia() = runTest {
+        val mediaItem = ModelTestDataCreator.baseMediaItem()
+
+        repository.unfollowMedia(mediaItem)
+
+        coVerify { mediaDatabaseExecutor.unfollowMedia(mediaItem.id) }
     }
 }

@@ -1,6 +1,7 @@
 package com.iskorsukov.aniwatcher.data.executor
 
 import androidx.room.withTransaction
+import com.iskorsukov.aniwatcher.data.entity.FollowingEntity
 import com.iskorsukov.aniwatcher.data.room.MediaDao
 import com.iskorsukov.aniwatcher.data.room.MediaDatabase
 import com.iskorsukov.aniwatcher.domain.util.DispatcherProvider
@@ -8,6 +9,7 @@ import com.iskorsukov.aniwatcher.test.EntityTestDataCreator
 import io.mockk.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
@@ -20,8 +22,7 @@ class MediaDatabaseExecutorTest {
 
     private lateinit var mediaDatabaseExecutor: MediaDatabaseExecutor
 
-    @Test
-    fun updateMedia() = runTest {
+    private fun initMocks(testScheduler: TestCoroutineScheduler) {
         MockKAnnotations.init(this)
         mockkStatic("androidx.room.RoomDatabaseKt")
 
@@ -36,6 +37,15 @@ class MediaDatabaseExecutorTest {
         }
 
         mediaDatabaseExecutor = MediaDatabaseExecutor(mediaDatabase)
+    }
+
+    private fun cleanupMocks() {
+        unmockkObject(DispatcherProvider)
+    }
+
+    @Test
+    fun updateMedia() = runTest {
+        initMocks(testScheduler)
 
         val entityList = listOf(
             EntityTestDataCreator.baseMediaItemWithAiringSchedulesAndFollowingEntity()
@@ -51,6 +61,34 @@ class MediaDatabaseExecutorTest {
             mediaDao.insertSchedules(entityList[0].airingScheduleEntityList)
         }
 
-        unmockkObject(DispatcherProvider)
+        cleanupMocks()
+    }
+
+    @Test
+    fun followMedia() = runTest {
+        initMocks(testScheduler)
+
+        mediaDatabaseExecutor.followMedia(1)
+        advanceUntilIdle()
+
+        coVerify {
+            mediaDao.followMedia(FollowingEntity(null, 1))
+        }
+
+        cleanupMocks()
+    }
+
+    @Test
+    fun unfollowMedia() = runTest {
+        initMocks(testScheduler)
+
+        mediaDatabaseExecutor.unfollowMedia(1)
+        advanceUntilIdle()
+
+        coVerify {
+            mediaDao.unfollowMedia(1)
+        }
+
+        cleanupMocks()
     }
 }

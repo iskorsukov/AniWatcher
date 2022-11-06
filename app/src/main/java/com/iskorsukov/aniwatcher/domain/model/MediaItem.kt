@@ -58,7 +58,8 @@ data class MediaItem(
                         )
                     },
                     meanScore = meanScore,
-                    genres = genresCommaSeparated?.split(",") ?: emptyList(),
+                    genres = genresCommaSeparated?.split(",")
+                        ?.filter { it.isNotEmpty() } ?: emptyList(),
                     siteUrl = siteUrl,
                     isFollowing = followingEntity != null
                 )

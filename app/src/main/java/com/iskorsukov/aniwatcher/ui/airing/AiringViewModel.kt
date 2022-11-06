@@ -1,23 +1,22 @@
 package com.iskorsukov.aniwatcher.ui.airing
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.domain.util.DayOfWeekLocal
+import com.iskorsukov.aniwatcher.ui.base.FollowableMediaViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.*
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
 class AiringViewModel @Inject constructor(
     private val airingRepository: AiringRepository
-): ViewModel() {
+): FollowableMediaViewModel(airingRepository) {
 
     private val currentDayOfWeekLocal = DayOfWeekLocal.ofCalendar(Calendar.getInstance())
 

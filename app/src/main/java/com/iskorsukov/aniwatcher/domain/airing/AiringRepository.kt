@@ -44,4 +44,12 @@ class AiringRepository @Inject constructor(
         } while (data.Page?.pageInfo?.hasNextPage == true)
         mediaDatabaseExecutor.updateMedia(entities)
     }
+
+    suspend fun followMedia(mediaItem: MediaItem) {
+        mediaDatabaseExecutor.followMedia(mediaItem.id)
+    }
+
+    suspend fun unfollowMedia(mediaItem: MediaItem) {
+        mediaDatabaseExecutor.unfollowMedia(mediaItem.id)
+    }
 }
