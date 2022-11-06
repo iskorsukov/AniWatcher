@@ -1,4 +1,4 @@
-package com.iskorsukov.aniwatcher.ui
+package com.iskorsukov.aniwatcher.ui.airing
 
 import com.google.common.truth.Truth.assertThat
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
@@ -6,7 +6,6 @@ import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.domain.util.DayOfWeekLocal
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
-import com.iskorsukov.aniwatcher.ui.airing.AiringViewModel
 import io.mockk.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
