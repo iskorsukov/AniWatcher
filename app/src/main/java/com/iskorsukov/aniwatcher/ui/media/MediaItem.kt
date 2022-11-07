@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -23,6 +24,10 @@ import coil.compose.AsyncImage
 import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
+import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
+import com.iskorsukov.aniwatcher.test.description
+import com.iskorsukov.aniwatcher.test.nullMeanScore
+import com.iskorsukov.aniwatcher.test.nullRanking
 import com.iskorsukov.aniwatcher.ui.theme.CardFooterBackgroundColor
 import com.iskorsukov.aniwatcher.ui.theme.CardTextColorLight
 import com.iskorsukov.aniwatcher.ui.theme.TitleOverlayColor
@@ -41,7 +46,15 @@ fun MediaItemCardExtended(
         elevation = 10.dp
     ) {
         ConstraintLayout {
-            val (image, titleOverlay, cardContent, genresFooter, followButton) = createRefs()
+            val (
+                image,
+                titleOverlay,
+                cardContent,
+                genresFooter,
+                followButton,
+                rankScore,
+                description
+            ) = createRefs()
             val imageEndGuideline = createGuidelineFromStart(0.35f)
             val titleOverlayTopGuideline = createGuidelineFromBottom(0.25f)
             val genresFooterTopGuideline = createGuidelineFromBottom(0.15f)
@@ -83,24 +96,108 @@ fun MediaItemCardExtended(
             }
             Column(
                 modifier = Modifier
-                    .padding(8.dp)
+                    .padding(start = 8.dp, top = 8.dp, end = 8.dp)
                     .constrainAs(cardContent) {
                         top.linkTo(parent.top)
+                        start.linkTo(imageEndGuideline)
+                        end.linkTo(rankScore.start)
+
+                        width = Dimension.fillToConstraints
+                    }
+            ) {
+                if (airingScheduleItem != null) {
+                    Text(
+                        text = "Episode ${airingScheduleItem.episode} airing in",
+                        color = CardTextColorLight,
+                        fontSize = 10.sp
+                    )
+                    Text(
+                        text = airingScheduleItem.getAiringInFormatted(timeInMinutes),
+                        color = CardTextColorLight,
+                        fontSize = 12.sp
+                    )
+                    Text(
+                        text = "at ${airingScheduleItem.getAiringAtFormatted()}",
+                        color = CardTextColorLight,
+                        fontSize = 10.sp
+                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                }
+            }
+            Text(
+                text = mediaItem.description.orEmpty(),
+                color = CardTextColorLight,
+                fontSize = 10.sp,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .padding(start = 8.dp, bottom = 8.dp, end = 8.dp)
+                    .constrainAs(description) {
                         bottom.linkTo(genresFooter.top)
-                        start.linkTo(image.end)
-                        end.linkTo(parent.end)
+                        start.linkTo(imageEndGuideline)
+
+                        if (airingScheduleItem == null && mediaItem.seasonRanking == null && mediaItem.meanScore == null) {
+                            top.linkTo(cardContent.bottom)
+                            end.linkTo(parent.end)
+                        } else if (airingScheduleItem != null) {
+                            top.linkTo(cardContent.bottom)
+                            end.linkTo(parent.end)
+                        } else {
+                            top.linkTo(cardContent.bottom)
+                            end.linkTo(rankScore.start)
+                        }
 
                         width = Dimension.fillToConstraints
                         height = Dimension.fillToConstraints
                     }
-            ) {
-                if (airingScheduleItem != null) {
-                    Text(text = "Episode ${airingScheduleItem.episode} airing in", color = CardTextColorLight, fontSize = 10.sp)
-                    Text(text = airingScheduleItem.getAiringInFormatted(timeInMinutes), color = CardTextColorLight, fontSize = 12.sp)
-                    Text(text = "at ${airingScheduleItem.getAiringAtFormatted()}", color = CardTextColorLight, fontSize = 10.sp)
+            )
+            if (mediaItem.seasonRanking != null || mediaItem.meanScore != null) {
+                Column(modifier = Modifier
+                    .padding(top = 8.dp, end = 8.dp)
+                    .constrainAs(rankScore) {
+                        top.linkTo(parent.top)
+                        end.linkTo(parent.end)
+                    }) {
+                    if (mediaItem.meanScore != null) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            val faceTint = if (mediaItem.meanScore <= 33) {
+                                Color.Red
+                            } else if (mediaItem.meanScore <= 66) {
+                                Color.Yellow
+                            } else {
+                                Color.Green
+                            }
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_outline_tag_faces_24_black),
+                                contentDescription = null,
+                                tint = faceTint,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "${mediaItem.meanScore}%",
+                                color = CardTextColorLight,
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
                     Spacer(modifier = Modifier.height(2.dp))
+                    if (mediaItem.seasonRanking != null) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_outline_favorite_border_24_white),
+                                contentDescription = null,
+                                tint = Color.Red,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                text = "#${mediaItem.seasonRanking.rank}",
+                                color = CardTextColorLight,
+                                fontSize = 12.sp
+                            )
+                        }
+                    }
                 }
-                Text(text = mediaItem.description.orEmpty(), color = CardTextColorLight, fontSize = 10.sp, overflow = TextOverflow.Ellipsis)
             }
             LazyRow(
                 modifier = Modifier
@@ -149,6 +246,58 @@ fun MediaItemCardExtended(
             }
         }
     }
+}
+
+@Composable
+@Preview
+fun MediaItemCardExtendedPreview() {
+    val timeInMinutes = 27785711L
+
+    MediaItemCardExtended(
+        mediaItem = ModelTestDataCreator.baseMediaItem().description("Word ".repeat(50)),
+        airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
+        timeInMinutes = timeInMinutes,
+        onFollowClicked = {}
+    )
+}
+
+@Composable
+@Preview
+fun MediaItemCardExtendedPreview_noAiringSchedule() {
+    val timeInMinutes = 27785711L
+
+    MediaItemCardExtended(
+        mediaItem = ModelTestDataCreator.baseMediaItem().description("Word ".repeat(50)),
+        airingScheduleItem = null,
+        timeInMinutes = timeInMinutes,
+        onFollowClicked = {}
+    )
+}
+
+@Composable
+@Preview
+fun MediaItemCardExtendedPreview_noRankScore() {
+    val timeInMinutes = 27785711L
+
+    MediaItemCardExtended(
+        mediaItem = ModelTestDataCreator.baseMediaItem().description("Word ".repeat(50)).nullRanking().nullMeanScore(),
+        airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
+        timeInMinutes = timeInMinutes,
+        onFollowClicked = {}
+    )
+}
+
+@Composable
+@Preview
+fun MediaItemCardExtendedPreview_noAiringSchedule_noRankScore() {
+    val timeInMinutes = 27785711L
+
+    MediaItemCardExtended(
+        mediaItem = ModelTestDataCreator.baseMediaItem().description("Word ".repeat(50)).nullRanking().nullMeanScore(),
+        airingScheduleItem = null,
+        timeInMinutes = timeInMinutes,
+        onFollowClicked = {}
+    )
 }
 
 @Composable

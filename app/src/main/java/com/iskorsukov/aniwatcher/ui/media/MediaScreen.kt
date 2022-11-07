@@ -5,9 +5,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
+import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
+import com.iskorsukov.aniwatcher.test.isFollowing
 import kotlinx.coroutines.flow.Flow
 
 @OptIn(ExperimentalLifecycleComposeApi::class)
@@ -27,6 +31,30 @@ fun MediaScreen(viewModel: MediaViewModel = viewModel(), timeInMinutesFlow: Flow
                     airingScheduleItem = it.value,
                     timeInMinutes = timeInMinutes,
                     onFollowClicked = viewModel::onFollowClicked
+                )
+            }
+        }
+    }
+}
+
+@Composable
+@Preview
+fun MediaScreenPreview() {
+    val timeInMinutes = 27785711L
+
+    LazyColumn {
+        MediaItemMapper.groupMediaWithNextAiringSchedule(
+            mapOf(
+                ModelTestDataCreator.baseMediaItem() to
+                        ModelTestDataCreator.baseAiringScheduleItemList()
+            )
+        ).entries.forEach {
+            item {
+                MediaItemCardExtended(
+                    mediaItem = it.key,
+                    airingScheduleItem = it.value,
+                    timeInMinutes = timeInMinutes,
+                    onFollowClicked = { }
                 )
             }
         }

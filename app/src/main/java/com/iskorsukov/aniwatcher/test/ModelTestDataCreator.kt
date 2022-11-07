@@ -62,6 +62,10 @@ fun MediaItem.nullDescription(): MediaItem {
     return this.copy(description = null)
 }
 
+fun MediaItem.description(description: String): MediaItem {
+    return this.copy(description = description)
+}
+
 fun MediaItem.nullRanking(): MediaItem {
     return this.copy(seasonRanking = null)
 }
