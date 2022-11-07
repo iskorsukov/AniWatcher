@@ -11,9 +11,9 @@ query SeasonAiringData($year: Int!, $season: MediaSeason!, $page: Int!) {
                 english
                 native
             }
-            description
+            description(asHtml: false)
             coverImage {
-                medium
+                large
                 color
             }
             rankings {

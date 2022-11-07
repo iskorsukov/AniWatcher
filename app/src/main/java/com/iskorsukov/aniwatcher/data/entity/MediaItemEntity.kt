@@ -40,7 +40,7 @@ data class MediaItemEntity(
                         title?.native,
                     ),
                     description = description,
-                    coverImageUrl = coverImage?.medium,
+                    coverImageUrl = coverImage?.large,
                     colorStr = coverImage?.color,
                     seasonRanking = rankings?.filterNotNull()?.firstOrNull { ranking ->
                         ranking.type == MediaRankType.POPULAR && ranking.season == data.season

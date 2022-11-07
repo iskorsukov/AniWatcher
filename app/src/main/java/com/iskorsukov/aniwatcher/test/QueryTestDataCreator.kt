@@ -16,7 +16,7 @@ object QueryTestDataCreator {
             ),
             description = "Description",
             coverImage = SeasonAiringDataQuery.CoverImage(
-                medium = "https://img1.goodfon.ru/original/1024x768/9/d6/kotionok-malysh-vzgliad-trava-boke.jpg",
+                large = "https://img1.goodfon.ru/original/1024x768/9/d6/kotionok-malysh-vzgliad-trava-boke.jpg",
                 color = "#43aee4"
             ),
             rankings = listOf(
