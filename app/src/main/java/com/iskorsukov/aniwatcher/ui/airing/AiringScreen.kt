@@ -1,12 +1,12 @@
 package com.iskorsukov.aniwatcher.ui.airing
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -14,30 +14,38 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
+import com.iskorsukov.aniwatcher.ui.main.MainActivityViewModel
 import com.iskorsukov.aniwatcher.ui.media.MediaItemCardCollapsed
 import com.iskorsukov.aniwatcher.ui.theme.CardTextColorLight
 import kotlinx.coroutines.flow.Flow
 
 @OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
-fun AiringScreen(viewModel: AiringViewModel = viewModel(), timeInMinutesFlow: Flow<Long>) {
+fun AiringScreen(
+    mainActivityViewModel: MainActivityViewModel = viewModel(),
+    viewModel: AiringViewModel = viewModel(),
+    timeInMinutesFlow: Flow<Long>,
+) {
     val airingScheduleItemList by viewModel
         .airingSchedulesByDayOfWeekFlow.collectAsStateWithLifecycle(initialValue = emptyMap())
+
+    val refreshing by mainActivityViewModel
+        .refreshingState.collectAsStateWithLifecycle(initialValue = false)
 
     val timeInMinutes by timeInMinutesFlow
         .collectAsStateWithLifecycle(initialValue = 0)
 
-    if (airingScheduleItemList.isEmpty()) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+    val swipeRefreshState = rememberSwipeRefreshState(refreshing)
+
+    SwipeRefresh(state = swipeRefreshState, onRefresh = { mainActivityViewModel.loadAiringData() }) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
         ) {
-            CircularProgressIndicator()
-        }
-    } else {
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
             airingScheduleItemList.entries.map {
                 item {
                     Text(
@@ -88,7 +96,8 @@ fun AiringScreenPreview() {
                 item {
                     MediaItemCardCollapsed(
                         airingScheduleItem = it,
-                        timeInMinutes = timeInMinutes) {
+                        timeInMinutes = timeInMinutes
+                    ) {
 
                     }
                 }

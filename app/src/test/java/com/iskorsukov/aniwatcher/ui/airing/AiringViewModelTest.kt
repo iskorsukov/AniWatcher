@@ -21,23 +21,10 @@ class AiringViewModelTest {
     private val viewModel = AiringViewModel(airingRepository)
 
     @Test
-    fun loadAiringData() = runTest {
-        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
-
-        mockkObject(DateTimeHelper)
-        every { DateTimeHelper.currentYear(any()) } returns 2022
-        every { DateTimeHelper.currentSeason(any()) } returns "FALL"
-
-        viewModel.loadAiringData()
-        advanceUntilIdle()
-
-        coVerify { airingRepository.loadSeasonAiringData(2022, "FALL") }
-
-        unmockkAll()
-    }
-
-    @Test
     fun airingSchedulesByDayOfWeekFlow() = runTest {
+        mockkObject(DateTimeHelper)
+        every { DateTimeHelper.currentDayOfWeek() } returns DayOfWeekLocal.WEDNESDAY
+
         coEvery { airingRepository.mediaWithSchedulesFlow } returns flow {
             emit(
                 mapOf(
@@ -52,17 +39,19 @@ class AiringViewModelTest {
 
         assertThat(result).isNotNull()
         assertThat(result!!.keys).containsExactlyElementsIn(listOf(
-            DayOfWeekLocal.MONDAY,
             DayOfWeekLocal.WEDNESDAY,
-            DayOfWeekLocal.SATURDAY
+            DayOfWeekLocal.SATURDAY,
+            DayOfWeekLocal.MONDAY
         )).inOrder()
         val list = ModelTestDataCreator.baseAiringScheduleItemList()
         val assertValues = listOf(
-            list[0],
             list[1],
-            list[3]
+            list[3],
+            list[0]
         )
         assertThat(result!!.values.flatten()).containsExactlyElementsIn(assertValues).inOrder()
+
+        unmockkObject(DateTimeHelper)
     }
 
     @Test

@@ -4,6 +4,10 @@ import java.util.*
 
 object DateTimeHelper {
 
+    fun currentDayOfWeek(): DayOfWeekLocal {
+        return DayOfWeekLocal.ofCalendar(Calendar.getInstance())
+    }
+
     fun currentWeekStartToEndSeconds(calendar: Calendar): Pair<Int, Int> {
         val dayOfWeekDelta = calendar.get(Calendar.DAY_OF_WEEK) - 2 // -2 to account for start from Sunday and Sunday = 1
         calendar.apply {

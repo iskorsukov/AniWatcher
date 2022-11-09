@@ -23,6 +23,7 @@ import com.iskorsukov.aniwatcher.ui.airing.AiringScreen
 import com.iskorsukov.aniwatcher.ui.airing.AiringViewModel
 import com.iskorsukov.aniwatcher.ui.following.FollowingScreen
 import com.iskorsukov.aniwatcher.ui.following.FollowingViewModel
+import com.iskorsukov.aniwatcher.ui.main.MainActivityViewModel
 import com.iskorsukov.aniwatcher.ui.media.MediaScreen
 import com.iskorsukov.aniwatcher.ui.media.MediaViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,6 +35,7 @@ import java.util.concurrent.TimeUnit
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+    private val mainActivityViewModel: MainActivityViewModel by viewModels()
     private val airingViewModel: AiringViewModel by viewModels()
     private val followingViewModel: FollowingViewModel by viewModels()
     private val mediaViewModel: MediaViewModel by viewModels()
@@ -60,10 +62,10 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.padding(innerPadding)
                 ) {
                     composable("media") {
-                        MediaScreen(mediaViewModel, timeInMinutesFlow)
+                        MediaScreen(mainActivityViewModel, mediaViewModel, timeInMinutesFlow)
                     }
                     composable("airing") {
-                        AiringScreen(airingViewModel, timeInMinutesFlow)
+                        AiringScreen(mainActivityViewModel, airingViewModel, timeInMinutesFlow)
                     }
                     composable("following") {
                         FollowingScreen(followingViewModel, timeInMinutesFlow)
@@ -71,7 +73,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        airingViewModel.loadAiringData()
+        mainActivityViewModel.loadAiringData()
     }
 }
 

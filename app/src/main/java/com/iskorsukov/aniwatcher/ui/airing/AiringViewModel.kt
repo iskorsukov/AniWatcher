@@ -1,6 +1,5 @@
 package com.iskorsukov.aniwatcher.ui.airing
 
-import androidx.lifecycle.viewModelScope
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
@@ -9,7 +8,6 @@ import com.iskorsukov.aniwatcher.ui.base.FollowableMediaViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
@@ -18,7 +16,7 @@ class AiringViewModel @Inject constructor(
     private val airingRepository: AiringRepository
 ): FollowableMediaViewModel(airingRepository) {
 
-    private val currentDayOfWeekLocal = DayOfWeekLocal.ofCalendar(Calendar.getInstance())
+    private val currentDayOfWeekLocal = DateTimeHelper.currentDayOfWeek()
 
     val airingSchedulesByDayOfWeekFlow by lazy {
         airingRepository.mediaWithSchedulesFlow.map {
@@ -32,9 +30,5 @@ class AiringViewModel @Inject constructor(
         }.distinctUntilChanged()
     }
 
-    fun loadAiringData() {
-        val year = DateTimeHelper.currentYear(Calendar.getInstance())
-        val season = DateTimeHelper.currentSeason(Calendar.getInstance())
-        viewModelScope.launch { airingRepository.loadSeasonAiringData(year, season) }
-    }
+
 }
