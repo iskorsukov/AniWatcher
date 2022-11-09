@@ -10,3 +10,7 @@ val Teal200 = Color(0xFF03DAC5)
 val TitleOverlayColor = Color(0xE6292929)
 val CardTextColorLight = Color(0xFF6E859E)
 val CardFooterBackgroundColor = Color(0xFFEFF7FB)
+
+val CardIndicatorColorRed = Color(0xFFE85D75)
+val CardIndicatorColorOrange = Color(0xFFF7BF63)
+val CardIndicatorColorGreen = Color(0xFF5DC12F)

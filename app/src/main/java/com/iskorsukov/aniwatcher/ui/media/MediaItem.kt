@@ -40,16 +40,17 @@ import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.test.description
 import com.iskorsukov.aniwatcher.test.nullMeanScore
 import com.iskorsukov.aniwatcher.test.nullRanking
-import com.iskorsukov.aniwatcher.ui.theme.CardFooterBackgroundColor
-import com.iskorsukov.aniwatcher.ui.theme.CardTextColorLight
-import com.iskorsukov.aniwatcher.ui.theme.TitleOverlayColor
+import com.iskorsukov.aniwatcher.ui.theme.*
 import com.iskorsukov.aniwatcher.ui.util.getBackgroundColorForChip
 import com.iskorsukov.aniwatcher.ui.util.getContrastTextColorForChip
 
 
 @Composable
 fun MediaItemCardExtended(
-    mediaItem: MediaItem, airingScheduleItem: AiringScheduleItem?, timeInMinutes: Long,  onFollowClicked: (MediaItem) -> Unit
+    mediaItem: MediaItem,
+    airingScheduleItem: AiringScheduleItem?,
+    timeInMinutes: Long,
+    onFollowClicked: (MediaItem) -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -176,11 +177,11 @@ fun MediaItemCardExtended(
                     if (mediaItem.meanScore != null) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             val faceTint = if (mediaItem.meanScore <= 33) {
-                                Color.Red
+                                CardIndicatorColorRed
                             } else if (mediaItem.meanScore <= 66) {
-                                Color.Yellow
+                                CardIndicatorColorOrange
                             } else {
-                                Color.Green
+                                CardIndicatorColorGreen
                             }
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_outline_tag_faces_24_black),
@@ -202,7 +203,7 @@ fun MediaItemCardExtended(
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_outline_favorite_border_24_white),
                                 contentDescription = null,
-                                tint = Color.Red,
+                                tint = CardIndicatorColorRed,
                                 modifier = Modifier.size(16.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
@@ -296,7 +297,8 @@ fun MediaItemCardExtendedPreview_noRankScore() {
     val timeInMinutes = 27785711L
 
     MediaItemCardExtended(
-        mediaItem = ModelTestDataCreator.baseMediaItem().description("Word ".repeat(50)).nullRanking().nullMeanScore(),
+        mediaItem = ModelTestDataCreator.baseMediaItem().description("Word ".repeat(50))
+            .nullRanking().nullMeanScore(),
         airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
         timeInMinutes = timeInMinutes,
         onFollowClicked = {}
@@ -309,7 +311,8 @@ fun MediaItemCardExtendedPreview_noAiringSchedule_noRankScore() {
     val timeInMinutes = 27785711L
 
     MediaItemCardExtended(
-        mediaItem = ModelTestDataCreator.baseMediaItem().description("Word ".repeat(50)).nullRanking().nullMeanScore(),
+        mediaItem = ModelTestDataCreator.baseMediaItem().description("Word ".repeat(50))
+            .nullRanking().nullMeanScore(),
         airingScheduleItem = null,
         timeInMinutes = timeInMinutes,
         onFollowClicked = {}
@@ -318,7 +321,9 @@ fun MediaItemCardExtendedPreview_noAiringSchedule_noRankScore() {
 
 @Composable
 fun MediaItemCardCollapsed(
-    airingScheduleItem: AiringScheduleItem, timeInMinutes: Long, onFollowClicked: (MediaItem) -> Unit
+    airingScheduleItem: AiringScheduleItem,
+    timeInMinutes: Long,
+    onFollowClicked: (MediaItem) -> Unit
 ) {
     val mediaItem = airingScheduleItem.mediaItem
     Card(
@@ -434,10 +439,23 @@ fun Spanned.toAnnotatedString(): AnnotatedString = buildAnnotatedString {
             is StyleSpan -> when (span.style) {
                 Typeface.BOLD -> addStyle(SpanStyle(fontWeight = FontWeight.Bold), start, end)
                 Typeface.ITALIC -> addStyle(SpanStyle(fontStyle = FontStyle.Italic), start, end)
-                Typeface.BOLD_ITALIC -> addStyle(SpanStyle(fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic), start, end)
+                Typeface.BOLD_ITALIC -> addStyle(
+                    SpanStyle(
+                        fontWeight = FontWeight.Bold,
+                        fontStyle = FontStyle.Italic
+                    ), start, end
+                )
             }
-            is UnderlineSpan -> addStyle(SpanStyle(textDecoration = TextDecoration.Underline), start, end)
-            is ForegroundColorSpan -> addStyle(SpanStyle(color = Color(span.foregroundColor)), start, end)
+            is UnderlineSpan -> addStyle(
+                SpanStyle(textDecoration = TextDecoration.Underline),
+                start,
+                end
+            )
+            is ForegroundColorSpan -> addStyle(
+                SpanStyle(color = Color(span.foregroundColor)),
+                start,
+                end
+            )
         }
     }
 }
