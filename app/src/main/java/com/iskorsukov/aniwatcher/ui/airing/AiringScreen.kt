@@ -33,13 +33,13 @@ fun AiringScreen(
     val airingScheduleItemList by viewModel
         .airingSchedulesByDayOfWeekFlow.collectAsStateWithLifecycle(initialValue = emptyMap())
 
-    val refreshing by mainActivityViewModel
-        .refreshingState.collectAsStateWithLifecycle(initialValue = false)
+    val uiState by mainActivityViewModel
+        .uiState.collectAsStateWithLifecycle()
 
     val timeInMinutes by timeInMinutesFlow
         .collectAsStateWithLifecycle(initialValue = 0)
 
-    val swipeRefreshState = rememberSwipeRefreshState(refreshing)
+    val swipeRefreshState = rememberSwipeRefreshState(uiState.isRefreshing)
 
     SwipeRefresh(state = swipeRefreshState, onRefresh = { mainActivityViewModel.loadAiringData() }) {
         LazyColumn(

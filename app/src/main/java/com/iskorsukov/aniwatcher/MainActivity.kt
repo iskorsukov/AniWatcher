@@ -7,10 +7,14 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -32,6 +36,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import java.util.concurrent.TimeUnit
 
+@OptIn(ExperimentalLifecycleComposeApi::class)
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
@@ -53,8 +58,25 @@ class MainActivity : ComponentActivity() {
         setContent {
             val navController = rememberNavController()
 
+            val scaffoldState = rememberScaffoldState()
+            val uiState by mainActivityViewModel.uiState.collectAsStateWithLifecycle()
+
+            if (uiState.errorItem != null) {
+                LaunchedEffect(scaffoldState.snackbarHostState) {
+                    val snackbarData = scaffoldState.snackbarHostState.showSnackbar(
+                        message = getString(uiState.errorItem!!.labelResId),
+                        actionLabel = getString(R.string.try_again),
+                        duration = SnackbarDuration.Long
+                    )
+                    if (snackbarData == SnackbarResult.ActionPerformed) {
+                        mainActivityViewModel.loadAiringData()
+                    }
+                }
+            }
+
             Scaffold(
-                bottomBar = { BottomNavigationBar(navController = navController) }
+                bottomBar = { BottomNavigationBar(navController = navController) },
+                scaffoldState = scaffoldState
             ) { innerPadding ->
                 NavHost(
                     navController = navController,
@@ -89,7 +111,12 @@ fun BottomNavigationBar(navController: NavHostController) {
         val currentDestination = navBackStackEntry?.destination
         items.forEach { screen ->
             BottomNavigationItem(
-                icon = { Icon(painter = painterResource(id = screen.iconDrawableId), contentDescription = null) },
+                icon = {
+                    Icon(
+                        painter = painterResource(id = screen.iconDrawableId),
+                        contentDescription = null
+                    )
+                },
                 label = { Text(stringResource(screen.labelStringId)) },
                 selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                 onClick = {
