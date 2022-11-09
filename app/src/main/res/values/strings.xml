@@ -7,4 +7,7 @@
 
     <string name="loading_error_label">Failed to load data</string>
     <string name="loading_error_sub_label">Check you Internet connection and try again</string>
+
+    <string name="following_data_empty_label">You are not following any shows</string>
+    <string name="following_data_empty_sub_label">Click the plus icon on a show card to follow it</string>
 </resources>
