@@ -3,7 +3,6 @@ package com.iskorsukov.aniwatcher.domain.model
 import com.google.common.truth.Truth.assertThat
 import com.iskorsukov.aniwatcher.data.entity.FollowingEntity
 import com.iskorsukov.aniwatcher.test.*
-import io.mockk.mockkStatic
 import org.junit.Test
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -67,7 +66,7 @@ class AiringScheduleItemTest {
 
         val airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem()
 
-        assertThat(airingScheduleItem.getAiringInFormatted(testMinutes)).isEqualTo("1 days, 0 hours, 45 minutes")
+        assertThat(airingScheduleItem.getAiringInFormatted(testMinutes)).isEqualTo("1 days, 45 minutes")
     }
 
     @Test
@@ -76,6 +75,15 @@ class AiringScheduleItemTest {
 
         val airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem()
 
-        assertThat(airingScheduleItem.getAiringInFormatted(testMinutes)).isEqualTo("1 days, 6 hours, 0 minutes")
+        assertThat(airingScheduleItem.getAiringInFormatted(testMinutes)).isEqualTo("1 days, 6 hours")
+    }
+
+    @Test
+    fun getAiringInFormatted_null() {
+        val testMinutes = Long.MAX_VALUE
+
+        val airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem()
+
+        assertThat(airingScheduleItem.getAiringInFormatted(testMinutes)).isNull()
     }
 }

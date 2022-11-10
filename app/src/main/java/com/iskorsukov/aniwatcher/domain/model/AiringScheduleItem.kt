@@ -20,9 +20,11 @@ data class AiringScheduleItem(
         return formatter.format(calendar.time)
     }
 
-    fun getAiringInFormatted(timeInMinutes: Long): String {
+    fun getAiringInFormatted(timeInMinutes: Long): String? {
         val airingAtMinutes = airingAt.toLong() / 60
         val diffMinutes = airingAtMinutes - timeInMinutes
+        if (diffMinutes < 0) return null
+
         val airingInDays = TimeUnit.MINUTES.toDays(diffMinutes)
         val airingInHours = TimeUnit.MINUTES.toHours(diffMinutes) - TimeUnit.DAYS.toHours(airingInDays)
         val airingInMinutes = diffMinutes - TimeUnit.HOURS.toMinutes(airingInHours) - TimeUnit.DAYS.toMinutes(airingInDays)
@@ -30,10 +32,13 @@ data class AiringScheduleItem(
             if (airingInDays > 0) {
                 append("$airingInDays days, ")
             }
-            if (airingInDays > 0 || airingInHours > 0 || airingInMinutes > 0) {
+            if (airingInHours > 0) {
                 append("$airingInHours hours, ")
             }
-            append("${0L.coerceAtLeast(airingInMinutes)} minutes")
+            if (airingInMinutes > 0) {
+                append("$airingInMinutes minutes, ")
+            }
+            delete(length - 2, length)
         }
     }
 

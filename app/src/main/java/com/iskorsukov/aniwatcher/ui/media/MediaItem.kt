@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -120,16 +121,23 @@ fun MediaItemCardExtended(
                     }
             ) {
                 if (airingScheduleItem != null) {
+                    val episodeAiringStr = if (airingScheduleItem.airingAt - (timeInMinutes / 60) < 0) {
+                        stringResource(id = R.string.episode_aired_label)
+                    } else {
+                        stringResource(id = R.string.episode_airing_label)
+                    }
                     Text(
-                        text = "Episode ${airingScheduleItem.episode} airing in",
+                        text = String.format(episodeAiringStr, airingScheduleItem.episode),
                         color = CardTextColorLight,
                         fontSize = 10.sp
                     )
-                    Text(
-                        text = airingScheduleItem.getAiringInFormatted(timeInMinutes),
-                        color = CardTextColorLight,
-                        fontSize = 12.sp
-                    )
+                    airingScheduleItem.getAiringInFormatted(timeInMinutes)?.let {
+                        Text(
+                            text = it,
+                            color = CardTextColorLight,
+                            fontSize = 12.sp
+                        )
+                    }
                     Text(
                         text = "at ${airingScheduleItem.getAiringAtFormatted()}",
                         color = CardTextColorLight,
@@ -365,16 +373,23 @@ fun MediaItemCardCollapsed(
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1
                 )
+                val episodeAiringStr = if (airingScheduleItem.airingAt - timeInMinutes * 60 <= 0) {
+                    stringResource(id = R.string.episode_aired_label)
+                } else {
+                    stringResource(id = R.string.episode_airing_label)
+                }
                 Text(
-                    text = "Episode ${airingScheduleItem.episode} airing in",
+                    text = String.format(episodeAiringStr, airingScheduleItem.episode),
                     color = CardTextColorLight,
                     fontSize = 10.sp
                 )
-                Text(
-                    text = airingScheduleItem.getAiringInFormatted(timeInMinutes),
-                    color = CardTextColorLight,
-                    fontSize = 12.sp
-                )
+                airingScheduleItem.getAiringInFormatted(timeInMinutes)?.let {
+                    Text(
+                        text = it,
+                        color = CardTextColorLight,
+                        fontSize = 12.sp
+                    )
+                }
                 Text(
                     text = "at ${airingScheduleItem.getAiringAtFormatted()}",
                     color = CardTextColorLight,
