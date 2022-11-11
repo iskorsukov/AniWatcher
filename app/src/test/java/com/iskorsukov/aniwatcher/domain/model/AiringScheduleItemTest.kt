@@ -39,7 +39,7 @@ class AiringScheduleItemTest {
 
         val airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem()
 
-        assertThat(airingScheduleItem.getAiringAtFormatted()).isEqualTo("November 07, 18:00")
+        assertThat(airingScheduleItem.getAiringAtDateTimeFormatted()).isEqualTo("November 07, 18:00")
     }
 
     @Test

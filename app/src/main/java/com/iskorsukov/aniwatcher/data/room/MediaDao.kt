@@ -34,4 +34,7 @@ interface MediaDao {
 
     @Query("DELETE FROM media")
     suspend fun clearMedia()
+
+    @Query("DELETE FROM airing WHERE airingAt < strftime('%s', 'now')")
+    suspend fun clearAiredSchedules()
 }

@@ -29,6 +29,4 @@ class AiringViewModel @Inject constructor(
             }
         }.distinctUntilChanged()
     }
-
-
 }

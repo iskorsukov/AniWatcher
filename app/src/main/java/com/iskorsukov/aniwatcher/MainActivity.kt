@@ -23,6 +23,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.iskorsukov.aniwatcher.service.NotificationService
 import com.iskorsukov.aniwatcher.ui.Screen
 import com.iskorsukov.aniwatcher.ui.airing.AiringScreen
 import com.iskorsukov.aniwatcher.ui.airing.AiringViewModel
@@ -57,6 +58,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mainActivityViewModel.loadAiringData()
+        startNotificationService()
         setContent {
             val navController = rememberNavController()
 
@@ -111,12 +114,15 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        mainActivityViewModel.loadAiringData()
     }
 
-    fun startDetailsActivity(mediaItemId: Int) {
+    private fun startNotificationService() {
+        startService(Intent(this, NotificationService::class.java))
+    }
+
+    private fun startDetailsActivity(mediaItemId: Int) {
         startActivity(
-            Intent(baseContext, DetailsActivity::class.java).apply {
+            Intent(this, DetailsActivity::class.java).apply {
                 putExtra(DetailsActivity.MEDIA_ITEM_ID_EXTRA, mediaItemId)
             }
         )

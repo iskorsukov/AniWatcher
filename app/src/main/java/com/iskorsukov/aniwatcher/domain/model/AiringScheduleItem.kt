@@ -2,9 +2,7 @@ package com.iskorsukov.aniwatcher.domain.model
 
 import com.iskorsukov.aniwatcher.data.entity.MediaItemWithAiringSchedulesAndFollowingEntity
 import java.io.Serializable
-import java.text.DateFormat
 import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -15,8 +13,14 @@ data class AiringScheduleItem(
     val mediaItem: MediaItem
 ): Serializable {
 
-    fun getAiringAtFormatted(): String {
+    fun getAiringAtDateTimeFormatted(): String {
         val formatter = SimpleDateFormat("MMMM dd',' HH':'mm", Locale.getDefault())
+        val calendar = Calendar.getInstance().apply { timeInMillis = (airingAt.toLong() * 1000) }
+        return formatter.format(calendar.time)
+    }
+
+    fun getAiringAtTimeFormatted(): String {
+        val formatter = SimpleDateFormat("HH':'mm", Locale.getDefault())
         val calendar = Calendar.getInstance().apply { timeInMillis = (airingAt.toLong() * 1000) }
         return formatter.format(calendar.time)
     }
@@ -24,7 +28,7 @@ data class AiringScheduleItem(
     fun getAiringInFormatted(timeInMinutes: Long): String? {
         val airingAtMinutes = airingAt.toLong() / 60
         val diffMinutes = airingAtMinutes - timeInMinutes
-        if (diffMinutes < 0) return null
+        if (diffMinutes <= 0) return null
 
         val airingInDays = TimeUnit.MINUTES.toDays(diffMinutes)
         val airingInHours = TimeUnit.MINUTES.toHours(diffMinutes) - TimeUnit.DAYS.toHours(airingInDays)

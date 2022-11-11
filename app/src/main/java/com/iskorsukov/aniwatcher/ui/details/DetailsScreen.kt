@@ -1,6 +1,5 @@
 package com.iskorsukov.aniwatcher.ui.details
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Card
@@ -27,7 +26,6 @@ import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.test.bannerImage
 import com.iskorsukov.aniwatcher.ui.media.toAnnotatedString
 import com.iskorsukov.aniwatcher.ui.theme.CardTextColorLight
-import com.iskorsukov.aniwatcher.ui.util.getBackgroundColorForChip
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
@@ -256,7 +254,7 @@ fun DetailsAiringScheduleCard(
                 )
             }
             Text(
-                text = "at ${airingScheduleItem.getAiringAtFormatted()}",
+                text = "at ${airingScheduleItem.getAiringAtDateTimeFormatted()}",
                 color = CardTextColorLight,
                 fontSize = 10.sp
             )

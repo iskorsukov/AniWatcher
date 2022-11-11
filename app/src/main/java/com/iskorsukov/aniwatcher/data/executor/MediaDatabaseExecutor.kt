@@ -43,4 +43,10 @@ class MediaDatabaseExecutor @Inject constructor(
             mediaDao.unfollowMedia(mediaItemId)
         }
     }
+
+    suspend fun clearAiredSchedules() {
+        withContext(DispatcherProvider.io()) {
+            mediaDao.clearAiredSchedules()
+        }
+    }
 }

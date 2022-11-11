@@ -142,7 +142,7 @@ fun MediaItemCardExtended(
                         )
                     }
                     Text(
-                        text = "at ${airingScheduleItem.getAiringAtFormatted()}",
+                        text = "at ${airingScheduleItem.getAiringAtDateTimeFormatted()}",
                         color = CardTextColorLight,
                         fontSize = 10.sp
                     )
@@ -400,7 +400,7 @@ fun MediaItemCardCollapsed(
                     )
                 }
                 Text(
-                    text = "at ${airingScheduleItem.getAiringAtFormatted()}",
+                    text = "at ${airingScheduleItem.getAiringAtDateTimeFormatted()}",
                     color = CardTextColorLight,
                     fontSize = 10.sp
                 )

@@ -7,8 +7,10 @@ import com.iskorsukov.aniwatcher.data.executor.MediaDatabaseExecutor
 import com.iskorsukov.aniwatcher.data.mapper.QueryDataToEntityMapper
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
+import com.iskorsukov.aniwatcher.domain.util.DispatcherProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class AiringRepository @Inject constructor(
@@ -65,5 +67,9 @@ class AiringRepository @Inject constructor(
 
     suspend fun unfollowMedia(mediaItem: MediaItem) {
         mediaDatabaseExecutor.unfollowMedia(mediaItem.id)
+    }
+
+    suspend fun clearAiredSchedules() {
+        mediaDatabaseExecutor.clearAiredSchedules()
     }
 }
