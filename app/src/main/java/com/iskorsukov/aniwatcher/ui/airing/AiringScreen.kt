@@ -29,6 +29,7 @@ fun AiringScreen(
     mainActivityViewModel: MainActivityViewModel = viewModel(),
     viewModel: AiringViewModel = viewModel(),
     timeInMinutesFlow: Flow<Long>,
+    onMediaClicked: ((Int) -> Unit)? = null
 ) {
     val airingScheduleItemList by viewModel
         .airingSchedulesByDayOfWeekFlow.collectAsStateWithLifecycle(initialValue = emptyMap())
@@ -62,7 +63,8 @@ fun AiringScreen(
                         MediaItemCardCollapsed(
                             airingScheduleItem = it,
                             timeInMinutes = timeInMinutes,
-                            onFollowClicked = viewModel::onFollowClicked
+                            onFollowClicked = viewModel::onFollowClicked,
+                            onMediaClicked = onMediaClicked
                         )
                     }
                 }
@@ -96,10 +98,10 @@ fun AiringScreenPreview() {
                 item {
                     MediaItemCardCollapsed(
                         airingScheduleItem = it,
-                        timeInMinutes = timeInMinutes
-                    ) {
-
-                    }
+                        timeInMinutes = timeInMinutes,
+                        onFollowClicked = {},
+                        onMediaClicked = {}
+                    )
                 }
             }
         }

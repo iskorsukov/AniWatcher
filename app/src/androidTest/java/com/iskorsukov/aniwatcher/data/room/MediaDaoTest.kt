@@ -31,6 +31,21 @@ class MediaDaoTest {
         mediaDatabase.close()
     }
 
+
+    @Test
+    fun getById() = runBlocking {
+        val entity = EntityTestDataCreator.baseMediaItemWithAiringSchedulesAndFollowingEntity()
+            .mediaItemWithAiringSchedulesEntity
+        mediaDao.insertMedia(listOf(entity.mediaItemEntity))
+        mediaDao.insertSchedules(entity.airingScheduleEntityList)
+
+        val outEntity = mediaDao.getById(1).first()
+
+        assertThat(outEntity).isEqualTo(
+            EntityTestDataCreator.baseMediaItemWithAiringSchedulesAndFollowingEntity()
+        )
+    }
+
     @Test
     fun insertMedia() = runBlocking {
         val entity = EntityTestDataCreator.baseMediaItemWithAiringSchedulesAndFollowingEntity()

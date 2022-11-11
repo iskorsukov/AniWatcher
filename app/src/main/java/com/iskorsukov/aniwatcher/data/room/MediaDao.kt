@@ -16,6 +16,10 @@ interface MediaDao {
     @Query("SELECT * FROM media")
     fun getAll(): Flow<List<MediaItemWithAiringSchedulesAndFollowingEntity>>
 
+    @Transaction
+    @Query("SELECT * FROM media WHERE mediaId = :mediaItemId")
+    fun getById(mediaItemId: Int): Flow<MediaItemWithAiringSchedulesAndFollowingEntity>
+
     @Insert
     suspend fun followMedia(followingEntity: FollowingEntity)
 

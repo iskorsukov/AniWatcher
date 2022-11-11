@@ -1,5 +1,6 @@
 package com.iskorsukov.aniwatcher
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -25,6 +26,7 @@ import androidx.navigation.compose.rememberNavController
 import com.iskorsukov.aniwatcher.ui.Screen
 import com.iskorsukov.aniwatcher.ui.airing.AiringScreen
 import com.iskorsukov.aniwatcher.ui.airing.AiringViewModel
+import com.iskorsukov.aniwatcher.ui.details.DetailsActivity
 import com.iskorsukov.aniwatcher.ui.following.FollowingScreen
 import com.iskorsukov.aniwatcher.ui.following.FollowingViewModel
 import com.iskorsukov.aniwatcher.ui.main.MainActivityViewModel
@@ -84,18 +86,40 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.padding(innerPadding)
                 ) {
                     composable("media") {
-                        MediaScreen(mainActivityViewModel, mediaViewModel, timeInMinutesFlow)
+                        MediaScreen(
+                            mainActivityViewModel,
+                            mediaViewModel,
+                            timeInMinutesFlow,
+                            this@MainActivity::startDetailsActivity
+                        )
                     }
                     composable("airing") {
-                        AiringScreen(mainActivityViewModel, airingViewModel, timeInMinutesFlow)
+                        AiringScreen(
+                            mainActivityViewModel,
+                            airingViewModel,
+                            timeInMinutesFlow,
+                            this@MainActivity::startDetailsActivity
+                        )
                     }
                     composable("following") {
-                        FollowingScreen(followingViewModel, timeInMinutesFlow)
+                        FollowingScreen(
+                            followingViewModel,
+                            timeInMinutesFlow,
+                            this@MainActivity::startDetailsActivity
+                        )
                     }
                 }
             }
         }
         mainActivityViewModel.loadAiringData()
+    }
+
+    fun startDetailsActivity(mediaItemId: Int) {
+        startActivity(
+            Intent(baseContext, DetailsActivity::class.java).apply {
+                putExtra(DetailsActivity.MEDIA_ITEM_ID_EXTRA, mediaItemId)
+            }
+        )
     }
 }
 

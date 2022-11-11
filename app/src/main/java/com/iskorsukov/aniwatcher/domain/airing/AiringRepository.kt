@@ -7,7 +7,6 @@ import com.iskorsukov.aniwatcher.data.executor.MediaDatabaseExecutor
 import com.iskorsukov.aniwatcher.data.mapper.QueryDataToEntityMapper
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
-import com.iskorsukov.aniwatcher.test.mediaItemEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -32,6 +31,21 @@ class AiringRepository @Inject constructor(
                     mediaItem to airingSchedules
                 }
             }
+
+    fun getMediaWithAiringSchedules(mediaItemId: Int): Flow<Pair<MediaItem, List<AiringScheduleItem>>> {
+        return mediaDatabaseExecutor.getMediaWithAiringSchedulesAndFollowing(mediaItemId).map {
+            val airingSchedules = AiringScheduleItem.fromEntity(it)
+            val mediaItem = if (airingSchedules.isNotEmpty()) {
+                airingSchedules.first().mediaItem
+            } else {
+                MediaItem.fromEntity(
+                    it.mediaItemWithAiringSchedulesEntity.mediaItemEntity,
+                    it.followingEntity
+                )
+            }
+            mediaItem to airingSchedules
+        }
+    }
 
     suspend fun loadSeasonAiringData(year: Int, season: String) {
         val entities = mutableListOf<MediaItemWithAiringSchedulesEntity>()

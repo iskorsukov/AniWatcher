@@ -2,6 +2,7 @@ package com.iskorsukov.aniwatcher.domain.model
 
 import com.iskorsukov.aniwatcher.data.entity.FollowingEntity
 import com.iskorsukov.aniwatcher.data.entity.MediaItemEntity
+import java.io.Serializable
 
 data class MediaItem(
     val id: Int,
@@ -9,17 +10,19 @@ data class MediaItem(
     val description: String?,
     val coverImageUrl: String?,
     val colorStr: String?,
+    val bannerImageUrl: String?,
+    val mainStudio: String?,
     val seasonRanking: Ranking?,
     val meanScore: Int?,
     val genres: List<String>,
     val siteUrl: String?,
     val isFollowing: Boolean
-) {
+): Serializable {
     data class Title(
         val romaji: String?,
         val english: String?,
         val native: String?
-    ) {
+    ): Serializable {
         fun baseText(): String {
             val orderedTitles = listOf(english, romaji, native)
             val filteredTitles = orderedTitles.filterNotNull()
@@ -36,7 +39,7 @@ data class MediaItem(
     data class Ranking(
         val rank: Int,
         val season: String
-    )
+    ): Serializable
 
     companion object {
         fun fromEntity(mediaItemEntity: MediaItemEntity, followingEntity: FollowingEntity?): MediaItem {
@@ -51,6 +54,8 @@ data class MediaItem(
                     description = description,
                     coverImageUrl = coverImageUrl,
                     colorStr = colorStr,
+                    bannerImageUrl = bannerImageUrl,
+                    mainStudio = mainStudio,
                     seasonRanking = seasonRanking?.run {
                         Ranking(
                             rank,

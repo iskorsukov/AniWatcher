@@ -16,6 +16,8 @@ object ModelTestDataCreator {
             description = "Description",
             coverImageUrl = "https://img1.goodfon.ru/original/1024x768/9/d6/kotionok-malysh-vzgliad-trava-boke.jpg",
             colorStr = "#43aee4",
+            bannerImageUrl = "https://s4.anilist.co/file/anilistcdn/media/anime/banner/139587-XFbotQOPcLC4.jpg",
+            mainStudio = "Studio",
             seasonRanking = MediaItem.Ranking(
                 1,
                 "FALL"
@@ -92,6 +94,10 @@ fun MediaItem.nullSiteUrl(): MediaItem {
 
 fun MediaItem.isFollowing(isFollowing: Boolean): MediaItem {
     return this.copy(isFollowing = isFollowing)
+}
+
+fun MediaItem.bannerImage(bannerImage: String?): MediaItem {
+    return this.copy(bannerImageUrl = bannerImage)
 }
 
 fun AiringScheduleItem.id(id: Int): AiringScheduleItem {

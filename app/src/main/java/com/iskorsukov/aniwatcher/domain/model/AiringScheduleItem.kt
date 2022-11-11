@@ -1,6 +1,7 @@
 package com.iskorsukov.aniwatcher.domain.model
 
 import com.iskorsukov.aniwatcher.data.entity.MediaItemWithAiringSchedulesAndFollowingEntity
+import java.io.Serializable
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
@@ -12,7 +13,7 @@ data class AiringScheduleItem(
     val airingAt: Int,
     val episode: Int,
     val mediaItem: MediaItem
-) {
+): Serializable {
 
     fun getAiringAtFormatted(): String {
         val formatter = SimpleDateFormat("MMMM dd',' HH':'mm", Locale.getDefault())

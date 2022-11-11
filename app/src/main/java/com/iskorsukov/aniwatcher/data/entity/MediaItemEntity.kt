@@ -13,6 +13,8 @@ data class MediaItemEntity(
     val description: String?,
     val coverImageUrl: String?,
     val colorStr: String?,
+    val bannerImageUrl: String?,
+    val mainStudio: String?,
     @Embedded val seasonRanking: Ranking?,
     val meanScore: Int?,
     val genresCommaSeparated: String?,
@@ -42,6 +44,8 @@ data class MediaItemEntity(
                     description = description,
                     coverImageUrl = coverImage?.large,
                     colorStr = coverImage?.color,
+                    bannerImageUrl = bannerImage,
+                    mainStudio = studios?.studioNode?.firstOrNull()?.name,
                     seasonRanking = rankings?.filterNotNull()?.firstOrNull { ranking ->
                         ranking.type == MediaRankType.POPULAR && ranking.season == data.season
                     }?.run {

@@ -1,6 +1,7 @@
 package com.iskorsukov.aniwatcher.data.executor
 
 import androidx.room.withTransaction
+import com.google.common.truth.Truth.assertThat
 import com.iskorsukov.aniwatcher.data.entity.FollowingEntity
 import com.iskorsukov.aniwatcher.data.room.MediaDao
 import com.iskorsukov.aniwatcher.data.room.MediaDatabase
@@ -8,6 +9,8 @@ import com.iskorsukov.aniwatcher.domain.util.DispatcherProvider
 import com.iskorsukov.aniwatcher.test.EntityTestDataCreator
 import io.mockk.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -30,6 +33,14 @@ class MediaDatabaseExecutorTest {
         every { DispatcherProvider.io() } returns StandardTestDispatcher(testScheduler)
 
         every { mediaDatabase.mediaDao() } returns mediaDao
+        every { mediaDao.getAll() } returns flowOf(
+            listOf(
+                EntityTestDataCreator.baseMediaItemWithAiringSchedulesAndFollowingEntity()
+            )
+        )
+        every { mediaDao.getById(any()) } returns flowOf(
+            EntityTestDataCreator.baseMediaItemWithAiringSchedulesAndFollowingEntity()
+        )
 
         val transactionLambda = slot<suspend () -> Unit>()
         coEvery { mediaDatabase.withTransaction(capture(transactionLambda)) } coAnswers  {
@@ -41,6 +52,24 @@ class MediaDatabaseExecutorTest {
 
     private fun cleanupMocks() {
         unmockkObject(DispatcherProvider)
+    }
+
+    @Test
+    fun getMediaWithAiringSchedulesAndFollowing() = runTest {
+        initMocks(testScheduler)
+
+        val entity = mediaDatabaseExecutor
+            .getMediaWithAiringSchedulesAndFollowing(1)
+            .first()
+
+        assertThat(entity)
+            .isEqualTo(EntityTestDataCreator.baseMediaItemWithAiringSchedulesAndFollowingEntity())
+
+        coVerify {
+            mediaDao.getById(1)
+        }
+
+        cleanupMocks()
     }
 
     @Test

@@ -6,6 +6,7 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -51,13 +52,15 @@ fun MediaItemCardExtended(
     mediaItem: MediaItem,
     airingScheduleItem: AiringScheduleItem?,
     timeInMinutes: Long,
-    onFollowClicked: (MediaItem) -> Unit
+    onFollowClicked: (MediaItem) -> Unit,
+    onMediaClicked: ((Int) -> Unit)?
 ) {
     Card(
         modifier = Modifier
             .padding(8.dp)
             .height(200.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable { onMediaClicked?.invoke(mediaItem.id) },
         elevation = 10.dp
     ) {
         ConstraintLayout {
@@ -282,7 +285,8 @@ fun MediaItemCardExtendedPreview() {
         mediaItem = ModelTestDataCreator.baseMediaItem().description("Word ".repeat(50)),
         airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
         timeInMinutes = timeInMinutes,
-        onFollowClicked = {}
+        onFollowClicked = {},
+        onMediaClicked = {}
     )
 }
 
@@ -295,7 +299,8 @@ fun MediaItemCardExtendedPreview_noAiringSchedule() {
         mediaItem = ModelTestDataCreator.baseMediaItem().description("Word ".repeat(50)),
         airingScheduleItem = null,
         timeInMinutes = timeInMinutes,
-        onFollowClicked = {}
+        onFollowClicked = {},
+        onMediaClicked = {}
     )
 }
 
@@ -309,7 +314,8 @@ fun MediaItemCardExtendedPreview_noRankScore() {
             .nullRanking().nullMeanScore(),
         airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
         timeInMinutes = timeInMinutes,
-        onFollowClicked = {}
+        onFollowClicked = {},
+        onMediaClicked = {}
     )
 }
 
@@ -323,7 +329,8 @@ fun MediaItemCardExtendedPreview_noAiringSchedule_noRankScore() {
             .nullRanking().nullMeanScore(),
         airingScheduleItem = null,
         timeInMinutes = timeInMinutes,
-        onFollowClicked = {}
+        onFollowClicked = {},
+        onMediaClicked = {}
     )
 }
 
@@ -331,14 +338,16 @@ fun MediaItemCardExtendedPreview_noAiringSchedule_noRankScore() {
 fun MediaItemCardCollapsed(
     airingScheduleItem: AiringScheduleItem,
     timeInMinutes: Long,
-    onFollowClicked: (MediaItem) -> Unit
+    onFollowClicked: (MediaItem) -> Unit,
+    onMediaClicked: ((Int) -> Unit)?
 ) {
     val mediaItem = airingScheduleItem.mediaItem
     Card(
         modifier = Modifier
             .height(100.dp)
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(8.dp)
+            .clickable { onMediaClicked?.invoke(mediaItem.id) },
         elevation = 10.dp
     ) {
         ConstraintLayout {

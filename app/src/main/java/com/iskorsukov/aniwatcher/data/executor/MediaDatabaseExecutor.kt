@@ -28,6 +28,10 @@ class MediaDatabaseExecutor @Inject constructor(
         }
     }
 
+    fun getMediaWithAiringSchedulesAndFollowing(mediaItemId: Int): Flow<MediaItemWithAiringSchedulesAndFollowingEntity> {
+        return mediaDao.getById(mediaItemId)
+    }
+
     suspend fun followMedia(mediaItemId: Int) {
         withContext(DispatcherProvider.io()) {
             mediaDao.followMedia(FollowingEntity(null, mediaItemId))

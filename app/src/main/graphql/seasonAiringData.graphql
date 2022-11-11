@@ -16,6 +16,7 @@ query SeasonAiringData($year: Int!, $season: MediaSeason!, $page: Int!) {
                 large
                 color
             }
+            bannerImage
             rankings {
                 type
                 rank
@@ -24,9 +25,14 @@ query SeasonAiringData($year: Int!, $season: MediaSeason!, $page: Int!) {
             season
             meanScore
             genres
+            studios(isMain: true) {
+                studioNode: nodes {
+                    name
+                }
+            }
             siteUrl
             airingSchedule(notYetAired: true) {
-                nodes {
+                airingScheduleNode: nodes {
                     id
                     airingAt
                     episode

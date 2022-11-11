@@ -19,6 +19,10 @@ object QueryTestDataCreator {
                 large = "https://img1.goodfon.ru/original/1024x768/9/d6/kotionok-malysh-vzgliad-trava-boke.jpg",
                 color = "#43aee4"
             ),
+            bannerImage = "https://s4.anilist.co/file/anilistcdn/media/anime/banner/139587-XFbotQOPcLC4.jpg",
+            studios = SeasonAiringDataQuery.Studios(
+                listOf(SeasonAiringDataQuery.StudioNode("Studio"))
+            ),
             rankings = listOf(
                 SeasonAiringDataQuery.Ranking(
                     type = MediaRankType.RATED,
@@ -49,8 +53,8 @@ object QueryTestDataCreator {
         )
     }
 
-    fun baseSeasonAiringDataNode(): SeasonAiringDataQuery.Node {
-        return SeasonAiringDataQuery.Node(
+    fun baseSeasonAiringDataNode(): SeasonAiringDataQuery.AiringScheduleNode {
+        return SeasonAiringDataQuery.AiringScheduleNode(
             1,
             1667833200,
             1,
@@ -60,7 +64,7 @@ object QueryTestDataCreator {
 
     fun baseSeasonAiringDataSchedule(): SeasonAiringDataQuery.AiringSchedule {
         return SeasonAiringDataQuery.AiringSchedule(
-            nodes = listOf(
+            airingScheduleNode = listOf(
                 baseSeasonAiringDataNode(),
                 baseSeasonAiringDataNode().id(2).episode(2).airingAt(1667385638),
                 baseSeasonAiringDataNode().id(3).episode(3).airingAt(1667644838),
@@ -70,15 +74,15 @@ object QueryTestDataCreator {
     }
 }
 
-fun SeasonAiringDataQuery.Node.id(id: Int): SeasonAiringDataQuery.Node {
+fun SeasonAiringDataQuery.AiringScheduleNode.id(id: Int): SeasonAiringDataQuery.AiringScheduleNode {
     return this.copy(id = id)
 }
 
-fun SeasonAiringDataQuery.Node.episode(episode: Int): SeasonAiringDataQuery.Node {
+fun SeasonAiringDataQuery.AiringScheduleNode.episode(episode: Int): SeasonAiringDataQuery.AiringScheduleNode {
     return this.copy(episode = episode)
 }
 
-fun SeasonAiringDataQuery.Node.airingAt(airingAt: Int): SeasonAiringDataQuery.Node {
+fun SeasonAiringDataQuery.AiringScheduleNode.airingAt(airingAt: Int): SeasonAiringDataQuery.AiringScheduleNode {
     return this.copy(airingAt = airingAt)
 }
 

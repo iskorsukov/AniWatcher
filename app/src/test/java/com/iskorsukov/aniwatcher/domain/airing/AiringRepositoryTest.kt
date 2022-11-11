@@ -1,13 +1,17 @@
 package com.iskorsukov.aniwatcher.domain.airing
 
+import com.google.common.truth.Truth.assertThat
 import com.iskorsukov.aniwatcher.data.executor.AniListQueryExecutor
 import com.iskorsukov.aniwatcher.data.executor.MediaDatabaseExecutor
 import com.iskorsukov.aniwatcher.data.mapper.QueryDataToEntityMapper
+import com.iskorsukov.aniwatcher.test.EntityTestDataCreator
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import java.io.IOException
@@ -25,7 +29,23 @@ class AiringRepositoryTest {
     private val repository = AiringRepository(aniListQueryExecutor, mapper, mediaDatabaseExecutor)
 
     @Test
-    fun loadWeekAiringData() = runTest {
+    fun getMediaWithAiringSchedules() = runTest {
+        coEvery { mediaDatabaseExecutor.getMediaWithAiringSchedulesAndFollowing(any()) } returns flowOf(
+            EntityTestDataCreator.baseMediaItemWithAiringSchedulesAndFollowingEntity()
+        )
+
+        val model = repository.getMediaWithAiringSchedules(1).first()
+
+        assertThat(model.first).isEqualTo(ModelTestDataCreator.baseMediaItem())
+        assertThat(model.second).isEqualTo(ModelTestDataCreator.baseAiringScheduleItemList())
+
+        coVerify {
+            mediaDatabaseExecutor.getMediaWithAiringSchedulesAndFollowing(1)
+        }
+    }
+
+    @Test
+    fun loadSeasonAiringData() = runTest {
         repository.loadSeasonAiringData(year, season)
 
         coVerify {
@@ -36,7 +56,7 @@ class AiringRepositoryTest {
     }
 
     @Test(expected = IOException::class)
-    fun loadWeekAiringData_queryException() = runTest {
+    fun loadSeasonAiringData_queryException() = runTest {
         coEvery { aniListQueryExecutor.seasonAiringDataQuery(any(), any(), any()) } throws IOException()
 
         repository.loadSeasonAiringData(year, season)
@@ -47,7 +67,7 @@ class AiringRepositoryTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun loadWeekAiringData_mapperException() = runTest {
+    fun loadSeasonAiringData_mapperException() = runTest {
         coEvery { mapper.mapMediaWithSchedulesList(any()) } throws IllegalArgumentException()
 
         repository.loadSeasonAiringData(year, season)
@@ -59,7 +79,7 @@ class AiringRepositoryTest {
     }
 
     @Test(expected = IOException::class)
-    fun loadWeekAiringData_databaseException() = runTest {
+    fun loadSeasonAiringData_databaseException() = runTest {
         coEvery { mediaDatabaseExecutor.updateMedia(any()) } throws IOException()
 
         repository.loadSeasonAiringData(year, season)

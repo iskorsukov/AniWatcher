@@ -29,7 +29,11 @@ import kotlinx.coroutines.flow.Flow
 
 @OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
-fun FollowingScreen(viewModel: FollowingViewModel = viewModel(), timeInMinutesFlow: Flow<Long>) {
+fun FollowingScreen(
+    viewModel: FollowingViewModel = viewModel(),
+    timeInMinutesFlow: Flow<Long>,
+    onMediaClicked: ((Int) -> Unit)? = null
+) {
     val followingMediaMap by viewModel.followingMediaFlow
         .collectAsStateWithLifecycle(initialValue = emptyMap())
 
@@ -75,7 +79,8 @@ fun FollowingScreen(viewModel: FollowingViewModel = viewModel(), timeInMinutesFl
                     mediaItem = it.key,
                     airingScheduleItem = it.value,
                     timeInMinutes = timeInMinutes,
-                    onFollowClicked = viewModel::onFollowClicked
+                    onFollowClicked = viewModel::onFollowClicked,
+                    onMediaClicked = onMediaClicked
                 )
             }
         }
@@ -136,7 +141,8 @@ fun FollowingScreenPreview() {
                     mediaItem = it.key,
                     airingScheduleItem = it.value,
                     timeInMinutes = timeInMinutes,
-                    onFollowClicked = { }
+                    onFollowClicked = { },
+                    onMediaClicked = { }
                 )
             }
         }

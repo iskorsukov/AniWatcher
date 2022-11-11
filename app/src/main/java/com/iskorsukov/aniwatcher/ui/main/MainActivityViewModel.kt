@@ -18,23 +18,22 @@ class MainActivityViewModel @Inject constructor(
 ): ViewModel() {
 
     private val _uiState: MutableStateFlow<MainActivityUiState> = MutableStateFlow(
-        MainActivityUiState(false, null)
+        MainActivityUiState(false)
     )
     val uiState: StateFlow<MainActivityUiState> = _uiState
 
     fun loadAiringData() {
-        _uiState.value = MainActivityUiState(true, null)
+        _uiState.value = MainActivityUiState(true)
         val year = DateTimeHelper.currentYear(Calendar.getInstance())
         val season = DateTimeHelper.currentSeason(Calendar.getInstance())
         viewModelScope.launch {
             try {
                 airingRepository.loadSeasonAiringData(year, season)
-                _uiState.value = MainActivityUiState(false, null)
+                _uiState.value = MainActivityUiState(false)
             } catch (e: Exception) {
                 _uiState.value = MainActivityUiState(false, ErrorItem.LoadingData)
                 return@launch
             }
         }
     }
-
 }

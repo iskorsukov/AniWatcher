@@ -21,7 +21,8 @@ import kotlinx.coroutines.flow.Flow
 fun MediaScreen(
     mainActivityViewModel: MainActivityViewModel = viewModel(),
     viewModel: MediaViewModel = viewModel(),
-    timeInMinutesFlow: Flow<Long>
+    timeInMinutesFlow: Flow<Long>,
+    onMediaClicked: ((Int) -> Unit)? = null
 ) {
     val mediaFlow by viewModel.mediaFlow
         .collectAsStateWithLifecycle(initialValue = emptyMap())
@@ -45,7 +46,8 @@ fun MediaScreen(
                         mediaItem = it.key,
                         airingScheduleItem = it.value,
                         timeInMinutes = timeInMinutes,
-                        onFollowClicked = viewModel::onFollowClicked
+                        onFollowClicked = viewModel::onFollowClicked,
+                        onMediaClicked = onMediaClicked
                     )
                 }
             }
@@ -70,7 +72,8 @@ fun MediaScreenPreview() {
                     mediaItem = it.key,
                     airingScheduleItem = it.value,
                     timeInMinutes = timeInMinutes,
-                    onFollowClicked = { }
+                    onFollowClicked = { },
+                    onMediaClicked = { }
                 )
             }
         }

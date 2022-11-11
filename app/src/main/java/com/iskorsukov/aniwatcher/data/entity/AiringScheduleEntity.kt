@@ -23,7 +23,7 @@ data class AiringScheduleEntity(
     val mediaItemRelationId: Int
 ) {
     companion object {
-        fun fromData(data: SeasonAiringDataQuery.Node): AiringScheduleEntity {
+        fun fromData(data: SeasonAiringDataQuery.AiringScheduleNode): AiringScheduleEntity {
             return data.run {
                 AiringScheduleEntity(
                     id = id,

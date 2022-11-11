@@ -11,6 +11,8 @@ import io.mockk.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.test.*
+import org.junit.Before
+import org.junit.BeforeClass
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -18,13 +20,19 @@ class AiringViewModelTest {
 
     private val airingRepository: AiringRepository = mockk(relaxed = true)
 
+    init {
+        mockkObject(DateTimeHelper)
+        every { DateTimeHelper.currentDayOfWeek() } returns DayOfWeekLocal.WEDNESDAY
+    }
+
     private val viewModel = AiringViewModel(airingRepository)
+
+    init {
+        unmockkObject(DateTimeHelper)
+    }
 
     @Test
     fun airingSchedulesByDayOfWeekFlow() = runTest {
-        mockkObject(DateTimeHelper)
-        every { DateTimeHelper.currentDayOfWeek() } returns DayOfWeekLocal.WEDNESDAY
-
         coEvery { airingRepository.mediaWithSchedulesFlow } returns flow {
             emit(
                 mapOf(
