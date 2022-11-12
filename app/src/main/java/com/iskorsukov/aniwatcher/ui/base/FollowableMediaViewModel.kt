@@ -8,7 +8,7 @@ import kotlinx.coroutines.launch
 
 open class FollowableMediaViewModel(
     private val airingRepository: AiringRepository
-    ): ViewModel() {
+) : ViewModel() {
 
     fun onFollowClicked(mediaItem: MediaItem) {
         viewModelScope.launch {

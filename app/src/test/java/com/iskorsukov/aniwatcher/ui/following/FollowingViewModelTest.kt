@@ -1,7 +1,7 @@
 package com.iskorsukov.aniwatcher.ui.following
 
 import com.google.common.truth.Truth.assertThat
-import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
+import com.iskorsukov.aniwatcher.domain.airing.AiringRepositoryImpl
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.test.*
@@ -20,13 +20,13 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FollowingViewModelTest {
-    private val airingRepository: AiringRepository = mockk(relaxed = true)
+    private val airingRepositoryImpl: AiringRepositoryImpl = mockk(relaxed = true)
 
-    private val viewModel = FollowingViewModel(airingRepository)
+    private val viewModel = FollowingViewModel(airingRepositoryImpl)
 
     @Test
     fun followingMediaFlow() = runTest {
-        coEvery { airingRepository.mediaWithSchedulesFlow } returns flow {
+        coEvery { airingRepositoryImpl.mediaWithSchedulesFlow } returns flow {
             emit(
                 mapOf(
                     ModelTestDataCreator.baseMediaItem().isFollowing(true) to
@@ -48,7 +48,7 @@ class FollowingViewModelTest {
 
     @Test
     fun followingMediaFlow_empty() = runTest {
-        coEvery { airingRepository.mediaWithSchedulesFlow } returns flow {
+        coEvery { airingRepositoryImpl.mediaWithSchedulesFlow } returns flow {
             emit(
                 mapOf(
                     ModelTestDataCreator.baseMediaItem() to
@@ -73,7 +73,7 @@ class FollowingViewModelTest {
         viewModel.onFollowClicked(mediaItem)
         advanceUntilIdle()
 
-        coVerify { airingRepository.followMedia(mediaItem) }
+        coVerify { airingRepositoryImpl.followMedia(mediaItem) }
     }
 
     @Test
@@ -85,6 +85,6 @@ class FollowingViewModelTest {
         viewModel.onFollowClicked(mediaItem)
         advanceUntilIdle()
 
-        coVerify { airingRepository.unfollowMedia(mediaItem) }
+        coVerify { airingRepositoryImpl.unfollowMedia(mediaItem) }
     }
 }

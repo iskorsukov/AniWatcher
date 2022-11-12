@@ -1,7 +1,7 @@
 package com.iskorsukov.aniwatcher.ui.airing
 
 import com.google.common.truth.Truth.assertThat
-import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
+import com.iskorsukov.aniwatcher.domain.airing.AiringRepositoryImpl
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.domain.util.DayOfWeekLocal
@@ -11,21 +11,19 @@ import io.mockk.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.test.*
-import org.junit.Before
-import org.junit.BeforeClass
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AiringViewModelTest {
 
-    private val airingRepository: AiringRepository = mockk(relaxed = true)
+    private val airingRepositoryImpl: AiringRepositoryImpl = mockk(relaxed = true)
 
     init {
         mockkObject(DateTimeHelper)
         every { DateTimeHelper.currentDayOfWeek() } returns DayOfWeekLocal.WEDNESDAY
     }
 
-    private val viewModel = AiringViewModel(airingRepository)
+    private val viewModel = AiringViewModel(airingRepositoryImpl)
 
     init {
         unmockkObject(DateTimeHelper)
@@ -33,7 +31,7 @@ class AiringViewModelTest {
 
     @Test
     fun airingSchedulesByDayOfWeekFlow() = runTest {
-        coEvery { airingRepository.mediaWithSchedulesFlow } returns flow {
+        coEvery { airingRepositoryImpl.mediaWithSchedulesFlow } returns flow {
             emit(
                 mapOf(
                     ModelTestDataCreator.baseMediaItem() to
@@ -71,7 +69,7 @@ class AiringViewModelTest {
         viewModel.onFollowClicked(mediaItem)
         advanceUntilIdle()
 
-        coVerify { airingRepository.followMedia(mediaItem) }
+        coVerify { airingRepositoryImpl.followMedia(mediaItem) }
     }
 
     @Test
@@ -83,6 +81,6 @@ class AiringViewModelTest {
         viewModel.onFollowClicked(mediaItem)
         advanceUntilIdle()
 
-        coVerify { airingRepository.unfollowMedia(mediaItem) }
+        coVerify { airingRepositoryImpl.unfollowMedia(mediaItem) }
     }
 }

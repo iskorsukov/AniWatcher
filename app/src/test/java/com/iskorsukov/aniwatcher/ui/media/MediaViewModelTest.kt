@@ -1,7 +1,7 @@
 package com.iskorsukov.aniwatcher.ui.media
 
 import com.google.common.truth.Truth
-import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
+import com.iskorsukov.aniwatcher.domain.airing.AiringRepositoryImpl
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.test.*
@@ -20,13 +20,13 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MediaViewModelTest {
-    private val airingRepository: AiringRepository = mockk(relaxed = true)
+    private val airingRepositoryImpl: AiringRepositoryImpl = mockk(relaxed = true)
 
-    private val viewModel = MediaViewModel(airingRepository)
+    private val viewModel = MediaViewModel(airingRepositoryImpl)
 
     @Test
     fun mediaFlow() = runTest {
-        coEvery { airingRepository.mediaWithSchedulesFlow } returns flow {
+        coEvery { airingRepositoryImpl.mediaWithSchedulesFlow } returns flow {
             emit(
                 mapOf(
                     ModelTestDataCreator.baseMediaItem() to
@@ -55,7 +55,7 @@ class MediaViewModelTest {
         viewModel.onFollowClicked(mediaItem)
         advanceUntilIdle()
 
-        coVerify { airingRepository.followMedia(mediaItem) }
+        coVerify { airingRepositoryImpl.followMedia(mediaItem) }
     }
 
     @Test
@@ -67,6 +67,6 @@ class MediaViewModelTest {
         viewModel.onFollowClicked(mediaItem)
         advanceUntilIdle()
 
-        coVerify { airingRepository.unfollowMedia(mediaItem) }
+        coVerify { airingRepositoryImpl.unfollowMedia(mediaItem) }
     }
 }

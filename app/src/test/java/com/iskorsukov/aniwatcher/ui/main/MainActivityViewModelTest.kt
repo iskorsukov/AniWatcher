@@ -1,7 +1,7 @@
 package com.iskorsukov.aniwatcher.ui.main
 
 import com.google.common.truth.Truth.assertThat
-import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
+import com.iskorsukov.aniwatcher.domain.airing.AiringRepositoryImpl
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import io.mockk.*
 import kotlinx.coroutines.Dispatchers
@@ -17,9 +17,9 @@ import java.io.IOException
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainActivityViewModelTest {
 
-    private val airingRepository: AiringRepository = mockk(relaxed = true)
+    private val airingRepositoryImpl: AiringRepositoryImpl = mockk(relaxed = true)
 
-    private val viewModel = MainActivityViewModel(airingRepository)
+    private val viewModel = MainActivityViewModel(airingRepositoryImpl)
 
     @Test
     fun loadAiringData() = runTest {
@@ -34,7 +34,7 @@ class MainActivityViewModelTest {
         advanceUntilIdle()
         assertThat(viewModel.uiState.first().isRefreshing).isFalse()
 
-        coVerify { airingRepository.loadSeasonAiringData(2022, "FALL") }
+        coVerify { airingRepositoryImpl.loadSeasonAiringData(2022, "FALL") }
 
         unmockkAll()
     }
@@ -47,7 +47,7 @@ class MainActivityViewModelTest {
         every { DateTimeHelper.currentYear(any()) } returns 2022
         every { DateTimeHelper.currentSeason(any()) } returns "FALL"
 
-        coEvery { airingRepository.loadSeasonAiringData(any(), any()) } throws IOException()
+        coEvery { airingRepositoryImpl.loadSeasonAiringData(any(), any()) } throws IOException()
 
         viewModel.loadAiringData()
         assertThat(viewModel.uiState.first().isRefreshing).isTrue()
@@ -56,7 +56,7 @@ class MainActivityViewModelTest {
         assertThat(state.isRefreshing).isFalse()
         assertThat(state.errorItem).isNotNull()
 
-        coVerify { airingRepository.loadSeasonAiringData(2022, "FALL") }
+        coVerify { airingRepositoryImpl.loadSeasonAiringData(2022, "FALL") }
 
         unmockkAll()
     }

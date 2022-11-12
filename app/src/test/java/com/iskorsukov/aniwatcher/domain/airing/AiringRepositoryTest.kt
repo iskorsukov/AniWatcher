@@ -26,7 +26,7 @@ class AiringRepositoryTest {
     private val year = 2022
     private val page = 1
 
-    private val repository = AiringRepository(aniListQueryExecutor, mapper, mediaDatabaseExecutor)
+    private val repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor)
 
     @Test
     fun getMediaWithAiringSchedules() = runTest {
