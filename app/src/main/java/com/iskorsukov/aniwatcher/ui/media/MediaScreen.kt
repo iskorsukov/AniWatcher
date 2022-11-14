@@ -1,6 +1,5 @@
 package com.iskorsukov.aniwatcher.ui.media
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkHorizontally
@@ -8,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.*
@@ -38,7 +38,6 @@ import com.iskorsukov.aniwatcher.ui.main.MainActivityUiState
 import com.iskorsukov.aniwatcher.ui.main.MainActivityViewModel
 import com.iskorsukov.aniwatcher.ui.theme.CardTextColorLight
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
@@ -59,9 +58,17 @@ fun MediaScreen(
 
     val swipeRefreshState = rememberSwipeRefreshState(uiState.isRefreshing)
 
+    val listState = rememberLazyListState()
+
     LaunchedEffect(Unit) {
-        mainActivityViewModel.searchTextState.collectLatest {
+        mainActivityViewModel.searchTextState.collect {
             viewModel.onSearchTextChanged(it)
+        }
+    }
+    LaunchedEffect(Unit) {
+        mainActivityViewModel.sortingOptionState.collect {
+            viewModel.onSortingOptionChanged(it)
+            listState.scrollToItem(0)
         }
     }
 
@@ -70,7 +77,7 @@ fun MediaScreen(
         onRefresh = { mainActivityViewModel.loadAiringData() }
     ) {
         Column {
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
                 mediaFlow.entries.forEach {
                     item {
                         MediaItemCardExtended(

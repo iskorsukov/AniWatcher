@@ -26,4 +26,9 @@
 
     <string name="channel_name">AniWatcher Airing</string>
     <string name="channel_description">Airing media notification channel</string>
+
+    <string name="sort_by">Sort by</string>
+    <string name="airing_at">Airing at</string>
+    <string name="popularity">Popularity</string>
+    <string name="mean_score">Mean score</string>
 </resources>

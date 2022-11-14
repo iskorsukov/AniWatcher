@@ -25,10 +25,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.*
 import com.iskorsukov.aniwatcher.service.NotificationService
 import com.iskorsukov.aniwatcher.ui.Screen
 import com.iskorsukov.aniwatcher.ui.airing.AiringScreen
@@ -40,6 +37,7 @@ import com.iskorsukov.aniwatcher.ui.main.MainActivityViewModel
 import com.iskorsukov.aniwatcher.ui.media.MediaScreen
 import com.iskorsukov.aniwatcher.ui.media.MediaViewModel
 import com.iskorsukov.aniwatcher.ui.media.SearchField
+import com.iskorsukov.aniwatcher.ui.sorting.SelectSortingOptionDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -91,6 +89,13 @@ class MainActivity : ComponentActivity() {
                 bottomBar = { BottomNavigationBar(navController = navController) },
                 scaffoldState = scaffoldState
             ) { innerPadding ->
+                if (uiState.showSortingOptionsDialog) {
+                    SelectSortingOptionDialog(
+                        onSortingOptionSelected = mainActivityViewModel::onSortingOptionSelected,
+                        onDismissRequest = mainActivityViewModel::onSortingOptionsDialogDismissed
+                    )
+                }
+
                 NavHost(
                     navController = navController,
                     startDestination = "airing",
@@ -190,8 +195,8 @@ fun TopBar(
     val currentDestination = navBackStackEntry?.destination
     val screen = Screen.ofRoute(currentDestination?.route.orEmpty())
 
-    if (screen?.hasTopBar == true) {
-        TopAppBar {
+    TopAppBar {
+        if (screen?.hasSearchBar == true) {
             if (searchFieldVisibleState.value) {
                 AnimatedVisibility(
                     visible = searchFieldVisibleState.value,
@@ -215,6 +220,15 @@ fun TopBar(
                         tint = Color.White
                     )
                 }
+            }
+        }
+        if (screen?.hasSortingOptions == true) {
+            IconButton(onClick = { mainActivityViewModel.onSortingOptionsIconClicked() }) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_baseline_sort_24),
+                    contentDescription = null,
+                    tint = Color.White
+                )
             }
         }
     }

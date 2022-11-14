@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -28,7 +29,6 @@ import com.iskorsukov.aniwatcher.ui.main.MainActivityViewModel
 import com.iskorsukov.aniwatcher.ui.media.MediaItemCardExtended
 import com.iskorsukov.aniwatcher.ui.theme.CardTextColorLight
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
@@ -44,9 +44,17 @@ fun FollowingScreen(
     val timeInMinutes by timeInMinutesFlow
         .collectAsStateWithLifecycle(initialValue = 0)
 
+    val listState = rememberLazyListState()
+
     LaunchedEffect(Unit) {
-        mainActivityViewModel.searchTextState.collectLatest {
+        mainActivityViewModel.searchTextState.collect {
             viewModel.onSearchTextChanged(it)
+        }
+    }
+    LaunchedEffect(Unit) {
+        mainActivityViewModel.sortingOptionState.collect {
+            viewModel.onSortingOptionChanged(it)
+            listState.scrollToItem(0)
         }
     }
 
@@ -82,7 +90,7 @@ fun FollowingScreen(
             }
         }
     }
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
+    LazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
         followingMediaMap.entries.forEach {
             item {
                 MediaItemCardExtended(

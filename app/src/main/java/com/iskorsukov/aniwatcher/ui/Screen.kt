@@ -8,7 +8,8 @@ sealed class Screen(
     val route: String,
     @StringRes val labelStringId: Int,
     @DrawableRes val iconDrawableId: Int,
-    val hasTopBar: Boolean = true
+    val hasSearchBar: Boolean = true,
+    val hasSortingOptions: Boolean = true
 ) {
     object MediaScreen : Screen(
         "media",
@@ -19,6 +20,7 @@ sealed class Screen(
         "airing",
         R.string.airing_screen_label,
         R.drawable.ic_outline_calendar_today_24_white,
+        false,
         false
     )
     object FollowingScreen : Screen(
