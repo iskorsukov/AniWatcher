@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,13 +24,16 @@ import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.test.isFollowing
+import com.iskorsukov.aniwatcher.ui.main.MainActivityViewModel
 import com.iskorsukov.aniwatcher.ui.media.MediaItemCardExtended
 import com.iskorsukov.aniwatcher.ui.theme.CardTextColorLight
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun FollowingScreen(
+    mainActivityViewModel: MainActivityViewModel = viewModel(),
     viewModel: FollowingViewModel = viewModel(),
     timeInMinutesFlow: Flow<Long>,
     onMediaClicked: ((Int) -> Unit)? = null
@@ -39,6 +43,12 @@ fun FollowingScreen(
 
     val timeInMinutes by timeInMinutesFlow
         .collectAsStateWithLifecycle(initialValue = 0)
+
+    LaunchedEffect(Unit) {
+        mainActivityViewModel.searchTextState.collectLatest {
+            viewModel.onSearchTextChanged(it)
+        }
+    }
 
     if (followingMediaMap.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize()) {

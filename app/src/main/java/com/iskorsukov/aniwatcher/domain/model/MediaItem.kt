@@ -34,6 +34,12 @@ data class MediaItem(
             val filteredTitles = orderedTitles.filterNotNull()
             return filteredTitles.getOrNull(1) ?: ""
         }
+
+        fun containsIgnoreCase(str: String): Boolean {
+            return romaji?.contains(str, true) == true ||
+                    english?.contains(str, true) == true ||
+                    native?.contains(str, true) == true
+        }
     }
 
     data class Ranking(

@@ -7,7 +7,9 @@ import com.iskorsukov.aniwatcher.R
 sealed class Screen(
     val route: String,
     @StringRes val labelStringId: Int,
-    @DrawableRes val iconDrawableId: Int) {
+    @DrawableRes val iconDrawableId: Int,
+    val hasTopBar: Boolean = true
+) {
     object MediaScreen : Screen(
         "media",
         R.string.media_screen_label,
@@ -16,11 +18,27 @@ sealed class Screen(
     object AiringScreen : Screen(
         "airing",
         R.string.airing_screen_label,
-        R.drawable.ic_outline_calendar_today_24_white
+        R.drawable.ic_outline_calendar_today_24_white,
+        false
     )
     object FollowingScreen : Screen(
         "following",
         R.string.following_screen_label,
         R.drawable.ic_outline_favorite_border_24_white
     )
+
+    companion object {
+        fun ofRoute(route: String): Screen? {
+            if (MediaScreen.route == route) {
+                return MediaScreen
+            }
+            if (AiringScreen.route == route) {
+                return AiringScreen
+            }
+            if (FollowingScreen.route == route) {
+                return FollowingScreen
+            }
+            return null
+        }
+    }
 }

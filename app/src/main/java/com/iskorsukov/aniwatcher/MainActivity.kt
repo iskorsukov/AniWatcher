@@ -5,17 +5,23 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -33,6 +39,7 @@ import com.iskorsukov.aniwatcher.ui.following.FollowingViewModel
 import com.iskorsukov.aniwatcher.ui.main.MainActivityViewModel
 import com.iskorsukov.aniwatcher.ui.media.MediaScreen
 import com.iskorsukov.aniwatcher.ui.media.MediaViewModel
+import com.iskorsukov.aniwatcher.ui.media.SearchField
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -80,6 +87,7 @@ class MainActivity : ComponentActivity() {
             }
 
             Scaffold(
+                topBar = { TopBar(navController = navController) },
                 bottomBar = { BottomNavigationBar(navController = navController) },
                 scaffoldState = scaffoldState
             ) { innerPadding ->
@@ -106,6 +114,7 @@ class MainActivity : ComponentActivity() {
                     }
                     composable("following") {
                         FollowingScreen(
+                            mainActivityViewModel,
                             followingViewModel,
                             timeInMinutesFlow,
                             this@MainActivity::startDetailsActivity
@@ -165,6 +174,48 @@ fun BottomNavigationBar(navController: NavHostController) {
                     }
                 }
             )
+        }
+    }
+}
+
+@Composable
+fun TopBar(
+    mainActivityViewModel: MainActivityViewModel = viewModel(),
+    navController: NavHostController
+) {
+    val searchFieldVisibleState = remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
+
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+    val screen = Screen.ofRoute(currentDestination?.route.orEmpty())
+
+    if (screen?.hasTopBar == true) {
+        TopAppBar {
+            if (searchFieldVisibleState.value) {
+                AnimatedVisibility(
+                    visible = searchFieldVisibleState.value,
+                    enter = expandHorizontally(expandFrom = Alignment.Start),
+                    exit = shrinkHorizontally(shrinkTowards = Alignment.Start)
+                ) {
+                    SearchField(
+                        onSearchTextChanged = mainActivityViewModel::onSearchTextInput,
+                        searchFieldVisibleState = searchFieldVisibleState,
+                        focusRequester = focusRequester
+                    )
+                    LaunchedEffect(Unit) {
+                        focusRequester.requestFocus()
+                    }
+                }
+            } else {
+                IconButton(onClick = { searchFieldVisibleState.value = true }) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = null,
+                        tint = Color.White
+                    )
+                }
+            }
         }
     }
 }

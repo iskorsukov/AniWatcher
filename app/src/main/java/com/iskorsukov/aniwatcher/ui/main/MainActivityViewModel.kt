@@ -22,6 +22,9 @@ class MainActivityViewModel @Inject constructor(
     )
     val uiState: StateFlow<MainActivityUiState> = _uiState
 
+    private val _searchTextState: MutableStateFlow<String> = MutableStateFlow("")
+    val searchTextState: StateFlow<String> = _searchTextState
+
     fun loadAiringData() {
         _uiState.value = MainActivityUiState(true)
         val year = DateTimeHelper.currentYear(Calendar.getInstance())
@@ -35,5 +38,9 @@ class MainActivityViewModel @Inject constructor(
                 return@launch
             }
         }
+    }
+
+    fun onSearchTextInput(searchText: String) {
+        _searchTextState.value = searchText
     }
 }
