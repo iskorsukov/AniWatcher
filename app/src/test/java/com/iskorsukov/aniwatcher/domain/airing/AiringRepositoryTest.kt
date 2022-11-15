@@ -108,4 +108,11 @@ class AiringRepositoryTest {
 
         coVerify { mediaDatabaseExecutor.unfollowMedia(mediaItem.id) }
     }
+
+    @Test
+    fun clearMediaSchedules() = runTest {
+        repository.clearAiredSchedules()
+
+        coVerify { mediaDatabaseExecutor.clearAiredSchedules() }
+    }
 }

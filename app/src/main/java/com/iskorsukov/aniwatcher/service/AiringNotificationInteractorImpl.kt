@@ -11,6 +11,7 @@ import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.util.DispatcherProvider
+import com.iskorsukov.aniwatcher.service.util.NotificationBuilderHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -24,7 +25,8 @@ import javax.inject.Inject
 
 class AiringNotificationInteractorImpl @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val airingRepository: AiringRepository
+    private val airingRepository: AiringRepository,
+    private val notificationManagerCompat: NotificationManagerCompat
 ): AiringNotificationInteractor {
 
     private val coroutineScope = CoroutineScope(DispatcherProvider.default() + Job())
@@ -67,9 +69,7 @@ class AiringNotificationInteractorImpl @Inject constructor(
                 description = descriptionText
             }
             // Register the channel with the system
-            val notificationManager: NotificationManager =
-                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
+            notificationManagerCompat.createNotificationChannel(channel)
         }
     }
 
@@ -83,22 +83,8 @@ class AiringNotificationInteractorImpl @Inject constructor(
     }
 
     private fun fireAiredNotification(airingScheduleItem: AiringScheduleItem) {
-        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentTitle(airingScheduleItem.mediaItem.title.baseText())
-            .setContentText(
-                String.format(
-                    context.getString(R.string.episode_aired_at_time_text),
-                    airingScheduleItem.episode,
-                    airingScheduleItem.getAiringAtTimeFormatted()
-                )
-            )
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setAutoCancel(true)
-
-        with(NotificationManagerCompat.from(context)) {
-            notify(airingScheduleItem.id, builder.build())
-        }
+        val notification = NotificationBuilderHelper.buildNotification(context, airingScheduleItem)
+        notificationManagerCompat.notify(airingScheduleItem.id, notification)
     }
 
     companion object {

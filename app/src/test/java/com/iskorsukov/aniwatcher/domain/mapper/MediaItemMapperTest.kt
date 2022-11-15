@@ -29,4 +29,16 @@ class MediaItemMapperTest {
         )
         assertThat(result.values.flatten()).containsExactlyElementsIn(assertValues)
     }
+
+    @Test
+    fun groupMediaWithNextAiringSchedule() {
+        val testData = mapOf(
+            ModelTestDataCreator.baseMediaItem() to ModelTestDataCreator.baseAiringScheduleItemList()
+        )
+
+        val result = MediaItemMapper.groupMediaWithNextAiringSchedule(testData)
+
+        assertThat(result.keys).containsExactly(ModelTestDataCreator.baseMediaItem())
+        assertThat(result.values).containsExactly(ModelTestDataCreator.baseAiringScheduleItemList()[3])
+    }
 }

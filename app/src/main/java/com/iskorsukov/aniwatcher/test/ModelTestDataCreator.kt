@@ -48,6 +48,10 @@ object ModelTestDataCreator {
     }
 }
 
+fun MediaItem.id(id: Int): MediaItem {
+    return this.copy(id = id)
+}
+
 fun MediaItem.emptyTitle(): MediaItem {
     return this.copy(title = MediaItem.Title(
         null,
@@ -58,6 +62,10 @@ fun MediaItem.emptyTitle(): MediaItem {
 
 fun MediaItem.title(title: MediaItem.Title): MediaItem {
     return this.copy(title = title)
+}
+
+fun MediaItem.meanScore(meanScore: Int): MediaItem {
+    return this.copy(meanScore = meanScore)
 }
 
 fun MediaItem.nullDescription(): MediaItem {

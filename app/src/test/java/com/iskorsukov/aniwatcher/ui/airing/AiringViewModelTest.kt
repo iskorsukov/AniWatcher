@@ -1,12 +1,11 @@
 package com.iskorsukov.aniwatcher.ui.airing
 
 import com.google.common.truth.Truth.assertThat
-import com.iskorsukov.aniwatcher.domain.airing.AiringRepositoryImpl
+import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.domain.util.DayOfWeekLocal
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
-import com.iskorsukov.aniwatcher.test.isFollowing
 import io.mockk.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -16,35 +15,28 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class AiringViewModelTest {
 
-    private val airingRepositoryImpl: AiringRepositoryImpl = mockk(relaxed = true)
+    private val airingRepository: AiringRepository = mockk(relaxed = true)
 
-    init {
-        mockkObject(DateTimeHelper)
-        every { DateTimeHelper.currentDayOfWeek() } returns DayOfWeekLocal.WEDNESDAY
-    }
-
-    private val viewModel = AiringViewModel(airingRepositoryImpl)
-
-    init {
-        unmockkObject(DateTimeHelper)
-    }
+    private lateinit var viewModel: AiringViewModel
 
     @Test
     fun airingSchedulesByDayOfWeekFlow() = runTest {
-        coEvery { airingRepositoryImpl.mediaWithSchedulesFlow } returns flow {
-            emit(
-                mapOf(
-                    ModelTestDataCreator.baseMediaItem() to
-                            ModelTestDataCreator.baseAiringScheduleItemList()
-                )
-            )
-        }
+        mockkObject(DateTimeHelper)
+        every { DateTimeHelper.currentDayOfWeek() } returns DayOfWeekLocal.WEDNESDAY
 
-        var result: Map<DayOfWeekLocal, List<AiringScheduleItem>>? = null
-        viewModel.airingSchedulesByDayOfWeekFlow.collectLatest { result = it }
+        coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(
+            mapOf(
+                ModelTestDataCreator.baseMediaItem() to
+                        ModelTestDataCreator.baseAiringScheduleItemList()
+            )
+        )
+        viewModel = AiringViewModel(airingRepository)
+
+        val result: Map<DayOfWeekLocal, List<AiringScheduleItem>> =
+            viewModel.airingSchedulesByDayOfWeekFlow.first()
 
         assertThat(result).isNotNull()
-        assertThat(result!!.keys).containsExactlyElementsIn(listOf(
+        assertThat(result.keys).containsExactlyElementsIn(listOf(
             DayOfWeekLocal.WEDNESDAY,
             DayOfWeekLocal.SATURDAY,
             DayOfWeekLocal.MONDAY
@@ -55,32 +47,8 @@ class AiringViewModelTest {
             list[3],
             list[0]
         )
-        assertThat(result!!.values.flatten()).containsExactlyElementsIn(assertValues).inOrder()
+        assertThat(result.values.flatten()).containsExactlyElementsIn(assertValues).inOrder()
 
         unmockkObject(DateTimeHelper)
-    }
-
-    @Test
-    fun onFollowMediaClicked() = runTest {
-        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
-
-        val mediaItem = ModelTestDataCreator.baseMediaItem()
-
-        viewModel.onFollowClicked(mediaItem)
-        advanceUntilIdle()
-
-        coVerify { airingRepositoryImpl.followMedia(mediaItem) }
-    }
-
-    @Test
-    fun onFollowMediaClicked_unfollow() = runTest {
-        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
-
-        val mediaItem = ModelTestDataCreator.baseMediaItem().isFollowing(true)
-
-        viewModel.onFollowClicked(mediaItem)
-        advanceUntilIdle()
-
-        coVerify { airingRepositoryImpl.unfollowMedia(mediaItem) }
     }
 }
