@@ -4,7 +4,7 @@ query SeasonAiringData($year: Int!, $season: MediaSeason!, $page: Int!) {
             currentPage
             hasNextPage
         }
-        media(season: $season, seasonYear: $year, sort: START_DATE, status_in: [RELEASING, NOT_YET_RELEASED]) {
+        media(season: $season, seasonYear: $year, sort: START_DATE, status_in: [RELEASING, NOT_YET_RELEASED], format: TV) {
             id
             title {
                 romaji
@@ -31,6 +31,9 @@ query SeasonAiringData($year: Int!, $season: MediaSeason!, $page: Int!) {
                 }
             }
             siteUrl
+            nextAiringEpisode {
+                airingAt
+            }
             airingSchedule(notYetAired: true) {
                 airingScheduleNode: nodes {
                     id

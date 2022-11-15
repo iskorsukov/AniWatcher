@@ -49,7 +49,8 @@ object QueryTestDataCreator {
             genres = listOf("Action", "Comedy"),
             siteUrl = "AniListUrl",
             airingSchedule = baseSeasonAiringDataSchedule(),
-            season = MediaSeason.FALL
+            season = MediaSeason.FALL,
+            nextAiringEpisode = SeasonAiringDataQuery.NextAiringEpisode(1667833200)
         )
     }
 

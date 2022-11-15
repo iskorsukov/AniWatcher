@@ -16,6 +16,7 @@ data class MediaItem(
     val meanScore: Int?,
     val genres: List<String>,
     val siteUrl: String?,
+    val nextEpisodeAiringAt: Int?,
     val isFollowing: Boolean
 ): Serializable {
     data class Title(
@@ -72,6 +73,7 @@ data class MediaItem(
                     genres = genresCommaSeparated?.split(",")
                         ?.filter { it.isNotEmpty() } ?: emptyList(),
                     siteUrl = siteUrl,
+                    nextEpisodeAiringAt = nextEpisodeAiringAt,
                     isFollowing = followingEntity != null
                 )
             }

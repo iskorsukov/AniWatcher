@@ -18,7 +18,8 @@ data class MediaItemEntity(
     @Embedded val seasonRanking: Ranking?,
     val meanScore: Int?,
     val genresCommaSeparated: String?,
-    val siteUrl: String?
+    val siteUrl: String?,
+    val nextEpisodeAiringAt: Int?
 ) {
     data class Title(
         val titleRomaji: String?,
@@ -56,7 +57,8 @@ data class MediaItemEntity(
                     },
                     meanScore = meanScore,
                     genresCommaSeparated = genres?.filterNotNull()?.joinToString(separator = ","),
-                    siteUrl = siteUrl
+                    siteUrl = siteUrl,
+                    nextEpisodeAiringAt = nextAiringEpisode?.airingAt
                 )
             }
         }

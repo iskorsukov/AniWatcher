@@ -25,6 +25,7 @@ object ModelTestDataCreator {
             meanScore = 1,
             genres = listOf("Action", "Comedy"),
             siteUrl = "AniListUrl",
+            nextEpisodeAiringAt = 1667833200,
             isFollowing = false
         )
     }
