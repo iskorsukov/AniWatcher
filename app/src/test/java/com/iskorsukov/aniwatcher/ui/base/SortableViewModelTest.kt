@@ -7,6 +7,7 @@ import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.test.id
 import com.iskorsukov.aniwatcher.test.meanScore
+import com.iskorsukov.aniwatcher.test.nextEpisodeAiringAt
 import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -20,10 +21,10 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class SortableViewModelTest {
 
-    private val firstItem = ModelTestDataCreator.baseMediaItem() to
+    private val firstItem = ModelTestDataCreator.baseMediaItem().nextEpisodeAiringAt(1) to
             ModelTestDataCreator.baseAiringScheduleItemList()
-    private val secondItem = ModelTestDataCreator.baseMediaItem().id(2).meanScore(2) to
-            ModelTestDataCreator.baseAiringScheduleItemList().subList(0, 1)
+    private val secondItem = ModelTestDataCreator.baseMediaItem().nextEpisodeAiringAt(2).meanScore(2) to
+            ModelTestDataCreator.baseAiringScheduleItemList()
     private val data = mapOf(firstItem, secondItem)
 
     private val airingRepository: AiringRepository = mockk<AiringRepository>(relaxed = true).apply {

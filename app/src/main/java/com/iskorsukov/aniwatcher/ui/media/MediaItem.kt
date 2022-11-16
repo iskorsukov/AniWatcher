@@ -39,10 +39,7 @@ import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
-import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
-import com.iskorsukov.aniwatcher.test.description
-import com.iskorsukov.aniwatcher.test.nullMeanScore
-import com.iskorsukov.aniwatcher.test.nullRanking
+import com.iskorsukov.aniwatcher.test.*
 import com.iskorsukov.aniwatcher.ui.theme.*
 import com.iskorsukov.aniwatcher.ui.util.getBackgroundColorForChip
 import com.iskorsukov.aniwatcher.ui.util.getContrastTextColorForChip
@@ -312,7 +309,7 @@ fun MediaItemCardExtendedPreview_noRankScore() {
 
     MediaItemCardExtended(
         mediaItem = ModelTestDataCreator.baseMediaItem().description("Word ".repeat(50))
-            .nullRanking().nullMeanScore(),
+            .ranking(null).meanScore(null),
         airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
         timeInMinutes = timeInMinutes,
         onFollowClicked = {},
@@ -327,7 +324,7 @@ fun MediaItemCardExtendedPreview_noAiringSchedule_noRankScore() {
 
     MediaItemCardExtended(
         mediaItem = ModelTestDataCreator.baseMediaItem().description("Word ".repeat(50))
-            .nullRanking().nullMeanScore(),
+            .ranking(null).meanScore(null),
         airingScheduleItem = null,
         timeInMinutes = timeInMinutes,
         onFollowClicked = {},

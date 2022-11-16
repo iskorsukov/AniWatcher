@@ -13,7 +13,7 @@ enum class SortingOption(
         val secondAiringAt = second.nextEpisodeAiringAt ?: Int.MAX_VALUE
         val diff = firstAiringAt - secondAiringAt
         if (diff == 0){
-            1
+            -1
         } else {
             diff
         }
@@ -23,7 +23,7 @@ enum class SortingOption(
         val secondRank = second.seasonRanking?.rank ?: Int.MAX_VALUE
         val diff = firstRank - secondRank
         if (diff == 0){
-            1
+            -1
         } else {
             diff
         }
@@ -33,7 +33,7 @@ enum class SortingOption(
         val secondScore = second.meanScore ?: 0
         val diff = secondScore - firstScore
         if (diff == 0){
-            1
+            -1
         } else {
             diff
         }

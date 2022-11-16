@@ -49,8 +49,6 @@ fun MediaScreen(
 ) {
     val uiState by mainActivityViewModel
         .uiState.collectAsStateWithLifecycle()
-    viewModel.onSearchTextChanged(uiState.searchText)
-    viewModel.onSortingOptionChanged(uiState.sortingOption)
 
     val settingsState by mainActivityViewModel
         .settingsState.collectAsStateWithLifecycle()
@@ -64,6 +62,12 @@ fun MediaScreen(
     val swipeRefreshState = rememberSwipeRefreshState(uiState.isRefreshing)
 
     val listState = rememberLazyListState()
+
+    LaunchedEffect(uiState.searchText, uiState.sortingOption) {
+        viewModel.onSearchTextChanged(uiState.searchText)
+        viewModel.onSortingOptionChanged(uiState.sortingOption)
+        listState.scrollToItem(0)
+    }
 
     SwipeRefresh(
         state = swipeRefreshState,

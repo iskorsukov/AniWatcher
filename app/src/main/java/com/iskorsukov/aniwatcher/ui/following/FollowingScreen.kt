@@ -40,8 +40,6 @@ fun FollowingScreen(
 ) {
     val uiState by mainActivityViewModel
         .uiState.collectAsStateWithLifecycle()
-    viewModel.onSearchTextChanged(uiState.searchText)
-    viewModel.onSortingOptionChanged(uiState.sortingOption)
 
     val settingsState by mainActivityViewModel
         .settingsState.collectAsStateWithLifecycle()
@@ -53,6 +51,11 @@ fun FollowingScreen(
         .collectAsStateWithLifecycle(initialValue = 0)
 
     val listState = rememberLazyListState()
+    LaunchedEffect(uiState.searchText, uiState.sortingOption) {
+        viewModel.onSearchTextChanged(uiState.searchText)
+        viewModel.onSortingOptionChanged(uiState.sortingOption)
+        listState.scrollToItem(0)
+    }
 
     if (followingMediaMap.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize()) {

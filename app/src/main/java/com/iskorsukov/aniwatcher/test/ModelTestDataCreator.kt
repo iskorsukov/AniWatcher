@@ -53,52 +53,24 @@ fun MediaItem.id(id: Int): MediaItem {
     return this.copy(id = id)
 }
 
-fun MediaItem.emptyTitle(): MediaItem {
-    return this.copy(title = MediaItem.Title(
-        null,
-        null,
-        null
-    ))
-}
-
 fun MediaItem.title(title: MediaItem.Title): MediaItem {
     return this.copy(title = title)
 }
 
-fun MediaItem.meanScore(meanScore: Int): MediaItem {
+fun MediaItem.meanScore(meanScore: Int?): MediaItem {
     return this.copy(meanScore = meanScore)
 }
 
-fun MediaItem.nullDescription(): MediaItem {
-    return this.copy(description = null)
+fun MediaItem.nextEpisodeAiringAt(nextEpisodeAiringAt: Int): MediaItem {
+    return this.copy(nextEpisodeAiringAt = nextEpisodeAiringAt)
 }
 
 fun MediaItem.description(description: String): MediaItem {
     return this.copy(description = description)
 }
 
-fun MediaItem.nullRanking(): MediaItem {
-    return this.copy(seasonRanking = null)
-}
-
-fun MediaItem.emptyGenres(): MediaItem {
-    return this.copy(genres = emptyList())
-}
-
-fun MediaItem.nullMeanScore(): MediaItem {
-    return this.copy(meanScore = null)
-}
-
-fun MediaItem.nullCoverImageUrl(): MediaItem {
-    return this.copy(coverImageUrl = null)
-}
-
-fun MediaItem.nullColorStr(): MediaItem {
-    return this.copy(colorStr = null)
-}
-
-fun MediaItem.nullSiteUrl(): MediaItem {
-    return this.copy(siteUrl = null)
+fun MediaItem.ranking(seasonRanking: MediaItem.Ranking?): MediaItem {
+    return this.copy(seasonRanking = seasonRanking)
 }
 
 fun MediaItem.isFollowing(isFollowing: Boolean): MediaItem {
