@@ -23,12 +23,6 @@ class MainActivityViewModel @Inject constructor(
     )
     val uiState: StateFlow<MainActivityUiState> = _uiState
 
-    private val _searchTextState: MutableStateFlow<String> = MutableStateFlow("")
-    val searchTextState: StateFlow<String> = _searchTextState
-
-    private val _sortingOptionState: MutableStateFlow<SortingOption> = MutableStateFlow(SortingOption.AIRING_AT)
-    val sortingOptionState: StateFlow<SortingOption> = _sortingOptionState
-
     fun loadAiringData() {
         _uiState.value = MainActivityUiState(true)
         val year = DateTimeHelper.currentYear(Calendar.getInstance())
@@ -45,7 +39,7 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun onSearchTextInput(searchText: String) {
-        _searchTextState.value = searchText
+        _uiState.value = _uiState.value.copy(searchText = searchText)
     }
 
     fun onSortingOptionsIconClicked() {
@@ -53,7 +47,7 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun onSortingOptionSelected(sortingOption: SortingOption) {
-        _sortingOptionState.value = sortingOption
+        _uiState.value = _uiState.value.copy(sortingOption = sortingOption)
     }
 
     fun onSortingOptionsDialogDismissed() {

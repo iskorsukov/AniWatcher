@@ -68,10 +68,10 @@ class MainActivityViewModelTest {
     fun onSearchTextInput() = runTest {
         val searchText = "Search"
 
-        assertThat(viewModel.searchTextState.first()).isEmpty()
+        assertThat(viewModel.uiState.first().searchText).isEmpty()
 
         viewModel.onSearchTextInput(searchText)
-        assertThat(viewModel.searchTextState.first()).isEqualTo(searchText)
+        assertThat(viewModel.uiState.first().searchText).isEqualTo(searchText)
     }
 
     @Test
@@ -90,7 +90,7 @@ class MainActivityViewModelTest {
         assertThat(state.showSortingOptionsDialog).isTrue()
 
         viewModel.onSortingOptionSelected(SortingOption.SCORE)
-        assertThat(viewModel.sortingOptionState.first()).isEqualTo(SortingOption.SCORE)
+        assertThat(viewModel.uiState.first().sortingOption).isEqualTo(SortingOption.SCORE)
 
     }
 

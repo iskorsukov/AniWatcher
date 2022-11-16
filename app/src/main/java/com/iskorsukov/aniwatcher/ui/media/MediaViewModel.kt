@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MediaViewModel @Inject constructor(
-    private val airingRepository: AiringRepository
+    airingRepository: AiringRepository
 ) : SortableMediaViewModel(airingRepository) {
 
     val mediaFlow = airingRepository.mediaWithSchedulesFlow.map {

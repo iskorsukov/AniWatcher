@@ -9,7 +9,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +37,11 @@ fun FollowingScreen(
     timeInMinutesFlow: Flow<Long>,
     onMediaClicked: ((Int) -> Unit)? = null
 ) {
+    val uiState by mainActivityViewModel
+        .uiState.collectAsStateWithLifecycle()
+    viewModel.onSearchTextChanged(uiState.searchText)
+    viewModel.onSortingOptionChanged(uiState.sortingOption)
+
     val followingMediaMap by viewModel.followingMediaFlow
         .collectAsStateWithLifecycle(initialValue = emptyMap())
 
@@ -45,18 +49,6 @@ fun FollowingScreen(
         .collectAsStateWithLifecycle(initialValue = 0)
 
     val listState = rememberLazyListState()
-
-    LaunchedEffect(Unit) {
-        mainActivityViewModel.searchTextState.collect {
-            viewModel.onSearchTextChanged(it)
-        }
-    }
-    LaunchedEffect(Unit) {
-        mainActivityViewModel.sortingOptionState.collect {
-            viewModel.onSortingOptionChanged(it)
-            listState.scrollToItem(0)
-        }
-    }
 
     if (followingMediaMap.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize()) {

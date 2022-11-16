@@ -47,11 +47,13 @@ fun MediaScreen(
     timeInMinutesFlow: Flow<Long>,
     onMediaClicked: ((Int) -> Unit)? = null
 ) {
-    val mediaFlow by viewModel.mediaFlow
-        .collectAsStateWithLifecycle(initialValue = emptyMap())
-
     val uiState by mainActivityViewModel
         .uiState.collectAsStateWithLifecycle()
+    viewModel.onSearchTextChanged(uiState.searchText)
+    viewModel.onSortingOptionChanged(uiState.sortingOption)
+
+    val mediaFlow by viewModel.mediaFlow
+        .collectAsStateWithLifecycle(initialValue = emptyMap())
 
     val timeInMinutes by timeInMinutesFlow
         .collectAsStateWithLifecycle(initialValue = 0)
@@ -59,18 +61,6 @@ fun MediaScreen(
     val swipeRefreshState = rememberSwipeRefreshState(uiState.isRefreshing)
 
     val listState = rememberLazyListState()
-
-    LaunchedEffect(Unit) {
-        mainActivityViewModel.searchTextState.collect {
-            viewModel.onSearchTextChanged(it)
-        }
-    }
-    LaunchedEffect(Unit) {
-        mainActivityViewModel.sortingOptionState.collect {
-            viewModel.onSortingOptionChanged(it)
-            listState.scrollToItem(0)
-        }
-    }
 
     SwipeRefresh(
         state = swipeRefreshState,
