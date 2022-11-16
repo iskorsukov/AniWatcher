@@ -2,6 +2,7 @@ package com.iskorsukov.aniwatcher.domain.model
 
 import com.iskorsukov.aniwatcher.data.entity.FollowingEntity
 import com.iskorsukov.aniwatcher.data.entity.MediaItemEntity
+import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import java.io.Serializable
 
 data class MediaItem(
@@ -24,14 +25,22 @@ data class MediaItem(
         val english: String?,
         val native: String?
     ): Serializable {
-        fun baseText(): String {
-            val orderedTitles = listOf(english, romaji, native)
+        fun baseText(namingScheme: NamingScheme = NamingScheme.ENGLISH): String {
+            val orderedTitles = when (namingScheme) {
+                NamingScheme.ENGLISH -> listOf(english, romaji, native)
+                NamingScheme.ROMAJI -> listOf(romaji, english, native)
+                NamingScheme.NATIVE -> listOf(native, romaji, english)
+            }
             val filteredTitles = orderedTitles.filterNotNull()
             return filteredTitles.getOrNull(0) ?: ""
         }
 
-        fun subText(): String {
-            val orderedTitles = listOf(english, romaji, native)
+        fun subText(namingScheme: NamingScheme = NamingScheme.ENGLISH): String {
+            val orderedTitles = when (namingScheme) {
+                NamingScheme.ENGLISH -> listOf(english, romaji, native)
+                NamingScheme.ROMAJI -> listOf(romaji, english, native)
+                NamingScheme.NATIVE -> listOf(native, romaji, english)
+            }
             val filteredTitles = orderedTitles.filterNotNull()
             return filteredTitles.getOrNull(1) ?: ""
         }

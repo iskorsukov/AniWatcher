@@ -1,5 +1,6 @@
 package com.iskorsukov.aniwatcher.ui.airing
 
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -37,6 +38,9 @@ fun AiringScreen(
     val uiState by mainActivityViewModel
         .uiState.collectAsStateWithLifecycle()
 
+    val settingsState by mainActivityViewModel
+        .settingsState.collectAsStateWithLifecycle()
+
     val timeInMinutes by timeInMinutesFlow
         .collectAsStateWithLifecycle(initialValue = 0)
 
@@ -64,7 +68,8 @@ fun AiringScreen(
                             airingScheduleItem = it,
                             timeInMinutes = timeInMinutes,
                             onFollowClicked = viewModel::onFollowClicked,
-                            onMediaClicked = onMediaClicked
+                            onMediaClicked = onMediaClicked,
+                            preferredNamingScheme = settingsState.preferredNamingScheme
                         )
                     }
                 }

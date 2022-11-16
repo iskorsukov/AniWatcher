@@ -3,6 +3,8 @@ package com.iskorsukov.aniwatcher.ui.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
+import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
+import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.ui.base.ErrorItem
 import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
@@ -15,11 +17,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
-    private val airingRepository: AiringRepository
+    private val airingRepository: AiringRepository,
+    settingsRepository: SettingsRepository
 ): ViewModel() {
 
+    val settingsState: StateFlow<SettingsState> = settingsRepository.settingsStateFlow
+
     private val _uiState: MutableStateFlow<MainActivityUiState> = MutableStateFlow(
-        MainActivityUiState(false)
+        MainActivityUiState(isRefreshing = false)
     )
     val uiState: StateFlow<MainActivityUiState> = _uiState
 
@@ -42,15 +47,7 @@ class MainActivityViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(searchText = searchText)
     }
 
-    fun onSortingOptionsIconClicked() {
-        _uiState.value = _uiState.value.copy(showSortingOptionsDialog = true)
-    }
-
     fun onSortingOptionSelected(sortingOption: SortingOption) {
         _uiState.value = _uiState.value.copy(sortingOption = sortingOption)
-    }
-
-    fun onSortingOptionsDialogDismissed() {
-        _uiState.value = _uiState.value.copy(showSortingOptionsDialog = false)
     }
 }

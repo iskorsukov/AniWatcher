@@ -22,6 +22,7 @@ import coil.compose.AsyncImage
 import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
+import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.test.bannerImage
 import com.iskorsukov.aniwatcher.ui.media.toAnnotatedString
@@ -34,7 +35,8 @@ import kotlinx.coroutines.flow.flowOf
 fun DetailsScreen(
     timeInMinutesFlow: Flow<Long>,
     mediaItem: MediaItem,
-    airingScheduleList: List<AiringScheduleItem>?
+    airingScheduleList: List<AiringScheduleItem>?,
+    preferredNamingScheme: NamingScheme = NamingScheme.ENGLISH
 ) {
 
     val timeInMinutes by timeInMinutesFlow
@@ -98,13 +100,13 @@ fun DetailsScreen(
                 }
         ) {
             Text(
-                text = mediaItem.title.baseText(),
+                text = mediaItem.title.baseText(preferredNamingScheme),
                 color = CardTextColorLight,
                 fontSize = 14.sp
             )
             if (mediaItem.title.subText().isNotEmpty()) {
                 Text(
-                    text = mediaItem.title.subText(),
+                    text = mediaItem.title.subText(preferredNamingScheme),
                     color = CardTextColorLight,
                     fontSize = 12.sp
                 )

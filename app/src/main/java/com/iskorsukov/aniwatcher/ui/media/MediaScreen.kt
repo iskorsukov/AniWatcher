@@ -52,6 +52,9 @@ fun MediaScreen(
     viewModel.onSearchTextChanged(uiState.searchText)
     viewModel.onSortingOptionChanged(uiState.sortingOption)
 
+    val settingsState by mainActivityViewModel
+        .settingsState.collectAsStateWithLifecycle()
+
     val mediaFlow by viewModel.mediaFlow
         .collectAsStateWithLifecycle(initialValue = emptyMap())
 
@@ -75,7 +78,8 @@ fun MediaScreen(
                             airingScheduleItem = it.value,
                             timeInMinutes = timeInMinutes,
                             onFollowClicked = viewModel::onFollowClicked,
-                            onMediaClicked = onMediaClicked
+                            onMediaClicked = onMediaClicked,
+                            preferredNamingScheme = settingsState.preferredNamingScheme
                         )
                     }
                 }

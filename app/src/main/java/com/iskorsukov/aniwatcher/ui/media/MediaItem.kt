@@ -38,6 +38,7 @@ import coil.compose.AsyncImage
 import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
+import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.test.description
 import com.iskorsukov.aniwatcher.test.nullMeanScore
@@ -46,14 +47,14 @@ import com.iskorsukov.aniwatcher.ui.theme.*
 import com.iskorsukov.aniwatcher.ui.util.getBackgroundColorForChip
 import com.iskorsukov.aniwatcher.ui.util.getContrastTextColorForChip
 
-
 @Composable
 fun MediaItemCardExtended(
     mediaItem: MediaItem,
     airingScheduleItem: AiringScheduleItem?,
     timeInMinutes: Long,
     onFollowClicked: (MediaItem) -> Unit,
-    onMediaClicked: ((Int) -> Unit)?
+    onMediaClicked: ((Int) -> Unit)?,
+    preferredNamingScheme: NamingScheme = NamingScheme.ENGLISH
 ) {
     Card(
         modifier = Modifier
@@ -106,7 +107,7 @@ fun MediaItemCardExtended(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = mediaItem.title.baseText(),
+                    text = mediaItem.title.baseText(preferredNamingScheme),
                     color = Color.White,
                     fontSize = 12.sp,
                     overflow = TextOverflow.Ellipsis
@@ -339,7 +340,8 @@ fun MediaItemCardCollapsed(
     airingScheduleItem: AiringScheduleItem,
     timeInMinutes: Long,
     onFollowClicked: (MediaItem) -> Unit,
-    onMediaClicked: ((Int) -> Unit)?
+    onMediaClicked: ((Int) -> Unit)?,
+    preferredNamingScheme: NamingScheme = NamingScheme.ENGLISH
 ) {
     val mediaItem = airingScheduleItem.mediaItem
     Card(
@@ -376,7 +378,7 @@ fun MediaItemCardCollapsed(
                     }
             ) {
                 Text(
-                    text = mediaItem.title.baseText(),
+                    text = mediaItem.title.baseText(preferredNamingScheme),
                     color = CardTextColorLight,
                     fontSize = 12.sp,
                     overflow = TextOverflow.Ellipsis,

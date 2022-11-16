@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="naming_scheme_default_value">ENGLISH</string>
+    <string-array name="naming_scheme_labels">
+        <item>English</item>
+        <item>Romaji</item>
+        <item>Native</item>
+    </string-array>
+    <string-array name="naming_scheme_values">
+        <item>ENGLISH</item>
+        <item>ROMAJI</item>
+        <item>NATIVE</item>
+    </string-array>
+</resources>

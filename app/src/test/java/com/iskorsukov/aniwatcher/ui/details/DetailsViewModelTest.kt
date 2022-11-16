@@ -1,6 +1,7 @@
 package com.iskorsukov.aniwatcher.ui.details
 
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
+import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -15,6 +16,7 @@ import org.junit.Test
 class DetailsViewModelTest {
 
     private val airingRepository: AiringRepository = mockk(relaxed = true)
+    private val settingsRepository: SettingsRepository = mockk(relaxed = true)
 
     private lateinit var viewModel: DetailsViewModel
 
@@ -24,7 +26,7 @@ class DetailsViewModelTest {
             ModelTestDataCreator.baseMediaItem() to
                     ModelTestDataCreator.baseAiringScheduleItemList()
         )
-        viewModel = DetailsViewModel(airingRepository)
+        viewModel = DetailsViewModel(airingRepository, settingsRepository)
 
         viewModel.getMediaWithAiringSchedules(1).first()
 

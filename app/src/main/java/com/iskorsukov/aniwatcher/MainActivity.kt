@@ -8,6 +8,8 @@ import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -37,6 +39,7 @@ import com.iskorsukov.aniwatcher.ui.main.MainActivityViewModel
 import com.iskorsukov.aniwatcher.ui.media.MediaScreen
 import com.iskorsukov.aniwatcher.ui.media.MediaViewModel
 import com.iskorsukov.aniwatcher.ui.media.SearchField
+import com.iskorsukov.aniwatcher.ui.settings.SettingsActivity
 import com.iskorsukov.aniwatcher.ui.sorting.SelectSortingOptionDialog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -71,6 +74,10 @@ class MainActivity : ComponentActivity() {
             val scaffoldState = rememberScaffoldState()
             val uiState by mainActivityViewModel.uiState.collectAsStateWithLifecycle()
 
+            var shouldShowSortingOptionsDialog by remember {
+                mutableStateOf(false)
+            }
+
             if (uiState.errorItem != null) {
                 LaunchedEffect(scaffoldState.snackbarHostState) {
                     val snackbarData = scaffoldState.snackbarHostState.showSnackbar(
@@ -85,14 +92,20 @@ class MainActivity : ComponentActivity() {
             }
 
             Scaffold(
-                topBar = { TopBar(navController = navController) },
+                topBar = {
+                    TopBar(
+                        navController = navController,
+                        onSelectSortingOptionClicked = { shouldShowSortingOptionsDialog = true },
+                        onSettingsClicked = { startSettingsActivity() }
+                    )
+                },
                 bottomBar = { BottomNavigationBar(navController = navController) },
                 scaffoldState = scaffoldState
             ) { innerPadding ->
-                if (uiState.showSortingOptionsDialog) {
+                if (shouldShowSortingOptionsDialog) {
                     SelectSortingOptionDialog(
                         onSortingOptionSelected = mainActivityViewModel::onSortingOptionSelected,
-                        onDismissRequest = mainActivityViewModel::onSortingOptionsDialogDismissed
+                        onDismissRequest = { shouldShowSortingOptionsDialog = false }
                     )
                 }
 
@@ -141,6 +154,12 @@ class MainActivity : ComponentActivity() {
             }
         )
     }
+
+    private fun startSettingsActivity() {
+        startActivity(
+            Intent(this, SettingsActivity::class.java)
+        )
+    }
 }
 
 @Composable
@@ -186,7 +205,9 @@ fun BottomNavigationBar(navController: NavHostController) {
 @Composable
 fun TopBar(
     mainActivityViewModel: MainActivityViewModel = viewModel(),
-    navController: NavHostController
+    navController: NavHostController,
+    onSelectSortingOptionClicked: () -> Unit,
+    onSettingsClicked: () -> Unit
 ) {
     val searchFieldVisibleState = remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
@@ -223,13 +244,21 @@ fun TopBar(
             }
         }
         if (screen?.hasSortingOptions == true) {
-            IconButton(onClick = { mainActivityViewModel.onSortingOptionsIconClicked() }) {
+            IconButton(onClick = onSelectSortingOptionClicked) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_baseline_sort_24),
                     contentDescription = null,
                     tint = Color.White
                 )
             }
+        }
+        Spacer(Modifier.weight(1f).fillMaxHeight())
+        IconButton(onClick = onSettingsClicked) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_baseline_settings_24),
+                contentDescription = null,
+                tint = Color.White
+            )
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.iskorsukov.aniwatcher.domain.model
 
 import com.google.common.truth.Truth.assertThat
+import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.test.*
 import org.junit.Test
 
@@ -26,100 +27,56 @@ class MediaItemTest {
     }
 
     @Test
-    fun fromEntity_emptyTitle() {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity().emptyTitle()
-
-        val mediaItem = MediaItem.fromEntity(mediaItemEntity, null)
-
-        assertThat(mediaItem).isEqualTo(ModelTestDataCreator.baseMediaItem().emptyTitle())
-    }
-
-    @Test
-    fun fromEntity_nullDescription() {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity().nullDescription()
-
-        val mediaItem = MediaItem.fromEntity(mediaItemEntity, null)
-
-        assertThat(mediaItem).isEqualTo(ModelTestDataCreator.baseMediaItem().nullDescription())
-    }
-
-    @Test
-    fun fromEntity_nullRanking() {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity().nullRanking()
-
-        val mediaItem = MediaItem.fromEntity(mediaItemEntity, null)
-
-        assertThat(mediaItem).isEqualTo(ModelTestDataCreator.baseMediaItem().nullRanking())
-    }
-
-    @Test
-    fun fromEntity_nullGenres() {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity().nullGenres()
-
-        val mediaItem = MediaItem.fromEntity(mediaItemEntity, null)
-
-        assertThat(mediaItem).isEqualTo(ModelTestDataCreator.baseMediaItem().emptyGenres())
-    }
-
-    @Test
-    fun fromEntity_nullCoverImageUrl() {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity().nullCoverImageUrl()
-
-        val mediaItem = MediaItem.fromEntity(mediaItemEntity, null)
-
-        assertThat(mediaItem).isEqualTo(ModelTestDataCreator.baseMediaItem().nullCoverImageUrl())
-
-    }
-
-    @Test
-    fun fromEntity_nullColorStr() {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity().nullColorStr()
-
-        val mediaItem = MediaItem.fromEntity(mediaItemEntity, null)
-
-        assertThat(mediaItem).isEqualTo(ModelTestDataCreator.baseMediaItem().nullColorStr())
-
-    }
-
-    @Test
-    fun fromEntity_nullMeanScore() {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity().nullMeanScore()
-
-        val mediaItem = MediaItem.fromEntity(mediaItemEntity, null)
-
-        assertThat(mediaItem).isEqualTo(ModelTestDataCreator.baseMediaItem().nullMeanScore())
-
-    }
-
-    @Test
-    fun fromEntity_nullSiteUrl() {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity().nullSiteUrl()
-
-        val mediaItem = MediaItem.fromEntity(mediaItemEntity, null)
-
-        assertThat(mediaItem).isEqualTo(ModelTestDataCreator.baseMediaItem().nullSiteUrl())
-    }
-
-    @Test
-    fun baseText() {
-        val mediaItem = ModelTestDataCreator.baseMediaItem()
-
+    fun baseText_english() {
+        var mediaItem = ModelTestDataCreator.baseMediaItem()
         assertThat(mediaItem.title.baseText()).isEqualTo(mediaItem.title.english)
-    }
-
-    @Test
-    fun baseText_noEnglish() {
-        var mediaItem = ModelTestDataCreator.baseMediaItem()
-        mediaItem = mediaItem.title(mediaItem.title.copy(english = null))
-
+        mediaItem = ModelTestDataCreator.baseMediaItem().title(mediaItem.title.copy(english = null))
         assertThat(mediaItem.title.baseText()).isEqualTo(mediaItem.title.romaji)
+        mediaItem = ModelTestDataCreator.baseMediaItem().title(mediaItem.title.copy(english = null, romaji = null))
+        assertThat(mediaItem.title.baseText()).isEqualTo(mediaItem.title.native)
     }
 
     @Test
-    fun baseText_noEnglishOrRomaji() {
+    fun baseText_romaji() {
         var mediaItem = ModelTestDataCreator.baseMediaItem()
-        mediaItem = mediaItem.title(mediaItem.title.copy(english = null, romaji = null))
+        assertThat(mediaItem.title.baseText(NamingScheme.ROMAJI)).isEqualTo(mediaItem.title.romaji)
+        mediaItem = ModelTestDataCreator.baseMediaItem().title(mediaItem.title.copy(romaji = null))
+        assertThat(mediaItem.title.baseText(NamingScheme.ROMAJI)).isEqualTo(mediaItem.title.english)
+        mediaItem = ModelTestDataCreator.baseMediaItem().title(mediaItem.title.copy(english = null, romaji = null))
+        assertThat(mediaItem.title.baseText(NamingScheme.ROMAJI)).isEqualTo(mediaItem.title.native)
+    }
 
-        assertThat(mediaItem.title.baseText()).isEqualTo(mediaItem.title.native)
+    @Test
+    fun baseText_native() {
+        var mediaItem = ModelTestDataCreator.baseMediaItem()
+        assertThat(mediaItem.title.baseText(NamingScheme.NATIVE)).isEqualTo(mediaItem.title.native)
+        mediaItem = ModelTestDataCreator.baseMediaItem().title(mediaItem.title.copy(native = null))
+        assertThat(mediaItem.title.baseText(NamingScheme.NATIVE)).isEqualTo(mediaItem.title.romaji)
+        mediaItem = ModelTestDataCreator.baseMediaItem().title(mediaItem.title.copy(native = null, romaji = null))
+        assertThat(mediaItem.title.baseText(NamingScheme.NATIVE)).isEqualTo(mediaItem.title.english)
+    }
+
+    @Test
+    fun subText_english() {
+        var mediaItem = ModelTestDataCreator.baseMediaItem()
+        assertThat(mediaItem.title.subText(NamingScheme.ENGLISH)).isEqualTo(mediaItem.title.romaji)
+        mediaItem = ModelTestDataCreator.baseMediaItem().title(mediaItem.title.copy(romaji = null))
+        assertThat(mediaItem.title.subText(NamingScheme.ENGLISH)).isEqualTo(mediaItem.title.native)
+    }
+
+    @Test
+    fun subText_romaji() {
+        var mediaItem = ModelTestDataCreator.baseMediaItem()
+        assertThat(mediaItem.title.subText(NamingScheme.ROMAJI)).isEqualTo(mediaItem.title.english)
+        mediaItem = ModelTestDataCreator.baseMediaItem().title(mediaItem.title.copy(english = null))
+        assertThat(mediaItem.title.subText(NamingScheme.ROMAJI)).isEqualTo(mediaItem.title.native)
+    }
+
+    @Test
+    fun subText_native() {
+        var mediaItem = ModelTestDataCreator.baseMediaItem()
+        assertThat(mediaItem.title.subText(NamingScheme.NATIVE)).isEqualTo(mediaItem.title.romaji)
+        mediaItem = ModelTestDataCreator.baseMediaItem().title(mediaItem.title.copy(romaji = null))
+        assertThat(mediaItem.title.subText(NamingScheme.NATIVE)).isEqualTo(mediaItem.title.english)
     }
 }

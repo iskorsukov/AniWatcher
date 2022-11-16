@@ -34,6 +34,9 @@ class DetailsActivity: ComponentActivity() {
         if (mediaItemId == -1) finish()
 
         setContent {
+            val settingsState by viewModel.settingsState
+                .collectAsStateWithLifecycle()
+
             val mediaItemToAiringSchedules by viewModel.getMediaWithAiringSchedules(mediaItemId)
                 .collectAsStateWithLifecycle(null)
 
@@ -42,7 +45,8 @@ class DetailsActivity: ComponentActivity() {
                     timeInMinutesFlow = timeInMinutesFlow,
                     mediaItem = mediaItemToAiringSchedules!!.first,
                     airingScheduleList = mediaItemToAiringSchedules!!.second
-                        .sortedBy { it.airingAt }
+                        .sortedBy { it.airingAt },
+                    preferredNamingScheme = settingsState.preferredNamingScheme
                 )
             }
         }

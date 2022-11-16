@@ -6,7 +6,6 @@ import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 data class MainActivityUiState(
     val isRefreshing: Boolean,
     val errorItem: ErrorItem? = null,
-    val showSortingOptionsDialog: Boolean = false,
     val searchText: String = "",
-    val sortingOption: SortingOption = SortingOption.AIRING_AT
+    val sortingOption: SortingOption = SortingOption.AIRING_AT,
 )

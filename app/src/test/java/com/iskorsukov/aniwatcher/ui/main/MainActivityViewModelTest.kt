@@ -1,7 +1,8 @@
 package com.iskorsukov.aniwatcher.ui.main
 
 import com.google.common.truth.Truth.assertThat
-import com.iskorsukov.aniwatcher.domain.airing.AiringRepositoryImpl
+import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
+import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 import io.mockk.*
@@ -18,9 +19,10 @@ import java.io.IOException
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainActivityViewModelTest {
 
-    private val airingRepositoryImpl: AiringRepositoryImpl = mockk(relaxed = true)
+    private val airingRepository: AiringRepository = mockk(relaxed = true)
+    private val settingsRepository: SettingsRepository = mockk(relaxed = true)
 
-    private val viewModel = MainActivityViewModel(airingRepositoryImpl)
+    private val viewModel = MainActivityViewModel(airingRepository, settingsRepository)
 
     @Test
     fun loadAiringData() = runTest {
@@ -36,7 +38,7 @@ class MainActivityViewModelTest {
         advanceUntilIdle()
         assertThat(viewModel.uiState.first().isRefreshing).isFalse()
 
-        coVerify { airingRepositoryImpl.loadSeasonAiringData(2022, "FALL") }
+        coVerify { airingRepository.loadSeasonAiringData(2022, "FALL") }
 
         unmockkObject(DateTimeHelper)
     }
@@ -49,7 +51,7 @@ class MainActivityViewModelTest {
         every { DateTimeHelper.currentYear(any()) } returns 2022
         every { DateTimeHelper.currentSeason(any()) } returns "FALL"
 
-        coEvery { airingRepositoryImpl.loadSeasonAiringData(any(), any()) } throws IOException()
+        coEvery { airingRepository.loadSeasonAiringData(any(), any()) } throws IOException()
 
         viewModel.loadAiringData()
         assertThat(viewModel.uiState.first().isRefreshing).isTrue()
@@ -59,7 +61,7 @@ class MainActivityViewModelTest {
         assertThat(state.isRefreshing).isFalse()
         assertThat(state.errorItem).isNotNull()
 
-        coVerify { airingRepositoryImpl.loadSeasonAiringData(2022, "FALL") }
+        coVerify { airingRepository.loadSeasonAiringData(2022, "FALL") }
 
         unmockkObject(DateTimeHelper)
     }
@@ -75,35 +77,9 @@ class MainActivityViewModelTest {
     }
 
     @Test
-    fun onSortingOptionsIconClicked() = runTest {
-        viewModel.onSortingOptionsIconClicked()
-
-        val state = viewModel.uiState.first()
-        assertThat(state.showSortingOptionsDialog).isTrue()
-    }
-
-    @Test
     fun onSortingOptionSelected() = runTest {
-        viewModel.onSortingOptionsIconClicked()
-
-        val state = viewModel.uiState.first()
-        assertThat(state.showSortingOptionsDialog).isTrue()
-
         viewModel.onSortingOptionSelected(SortingOption.SCORE)
+
         assertThat(viewModel.uiState.first().sortingOption).isEqualTo(SortingOption.SCORE)
-
-    }
-
-    @Test
-    fun onSortingOptionsDialogDismissed() = runTest {
-        viewModel.onSortingOptionsIconClicked()
-
-        var state = viewModel.uiState.first()
-        assertThat(state.showSortingOptionsDialog).isTrue()
-
-        viewModel.onSortingOptionsDialogDismissed()
-
-        state = viewModel.uiState.first()
-        assertThat(state.showSortingOptionsDialog).isFalse()
     }
 }
