@@ -7,4 +7,9 @@
         android:entries="@array/naming_scheme_labels"
         android:entryValues="@array/naming_scheme_values"
         android:defaultValue="@string/naming_scheme_default_value" />
+
+    <SwitchPreference
+        android:key="@string/settings_notifications_enabled_key"
+        android:title="@string/settings_notifications_enabled_label"
+        android:defaultValue="true" />
 </PreferenceScreen>

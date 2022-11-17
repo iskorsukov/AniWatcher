@@ -4,29 +4,27 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
-import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
+import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
 import com.iskorsukov.aniwatcher.domain.util.DispatcherProvider
 import com.iskorsukov.aniwatcher.service.util.NotificationBuilderHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class AiringNotificationInteractorImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val airingRepository: AiringRepository,
-    private val notificationManagerCompat: NotificationManagerCompat
+    private val notificationManagerCompat: NotificationManagerCompat,
+    settingsRepository: SettingsRepository,
 ): AiringNotificationInteractor {
 
     private val coroutineScope = CoroutineScope(DispatcherProvider.default() + Job())
@@ -38,12 +36,18 @@ class AiringNotificationInteractorImpl @Inject constructor(
         map.filter { it.key.isFollowing }.filter { it.value.isNotEmpty() }
     }.distinctUntilChanged()
 
+    private val settingsStateFlow = settingsRepository.settingsStateFlow
+
     override fun startNotificationChecking() {
-        if (runningJob?.isActive == true) return
+        if (runningJob?.isActive == true || !settingsStateFlow.value.notificationsEnabled) return
         createNotificationChannel()
         runningJob = coroutineScope.launch {
             airingRepository.clearAiredSchedules()
             while (true) {
+                if (!settingsStateFlow.value.notificationsEnabled) {
+                    stopNotificationChecking()
+                    awaitCancellation()
+                }
                 followingMediaFlow.firstOrNull()?.let {
                     fireNotificationsIfNeeded(it)
                 }
