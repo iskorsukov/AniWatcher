@@ -5,16 +5,20 @@ import androidx.room.RoomDatabase
 import com.iskorsukov.aniwatcher.data.entity.AiringScheduleEntity
 import com.iskorsukov.aniwatcher.data.entity.FollowingEntity
 import com.iskorsukov.aniwatcher.data.entity.MediaItemEntity
+import com.iskorsukov.aniwatcher.data.entity.NotificationItemEntity
 
 @Database(
     entities = [
         MediaItemEntity::class,
         AiringScheduleEntity::class,
-        FollowingEntity::class
+        FollowingEntity::class,
+        NotificationItemEntity::class
     ],
     version = 1
 )
 abstract class MediaDatabase: RoomDatabase() {
 
     abstract fun mediaDao(): MediaDao
+
+    abstract fun notificationsDao(): NotificationsDao
 }

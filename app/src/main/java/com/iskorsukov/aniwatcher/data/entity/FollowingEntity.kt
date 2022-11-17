@@ -5,7 +5,15 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
 @Entity(
-    tableName = "following"
+    tableName = "following",
+    foreignKeys = [
+        ForeignKey(
+            entity = MediaItemEntity::class,
+            parentColumns = ["mediaId"],
+            childColumns = ["mediaItemRelationId"],
+            onDelete = ForeignKey.NO_ACTION
+        )
+    ]
 )
 data class FollowingEntity(
     @PrimaryKey(autoGenerate = true) val followingEntryId: Int?,

@@ -1,5 +1,6 @@
 package com.iskorsukov.aniwatcher.domain.model
 
+import com.iskorsukov.aniwatcher.data.entity.AiringScheduleEntity
 import com.iskorsukov.aniwatcher.data.entity.MediaItemWithAiringSchedulesAndFollowingEntity
 import java.io.Serializable
 import java.text.SimpleDateFormat
@@ -56,12 +57,22 @@ data class AiringScheduleItem(
             return entity.mediaItemWithAiringSchedulesEntity.run {
                 airingScheduleEntityList.map {
                     AiringScheduleItem(
-                        id = it.id,
+                        id = it.airingScheduleItemId,
                         airingAt = it.airingAt,
                         episode = it.episode,
                         mediaItem = mediaItem
                     )
                 }
+            }
+        }
+        fun fromEntity(airingScheduleEntity: AiringScheduleEntity, mediaItem: MediaItem):AiringScheduleItem {
+            return with(airingScheduleEntity) {
+                AiringScheduleItem(
+                    id = airingScheduleItemId,
+                    airingAt = airingAt,
+                    episode = episode,
+                    mediaItem = mediaItem
+                )
             }
         }
     }

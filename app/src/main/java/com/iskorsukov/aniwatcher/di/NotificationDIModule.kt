@@ -1,5 +1,7 @@
 package com.iskorsukov.aniwatcher.di
 
+import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
+import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepositoryImpl
 import com.iskorsukov.aniwatcher.service.AiringNotificationInteractor
 import com.iskorsukov.aniwatcher.service.AiringNotificationInteractorImpl
 import dagger.Binds
@@ -17,4 +19,10 @@ abstract class NotificationDIModule {
     abstract fun bindsAiringNotificationInteractor(
         airingNotificationInteractorImpl: AiringNotificationInteractorImpl
     ): AiringNotificationInteractor
+
+    @Binds
+    @Singleton
+    abstract fun bindsNotificationsRepository(
+        notificationsRepositoryImpl: NotificationsRepositoryImpl
+    ): NotificationsRepository
 }

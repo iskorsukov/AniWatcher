@@ -2,6 +2,7 @@ package com.iskorsukov.aniwatcher.test
 
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
+import com.iskorsukov.aniwatcher.domain.model.NotificationItem
 
 object ModelTestDataCreator {
 
@@ -45,6 +46,15 @@ object ModelTestDataCreator {
             baseAiringScheduleItem().id(2).episode(2).airingAt(1667385638),
             baseAiringScheduleItem().id(3).episode(3).airingAt(1667644838),
             baseAiringScheduleItem().id(4).episode(4).airingAt(1667029460)
+        )
+    }
+
+    fun baseNotificationItem(): NotificationItem {
+        return NotificationItem(
+            1,
+            1667833200000L,
+            baseMediaItem(),
+            baseAiringScheduleItem()
         )
     }
 }

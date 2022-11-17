@@ -17,7 +17,7 @@ import com.iskorsukov.aniwatcher.SeasonAiringDataQuery
     ]
 )
 data class AiringScheduleEntity(
-    @PrimaryKey val id: Int,
+    @PrimaryKey val airingScheduleItemId: Int,
     val airingAt: Int,
     val episode: Int,
     val mediaItemRelationId: Int
@@ -26,7 +26,7 @@ data class AiringScheduleEntity(
         fun fromData(data: SeasonAiringDataQuery.AiringScheduleNode): AiringScheduleEntity {
             return data.run {
                 AiringScheduleEntity(
-                    id = id,
+                    airingScheduleItemId = id,
                     airingAt = airingAt,
                     episode = episode,
                     mediaItemRelationId = mediaId
