@@ -39,6 +39,7 @@ import com.iskorsukov.aniwatcher.ui.main.MainActivityViewModel
 import com.iskorsukov.aniwatcher.ui.media.MediaScreen
 import com.iskorsukov.aniwatcher.ui.media.MediaViewModel
 import com.iskorsukov.aniwatcher.ui.media.SearchField
+import com.iskorsukov.aniwatcher.ui.notification.NotificationActivity
 import com.iskorsukov.aniwatcher.ui.settings.SettingsActivity
 import com.iskorsukov.aniwatcher.ui.sorting.SelectSortingOptionDialog
 import dagger.hilt.android.AndroidEntryPoint
@@ -96,7 +97,8 @@ class MainActivity : ComponentActivity() {
                     TopBar(
                         navController = navController,
                         onSelectSortingOptionClicked = { shouldShowSortingOptionsDialog = true },
-                        onSettingsClicked = { startSettingsActivity() }
+                        onSettingsClicked = { startSettingsActivity() },
+                        onNotificationsClicked = { startNotificationsActivity() }
                     )
                 },
                 bottomBar = { BottomNavigationBar(navController = navController) },
@@ -160,6 +162,12 @@ class MainActivity : ComponentActivity() {
             Intent(this, SettingsActivity::class.java)
         )
     }
+
+    private fun startNotificationsActivity() {
+        startActivity(
+            Intent(this, NotificationActivity::class.java)
+        )
+    }
 }
 
 @Composable
@@ -207,7 +215,8 @@ fun TopBar(
     mainActivityViewModel: MainActivityViewModel = viewModel(),
     navController: NavHostController,
     onSelectSortingOptionClicked: () -> Unit,
-    onSettingsClicked: () -> Unit
+    onSettingsClicked: () -> Unit,
+    onNotificationsClicked: () -> Unit
 ) {
     val searchFieldVisibleState = remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
@@ -253,6 +262,13 @@ fun TopBar(
             }
         }
         Spacer(Modifier.weight(1f).fillMaxHeight())
+        IconButton(onClick = onNotificationsClicked) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_baseline_notifications_24),
+                contentDescription = null,
+                tint = Color.White
+            )
+        }
         IconButton(onClick = onSettingsClicked) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_baseline_settings_24),

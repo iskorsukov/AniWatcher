@@ -13,6 +13,9 @@
     <string name="following_data_empty_label">You are not following any shows</string>
     <string name="following_data_empty_sub_label">Click the plus icon on a show card to follow it</string>
 
+    <string name="notifications_data_empty_label">You have no notifications</string>
+    <string name="notifications_data_empty_sub_label">Follow a show and enable notifications in settings to receive notifications when a followed show airs</string>
+
     <string name="episode_airing_label">Episode %1$d airing in</string>
     <string name="episode_aired_label">Episode %1$d aired</string>
 

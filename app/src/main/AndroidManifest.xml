@@ -33,6 +33,7 @@
         </activity>
         <activity android:name=".ui.details.DetailsActivity" />
         <activity android:name=".ui.settings.SettingsActivity" android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity android:name=".ui.notification.NotificationActivity" />
 
         <service android:name=".service.NotificationService" />
     </application>
