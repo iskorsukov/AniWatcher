@@ -2,6 +2,7 @@
     <string name="app_name">AniWatcher</string>
 
     <string name="try_again">Try again</string>
+    <string name="dismiss">Dismiss</string>
 
     <string name="media_screen_label">Media</string>
     <string name="airing_screen_label">Airing</string>

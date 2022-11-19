@@ -8,9 +8,7 @@ import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkHorizontally
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -21,6 +19,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -32,6 +31,8 @@ import com.iskorsukov.aniwatcher.service.NotificationService
 import com.iskorsukov.aniwatcher.ui.Screen
 import com.iskorsukov.aniwatcher.ui.airing.AiringScreen
 import com.iskorsukov.aniwatcher.ui.airing.AiringViewModel
+import com.iskorsukov.aniwatcher.ui.base.ErrorSurfaceContent
+import com.iskorsukov.aniwatcher.ui.base.ErrorItem
 import com.iskorsukov.aniwatcher.ui.details.DetailsActivity
 import com.iskorsukov.aniwatcher.ui.following.FollowingScreen
 import com.iskorsukov.aniwatcher.ui.following.FollowingViewModel
@@ -78,19 +79,10 @@ class MainActivity : ComponentActivity() {
             var shouldShowSortingOptionsDialog by remember {
                 mutableStateOf(false)
             }
-
-            if (uiState.errorItem != null) {
-                LaunchedEffect(scaffoldState.snackbarHostState) {
-                    val snackbarData = scaffoldState.snackbarHostState.showSnackbar(
-                        message = getString(uiState.errorItem!!.labelResId),
-                        actionLabel = getString(R.string.try_again),
-                        duration = SnackbarDuration.Long
-                    )
-                    if (snackbarData == SnackbarResult.ActionPerformed) {
-                        mainActivityViewModel.loadAiringData()
-                    }
-                }
+            var shouldShowErrorDialog by remember {
+                mutableStateOf(false)
             }
+            shouldShowErrorDialog = uiState.errorItem != null
 
             Scaffold(
                 topBar = {
@@ -104,40 +96,58 @@ class MainActivity : ComponentActivity() {
                 bottomBar = { BottomNavigationBar(navController = navController) },
                 scaffoldState = scaffoldState
             ) { innerPadding ->
-                if (shouldShowSortingOptionsDialog) {
-                    SelectSortingOptionDialog(
-                        onSortingOptionSelected = mainActivityViewModel::onSortingOptionSelected,
-                        onDismissRequest = { shouldShowSortingOptionsDialog = false }
-                    )
-                }
-
-                NavHost(
-                    navController = navController,
-                    startDestination = "airing",
-                    modifier = Modifier.padding(innerPadding)
+                Box(
+                    modifier = Modifier.padding(innerPadding).fillMaxSize()
                 ) {
-                    composable("media") {
-                        MediaScreen(
-                            mainActivityViewModel,
-                            mediaViewModel,
-                            timeInMinutesFlow,
-                            this@MainActivity::startDetailsActivity
+                    if (shouldShowSortingOptionsDialog) {
+                        SelectSortingOptionDialog(
+                            onSortingOptionSelected = mainActivityViewModel::onSortingOptionSelected,
+                            onDismissRequest = { shouldShowSortingOptionsDialog = false }
                         )
                     }
-                    composable("airing") {
-                        AiringScreen(
-                            mainActivityViewModel,
-                            airingViewModel,
-                            timeInMinutesFlow,
-                            this@MainActivity::startDetailsActivity
-                        )
+
+                    NavHost(
+                        navController = navController,
+                        startDestination = "airing"
+                    ) {
+                        composable("media") {
+                            MediaScreen(
+                                mainActivityViewModel,
+                                mediaViewModel,
+                                timeInMinutesFlow,
+                                this@MainActivity::startDetailsActivity
+                            )
+                        }
+                        composable("airing") {
+                            AiringScreen(
+                                mainActivityViewModel,
+                                airingViewModel,
+                                timeInMinutesFlow,
+                                this@MainActivity::startDetailsActivity
+                            )
+                        }
+                        composable("following") {
+                            FollowingScreen(
+                                mainActivityViewModel,
+                                followingViewModel,
+                                timeInMinutesFlow,
+                                this@MainActivity::startDetailsActivity
+                            )
+                        }
                     }
-                    composable("following") {
-                        FollowingScreen(
-                            mainActivityViewModel,
-                            followingViewModel,
-                            timeInMinutesFlow,
-                            this@MainActivity::startDetailsActivity
+
+                    if (shouldShowErrorDialog && uiState.errorItem != null) {
+                        val errorItem = uiState.errorItem!!
+                        ErrorSurfaceContent(
+                            errorItem = errorItem,
+                            onActionClicked = {
+                                when (errorItem.action) {
+                                    ErrorItem.Action.REFRESH -> mainActivityViewModel.loadAiringData()
+                                    ErrorItem.Action.DISMISS -> {}
+                                }
+                            },
+                            onDismissRequest = { shouldShowErrorDialog = false },
+                            modifier = Modifier.align(Alignment.BottomCenter).padding(8.dp)
                         )
                     }
                 }
@@ -261,7 +271,10 @@ fun TopBar(
                 )
             }
         }
-        Spacer(Modifier.weight(1f).fillMaxHeight())
+        Spacer(
+            Modifier
+                .weight(1f)
+                .fillMaxHeight())
         IconButton(onClick = onNotificationsClicked) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_baseline_notifications_24),
