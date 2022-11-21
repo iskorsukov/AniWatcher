@@ -1,4 +1,4 @@
-package com.iskorsukov.aniwatcher.ui.base
+package com.iskorsukov.aniwatcher.ui.base.viewmodel
 
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.model.MediaItem

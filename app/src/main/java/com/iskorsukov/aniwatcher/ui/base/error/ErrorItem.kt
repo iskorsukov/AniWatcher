@@ -1,4 +1,4 @@
-package com.iskorsukov.aniwatcher.ui.base
+package com.iskorsukov.aniwatcher.ui.base.error
 
 import androidx.annotation.StringRes
 import com.iskorsukov.aniwatcher.R

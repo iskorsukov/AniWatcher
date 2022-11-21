@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,13 +25,16 @@ import coil.compose.AsyncImage
 import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.model.NotificationItem
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
-import com.iskorsukov.aniwatcher.ui.theme.CardTextColorLight
+import com.iskorsukov.aniwatcher.ui.base.placeholder.EmptyDataFullscreenPlaceholder
+import com.iskorsukov.aniwatcher.ui.media.MediaItemAiringInfoColumn
+import com.iskorsukov.aniwatcher.ui.theme.*
 
 @OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun NotificationsScreen(
     notificationsViewModel: NotificationsViewModel,
-    onNotificationClicked: ((Int) -> Unit)? = null,
+    modifier: Modifier,
+    onNotificationClicked: ((Int) -> Unit)? = null
 ) {
     val settingsState by notificationsViewModel.settingsState
         .collectAsStateWithLifecycle()
@@ -38,47 +42,24 @@ fun NotificationsScreen(
     val notificationsList by notificationsViewModel.notificationsFlow
         .collectAsStateWithLifecycle(initialValue = emptyList())
 
-    if (notificationsList.isEmpty()) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Column(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Icon(
-                    painter = painterResource(
-                        id = R.drawable.ic_baseline_notifications_none_24
-                    ),
-                    contentDescription = null,
-                    tint = CardTextColorLight,
-                    modifier = Modifier.size(36.dp)
-                )
-                Text(
-                    text = stringResource(
-                        id = R.string.notifications_data_empty_label
-                    ),
-                    color = CardTextColorLight,
-                    fontSize = 16.sp
-                )
-                Text(
-                    text = stringResource(
-                        id = R.string.notifications_data_empty_sub_label
-                    ),
-                    color = CardTextColorLight,
-                    fontSize = 12.sp
-                )
-            }
-        }
-    }
-    LazyColumn {
-        notificationsList.forEach {
-            item {
-                NotificationCard(
-                    notificationItem = it,
-                    preferredNamingScheme = settingsState.preferredNamingScheme,
-                    onNotificationClicked = onNotificationClicked
-                )
+    Box(modifier = modifier.fillMaxSize()) {
+        if (notificationsList.isEmpty()) {
+            EmptyDataFullscreenPlaceholder(
+                iconResId = R.drawable.ic_baseline_notifications_none_24,
+                labelResId = R.string.notifications_data_empty_label,
+                subLabelResId = R.string.notifications_data_empty_sub_label
+            )
+        } else {
+            LazyColumn {
+                notificationsList.forEach {
+                    item {
+                        NotificationCard(
+                            notificationItem = it,
+                            preferredNamingScheme = settingsState.preferredNamingScheme,
+                            onNotificationClicked = onNotificationClicked
+                        )
+                    }
+                }
             }
         }
     }
@@ -88,7 +69,7 @@ fun NotificationsScreen(
 fun NotificationCard(
     notificationItem: NotificationItem,
     onNotificationClicked: ((Int) -> Unit)? = null,
-    preferredNamingScheme: NamingScheme = NamingScheme.ENGLISH
+    preferredNamingScheme: NamingScheme
 ) {
     val mediaItem = notificationItem.mediaItem
     val airingScheduleItem = notificationItem.airingScheduleItem
@@ -127,21 +108,11 @@ fun NotificationCard(
             ) {
                 Text(
                     text = mediaItem.title.baseText(preferredNamingScheme),
-                    color = CardTextColorLight,
-                    fontSize = 12.sp,
+                    style = ContentTextStyleSmallLarger,
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1
                 )
-                Text(
-                    text = String.format(stringResource(id = R.string.episode_aired_label), airingScheduleItem.episode),
-                    color = CardTextColorLight,
-                    fontSize = 10.sp
-                )
-                Text(
-                    text = "at ${airingScheduleItem.getAiringAtDateTimeFormatted()}",
-                    color = CardTextColorLight,
-                    fontSize = 10.sp
-                )
+                MediaItemAiringInfoColumn(airingScheduleItem = airingScheduleItem)
             }
         }
     }

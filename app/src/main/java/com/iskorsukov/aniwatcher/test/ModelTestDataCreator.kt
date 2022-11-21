@@ -91,6 +91,10 @@ fun MediaItem.bannerImage(bannerImage: String?): MediaItem {
     return this.copy(bannerImageUrl = bannerImage)
 }
 
+fun MediaItem.coverImageUrl(coverImageUrl: String?): MediaItem {
+    return this.copy(coverImageUrl = coverImageUrl)
+}
+
 fun AiringScheduleItem.id(id: Int): AiringScheduleItem {
     return this.copy(id = id)
 }

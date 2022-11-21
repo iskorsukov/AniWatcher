@@ -47,6 +47,7 @@ android {
     }
     buildFeatures {
         compose true
+        viewBinding true
     }
     composeOptions {
         kotlinCompilerExtensionVersion '1.1.1'
@@ -122,6 +123,8 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-runtime-compose:2.6.0-alpha03"
     // Compose with ConstraintLayout
     implementation "androidx.constraintlayout:constraintlayout-compose:1.0.1"
+    // Compose View Binding
+    implementation "androidx.compose.ui:ui-viewbinding:$compose_ui_version"
 
     // Apollo GraphQL
     implementation "com.apollographql.apollo3:apollo-runtime:3.6.2"

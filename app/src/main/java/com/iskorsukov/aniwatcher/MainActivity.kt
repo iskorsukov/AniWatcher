@@ -31,18 +31,20 @@ import com.iskorsukov.aniwatcher.service.NotificationService
 import com.iskorsukov.aniwatcher.ui.Screen
 import com.iskorsukov.aniwatcher.ui.airing.AiringScreen
 import com.iskorsukov.aniwatcher.ui.airing.AiringViewModel
-import com.iskorsukov.aniwatcher.ui.base.ErrorSurfaceContent
-import com.iskorsukov.aniwatcher.ui.base.ErrorItem
+import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
+import com.iskorsukov.aniwatcher.ui.base.error.ErrorSurfaceContent
+import com.iskorsukov.aniwatcher.ui.base.topbar.SearchField
 import com.iskorsukov.aniwatcher.ui.details.DetailsActivity
 import com.iskorsukov.aniwatcher.ui.following.FollowingScreen
 import com.iskorsukov.aniwatcher.ui.following.FollowingViewModel
 import com.iskorsukov.aniwatcher.ui.main.MainActivityViewModel
 import com.iskorsukov.aniwatcher.ui.media.MediaScreen
 import com.iskorsukov.aniwatcher.ui.media.MediaViewModel
-import com.iskorsukov.aniwatcher.ui.media.SearchField
 import com.iskorsukov.aniwatcher.ui.notification.NotificationActivity
 import com.iskorsukov.aniwatcher.ui.settings.SettingsActivity
 import com.iskorsukov.aniwatcher.ui.sorting.SelectSortingOptionDialog
+import com.iskorsukov.aniwatcher.ui.theme.PrimaryColor
+import com.iskorsukov.aniwatcher.ui.theme.SecondaryColor
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -97,12 +99,15 @@ class MainActivity : ComponentActivity() {
                 scaffoldState = scaffoldState
             ) { innerPadding ->
                 Box(
-                    modifier = Modifier.padding(innerPadding).fillMaxSize()
+                    modifier = Modifier
+                        .padding(innerPadding)
+                        .fillMaxSize()
                 ) {
                     if (shouldShowSortingOptionsDialog) {
                         SelectSortingOptionDialog(
                             onSortingOptionSelected = mainActivityViewModel::onSortingOptionSelected,
-                            onDismissRequest = { shouldShowSortingOptionsDialog = false }
+                            onDismissRequest = { shouldShowSortingOptionsDialog = false },
+                            selectedOption = uiState.sortingOption
                         )
                     }
 
@@ -114,25 +119,22 @@ class MainActivity : ComponentActivity() {
                             MediaScreen(
                                 mainActivityViewModel,
                                 mediaViewModel,
-                                timeInMinutesFlow,
-                                this@MainActivity::startDetailsActivity
-                            )
+                                timeInMinutesFlow
+                            ) { startDetailsActivity(it.id) }
                         }
                         composable("airing") {
                             AiringScreen(
                                 mainActivityViewModel,
                                 airingViewModel,
-                                timeInMinutesFlow,
-                                this@MainActivity::startDetailsActivity
-                            )
+                                timeInMinutesFlow
+                            ) { startDetailsActivity(it.id) }
                         }
                         composable("following") {
                             FollowingScreen(
                                 mainActivityViewModel,
                                 followingViewModel,
-                                timeInMinutesFlow,
-                                this@MainActivity::startDetailsActivity
-                            )
+                                timeInMinutesFlow
+                            ) { startDetailsActivity(it.id) }
                         }
                     }
 
@@ -147,7 +149,9 @@ class MainActivity : ComponentActivity() {
                                 }
                             },
                             onDismissRequest = { shouldShowErrorDialog = false },
-                            modifier = Modifier.align(Alignment.BottomCenter).padding(8.dp)
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(8.dp)
                         )
                     }
                 }
@@ -187,7 +191,7 @@ fun BottomNavigationBar(navController: NavHostController) {
         Screen.AiringScreen,
         Screen.FollowingScreen
     )
-    BottomNavigation {
+    BottomNavigation(backgroundColor = PrimaryColor) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
         items.forEach { screen ->
@@ -198,7 +202,11 @@ fun BottomNavigationBar(navController: NavHostController) {
                         contentDescription = null
                     )
                 },
-                label = { Text(stringResource(screen.labelStringId)) },
+                label = {
+                    Text(
+                        text = stringResource(screen.labelStringId)
+                    )
+                },
                 selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                 onClick = {
                     navController.navigate(screen.route) {
@@ -214,7 +222,9 @@ fun BottomNavigationBar(navController: NavHostController) {
                         // Restore state when reselecting a previously selected item
                         restoreState = true
                     }
-                }
+                },
+                selectedContentColor = SecondaryColor,
+                unselectedContentColor = Color.White
             )
         }
     }
@@ -235,7 +245,7 @@ fun TopBar(
     val currentDestination = navBackStackEntry?.destination
     val screen = Screen.ofRoute(currentDestination?.route.orEmpty())
 
-    TopAppBar {
+    TopAppBar(backgroundColor = PrimaryColor) {
         if (screen?.hasSearchBar == true) {
             if (searchFieldVisibleState.value) {
                 AnimatedVisibility(
@@ -274,7 +284,8 @@ fun TopBar(
         Spacer(
             Modifier
                 .weight(1f)
-                .fillMaxHeight())
+                .fillMaxHeight()
+        )
         IconButton(onClick = onNotificationsClicked) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_baseline_notifications_24),

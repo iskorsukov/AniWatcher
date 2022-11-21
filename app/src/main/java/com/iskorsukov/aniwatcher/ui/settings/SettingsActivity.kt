@@ -3,27 +3,38 @@ package com.iskorsukov.aniwatcher.ui.settings
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Scaffold
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.viewinterop.AndroidViewBinding
+import androidx.fragment.app.FragmentActivity
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
 import com.iskorsukov.aniwatcher.R
+import com.iskorsukov.aniwatcher.databinding.SettingsActivityBinding
 import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
+import com.iskorsukov.aniwatcher.ui.base.topbar.BackArrowTopAppBar
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class SettingsActivity : AppCompatActivity() {
+class SettingsActivity : FragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.settings_activity)
-        if (savedInstanceState == null) {
-            supportFragmentManager
-                .beginTransaction()
-                .replace(R.id.settings, SettingsFragment())
-                .commit()
+        setContent {
+            Scaffold(
+                topBar ={
+                    BackArrowTopAppBar { finish() }
+                }
+            ) { innerPadding ->
+                AndroidViewBinding(
+                    factory = SettingsActivityBinding::inflate,
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
         }
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
     @AndroidEntryPoint
@@ -41,7 +52,9 @@ class SettingsActivity : AppCompatActivity() {
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
-            sharedPreferences.registerOnSharedPreferenceChangeListener(onSharedPreferenceChangeListener)
+            sharedPreferences.registerOnSharedPreferenceChangeListener(
+                onSharedPreferenceChangeListener
+            )
         }
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -55,7 +68,9 @@ class SettingsActivity : AppCompatActivity() {
 
         override fun onDestroy() {
             super.onDestroy()
-            sharedPreferences.unregisterOnSharedPreferenceChangeListener(onSharedPreferenceChangeListener)
+            sharedPreferences.unregisterOnSharedPreferenceChangeListener(
+                onSharedPreferenceChangeListener
+            )
         }
     }
 }

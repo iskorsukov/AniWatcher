@@ -2,25 +2,38 @@ package com.iskorsukov.aniwatcher.ui.notification
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.PersistableBundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Scaffold
+import androidx.compose.ui.Modifier
+import com.iskorsukov.aniwatcher.ui.base.topbar.BackArrowTopAppBar
 import com.iskorsukov.aniwatcher.ui.details.DetailsActivity
+import com.iskorsukov.aniwatcher.ui.theme.PrimaryColor
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class NotificationActivity: ComponentActivity() {
+class NotificationActivity : ComponentActivity() {
 
     private val notificationsViewModel: NotificationsViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            NotificationsScreen(
-                notificationsViewModel = notificationsViewModel,
-                onNotificationClicked = this::startDetailsActivity
-            )
+            Scaffold(
+                topBar = {
+                    BackArrowTopAppBar {
+                        finish()
+                    }
+                }
+            ) { innerPadding ->
+                NotificationsScreen(
+                    notificationsViewModel = notificationsViewModel,
+                    onNotificationClicked = this::startDetailsActivity,
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
         }
     }
 

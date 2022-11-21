@@ -1,33 +1,27 @@
 package com.iskorsukov.aniwatcher.ui.following
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.Icon
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
+import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
+import com.iskorsukov.aniwatcher.domain.model.MediaItem
+import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.test.isFollowing
+import com.iskorsukov.aniwatcher.ui.base.placeholder.EmptyDataFullscreenPlaceholder
 import com.iskorsukov.aniwatcher.ui.main.MainActivityViewModel
 import com.iskorsukov.aniwatcher.ui.media.MediaItemCardExtended
-import com.iskorsukov.aniwatcher.ui.theme.CardTextColorLight
 import kotlinx.coroutines.flow.Flow
 
 @OptIn(ExperimentalLifecycleComposeApi::class)
@@ -36,7 +30,7 @@ fun FollowingScreen(
     mainActivityViewModel: MainActivityViewModel = viewModel(),
     viewModel: FollowingViewModel = viewModel(),
     timeInMinutesFlow: Flow<Long>,
-    onMediaClicked: ((Int) -> Unit)? = null
+    onMediaClicked: (MediaItem) -> Unit
 ) {
     val uiState by mainActivityViewModel
         .uiState.collectAsStateWithLifecycle()
@@ -57,49 +51,44 @@ fun FollowingScreen(
         listState.scrollToItem(0)
     }
 
+    FollowingScreenContent(
+        followingMediaMap = followingMediaMap,
+        timeInMinutes = timeInMinutes,
+        onFollowClicked = viewModel::onFollowClicked,
+        preferredNamingScheme = settingsState.preferredNamingScheme,
+        onMediaClicked = onMediaClicked,
+        listState = listState
+    )
+}
+
+@Composable
+fun FollowingScreenContent(
+    followingMediaMap: Map<MediaItem, AiringScheduleItem?>,
+    timeInMinutes: Long,
+    onFollowClicked: ((MediaItem) -> Unit),
+    preferredNamingScheme: NamingScheme,
+    onMediaClicked: (MediaItem) -> Unit,
+    listState: LazyListState,
+) {
     if (followingMediaMap.isEmpty()) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            Column(
-                modifier = Modifier
-                    .align(Alignment.Center),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Icon(
-                    painter = painterResource(
-                        id = R.drawable.ic_baseline_add_circle_outline_24_gray
-                    ),
-                    contentDescription = null,
-                    tint = CardTextColorLight,
-                    modifier = Modifier.size(36.dp)
-                )
-                Text(
-                    text = stringResource(
-                        id = R.string.following_data_empty_label
-                    ),
-                    color = CardTextColorLight,
-                    fontSize = 16.sp
-                )
-                Text(
-                    text = stringResource(
-                        id = R.string.following_data_empty_sub_label
-                    ),
-                    color = CardTextColorLight,
-                    fontSize = 12.sp
-                )
-            }
-        }
-    }
-    LazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
-        followingMediaMap.entries.forEach {
-            item {
-                MediaItemCardExtended(
-                    mediaItem = it.key,
-                    airingScheduleItem = it.value,
-                    timeInMinutes = timeInMinutes,
-                    onFollowClicked = viewModel::onFollowClicked,
-                    onMediaClicked = onMediaClicked,
-                    preferredNamingScheme = settingsState.preferredNamingScheme
-                )
+        EmptyDataFullscreenPlaceholder(
+            iconResId = R.drawable.ic_baseline_add_circle_outline_24_gray,
+            labelResId = R.string.following_data_empty_label,
+            subLabelResId = R.string.following_data_empty_sub_label
+        )
+    } else {
+        LazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
+            followingMediaMap.entries.forEach {
+                item {
+                    MediaItemCardExtended(
+                        mediaItem = it.key,
+                        airingScheduleItem = it.value,
+                        timeInMinutes = timeInMinutes,
+                        onFollowClicked = onFollowClicked,
+                        onMediaClicked = onMediaClicked,
+                        preferredNamingScheme = preferredNamingScheme
+                    )
+                }
             }
         }
     }
@@ -107,62 +96,35 @@ fun FollowingScreen(
 
 @Composable
 @Preview
-fun FollowingScreenEmptyPlaceholderPreview() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        Column(
-            modifier = Modifier
-                .align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(
-                painter = painterResource(
-                    id = R.drawable.ic_baseline_add_circle_outline_24_gray
-                ),
-                contentDescription = null,
-                tint = CardTextColorLight,
-                modifier = Modifier.size(36.dp)
-            )
-            Text(
-                text = stringResource(
-                    id = R.string.following_data_empty_label
-                ),
-                color = CardTextColorLight,
-                fontSize = 16.sp
-            )
-            Text(
-                text = stringResource(
-                    id = R.string.following_data_empty_sub_label
-                ),
-                color = CardTextColorLight,
-                fontSize = 12.sp
-            )
-        }
-    }
-}
-
-@Composable
-@Preview
-fun FollowingScreenPreview() {
+private fun FollowingScreenEmptyPreview() {
     val timeInMinutes = 27785711L
 
-    LazyColumn {
-        MediaItemMapper.groupMediaWithNextAiringSchedule(
+    FollowingScreenContent(
+        followingMediaMap = emptyMap(),
+        timeInMinutes = timeInMinutes,
+        onFollowClicked = {},
+        preferredNamingScheme = NamingScheme.ENGLISH,
+        onMediaClicked = {},
+        listState = rememberLazyListState()
+    )
+}
+
+@Composable
+@Preview
+private fun FollowingScreenPreview() {
+    val timeInMinutes = 27785711L
+
+    FollowingScreenContent(
+        followingMediaMap = MediaItemMapper.groupMediaWithNextAiringSchedule(
             mapOf(
                 ModelTestDataCreator.baseMediaItem().isFollowing(true) to
                         ModelTestDataCreator.baseAiringScheduleItemList()
             )
-        ).filterKeys { it.isFollowing }.entries.forEach {
-            item {
-                MediaItemCardExtended(
-                    mediaItem = it.key,
-                    airingScheduleItem = it.value,
-                    timeInMinutes = timeInMinutes,
-                    onFollowClicked = { },
-                    onMediaClicked = { }
-                )
-            }
-        }
-    }
+        ).filterKeys { it.isFollowing },
+        timeInMinutes = timeInMinutes,
+        onFollowClicked = {},
+        preferredNamingScheme = NamingScheme.ENGLISH,
+        onMediaClicked = {},
+        listState = rememberLazyListState()
+    )
 }

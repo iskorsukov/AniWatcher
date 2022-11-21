@@ -1,4 +1,4 @@
-package com.iskorsukov.aniwatcher.ui.base
+package com.iskorsukov.aniwatcher.ui.base.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

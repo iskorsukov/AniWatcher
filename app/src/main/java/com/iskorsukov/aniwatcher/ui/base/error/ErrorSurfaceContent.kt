@@ -1,23 +1,23 @@
-package com.iskorsukov.aniwatcher.ui.base
+package com.iskorsukov.aniwatcher.ui.base.error
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import com.iskorsukov.aniwatcher.ui.theme.ErrorButtonTextStyle
+import com.iskorsukov.aniwatcher.ui.theme.ErrorLabelTextStyle
+import com.iskorsukov.aniwatcher.ui.theme.ErrorSubLabelTextStyle
 import kotlinx.coroutines.delay
 import java.util.concurrent.TimeUnit
 
@@ -31,7 +31,7 @@ fun ErrorSurfaceContent(
 ) {
     Surface(
         shape = RoundedCornerShape(8.dp),
-        color = Color.Red,
+        color = MaterialTheme.colors.error,
         modifier = modifier
     ) {
         ConstraintLayout(
@@ -48,8 +48,7 @@ fun ErrorSurfaceContent(
             val buttonsGuideline = createGuidelineFromEnd(0.3f)
             Text(
                 text = stringResource(id = errorItem.labelResId),
-                fontWeight = FontWeight.Bold,
-                color = Color.White,
+                style = ErrorLabelTextStyle,
                 modifier = Modifier.constrainAs(label) {
                     top.linkTo(parent.top)
                     start.linkTo(parent.start)
@@ -61,7 +60,7 @@ fun ErrorSurfaceContent(
             if (errorItem.subLabelResId != null) {
                 Text(
                     text = stringResource(id = errorItem.subLabelResId),
-                    color = Color.White,
+                    style = ErrorSubLabelTextStyle,
                     modifier = Modifier.constrainAs(subLabel) {
                         top.linkTo(label.bottom)
                         start.linkTo(parent.start)
@@ -78,10 +77,7 @@ fun ErrorSurfaceContent(
             if (errorItem.actionLabelResId != null) {
                 Text(
                     text = stringResource(id = errorItem.actionLabelResId).uppercase(),
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp,
-                    textAlign = TextAlign.Center,
+                    style = ErrorButtonTextStyle,
                     modifier = Modifier
                         .clickable {
                             onActionClicked.invoke()
@@ -100,10 +96,7 @@ fun ErrorSurfaceContent(
             if (errorItem.dismissLabelResId != null) {
                 Text(
                     text = stringResource(id = errorItem.dismissLabelResId).uppercase(),
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp,
-                    textAlign = TextAlign.Center,
+                    style = ErrorButtonTextStyle,
                     modifier = Modifier
                         .clickable { onDismissRequest.invoke() }
                         .padding(8.dp)
@@ -126,10 +119,11 @@ fun ErrorSurfaceContent(
 
 @Composable
 @Preview
-fun ErrorDialogPreview() {
+private fun ErrorDialogPreview() {
     ErrorSurfaceContent(
         errorItem = ErrorItem.LoadingData,
         onActionClicked = { },
-        onDismissRequest = { }
+        onDismissRequest = { },
+        autoDismissSeconds = TimeUnit.HOURS.toSeconds(1L)
     )
 }

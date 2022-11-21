@@ -2,7 +2,7 @@ package com.iskorsukov.aniwatcher.ui.media
 
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
-import com.iskorsukov.aniwatcher.ui.base.SortableMediaViewModel
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.SortableMediaViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged

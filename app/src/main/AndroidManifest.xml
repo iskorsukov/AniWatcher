@@ -26,14 +26,16 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
         </activity>
-        <activity android:name=".ui.details.DetailsActivity" />
-        <activity android:name=".ui.settings.SettingsActivity" android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-        <activity android:name=".ui.notification.NotificationActivity" />
+        <activity
+            android:name=".ui.details.DetailsActivity"
+            android:theme="@style/Theme.AniWatcher" />
+        <activity
+            android:name=".ui.settings.SettingsActivity"
+            android:theme="@style/Theme.AniWatcher" />
+        <activity
+            android:name=".ui.notification.NotificationActivity"
+            android:theme="@style/Theme.AniWatcher" />
 
         <service android:name=".service.NotificationService" />
     </application>

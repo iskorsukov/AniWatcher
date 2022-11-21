@@ -15,15 +15,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.iskorsukov.aniwatcher.R
-import com.iskorsukov.aniwatcher.ui.theme.CardTextColorLight
+import com.iskorsukov.aniwatcher.ui.theme.CategoryTextStyle
+import com.iskorsukov.aniwatcher.ui.theme.ContentTextStyleMedium
+import com.iskorsukov.aniwatcher.ui.theme.ContentTextStyleMediumEmphasis
 
 @Composable
 fun SelectSortingOptionDialog(
     onSortingOptionSelected: (SortingOption) -> Unit,
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
+    selectedOption: SortingOption? = null
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
         Surface(shape = RoundedCornerShape(8.dp)) {
@@ -33,8 +35,7 @@ fun SelectSortingOptionDialog(
             ) {
                 Text(
                     text = stringResource(id = R.string.sort_by).uppercase(),
-                    color = CardTextColorLight,
-                    fontSize = 18.sp
+                    style = CategoryTextStyle
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 LazyColumn {
@@ -48,7 +49,10 @@ fun SelectSortingOptionDialog(
                             ) {
                                 Text(
                                     text = stringResource(id = it.labelResId).uppercase(),
-                                    color = CardTextColorLight
+                                    style = if (it == selectedOption)
+                                        ContentTextStyleMediumEmphasis
+                                    else
+                                        ContentTextStyleMedium
                                 )
                             }
                         }
@@ -62,5 +66,9 @@ fun SelectSortingOptionDialog(
 @Composable
 @Preview
 fun SelectSortingOptionDialogPreview() {
-    SelectSortingOptionDialog(onSortingOptionSelected = {}, onDismissRequest = {})
+    SelectSortingOptionDialog(
+        onSortingOptionSelected = {},
+        onDismissRequest = {},
+        selectedOption = SortingOption.POPULARITY
+    )
 }

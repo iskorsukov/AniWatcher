@@ -2,13 +2,12 @@ package com.iskorsukov.aniwatcher.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple200 = Color(0xFFBB86FC)
-val Purple500 = Color(0xFF6200EE)
-val Purple700 = Color(0xFF3700B3)
-val Teal200 = Color(0xFF03DAC5)
+val PrimaryColor = Color(0xFF283593)
+val PrimaryVariantColor = Color(0xFF001064)
+val SecondaryColor = Color(0xFF00BCD4)
 
 val TitleOverlayColor = Color(0xE6292929)
-val CardTextColorLight = Color(0xFF6E859E)
+val TextColorLight = Color(0xFF6E859E)
 val CardFooterBackgroundColor = Color(0xFFEFF7FB)
 
 val CardIndicatorColorRed = Color(0xFFE85D75)
