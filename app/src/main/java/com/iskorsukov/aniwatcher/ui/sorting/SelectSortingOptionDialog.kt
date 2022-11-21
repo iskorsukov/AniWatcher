@@ -12,14 +12,13 @@ import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.iskorsukov.aniwatcher.R
-import com.iskorsukov.aniwatcher.ui.theme.CategoryTextStyle
-import com.iskorsukov.aniwatcher.ui.theme.ContentTextStyleMedium
-import com.iskorsukov.aniwatcher.ui.theme.ContentTextStyleMediumEmphasis
+import com.iskorsukov.aniwatcher.ui.theme.*
 
 @Composable
 fun SelectSortingOptionDialog(
@@ -28,14 +27,17 @@ fun SelectSortingOptionDialog(
     selectedOption: SortingOption? = null
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
-        Surface(shape = RoundedCornerShape(8.dp)) {
+        Surface(
+            shape = RoundedCornerShape(8.dp),
+            color = LocalColors.current.background
+        ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(8.dp)
             ) {
                 Text(
                     text = stringResource(id = R.string.sort_by).uppercase(),
-                    style = CategoryTextStyle
+                    style = LocalTextStyles.current.category
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 LazyColumn {
@@ -50,9 +52,13 @@ fun SelectSortingOptionDialog(
                                 Text(
                                     text = stringResource(id = it.labelResId).uppercase(),
                                     style = if (it == selectedOption)
-                                        ContentTextStyleMediumEmphasis
+                                        LocalTextStyles.current.contentMediumEmphasis
                                     else
-                                        ContentTextStyleMedium
+                                        LocalTextStyles.current.contentMedium,
+                                    color = if (it == selectedOption)
+                                        LocalColors.current.secondary
+                                    else
+                                        Color.Unspecified
                                 )
                             }
                         }

@@ -12,7 +12,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -21,10 +20,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
-import com.iskorsukov.aniwatcher.domain.model.MediaItem
-import com.iskorsukov.aniwatcher.ui.theme.ContentTextStyleSmall
-import com.iskorsukov.aniwatcher.ui.theme.ContentTextStyleSmallLarger
-import com.iskorsukov.aniwatcher.ui.theme.TextColorLight
+import com.iskorsukov.aniwatcher.ui.theme.*
 import com.iskorsukov.aniwatcher.ui.util.getBackgroundColorForChip
 import com.iskorsukov.aniwatcher.ui.util.getContrastTextColorForChip
 
@@ -56,17 +52,17 @@ fun MediaItemAiringInfoColumn(
             }
             Text(
                 text = String.format(episodeAiringStr, airingScheduleItem.episode),
-                style = ContentTextStyleSmall
+                style = LocalTextStyles.current.contentSmallEmphasis
             )
             airingScheduleItem.getAiringInFormatted(timeInMinutes)?.let {
                 Text(
                     text = it,
-                    style = ContentTextStyleSmallLarger
+                    style = LocalTextStyles.current.contentSmallLarger
                 )
             }
             Text(
                 text = "at ${airingScheduleItem.getAiringAtDateTimeFormatted()}",
-                style = ContentTextStyleSmall
+                style = LocalTextStyles.current.contentSmallEmphasis
             )
         }
     }
@@ -86,13 +82,13 @@ fun MediaItemFollowButton(
             Icon(
                 painter = painterResource(id = R.drawable.ic_baseline_remove_circle_outline_24_red),
                 contentDescription = null,
-                tint = Color.Red
+                tint = LocalColors.current.error
             )
         } else {
             Icon(
                 painter = painterResource(id = R.drawable.ic_baseline_add_circle_outline_24_gray),
                 contentDescription = null,
-                tint = TextColorLight
+                tint = LocalColors.current.text
             )
         }
     }

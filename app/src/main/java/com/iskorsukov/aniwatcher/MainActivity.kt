@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -16,7 +17,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -43,8 +43,7 @@ import com.iskorsukov.aniwatcher.ui.media.MediaViewModel
 import com.iskorsukov.aniwatcher.ui.notification.NotificationActivity
 import com.iskorsukov.aniwatcher.ui.settings.SettingsActivity
 import com.iskorsukov.aniwatcher.ui.sorting.SelectSortingOptionDialog
-import com.iskorsukov.aniwatcher.ui.theme.PrimaryColor
-import com.iskorsukov.aniwatcher.ui.theme.SecondaryColor
+import com.iskorsukov.aniwatcher.ui.theme.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -86,73 +85,76 @@ class MainActivity : ComponentActivity() {
             }
             shouldShowErrorDialog = uiState.errorItem != null
 
-            Scaffold(
-                topBar = {
-                    TopBar(
-                        navController = navController,
-                        onSelectSortingOptionClicked = { shouldShowSortingOptionsDialog = true },
-                        onSettingsClicked = { startSettingsActivity() },
-                        onNotificationsClicked = { startNotificationsActivity() }
-                    )
-                },
-                bottomBar = { BottomNavigationBar(navController = navController) },
-                scaffoldState = scaffoldState
-            ) { innerPadding ->
-                Box(
-                    modifier = Modifier
-                        .padding(innerPadding)
-                        .fillMaxSize()
-                ) {
-                    if (shouldShowSortingOptionsDialog) {
-                        SelectSortingOptionDialog(
-                            onSortingOptionSelected = mainActivityViewModel::onSortingOptionSelected,
-                            onDismissRequest = { shouldShowSortingOptionsDialog = false },
-                            selectedOption = uiState.sortingOption
+            AniWatcherTheme {
+                Scaffold(
+                    topBar = {
+                        TopBar(
+                            navController = navController,
+                            onSelectSortingOptionClicked = { shouldShowSortingOptionsDialog = true },
+                            onSettingsClicked = { startSettingsActivity() },
+                            onNotificationsClicked = { startNotificationsActivity() }
                         )
-                    }
-
-                    NavHost(
-                        navController = navController,
-                        startDestination = "airing"
+                    },
+                    bottomBar = { BottomNavigationBar(navController = navController) },
+                    scaffoldState = scaffoldState,
+                    backgroundColor = LocalColors.current.background
+                ) { innerPadding ->
+                    Box(
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .fillMaxSize()
                     ) {
-                        composable("media") {
-                            MediaScreen(
-                                mainActivityViewModel,
-                                mediaViewModel,
-                                timeInMinutesFlow
-                            ) { startDetailsActivity(it.id) }
+                        if (shouldShowSortingOptionsDialog) {
+                            SelectSortingOptionDialog(
+                                onSortingOptionSelected = mainActivityViewModel::onSortingOptionSelected,
+                                onDismissRequest = { shouldShowSortingOptionsDialog = false },
+                                selectedOption = uiState.sortingOption
+                            )
                         }
-                        composable("airing") {
-                            AiringScreen(
-                                mainActivityViewModel,
-                                airingViewModel,
-                                timeInMinutesFlow
-                            ) { startDetailsActivity(it.id) }
-                        }
-                        composable("following") {
-                            FollowingScreen(
-                                mainActivityViewModel,
-                                followingViewModel,
-                                timeInMinutesFlow
-                            ) { startDetailsActivity(it.id) }
-                        }
-                    }
 
-                    if (shouldShowErrorDialog && uiState.errorItem != null) {
-                        val errorItem = uiState.errorItem!!
-                        ErrorSurfaceContent(
-                            errorItem = errorItem,
-                            onActionClicked = {
-                                when (errorItem.action) {
-                                    ErrorItem.Action.REFRESH -> mainActivityViewModel.loadAiringData()
-                                    ErrorItem.Action.DISMISS -> {}
-                                }
-                            },
-                            onDismissRequest = { shouldShowErrorDialog = false },
-                            modifier = Modifier
-                                .align(Alignment.BottomCenter)
-                                .padding(8.dp)
-                        )
+                        NavHost(
+                            navController = navController,
+                            startDestination = "airing"
+                        ) {
+                            composable("media") {
+                                MediaScreen(
+                                    mainActivityViewModel,
+                                    mediaViewModel,
+                                    timeInMinutesFlow
+                                ) { startDetailsActivity(it.id) }
+                            }
+                            composable("airing") {
+                                AiringScreen(
+                                    mainActivityViewModel,
+                                    airingViewModel,
+                                    timeInMinutesFlow
+                                ) { startDetailsActivity(it.id) }
+                            }
+                            composable("following") {
+                                FollowingScreen(
+                                    mainActivityViewModel,
+                                    followingViewModel,
+                                    timeInMinutesFlow
+                                ) { startDetailsActivity(it.id) }
+                            }
+                        }
+
+                        if (shouldShowErrorDialog && uiState.errorItem != null) {
+                            val errorItem = uiState.errorItem!!
+                            ErrorSurfaceContent(
+                                errorItem = errorItem,
+                                onActionClicked = {
+                                    when (errorItem.action) {
+                                        ErrorItem.Action.REFRESH -> mainActivityViewModel.loadAiringData()
+                                        ErrorItem.Action.DISMISS -> {}
+                                    }
+                                },
+                                onDismissRequest = { shouldShowErrorDialog = false },
+                                modifier = Modifier
+                                    .align(Alignment.BottomCenter)
+                                    .padding(8.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -191,7 +193,7 @@ fun BottomNavigationBar(navController: NavHostController) {
         Screen.AiringScreen,
         Screen.FollowingScreen
     )
-    BottomNavigation(backgroundColor = PrimaryColor) {
+    BottomNavigation(backgroundColor = LocalColors.current.primary) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
         items.forEach { screen ->
@@ -223,8 +225,8 @@ fun BottomNavigationBar(navController: NavHostController) {
                         restoreState = true
                     }
                 },
-                selectedContentColor = SecondaryColor,
-                unselectedContentColor = Color.White
+                selectedContentColor = LocalColors.current.secondary,
+                unselectedContentColor = LocalColors.current.onPrimary
             )
         }
     }
@@ -245,7 +247,7 @@ fun TopBar(
     val currentDestination = navBackStackEntry?.destination
     val screen = Screen.ofRoute(currentDestination?.route.orEmpty())
 
-    TopAppBar(backgroundColor = PrimaryColor) {
+    TopAppBar(backgroundColor = LocalColors.current.primary) {
         if (screen?.hasSearchBar == true) {
             if (searchFieldVisibleState.value) {
                 AnimatedVisibility(
@@ -267,7 +269,7 @@ fun TopBar(
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = null,
-                        tint = Color.White
+                        tint = LocalColors.current.onPrimary
                     )
                 }
             }
@@ -277,7 +279,7 @@ fun TopBar(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_baseline_sort_24),
                     contentDescription = null,
-                    tint = Color.White
+                    tint = LocalColors.current.onPrimary
                 )
             }
         }
@@ -290,14 +292,14 @@ fun TopBar(
             Icon(
                 painter = painterResource(id = R.drawable.ic_baseline_notifications_24),
                 contentDescription = null,
-                tint = Color.White
+                tint = LocalColors.current.onPrimary
             )
         }
         IconButton(onClick = onSettingsClicked) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_baseline_settings_24),
                 contentDescription = null,
-                tint = Color.White
+                tint = LocalColors.current.onPrimary
             )
         }
     }

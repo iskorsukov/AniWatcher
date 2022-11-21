@@ -15,6 +15,8 @@ import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.databinding.SettingsActivityBinding
 import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
 import com.iskorsukov.aniwatcher.ui.base.topbar.BackArrowTopAppBar
+import com.iskorsukov.aniwatcher.ui.theme.AniWatcherTheme
+import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -24,15 +26,18 @@ class SettingsActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Scaffold(
-                topBar ={
-                    BackArrowTopAppBar { finish() }
+            AniWatcherTheme {
+                Scaffold(
+                    topBar = {
+                        BackArrowTopAppBar { finish() }
+                    },
+                    backgroundColor = LocalColors.current.background
+                ) { innerPadding ->
+                    AndroidViewBinding(
+                        factory = SettingsActivityBinding::inflate,
+                        modifier = Modifier.padding(innerPadding)
+                    )
                 }
-            ) { innerPadding ->
-                AndroidViewBinding(
-                    factory = SettingsActivityBinding::inflate,
-                    modifier = Modifier.padding(innerPadding)
-                )
             }
         }
     }

@@ -1,36 +1,24 @@
 package com.iskorsukov.aniwatcher.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.darkColors
-import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-
-private val DarkColorPalette = darkColors(
-    primary = PrimaryColor,
-    primaryVariant = PrimaryVariantColor,
-    secondary = SecondaryColor
-)
-
-private val LightColorPalette = lightColors(
-    primary = PrimaryColor,
-    primaryVariant = PrimaryVariantColor,
-    secondary = SecondaryColor
-)
+import androidx.compose.runtime.CompositionLocalProvider
 
 @Composable
 fun AniWatcherTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
-    val colors = if (darkTheme) {
-        DarkColorPalette
+    val themedColors = if (darkTheme) {
+        ThemedColors.DARK
     } else {
-        LightColorPalette
+        ThemedColors.LIGHT
     }
-
-    MaterialTheme(
-        colors = colors,
-        typography = Typography,
-        shapes = Shapes,
+    val themedTextStyles = if (darkTheme) {
+        ThemedTextStyles.DARK
+    } else {
+        ThemedTextStyles.LIGHT
+    }
+    CompositionLocalProvider(
+        LocalColors provides themedColors,
+        LocalTextStyles provides themedTextStyles,
         content = content
     )
 }

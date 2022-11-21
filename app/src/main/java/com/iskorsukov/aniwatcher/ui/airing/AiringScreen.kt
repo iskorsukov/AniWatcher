@@ -26,6 +26,7 @@ import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.ui.main.MainActivityViewModel
 import com.iskorsukov.aniwatcher.ui.media.MediaItemCardCollapsed
 import com.iskorsukov.aniwatcher.ui.theme.CategoryTextStyle
+import com.iskorsukov.aniwatcher.ui.theme.LocalTextStyles
 import kotlinx.coroutines.flow.Flow
 
 @OptIn(ExperimentalLifecycleComposeApi::class)
@@ -82,7 +83,7 @@ private fun AiringScreenContent(
                 item {
                     Text(
                         text = it.key.name,
-                        style = CategoryTextStyle,
+                        style = LocalTextStyles.current.category,
                         modifier = Modifier
                             .padding(start = 8.dp, end = 8.dp, top = 8.dp)
                             .fillMaxWidth()

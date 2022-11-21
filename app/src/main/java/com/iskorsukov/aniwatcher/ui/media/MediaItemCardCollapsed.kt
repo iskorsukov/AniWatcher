@@ -14,6 +14,8 @@ import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.ui.theme.ContentTextStyleSmallLarger
+import com.iskorsukov.aniwatcher.ui.theme.LocalColors
+import com.iskorsukov.aniwatcher.ui.theme.LocalTextStyles
 
 @Composable
 fun MediaItemCardCollapsed(
@@ -30,7 +32,8 @@ fun MediaItemCardCollapsed(
             .height(76.dp)
             .fillMaxWidth()
             .clickable { onMediaClicked.invoke(mediaItem) },
-        elevation = 4.dp
+        elevation = 4.dp,
+        backgroundColor = LocalColors.current.cardBackground
     ) {
         ConstraintLayout {
             val (image, cardContent, followButton) = createRefs()
@@ -58,7 +61,7 @@ fun MediaItemCardCollapsed(
             ) {
                 Text(
                     text = mediaItem.title.baseText(preferredNamingScheme),
-                    style = ContentTextStyleSmallLarger,
+                    style = LocalTextStyles.current.contentSmallLargerEmphasis,
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1
                 )

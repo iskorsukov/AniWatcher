@@ -1,6 +1,6 @@
 package com.iskorsukov.aniwatcher.ui.theme
 
-import androidx.compose.material.Typography
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -8,18 +8,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 
-// Set of Material typography styles to start with
-val Typography = Typography(
-    body1 = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp
-    )
-)
-
 val CategoryTextStyle = TextStyle(
     fontSize = 18.sp,
-    color = TextColorLight,
+    color = TextColor,
     fontFamily = FontFamily.Monospace
 )
 
@@ -29,56 +20,109 @@ val ContentTextStyleSmallLargerWhite = TextStyle(
 )
 
 val ContentTextStyleSmall = TextStyle(
-    color = TextColorLight,
+    color = TextColor,
     fontSize = 10.sp
 )
 
 val ContentTextStyleSmallEmphasis = TextStyle(
-    fontWeight = FontWeight.Bold,
-    color = TextColorLight,
+    fontWeight = FontWeight.Medium,
+    color = TextColor,
     fontSize = 10.sp
 )
 
 val ContentTextStyleSmallLarger = TextStyle(
-    color = TextColorLight,
+    color = TextColor,
+    fontSize = 12.sp
+)
+
+val ContentTextStyleSmallLargerEmphasis = TextStyle(
+    fontWeight = FontWeight.Medium,
+    color = TextColor,
     fontSize = 12.sp
 )
 
 val ContentTextStyleMedium = TextStyle(
-    color = TextColorLight,
+    color = TextColor,
     fontSize = 14.sp
 )
 
 val ContentTextStyleMediumEmphasis = TextStyle(
-    fontWeight = FontWeight.Bold,
-    color = TextColorLight,
+    fontWeight = FontWeight.Medium,
+    color = TextColor,
     fontSize = 14.sp
 )
 
 val HeadlineTextStyle = TextStyle(
-    color = TextColorLight,
+    color = TextColor,
     fontSize = 16.sp
 )
 
 val HeadlineTextStyleSmall = TextStyle(
-    color = TextColorLight,
+    color = TextColor,
     fontSize = 12.sp
 )
 
 val ErrorLabelTextStyle = TextStyle(
-    fontWeight = FontWeight.Bold,
+    fontWeight = FontWeight.Medium,
     fontSize = 12.sp,
-    color = Color.White
+    color = OnErrorColor
 )
 
 val ErrorSubLabelTextStyle = TextStyle(
     fontSize = 14.sp,
-    color = Color.White
+    color = OnErrorColor
 )
 
 val ErrorButtonTextStyle = TextStyle(
-    fontWeight = FontWeight.Bold,
+    fontWeight = FontWeight.Medium,
     fontSize = 16.sp,
-    color = Color.White,
+    color = OnErrorColor,
     textAlign = TextAlign.Center
 )
+
+val ErrorLabelTextStyleDark = TextStyle(
+    fontWeight = FontWeight.Medium,
+    fontSize = 12.sp,
+    color = OnErrorColorDark
+)
+
+val ErrorSubLabelTextStyleDark = TextStyle(
+    fontSize = 14.sp,
+    color = OnErrorColorDark
+)
+
+val ErrorButtonTextStyleDark = TextStyle(
+    fontWeight = FontWeight.Medium,
+    fontSize = 16.sp,
+    color = OnErrorColorDark,
+    textAlign = TextAlign.Center
+)
+
+data class ThemedTextStyles(
+    val category: TextStyle = CategoryTextStyle,
+    val contentSmall: TextStyle = ContentTextStyleSmall,
+    val contentSmallEmphasis: TextStyle = ContentTextStyleSmallEmphasis,
+    val contentSmallLarger: TextStyle = ContentTextStyleSmallLarger,
+    val contentSmallLargerEmphasis: TextStyle = ContentTextStyleSmallLargerEmphasis,
+    val contentSmallLargerWhite: TextStyle = ContentTextStyleSmallLargerWhite,
+    val contentMedium: TextStyle = ContentTextStyleMedium,
+    val contentMediumEmphasis: TextStyle = ContentTextStyleMediumEmphasis,
+    val headline: TextStyle = HeadlineTextStyle,
+    val headlineSmall: TextStyle = HeadlineTextStyleSmall,
+    val errorLabel: TextStyle = ErrorLabelTextStyle,
+    val errorSubLabel: TextStyle = ErrorSubLabelTextStyle,
+    val errorButton: TextStyle = ErrorButtonTextStyle,
+    val onTitleOverlay: TextStyle = ContentTextStyleSmallLargerWhite
+) {
+    companion object {
+        val LIGHT = ThemedTextStyles()
+
+        val DARK = ThemedTextStyles(
+            errorLabel = ErrorLabelTextStyleDark,
+            errorSubLabel = ErrorSubLabelTextStyleDark,
+            errorButton = ErrorButtonTextStyleDark
+        )
+    }
+}
+
+val LocalTextStyles = compositionLocalOf { ThemedTextStyles() }

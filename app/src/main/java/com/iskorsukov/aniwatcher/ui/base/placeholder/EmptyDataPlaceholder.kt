@@ -15,10 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.iskorsukov.aniwatcher.R
-import com.iskorsukov.aniwatcher.ui.theme.HeadlineTextStyle
-import com.iskorsukov.aniwatcher.ui.theme.HeadlineTextStyleSmall
-import com.iskorsukov.aniwatcher.ui.theme.TextColorLight
+import com.iskorsukov.aniwatcher.ui.theme.*
 
 @Composable
 fun EmptyDataFullscreenPlaceholder(
@@ -37,20 +34,20 @@ fun EmptyDataFullscreenPlaceholder(
                     id = iconResId
                 ),
                 contentDescription = null,
-                tint = TextColorLight,
+                tint = LocalColors.current.text,
                 modifier = Modifier.size(36.dp)
             )
             Text(
                 text = stringResource(
                     id = labelResId
                 ),
-                style = HeadlineTextStyle
+                style = LocalTextStyles.current.headline
             )
             Text(
                 text = stringResource(
                     id = subLabelResId
                 ),
-                style = HeadlineTextStyleSmall,
+                style = LocalTextStyles.current.headlineSmall,
                 textAlign = TextAlign.Center
             )
         }

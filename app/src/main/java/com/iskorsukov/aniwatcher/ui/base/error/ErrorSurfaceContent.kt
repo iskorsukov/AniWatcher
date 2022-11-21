@@ -15,9 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import com.iskorsukov.aniwatcher.ui.theme.ErrorButtonTextStyle
-import com.iskorsukov.aniwatcher.ui.theme.ErrorLabelTextStyle
-import com.iskorsukov.aniwatcher.ui.theme.ErrorSubLabelTextStyle
+import com.iskorsukov.aniwatcher.ui.theme.*
 import kotlinx.coroutines.delay
 import java.util.concurrent.TimeUnit
 
@@ -31,7 +29,7 @@ fun ErrorSurfaceContent(
 ) {
     Surface(
         shape = RoundedCornerShape(8.dp),
-        color = MaterialTheme.colors.error,
+        color = LocalColors.current.error,
         modifier = modifier
     ) {
         ConstraintLayout(
@@ -48,7 +46,7 @@ fun ErrorSurfaceContent(
             val buttonsGuideline = createGuidelineFromEnd(0.3f)
             Text(
                 text = stringResource(id = errorItem.labelResId),
-                style = ErrorLabelTextStyle,
+                style = LocalTextStyles.current.errorLabel,
                 modifier = Modifier.constrainAs(label) {
                     top.linkTo(parent.top)
                     start.linkTo(parent.start)
@@ -60,7 +58,7 @@ fun ErrorSurfaceContent(
             if (errorItem.subLabelResId != null) {
                 Text(
                     text = stringResource(id = errorItem.subLabelResId),
-                    style = ErrorSubLabelTextStyle,
+                    style = LocalTextStyles.current.errorSubLabel,
                     modifier = Modifier.constrainAs(subLabel) {
                         top.linkTo(label.bottom)
                         start.linkTo(parent.start)
@@ -77,7 +75,7 @@ fun ErrorSurfaceContent(
             if (errorItem.actionLabelResId != null) {
                 Text(
                     text = stringResource(id = errorItem.actionLabelResId).uppercase(),
-                    style = ErrorButtonTextStyle,
+                    style = LocalTextStyles.current.errorButton,
                     modifier = Modifier
                         .clickable {
                             onActionClicked.invoke()

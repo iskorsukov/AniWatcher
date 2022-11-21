@@ -10,7 +10,8 @@ import androidx.compose.material.Scaffold
 import androidx.compose.ui.Modifier
 import com.iskorsukov.aniwatcher.ui.base.topbar.BackArrowTopAppBar
 import com.iskorsukov.aniwatcher.ui.details.DetailsActivity
-import com.iskorsukov.aniwatcher.ui.theme.PrimaryColor
+import com.iskorsukov.aniwatcher.ui.theme.AniWatcherTheme
+import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -21,18 +22,21 @@ class NotificationActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Scaffold(
-                topBar = {
-                    BackArrowTopAppBar {
-                        finish()
-                    }
+            AniWatcherTheme {
+                Scaffold(
+                    topBar = {
+                        BackArrowTopAppBar {
+                            finish()
+                        }
+                    },
+                    backgroundColor = LocalColors.current.background
+                ) { innerPadding ->
+                    NotificationsScreen(
+                        notificationsViewModel = notificationsViewModel,
+                        onNotificationClicked = this::startDetailsActivity,
+                        modifier = Modifier.padding(innerPadding)
+                    )
                 }
-            ) { innerPadding ->
-                NotificationsScreen(
-                    notificationsViewModel = notificationsViewModel,
-                    onNotificationClicked = this::startDetailsActivity,
-                    modifier = Modifier.padding(innerPadding)
-                )
             }
         }
     }

@@ -26,17 +26,16 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.iskorsukov.aniwatcher.ui.theme.PrimaryColor
-import com.iskorsukov.aniwatcher.ui.theme.TextColorLight
+import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 
 @Composable
 fun BackArrowTopAppBar(onBackButtonClicked: () -> Unit) {
-    TopAppBar(backgroundColor = PrimaryColor) {
+    TopAppBar(backgroundColor = LocalColors.current.primary) {
         IconButton(onClick = onBackButtonClicked) {
             Icon(
                 imageVector = Icons.Filled.ArrowBack,
                 contentDescription = null,
-                tint = Color.White
+                tint = LocalColors.current.onPrimary
             )
         }
     }
@@ -62,10 +61,10 @@ fun SearchField(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth()
-            .background(Color.White, RoundedCornerShape(16.dp))
+            .background(LocalColors.current.background, RoundedCornerShape(16.dp))
             .focusRequester(focusRequester),
-        cursorBrush = SolidColor(TextColorLight),
-        textStyle = TextStyle(color = TextColorLight, fontSize = 18.sp),
+        cursorBrush = SolidColor(LocalColors.current.text),
+        textStyle = TextStyle(color = LocalColors.current.text, fontSize = 18.sp),
         decorationBox = { innerTextField ->
             TextFieldDefaults.TextFieldDecorationBox(
                 value = text,
@@ -88,8 +87,8 @@ fun SearchField(
                 },
                 singleLine = true,
                 colors = TextFieldDefaults.textFieldColors(
-                    leadingIconColor = TextColorLight,
-                    trailingIconColor = TextColorLight,
+                    leadingIconColor = LocalColors.current.text,
+                    trailingIconColor = LocalColors.current.text,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                     disabledIndicatorColor = Color.Transparent
@@ -112,7 +111,7 @@ fun SearchFieldPreview() {
         modifier = Modifier
             .fillMaxWidth()
             .height(48.dp)
-            .background(MaterialTheme.colors.primary)
+            .background(LocalColors.current.primary)
     ) {
         if (searchFieldVisibleState.value) {
             AnimatedVisibility(
@@ -134,7 +133,7 @@ fun SearchFieldPreview() {
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = null,
-                    tint = Color.White
+                    tint = LocalColors.current.onPrimary
                 )
             }
         }

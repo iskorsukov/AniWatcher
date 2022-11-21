@@ -156,18 +156,18 @@ private fun DetailsTitleDescriptionColumn(
     ) {
         Text(
             text = mediaItem.title.baseText(preferredNamingScheme),
-            style = ContentTextStyleMedium
+            style = LocalTextStyles.current.contentSmallLarger
         )
         if (mediaItem.title.subText().isNotEmpty()) {
             Text(
                 text = mediaItem.title.subText(preferredNamingScheme),
-                style = ContentTextStyleSmallLarger
+                style = LocalTextStyles.current.contentSmall
             )
         }
         Spacer(modifier = Modifier.height(8.dp))
         HtmlText(
             text = mediaItem.description.orEmpty(),
-            style = ContentTextStyleSmallLarger
+            style = LocalTextStyles.current.contentSmallLarger
         )
     }
 }
@@ -214,12 +214,12 @@ private fun DetailsMediaInfoItem(
 ) {
     Text(
         text = label,
-        style = ContentTextStyleSmallEmphasis,
+        style = LocalTextStyles.current.contentSmallEmphasis,
         modifier = Modifier.padding(top = 8.dp)
     )
     Text(
         text = subLabel,
-        style = ContentTextStyleSmallLarger
+        style = LocalTextStyles.current.contentSmallLarger
     )
 }
 
@@ -237,7 +237,7 @@ private fun DetailsAiringSchedulesList(
         item {
             Text(
                 text = stringResource(id = R.string.media_info_airing_schedule),
-                style = ContentTextStyleSmall
+                style = LocalTextStyles.current.contentSmall
             )
         }
         airingScheduleList.map {

@@ -43,7 +43,8 @@ fun MediaItemCardExtended(
             .height(200.dp)
             .fillMaxWidth()
             .clickable { onMediaClicked.invoke(mediaItem) },
-        elevation = 10.dp
+        elevation = 8.dp,
+        backgroundColor = LocalColors.current.cardBackground
     ) {
         ConstraintLayout {
             val (
@@ -74,7 +75,7 @@ fun MediaItemCardExtended(
             MediaItemOverlayTitle(
                 title = mediaItem.title.baseText(preferredNamingScheme),
                 modifier = Modifier
-                    .background(color = TitleOverlayColor)
+                    .background(color = LocalColors.current.titleOverlay)
                     .padding(4.dp)
                     .constrainAs(titleOverlay) {
                         top.linkTo(titleOverlayTopGuideline)
@@ -103,7 +104,7 @@ fun MediaItemCardExtended(
 
             HtmlText(
                 text = mediaItem.description.orEmpty(),
-                style = ContentTextStyleSmall,
+                style = LocalTextStyles.current.contentSmall,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
                     .padding(8.dp)
@@ -138,11 +139,11 @@ fun MediaItemCardExtended(
                 ) {
                     if (mediaItem.meanScore != null) {
                         val scoreTint = if (mediaItem.meanScore <= 33) {
-                            CardIndicatorColorRed
+                            LocalColors.current.cardIndicatorLow
                         } else if (mediaItem.meanScore <= 66) {
-                            CardIndicatorColorOrange
+                            LocalColors.current.cardIndicatorMedium
                         } else {
-                            CardIndicatorColorGreen
+                            LocalColors.current.cardIndicatorHigh
                         }
                         MediaItemIndicatorWithText(
                             iconResId = R.drawable.ic_baseline_thumb_up_off_alt_24,
@@ -154,7 +155,7 @@ fun MediaItemCardExtended(
                     if (mediaItem.seasonRanking != null) {
                         MediaItemIndicatorWithText(
                             iconResId = R.drawable.ic_outline_favorite_border_24_white,
-                            iconTint = CardIndicatorColorRed,
+                            iconTint = LocalColors.current.cardIndicatorLow,
                             text = "#${mediaItem.seasonRanking.rank}"
                         )
                     }
@@ -165,7 +166,7 @@ fun MediaItemCardExtended(
                 genres = mediaItem.genres,
                 colorStr = mediaItem.colorStr,
                 modifier = Modifier
-                    .background(color = CardFooterBackgroundColor)
+                    .background(color = LocalColors.current.cardFooterBackground)
                     .constrainAs(genresFooter) {
                         top.linkTo(genresFooterTopGuideline)
                         bottom.linkTo(parent.bottom)
@@ -203,7 +204,7 @@ private fun MediaItemOverlayTitle(
     ) {
         Text(
             text = title,
-            style = ContentTextStyleSmallLargerWhite,
+            style = LocalTextStyles.current.onTitleOverlay,
             overflow = TextOverflow.Ellipsis
         )
     }
@@ -225,7 +226,7 @@ private fun MediaItemIndicatorWithText(
         Spacer(modifier = Modifier.width(4.dp))
         Text(
             text = text,
-            style = ContentTextStyleSmallLarger
+            style = LocalTextStyles.current.contentSmallLarger
         )
     }
 }
