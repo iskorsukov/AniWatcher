@@ -60,6 +60,10 @@ fun MediaScreen(
         preferredNamingScheme = settingsState.preferredNamingScheme,
         onRefresh = { mainActivityViewModel.loadAiringData() },
         onFollowClicked = viewModel::onFollowClicked,
+        onGenreChipClicked = {
+            mainActivityViewModel.onSearchFieldOpenChange(true)
+            mainActivityViewModel.appendSearchText(it)
+        },
         onMediaClicked = onMediaClicked
     )
 }
@@ -73,7 +77,8 @@ private fun MediaScreenContent(
     preferredNamingScheme: NamingScheme,
     onRefresh: () -> Unit,
     onFollowClicked: (MediaItem) -> Unit,
-    onMediaClicked: (MediaItem) -> Unit
+    onMediaClicked: (MediaItem) -> Unit,
+    onGenreChipClicked: (String) -> Unit,
 ) {
     SwipeRefresh(
         state = swipeRefreshState,
@@ -89,6 +94,7 @@ private fun MediaScreenContent(
                             timeInMinutes = timeInMinutes,
                             onFollowClicked = onFollowClicked,
                             onMediaClicked = onMediaClicked,
+                            onGenreChipClicked = onGenreChipClicked,
                             preferredNamingScheme = preferredNamingScheme
                         )
                     }
@@ -116,6 +122,7 @@ fun MediaScreenPreview() {
         preferredNamingScheme = NamingScheme.ENGLISH,
         onRefresh = { },
         onFollowClicked = { },
-        onMediaClicked = { }
+        onMediaClicked = { },
+        onGenreChipClicked = { }
     )
 }

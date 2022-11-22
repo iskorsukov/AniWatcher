@@ -11,6 +11,7 @@ import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
@@ -44,10 +45,29 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun onSearchTextInput(searchText: String) {
-        _uiState.value = _uiState.value.copy(searchText = searchText)
+        if (searchText != _uiState.value.searchText) {
+            _uiState.value = _uiState.value.copy(searchText = searchText)
+        }
+    }
+
+    fun appendSearchText(searchText: String) {
+        val currentSearchText = _uiState.value.searchText
+        if (currentSearchText.isBlank()) {
+            onSearchTextInput(searchText)
+        } else {
+            onSearchTextInput("$currentSearchText $searchText")
+        }
     }
 
     fun onSortingOptionSelected(sortingOption: SortingOption) {
-        _uiState.value = _uiState.value.copy(sortingOption = sortingOption)
+        if (sortingOption != _uiState.value.sortingOption) {
+            _uiState.value = _uiState.value.copy(sortingOption = sortingOption)
+        }
+    }
+
+    fun onSearchFieldOpenChange(isSearchFieldOpen: Boolean) {
+        if (isSearchFieldOpen != _uiState.value.searchFieldOpen) {
+            _uiState.value = _uiState.value.copy(searchFieldOpen = isSearchFieldOpen)
+        }
     }
 }

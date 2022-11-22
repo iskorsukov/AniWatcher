@@ -26,7 +26,8 @@ import com.iskorsukov.aniwatcher.test.description
 import com.iskorsukov.aniwatcher.test.meanScore
 import com.iskorsukov.aniwatcher.test.ranking
 import com.iskorsukov.aniwatcher.ui.base.text.HtmlText
-import com.iskorsukov.aniwatcher.ui.theme.*
+import com.iskorsukov.aniwatcher.ui.theme.LocalColors
+import com.iskorsukov.aniwatcher.ui.theme.LocalTextStyles
 
 @Composable
 fun MediaItemCardExtended(
@@ -35,6 +36,7 @@ fun MediaItemCardExtended(
     timeInMinutes: Long,
     onFollowClicked: (MediaItem) -> Unit,
     onMediaClicked: (MediaItem) -> Unit,
+    onGenreChipClicked: ((String) -> Unit)? = null,
     preferredNamingScheme: NamingScheme = NamingScheme.ENGLISH
 ) {
     Card(
@@ -175,7 +177,8 @@ fun MediaItemCardExtended(
 
                         width = Dimension.fillToConstraints
                         height = Dimension.fillToConstraints
-                    }
+                    },
+                onGenreChipClicked = onGenreChipClicked
             )
 
             MediaItemFollowButton(

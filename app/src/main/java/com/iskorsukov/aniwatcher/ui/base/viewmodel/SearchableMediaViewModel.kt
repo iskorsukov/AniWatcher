@@ -15,13 +15,15 @@ open class SearchableMediaViewModel(
     }
 
     protected fun <T> filterMediaFlow(map: Map<MediaItem, T>, searchText: String): Map<MediaItem, T> {
+        val searchTokens = searchText.split(" ", ", ", ",").filter { it.length > 3 }
         return if (searchText.length < 4) {
             map
         } else {
             map.filterKeys { mediaItem ->
-                mediaItem.genres.joinToString().contains(searchText, true)
-                        || mediaItem.title.containsIgnoreCase(searchText)
-
+                searchTokens.all {
+                    mediaItem.genres.joinToString().contains(it, true)
+                            || mediaItem.title.containsIgnoreCase(it)
+                }
             }
         }
     }

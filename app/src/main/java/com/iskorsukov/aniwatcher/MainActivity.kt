@@ -79,10 +79,9 @@ class MainActivity : ComponentActivity() {
             var shouldShowSortingOptionsDialog by remember {
                 mutableStateOf(false)
             }
-            var shouldShowErrorDialog by remember {
-                mutableStateOf(false)
+            var shouldShowErrorDialog by remember(uiState.errorItem) {
+                mutableStateOf(uiState.errorItem != null)
             }
-            shouldShowErrorDialog = uiState.errorItem != null
 
             AniWatcherTheme {
                 Scaffold(
@@ -231,6 +230,7 @@ fun BottomNavigationBar(navController: NavHostController) {
     }
 }
 
+@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun TopBar(
     mainActivityViewModel: MainActivityViewModel = viewModel(),
@@ -239,7 +239,9 @@ fun TopBar(
     onSettingsClicked: () -> Unit,
     onNotificationsClicked: () -> Unit
 ) {
-    val searchFieldVisibleState = remember { mutableStateOf(false) }
+    val uiState by mainActivityViewModel.uiState
+        .collectAsStateWithLifecycle()
+
     val focusRequester = remember { FocusRequester() }
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -248,23 +250,30 @@ fun TopBar(
 
     TopAppBar(backgroundColor = LocalColors.current.primary) {
         if (screen?.hasSearchBar == true) {
-            if (searchFieldVisibleState.value) {
-                AnimatedVisibility(
-                    visible = searchFieldVisibleState.value,
-                    enter = expandHorizontally(expandFrom = Alignment.Start),
-                    exit = shrinkHorizontally(shrinkTowards = Alignment.Start)
-                ) {
-                    SearchField(
-                        onSearchTextChanged = mainActivityViewModel::onSearchTextInput,
-                        searchFieldVisibleState = searchFieldVisibleState,
-                        focusRequester = focusRequester
-                    )
-                    LaunchedEffect(Unit) {
-                        focusRequester.requestFocus()
-                    }
+            AnimatedVisibility(
+                visible = uiState.searchFieldOpen,
+                enter = expandHorizontally(expandFrom = Alignment.Start),
+                exit = shrinkHorizontally(shrinkTowards = Alignment.Start)
+            ) {
+                SearchField(
+                    searchText = uiState.searchText,
+                    onSearchTextChanged = mainActivityViewModel::onSearchTextInput,
+                    onSearchCancelled = {
+                        mainActivityViewModel.onSearchFieldOpenChange(false)
+                    },
+                    focusRequester = focusRequester
+                )
+                LaunchedEffect(Unit) {
+                    focusRequester.requestFocus()
                 }
-            } else {
-                IconButton(onClick = { searchFieldVisibleState.value = true }) {
+            }
+
+            if (!uiState.searchFieldOpen) {
+                IconButton(
+                    onClick = {
+                        mainActivityViewModel.onSearchFieldOpenChange(true)
+                    }
+                ) {
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = null,

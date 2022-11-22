@@ -1,6 +1,7 @@
 package com.iskorsukov.aniwatcher.ui.media
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -101,23 +102,32 @@ fun MediaItemFollowButton(
 fun MediaItemGenresFooter(
     genres: List<String>,
     colorStr: String?,
-    modifier: Modifier
+    modifier: Modifier,
+    onGenreChipClicked: ((String) -> Unit)? = null
 ) {
     LazyRow(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start
+        horizontalArrangement = Arrangement.Start,
     ) {
         genres.take(3).map {
             item {
-                GenreChip(genre = it, colorStr = colorStr)
+                GenreChip(
+                    genre = it,
+                    colorStr = colorStr,
+                    onGenreChipClicked = onGenreChipClicked
+                )
             }
         }
     }
 }
 
 @Composable
-fun GenreChip(genre: String, colorStr: String?) {
+fun GenreChip(
+    genre: String,
+    colorStr: String?,
+    onGenreChipClicked: ((String) -> Unit)? = null
+) {
     val bgColor = getBackgroundColorForChip(bgColorStr = colorStr)
     val textColor = getContrastTextColorForChip(bgColor = bgColor)
     Text(
@@ -125,6 +135,7 @@ fun GenreChip(genre: String, colorStr: String?) {
         color = textColor,
         fontSize = 8.sp,
         modifier = Modifier
+            .clickable { onGenreChipClicked?.invoke(genre) }
             .padding(
                 top = 4.dp,
                 bottom = 4.dp,

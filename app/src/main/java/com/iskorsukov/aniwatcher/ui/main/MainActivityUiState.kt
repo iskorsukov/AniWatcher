@@ -7,5 +7,6 @@ data class MainActivityUiState(
     val isRefreshing: Boolean,
     val errorItem: ErrorItem? = null,
     val searchText: String = "",
+    val searchFieldOpen: Boolean = false,
     val sortingOption: SortingOption = SortingOption.AIRING_AT,
 )

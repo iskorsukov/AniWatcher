@@ -21,7 +21,9 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -59,18 +61,29 @@ fun BackArrowTopAppBar(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SearchField(
+    searchText: String,
     onSearchTextChanged: (String) -> Unit,
-    searchFieldVisibleState: MutableState<Boolean>,
+    onSearchCancelled: () -> Unit,
     focusRequester: FocusRequester
 ) {
-    var text by remember { mutableStateOf("") }
     val focusManager = LocalFocusManager.current
 
+    val searchTextFieldValue = remember(searchText) {
+        mutableStateOf(
+            TextFieldValue(
+                text = searchText,
+                selection = TextRange(searchText.length)
+            )
+        )
+    }
+
     BasicTextField(
-        value = text,
+        value = searchTextFieldValue.value,
         onValueChange = {
-            text = it
-            onSearchTextChanged(it)
+            searchTextFieldValue.value = it
+            if (it.text != searchText) {
+                onSearchTextChanged(it.text)
+            }
         },
         singleLine = true,
         modifier = Modifier
@@ -82,17 +95,16 @@ fun SearchField(
         textStyle = TextStyle(color = LocalColors.current.text, fontSize = 18.sp),
         decorationBox = { innerTextField ->
             TextFieldDefaults.TextFieldDecorationBox(
-                value = text,
+                value = searchText,
                 innerTextField = innerTextField,
                 leadingIcon = {
                     Icon(imageVector = Icons.Default.Search, contentDescription = null)
                 },
                 trailingIcon = {
                     IconButton(onClick = {
-                        text = ""
                         onSearchTextChanged("")
                         focusManager.clearFocus()
-                        searchFieldVisibleState.value = false
+                        onSearchCancelled.invoke()
                     }) {
                         Icon(
                             imageVector = Icons.Default.Close,
@@ -122,6 +134,9 @@ fun SearchField(
 fun SearchFieldPreview() {
     val searchFieldVisibleState = remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
+    val searchText = remember {
+        mutableStateOf("")
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -135,8 +150,9 @@ fun SearchFieldPreview() {
                 exit = shrinkHorizontally(shrinkTowards = Alignment.Start)
             ) {
                 SearchField(
-                    onSearchTextChanged = { },
-                    searchFieldVisibleState = searchFieldVisibleState,
+                    searchText = searchText.value,
+                    onSearchTextChanged = { searchText.value = it },
+                    onSearchCancelled = { searchFieldVisibleState.value = false },
                     focusRequester = focusRequester
                 )
                 LaunchedEffect(Unit) {

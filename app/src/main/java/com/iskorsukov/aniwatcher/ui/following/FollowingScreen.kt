@@ -57,6 +57,10 @@ fun FollowingScreen(
         onFollowClicked = viewModel::onFollowClicked,
         preferredNamingScheme = settingsState.preferredNamingScheme,
         onMediaClicked = onMediaClicked,
+        onGenreChipClicked = {
+            mainActivityViewModel.onSearchFieldOpenChange(true)
+            mainActivityViewModel.appendSearchText(it)
+        },
         listState = listState
     )
 }
@@ -68,6 +72,7 @@ fun FollowingScreenContent(
     onFollowClicked: ((MediaItem) -> Unit),
     preferredNamingScheme: NamingScheme,
     onMediaClicked: (MediaItem) -> Unit,
+    onGenreChipClicked: (String) -> Unit,
     listState: LazyListState,
 ) {
     if (followingMediaMap.isEmpty()) {
@@ -86,6 +91,7 @@ fun FollowingScreenContent(
                         timeInMinutes = timeInMinutes,
                         onFollowClicked = onFollowClicked,
                         onMediaClicked = onMediaClicked,
+                        onGenreChipClicked = onGenreChipClicked,
                         preferredNamingScheme = preferredNamingScheme
                     )
                 }
@@ -105,6 +111,7 @@ private fun FollowingScreenEmptyPreview() {
         onFollowClicked = {},
         preferredNamingScheme = NamingScheme.ENGLISH,
         onMediaClicked = {},
+        onGenreChipClicked = {},
         listState = rememberLazyListState()
     )
 }
@@ -125,6 +132,7 @@ private fun FollowingScreenPreview() {
         onFollowClicked = {},
         preferredNamingScheme = NamingScheme.ENGLISH,
         onMediaClicked = {},
+        onGenreChipClicked = {},
         listState = rememberLazyListState()
     )
 }
