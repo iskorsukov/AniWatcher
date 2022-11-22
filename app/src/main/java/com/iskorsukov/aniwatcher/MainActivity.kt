@@ -8,7 +8,6 @@ import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkHorizontally
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -41,7 +40,7 @@ import com.iskorsukov.aniwatcher.ui.main.MainActivityViewModel
 import com.iskorsukov.aniwatcher.ui.media.MediaScreen
 import com.iskorsukov.aniwatcher.ui.media.MediaViewModel
 import com.iskorsukov.aniwatcher.ui.notification.NotificationActivity
-import com.iskorsukov.aniwatcher.ui.settings.SettingsActivity
+import com.iskorsukov.aniwatcher.ui.settings.SettingsCompatActivity
 import com.iskorsukov.aniwatcher.ui.sorting.SelectSortingOptionDialog
 import com.iskorsukov.aniwatcher.ui.theme.*
 import dagger.hilt.android.AndroidEntryPoint
@@ -175,7 +174,7 @@ class MainActivity : ComponentActivity() {
 
     private fun startSettingsActivity() {
         startActivity(
-            Intent(this, SettingsActivity::class.java)
+            Intent(this, SettingsCompatActivity::class.java)
         )
     }
 

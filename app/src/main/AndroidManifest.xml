@@ -31,8 +31,9 @@
             android:name=".ui.details.DetailsActivity"
             android:theme="@style/Theme.AniWatcher" />
         <activity
-            android:name=".ui.settings.SettingsActivity"
-            android:theme="@style/Theme.AniWatcher" />
+            android:name=".ui.settings.SettingsCompatActivity"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/Theme.AniWatcher.AppCompat" />
         <activity
             android:name=".ui.notification.NotificationActivity"
             android:theme="@style/Theme.AniWatcher" />

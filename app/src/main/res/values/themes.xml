@@ -1,7 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.AniWatcher" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">@color/primary</item>
-        <item name="android:textColor">@color/textColor</item>
+        <item name="android:statusBarColor">@color/statusBar</item>
+    </style>
+
+    <style name="Theme.AniWatcher.AppCompat" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:statusBarColor">@color/statusBar</item>
+
+        <item name="android:textColorPrimary">@color/textColor</item>
+        <item name="android:textColorSecondary">@color/textColorSecondary</item>
+        <item name="textColorAlertDialogListItem">@color/textColor</item>
+
+        <item name="android:actionBarStyle">@style/ActionBarLayoutStyle</item>
+        <item name="actionBarStyle">@style/ActionBarLayoutStyle</item>
+    </style>
+
+    <style name="ActionBarLayoutStyle" parent="Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@color/primary</item>
+        <item name="background">@color/primary</item>
     </style>
 </resources>

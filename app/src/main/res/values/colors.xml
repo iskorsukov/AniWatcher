@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#3F51B5</color>
+    <color name="statusBar">#3F51B5</color>
+    <color name="primary">#283593</color>
+    <color name="onPrimary">#6E859E</color>
+    <color name="background">#FFFFFF</color>
+    <color name="primaryDark">#121B30</color>
+    <color name="accent">#60EDFF</color>
     <color name="textColor">#6E859E</color>
+    <color name="textColorSecondary">#8F959C</color>
 </resources>
