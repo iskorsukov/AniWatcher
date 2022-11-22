@@ -61,7 +61,10 @@ fun MediaItemAiringInfoColumn(
                 )
             }
             Text(
-                text = "at ${airingScheduleItem.getAiringAtDateTimeFormatted()}",
+                text = String.format(
+                    stringResource(id = R.string.episode_airing_at),
+                    airingScheduleItem.getAiringAtDateTimeFormatted()
+                ),
                 style = LocalTextStyles.current.contentSmallEmphasis
             )
         }

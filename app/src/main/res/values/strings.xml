@@ -20,6 +20,7 @@
     <string name="notifications_data_empty_sub_label">Follow a show and enable notifications in settings to receive notifications when a followed show airs</string>
 
     <string name="episode_airing_label">Episode %1$d airing in</string>
+    <string name="episode_airing_at">at %1$s</string>
     <string name="episode_aired_label">Episode %1$d aired</string>
 
     <string name="episode_aired_at_time_text">Episode %1$d aired at %2$s</string>
