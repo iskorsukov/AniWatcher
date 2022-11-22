@@ -27,18 +27,33 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
+import com.iskorsukov.aniwatcher.ui.theme.LocalTextStyles
 
 @Composable
-fun BackArrowTopAppBar(onBackButtonClicked: () -> Unit) {
-    TopAppBar(backgroundColor = LocalColors.current.primary) {
-        IconButton(onClick = onBackButtonClicked) {
-            Icon(
-                imageVector = Icons.Filled.ArrowBack,
-                contentDescription = null,
-                tint = LocalColors.current.onPrimary
-            )
+fun BackArrowTopAppBar(
+    title: String? = null,
+    onBackButtonClicked: () -> Unit,
+) {
+    TopAppBar(
+        backgroundColor = LocalColors.current.primary,
+        title = {
+            if (title != null) {
+                Text(
+                    text = title,
+                    style = LocalTextStyles.current.topBarTitle
+                )
+            }
+        },
+        navigationIcon = {
+            IconButton(onClick = onBackButtonClicked) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBack,
+                    contentDescription = null,
+                    tint = LocalColors.current.onPrimary
+                )
+            }
         }
-    }
+    )
 }
 
 @OptIn(ExperimentalMaterialApi::class)

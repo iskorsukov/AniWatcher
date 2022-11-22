@@ -8,6 +8,8 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.ui.base.topbar.BackArrowTopAppBar
 import com.iskorsukov.aniwatcher.ui.details.DetailsActivity
 import com.iskorsukov.aniwatcher.ui.theme.AniWatcherTheme
@@ -25,7 +27,7 @@ class NotificationActivity : ComponentActivity() {
             AniWatcherTheme {
                 Scaffold(
                     topBar = {
-                        BackArrowTopAppBar {
+                        BackArrowTopAppBar(stringResource(id = R.string.notifications)) {
                             finish()
                         }
                     },

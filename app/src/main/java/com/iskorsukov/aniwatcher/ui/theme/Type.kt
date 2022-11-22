@@ -57,6 +57,18 @@ val HeadlineTextStyle = TextStyle(
     fontSize = 16.sp
 )
 
+val TopBarTitleTextStyle = TextStyle(
+    fontWeight = FontWeight.Medium,
+    color = TextColor,
+    fontSize = 20.sp
+)
+
+val TopBarTitleTextStyleWhite = TextStyle(
+    fontWeight = FontWeight.Medium,
+    color = Color.White,
+    fontSize = 20.sp
+)
+
 val HeadlineTextStyleSmall = TextStyle(
     color = TextColor,
     fontSize = 12.sp
@@ -109,6 +121,7 @@ data class ThemedTextStyles(
     val contentMediumEmphasis: TextStyle = ContentTextStyleMediumEmphasis,
     val headline: TextStyle = HeadlineTextStyle,
     val headlineSmall: TextStyle = HeadlineTextStyleSmall,
+    val topBarTitle: TextStyle = TopBarTitleTextStyleWhite,
     val errorLabel: TextStyle = ErrorLabelTextStyle,
     val errorSubLabel: TextStyle = ErrorSubLabelTextStyle,
     val errorButton: TextStyle = ErrorButtonTextStyle,
@@ -118,6 +131,7 @@ data class ThemedTextStyles(
         val LIGHT = ThemedTextStyles()
 
         val DARK = ThemedTextStyles(
+            topBarTitle = TopBarTitleTextStyle,
             errorLabel = ErrorLabelTextStyleDark,
             errorSubLabel = ErrorSubLabelTextStyleDark,
             errorButton = ErrorButtonTextStyleDark
