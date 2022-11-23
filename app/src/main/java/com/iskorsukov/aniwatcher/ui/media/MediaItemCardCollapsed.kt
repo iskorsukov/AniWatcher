@@ -6,6 +6,7 @@ import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -36,7 +37,7 @@ fun MediaItemCardCollapsed(
         backgroundColor = LocalColors.current.cardBackground
     ) {
         ConstraintLayout {
-            val (image, cardContent, followButton) = createRefs()
+            val (image, format, cardContent, followButton) = createRefs()
             val imageEndGuideline = createGuidelineFromStart(0.2f)
 
             MediaItemImage(
@@ -48,6 +49,21 @@ fun MediaItemCardCollapsed(
                     width = Dimension.fillToConstraints
                 }
             )
+
+            if (mediaItem.format != null && mediaItem.format != MediaItem.LocalFormat.TV) {
+                MediaFormatText(
+                    text = stringResource(id = mediaItem.format.labelResId),
+                    isRounded = false,
+                    modifier = Modifier
+                        .constrainAs(format) {
+                            bottom.linkTo(parent.bottom)
+                            start.linkTo(image.start)
+                            end.linkTo(image.end)
+
+                            width = Dimension.fillToConstraints
+                        }
+                )
+            }
 
             Column(
                 modifier = Modifier

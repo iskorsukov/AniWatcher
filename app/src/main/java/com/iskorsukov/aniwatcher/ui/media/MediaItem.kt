@@ -13,15 +13,19 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
-import com.iskorsukov.aniwatcher.ui.theme.*
+import com.iskorsukov.aniwatcher.ui.theme.LocalColors
+import com.iskorsukov.aniwatcher.ui.theme.LocalTextStyles
 import com.iskorsukov.aniwatcher.ui.util.getBackgroundColorForChip
 import com.iskorsukov.aniwatcher.ui.util.getContrastTextColorForChip
 
@@ -34,7 +38,7 @@ fun MediaItemImage(
         model = imageUrl,
         contentDescription = null,
         contentScale = ContentScale.Crop,
-        modifier = modifier
+        modifier = modifier.background(LocalColors.current.primary)
     )
 }
 
@@ -146,5 +150,24 @@ fun GenreChip(
                 color = bgColor
             )
             .padding(4.dp)
+    )
+}
+
+@Composable
+fun MediaFormatText(
+    text: String,
+    modifier: Modifier = Modifier,
+    isRounded: Boolean = true
+) {
+    Text(
+        text = text,
+        textAlign = TextAlign.Center,
+        style = LocalTextStyles.current.contentSmallLargerWhite,
+        modifier = modifier
+            .background(
+                LocalColors.current.formatBackground,
+                if (isRounded) RoundedCornerShape(8.dp) else RectangleShape
+            )
+            .padding(horizontal = 8.dp)
     )
 }

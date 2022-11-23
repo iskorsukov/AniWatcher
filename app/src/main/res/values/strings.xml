@@ -43,4 +43,11 @@
     <string name="settings_naming_scheme_label">Naming scheme</string>
     <string name="settings_notifications_enabled_key">notifications_enabled</string>
     <string name="settings_notifications_enabled_label">Notifications enabled</string>
+
+    <string name="format_tv">TV</string>
+    <string name="format_tv_short">TV Short</string>
+    <string name="format_ova">OVA</string>
+    <string name="format_ona">ONA</string>
+    <string name="format_movie">Movie</string>
+    <string name="format_special">Special</string>
 </resources>

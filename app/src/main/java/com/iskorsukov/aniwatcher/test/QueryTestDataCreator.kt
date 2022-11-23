@@ -1,6 +1,7 @@
 package com.iskorsukov.aniwatcher.test
 
 import com.iskorsukov.aniwatcher.SeasonAiringDataQuery
+import com.iskorsukov.aniwatcher.type.MediaFormat
 import com.iskorsukov.aniwatcher.type.MediaRankType
 import com.iskorsukov.aniwatcher.type.MediaSeason
 
@@ -50,7 +51,8 @@ object QueryTestDataCreator {
             siteUrl = "AniListUrl",
             airingSchedule = baseSeasonAiringDataSchedule(),
             season = MediaSeason.FALL,
-            nextAiringEpisode = SeasonAiringDataQuery.NextAiringEpisode(1667833200)
+            nextAiringEpisode = SeasonAiringDataQuery.NextAiringEpisode(1667833200),
+            format = MediaFormat.TV
         )
     }
 

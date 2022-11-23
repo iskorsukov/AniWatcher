@@ -27,6 +27,7 @@ object ModelTestDataCreator {
             genres = listOf("Action", "Comedy"),
             siteUrl = "AniListUrl",
             nextEpisodeAiringAt = 1667833200,
+            format = MediaItem.LocalFormat.TV,
             isFollowing = false
         )
     }

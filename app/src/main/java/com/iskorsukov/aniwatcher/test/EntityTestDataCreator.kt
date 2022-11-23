@@ -23,7 +23,8 @@ object EntityTestDataCreator {
             meanScore = 1,
             genresCommaSeparated = "Action,Comedy",
             nextEpisodeAiringAt = 1667833200,
-            siteUrl = "AniListUrl"
+            siteUrl = "AniListUrl",
+            format = "TV"
         )
     }
 

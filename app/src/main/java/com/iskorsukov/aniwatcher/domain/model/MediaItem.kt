@@ -1,5 +1,7 @@
 package com.iskorsukov.aniwatcher.domain.model
 
+import androidx.annotation.StringRes
+import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.data.entity.FollowingEntity
 import com.iskorsukov.aniwatcher.data.entity.MediaItemEntity
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
@@ -18,6 +20,7 @@ data class MediaItem(
     val genres: List<String>,
     val siteUrl: String?,
     val nextEpisodeAiringAt: Int?,
+    val format: LocalFormat?,
     val isFollowing: Boolean
 ): Serializable {
     data class Title(
@@ -57,6 +60,15 @@ data class MediaItem(
         val season: String
     ): Serializable
 
+    enum class LocalFormat(@StringRes val labelResId: Int) {
+        TV(R.string.format_tv),
+        TV_SHORT(R.string.format_tv_short),
+        OVA(R.string.format_ova),
+        ONA(R.string.format_ona),
+        MOVIE(R.string.format_movie),
+        SPECIAL(R.string.format_special)
+    }
+
     companion object {
         fun fromEntity(mediaItemEntity: MediaItemEntity, followingEntity: FollowingEntity?): MediaItem {
             return mediaItemEntity.run {
@@ -83,6 +95,7 @@ data class MediaItem(
                         ?.filter { it.isNotEmpty() } ?: emptyList(),
                     siteUrl = siteUrl,
                     nextEpisodeAiringAt = nextEpisodeAiringAt,
+                    format = format?.let { LocalFormat.valueOf(it) },
                     isFollowing = followingEntity != null
                 )
             }

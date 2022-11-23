@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -51,6 +52,7 @@ fun MediaItemCardExtended(
         ConstraintLayout {
             val (
                 image,
+                format,
                 titleOverlay,
                 cardContent,
                 genresFooter,
@@ -73,6 +75,18 @@ fun MediaItemCardExtended(
                     width = Dimension.fillToConstraints
                 }
             )
+
+            if (mediaItem.format != null && mediaItem.format != MediaItem.LocalFormat.TV) {
+                MediaFormatText(
+                    text = stringResource(id = mediaItem.format.labelResId),
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .constrainAs(format) {
+                            top.linkTo(parent.top)
+                            start.linkTo(parent.start)
+                        }
+                )
+            }
 
             MediaItemOverlayTitle(
                 title = mediaItem.title.baseText(preferredNamingScheme),

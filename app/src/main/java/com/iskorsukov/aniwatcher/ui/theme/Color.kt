@@ -15,6 +15,8 @@ val TitleOverlayColor = Color(0xE6292929)
 
 val TextColor = Color(0xFF6E859E)
 
+val FormatBackgroundColor = Color(0xFFE65100)
+
 val CardBackgroundColor = Color(0xFFFFFFFF)
 val CardBackgroundColorDark = Color(0xFF1F232D)
 val CardFooterBackgroundColor = Color(0xFFEFF7FB)
@@ -33,6 +35,7 @@ data class ThemedColors(
     val primary: Color = PrimaryColor,
     val onPrimary: Color = OnPrimaryColor,
     val background: Color = BackgroundColor,
+    val formatBackground: Color = FormatBackgroundColor,
     val secondary: Color = SecondaryColor,
     val titleOverlay: Color = TitleOverlayColor,
     val text: Color = TextColor,
