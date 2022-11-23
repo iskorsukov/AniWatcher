@@ -4,7 +4,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -15,7 +14,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import com.iskorsukov.aniwatcher.ui.theme.*
+import com.iskorsukov.aniwatcher.ui.theme.ErrorButtonTextStyle
+import com.iskorsukov.aniwatcher.ui.theme.LocalColors
+import com.iskorsukov.aniwatcher.ui.theme.LocalTextStyles
 import kotlinx.coroutines.delay
 import java.util.concurrent.TimeUnit
 
@@ -25,7 +26,7 @@ fun ErrorSurfaceContent(
     onActionClicked: () -> Unit,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
-    autoDismissSeconds: Long = 10L
+    autoDismissSeconds: Long = 7L
 ) {
     Surface(
         shape = RoundedCornerShape(8.dp),

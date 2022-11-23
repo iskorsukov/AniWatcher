@@ -87,7 +87,7 @@ val ErrorSubLabelTextStyle = TextStyle(
 
 val ErrorButtonTextStyle = TextStyle(
     fontWeight = FontWeight.Medium,
-    fontSize = 16.sp,
+    fontSize = 14.sp,
     color = OnErrorColor,
     textAlign = TextAlign.Center
 )

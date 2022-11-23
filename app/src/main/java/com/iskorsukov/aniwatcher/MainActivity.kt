@@ -5,9 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandHorizontally
-import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -137,7 +135,14 @@ class MainActivity : ComponentActivity() {
                             }
                         }
 
-                        if (shouldShowErrorDialog && uiState.errorItem != null) {
+                        AnimatedVisibility(
+                            visible = shouldShowErrorDialog && uiState.errorItem != null,
+                            enter = slideInVertically(initialOffsetY = { it * 2 }),
+                            exit = slideOutVertically(targetOffsetY = { it * 2 }),
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(8.dp)
+                        ) {
                             val errorItem = uiState.errorItem!!
                             ErrorSurfaceContent(
                                 errorItem = errorItem,
@@ -147,10 +152,7 @@ class MainActivity : ComponentActivity() {
                                         ErrorItem.Action.DISMISS -> {}
                                     }
                                 },
-                                onDismissRequest = { shouldShowErrorDialog = false },
-                                modifier = Modifier
-                                    .align(Alignment.BottomCenter)
-                                    .padding(8.dp)
+                                onDismissRequest = { shouldShowErrorDialog = false }
                             )
                         }
                     }
