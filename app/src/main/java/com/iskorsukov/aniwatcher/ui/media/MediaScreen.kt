@@ -12,6 +12,7 @@ import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.SwipeRefreshState
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
@@ -20,6 +21,7 @@ import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.ui.main.MainActivityViewModel
+import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 import kotlinx.coroutines.flow.*
 
 @OptIn(ExperimentalLifecycleComposeApi::class)
@@ -82,7 +84,15 @@ private fun MediaScreenContent(
 ) {
     SwipeRefresh(
         state = swipeRefreshState,
-        onRefresh = onRefresh
+        onRefresh = onRefresh,
+        indicator = { state, triggerDistance ->
+            SwipeRefreshIndicator(
+                state = state,
+                refreshTriggerDistance = triggerDistance,
+                backgroundColor = LocalColors.current.onPrimary,
+                contentColor = LocalColors.current.primary
+            )
+        }
     ) {
         Column {
             LazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
