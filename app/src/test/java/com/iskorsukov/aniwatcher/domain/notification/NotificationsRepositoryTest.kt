@@ -1,5 +1,6 @@
 package com.iskorsukov.aniwatcher.domain.notification
 
+import android.content.SharedPreferences
 import com.google.common.truth.Truth.assertThat
 import com.iskorsukov.aniwatcher.data.entity.AiringScheduleAndNotificationEntity
 import com.iskorsukov.aniwatcher.data.executor.MediaDatabaseExecutor
@@ -31,12 +32,27 @@ class NotificationsRepositoryTest {
                 )
             )
         }
-    private val notificationsRepository = NotificationsRepositoryImpl(mediaDatabaseExecutor)
+
+    private val sharedPreferencesEditor: SharedPreferences.Editor = mockk(relaxed = true)
+    private val sharedPreferences: SharedPreferences = mockk<SharedPreferences>(relaxed = true).apply {
+        coEvery { edit() } returns sharedPreferencesEditor
+        coEvery { getInt(any(), any()) } returns 1
+    }
+    private val notificationsRepository = NotificationsRepositoryImpl(
+        mediaDatabaseExecutor,
+        sharedPreferences
+    )
 
     @Test
     fun notificationsFlow() = runTest {
         val data = notificationsRepository.notificationsFlow.first()
         assertThat(data).containsExactly(ModelTestDataCreator.baseNotificationItem())
+    }
+
+    @Test
+    fun unreadNotificationsCounterFlow() = runTest {
+        val count = notificationsRepository.unreadNotificationsCounterStateFlow.first()
+        assertThat(count).isEqualTo(1)
     }
 
     @Test
@@ -46,5 +62,27 @@ class NotificationsRepositoryTest {
         notificationsRepository.saveNotification(notificationItem)
 
         coVerify { mediaDatabaseExecutor.saveNotification(notificationItem) }
+    }
+
+    @Test
+    fun increaseUnreadNotificationsCounter() = runTest {
+        notificationsRepository.increaseUnreadNotificationsCounter()
+
+        assertThat(notificationsRepository.unreadNotificationsCounterStateFlow.first())
+            .isEqualTo(2)
+        coVerify {
+            sharedPreferencesEditor.putInt(any(), 2)
+        }
+    }
+
+    @Test
+    fun resetUnreadNotificationsCounter() = runTest {
+        notificationsRepository.resetUnreadNotificationsCounter()
+
+        assertThat(notificationsRepository.unreadNotificationsCounterStateFlow.first())
+            .isEqualTo(0)
+        coVerify {
+            sharedPreferencesEditor.putInt(any(), 0)
+        }
     }
 }

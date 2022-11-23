@@ -30,6 +30,12 @@ val ContentTextStyleSmallEmphasis = TextStyle(
     fontSize = 10.sp
 )
 
+val ContentTextStyleSmallEmphasisWhite = TextStyle(
+    fontWeight = FontWeight.Medium,
+    color = Color.White,
+    fontSize = 10.sp
+)
+
 val ContentTextStyleSmallLarger = TextStyle(
     color = TextColor,
     fontSize = 12.sp
@@ -114,6 +120,7 @@ data class ThemedTextStyles(
     val category: TextStyle = CategoryTextStyle,
     val contentSmall: TextStyle = ContentTextStyleSmall,
     val contentSmallEmphasis: TextStyle = ContentTextStyleSmallEmphasis,
+    val contentSmallEmphasisWhite: TextStyle = ContentTextStyleSmallEmphasisWhite,
     val contentSmallLarger: TextStyle = ContentTextStyleSmallLarger,
     val contentSmallLargerEmphasis: TextStyle = ContentTextStyleSmallLargerEmphasis,
     val contentSmallLargerWhite: TextStyle = ContentTextStyleSmallLargerWhite,

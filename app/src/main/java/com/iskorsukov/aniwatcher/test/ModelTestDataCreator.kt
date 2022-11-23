@@ -54,7 +54,6 @@ object ModelTestDataCreator {
         return NotificationItem(
             1,
             1667833200000L,
-            baseMediaItem(),
             baseAiringScheduleItem()
         )
     }

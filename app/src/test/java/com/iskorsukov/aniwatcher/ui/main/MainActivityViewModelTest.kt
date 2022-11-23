@@ -2,6 +2,7 @@ package com.iskorsukov.aniwatcher.ui.main
 
 import com.google.common.truth.Truth.assertThat
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
+import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
 import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
@@ -21,8 +22,9 @@ class MainActivityViewModelTest {
 
     private val airingRepository: AiringRepository = mockk(relaxed = true)
     private val settingsRepository: SettingsRepository = mockk(relaxed = true)
+    private val notificationsRepository: NotificationsRepository = mockk(relaxed = true)
 
-    private val viewModel = MainActivityViewModel(airingRepository, settingsRepository)
+    private val viewModel = MainActivityViewModel(airingRepository, settingsRepository, notificationsRepository)
 
     @Test
     fun loadAiringData() = runTest {

@@ -65,8 +65,8 @@ fun NotificationCard(
     onNotificationClicked: ((Int) -> Unit)? = null,
     preferredNamingScheme: NamingScheme
 ) {
-    val mediaItem = notificationItem.mediaItem
     val airingScheduleItem = notificationItem.airingScheduleItem
+    val mediaItem = notificationItem.airingScheduleItem.mediaItem
     Card(
         modifier = Modifier
             .height(100.dp)

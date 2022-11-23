@@ -4,9 +4,8 @@ import com.iskorsukov.aniwatcher.data.entity.AiringScheduleAndNotificationEntity
 import com.iskorsukov.aniwatcher.data.entity.MediaItemEntity
 
 data class NotificationItem(
-    val id: Int,
-    val firedAtMillis: Long,
-    val mediaItem: MediaItem,
+    val id: Int? = null,
+    val firedAtMillis: Long = System.currentTimeMillis(),
     val airingScheduleItem: AiringScheduleItem
 ) {
     companion object {
@@ -16,7 +15,6 @@ data class NotificationItem(
                 NotificationItem(
                     notificationItemEntity.notificationItemId!!,
                     notificationItemEntity.firedAtMillis,
-                    mediaItem,
                     AiringScheduleItem.fromEntity(airingScheduleEntity, mediaItem)
                 )
             }

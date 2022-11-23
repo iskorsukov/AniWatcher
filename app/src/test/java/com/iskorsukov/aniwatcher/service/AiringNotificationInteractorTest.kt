@@ -3,6 +3,7 @@ package com.iskorsukov.aniwatcher.service
 import android.content.Context
 import androidx.core.app.NotificationManagerCompat
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
+import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
 import com.iskorsukov.aniwatcher.domain.settings.SettingsState
@@ -47,6 +48,9 @@ class AiringNotificationInteractorTest {
     private lateinit var settingsFlow: MutableStateFlow<SettingsState>
     private lateinit var settingsRepository: SettingsRepository
 
+    private lateinit var unreadNotificationsFlow: MutableStateFlow<Int>
+    private lateinit var notificationsRepository: NotificationsRepository
+
     private lateinit var airingNotificationInteractor: AiringNotificationInteractorImpl
 
     @Before
@@ -56,11 +60,17 @@ class AiringNotificationInteractorTest {
             coEvery { settingsStateFlow } returns settingsFlow
         }
 
+        unreadNotificationsFlow = MutableStateFlow(0)
+        notificationsRepository = mockk<NotificationsRepository>(relaxed = true).apply {
+            coEvery { unreadNotificationsCounterStateFlow } returns unreadNotificationsFlow
+        }
+
         airingNotificationInteractor = AiringNotificationInteractorImpl(
             context,
             airingRepository,
+            notificationsRepository,
             notificationManagerCompat,
-            settingsRepository
+            settingsRepository,
         )
     }
 
@@ -107,9 +117,11 @@ class AiringNotificationInteractorTest {
         mockkObject(DispatcherProvider)
         every { DispatcherProvider.default() } returns dispatcher
 
+        // construct with mock dispatcher
         airingNotificationInteractor = AiringNotificationInteractorImpl(
             context,
             airingRepository,
+            notificationsRepository,
             notificationManagerCompat,
             settingsRepository
         )

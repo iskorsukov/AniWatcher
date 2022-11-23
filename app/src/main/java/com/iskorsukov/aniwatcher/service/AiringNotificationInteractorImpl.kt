@@ -9,6 +9,8 @@ import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
+import com.iskorsukov.aniwatcher.domain.model.NotificationItem
+import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
 import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
 import com.iskorsukov.aniwatcher.domain.util.DispatcherProvider
 import com.iskorsukov.aniwatcher.service.util.NotificationBuilderHelper
@@ -23,6 +25,7 @@ import javax.inject.Inject
 class AiringNotificationInteractorImpl @Inject constructor(
     @ApplicationContext private val context: Context,
     private val airingRepository: AiringRepository,
+    private val notificationsRepository: NotificationsRepository,
     private val notificationManagerCompat: NotificationManagerCompat,
     settingsRepository: SettingsRepository,
 ): AiringNotificationInteractor {
@@ -77,7 +80,7 @@ class AiringNotificationInteractorImpl @Inject constructor(
         }
     }
 
-    private fun fireNotificationsIfNeeded(mediaWithAiringSchedulesMap: Map<MediaItem, List<AiringScheduleItem>>) {
+    private suspend fun fireNotificationsIfNeeded(mediaWithAiringSchedulesMap: Map<MediaItem, List<AiringScheduleItem>>) {
         val timeInSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
         mediaWithAiringSchedulesMap.values.flatten().forEach { airingScheduleItem ->
             if (airingScheduleItem.airingAt - timeInSeconds <= 0) {
@@ -86,9 +89,14 @@ class AiringNotificationInteractorImpl @Inject constructor(
         }
     }
 
-    private fun fireAiredNotification(airingScheduleItem: AiringScheduleItem) {
+    private suspend fun fireAiredNotification(airingScheduleItem: AiringScheduleItem) {
         val notification = NotificationBuilderHelper.buildNotification(context, airingScheduleItem)
         notificationManagerCompat.notify(airingScheduleItem.id, notification)
+        notificationsRepository.saveNotification(
+            NotificationItem(
+                airingScheduleItem = airingScheduleItem
+            )
+        )
     }
 
     companion object {

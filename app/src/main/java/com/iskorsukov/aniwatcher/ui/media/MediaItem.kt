@@ -13,7 +13,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -165,7 +164,7 @@ fun MediaFormatText(
         style = LocalTextStyles.current.contentSmallLargerWhite,
         modifier = modifier
             .background(
-                LocalColors.current.formatBackground,
+                LocalColors.current.attentionBackground,
                 if (isRounded) RoundedCornerShape(8.dp) else RectangleShape
             )
             .padding(horizontal = 8.dp)

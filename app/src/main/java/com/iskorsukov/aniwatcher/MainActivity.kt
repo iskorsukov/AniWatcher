@@ -6,7 +6,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.animation.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -74,6 +76,9 @@ class MainActivity : ComponentActivity() {
             val scaffoldState = rememberScaffoldState()
             val uiState by mainActivityViewModel.uiState.collectAsStateWithLifecycle()
 
+            val unreadNotifications by mainActivityViewModel.unreadNotificationsState
+                .collectAsStateWithLifecycle()
+
             var shouldShowSortingOptionsDialog by remember {
                 mutableStateOf(false)
             }
@@ -88,7 +93,8 @@ class MainActivity : ComponentActivity() {
                             navController = navController,
                             onSelectSortingOptionClicked = { shouldShowSortingOptionsDialog = true },
                             onSettingsClicked = { startSettingsActivity() },
-                            onNotificationsClicked = { startNotificationsActivity() }
+                            onNotificationsClicked = { startNotificationsActivity() },
+                            unreadNotifications = unreadNotifications
                         )
                     },
                     bottomBar = { BottomNavigationBar(navController = navController) },
@@ -239,7 +245,8 @@ fun TopBar(
     navController: NavHostController,
     onSelectSortingOptionClicked: () -> Unit,
     onSettingsClicked: () -> Unit,
-    onNotificationsClicked: () -> Unit
+    onNotificationsClicked: () -> Unit,
+    unreadNotifications: Int = 0
 ) {
     val uiState by mainActivityViewModel.uiState
         .collectAsStateWithLifecycle()
@@ -299,11 +306,25 @@ fun TopBar(
                 .fillMaxHeight()
         )
         IconButton(onClick = onNotificationsClicked) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_baseline_notifications_24),
-                contentDescription = null,
-                tint = LocalColors.current.onPrimary
-            )
+            Box {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_baseline_notifications_24),
+                    contentDescription = null,
+                    tint = LocalColors.current.onPrimary
+                )
+                if (unreadNotifications > 0) {
+                    Text(
+                        text = unreadNotifications.toString(),
+                        style = LocalTextStyles.current.contentSmallEmphasisWhite,
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .background(
+                                LocalColors.current.attentionBackground,
+                                CircleShape
+                            )
+                    )
+                }
+            }
         }
         IconButton(onClick = onSettingsClicked) {
             Icon(
