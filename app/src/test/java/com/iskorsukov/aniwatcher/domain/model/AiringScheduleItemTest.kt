@@ -1,8 +1,9 @@
 package com.iskorsukov.aniwatcher.domain.model
 
 import com.google.common.truth.Truth.assertThat
-import com.iskorsukov.aniwatcher.data.entity.FollowingEntity
-import com.iskorsukov.aniwatcher.test.*
+import com.iskorsukov.aniwatcher.test.EntityTestDataCreator
+import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
+import com.iskorsukov.aniwatcher.test.isFollowing
 import org.junit.Test
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -11,25 +12,25 @@ class AiringScheduleItemTest {
 
     @Test
     fun fromEntity() {
-        val entity = EntityTestDataCreator.baseMediaItemWithAiringSchedulesAndFollowingEntity()
+        val airingScheduleItem = AiringScheduleItem.fromEntity(
+            EntityTestDataCreator.baseAiringScheduleEntity(),
+            ModelTestDataCreator.baseMediaItem()
+        )
 
-        val airingScheduleItemList = AiringScheduleItem.fromEntity(entity)
-
-        assertThat(airingScheduleItemList).containsExactlyElementsIn(
-            ModelTestDataCreator.baseAiringScheduleItemList()
+        assertThat(airingScheduleItem).isEqualTo(
+            ModelTestDataCreator.baseAiringScheduleItem()
         )
     }
 
     @Test
     fun fromEntity_withFollowing() {
-        val entity = EntityTestDataCreator.baseMediaItemWithAiringSchedulesAndFollowingEntity().followingEntity(
-            FollowingEntity(1, 1)
+        val airingScheduleItem = AiringScheduleItem.fromEntity(
+            EntityTestDataCreator.baseAiringScheduleEntity(),
+            ModelTestDataCreator.baseMediaItem().isFollowing(true)
         )
 
-        val airingScheduleItemList = AiringScheduleItem.fromEntity(entity)
-
-        assertThat(airingScheduleItemList).containsExactlyElementsIn(
-            ModelTestDataCreator.baseAiringScheduleItemList().map { it.mediaItem(it.mediaItem.isFollowing(true)) }
+        assertThat(airingScheduleItem).isEqualTo(
+            ModelTestDataCreator.baseAiringScheduleItem(isFollowing = true)
         )
     }
 

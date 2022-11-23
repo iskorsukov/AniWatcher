@@ -19,7 +19,7 @@ class DetailsViewModel @Inject constructor(
 
     val settingsState: StateFlow<SettingsState> = settingsRepository.settingsStateFlow
 
-    fun getMediaWithAiringSchedules(mediaItemId: Int): Flow<Pair<MediaItem, List<AiringScheduleItem>>> {
+    fun getMediaWithAiringSchedules(mediaItemId: Int): Flow<Pair<MediaItem, List<AiringScheduleItem>>?> {
         return airingRepository.getMediaWithAiringSchedules(mediaItemId)
     }
 }

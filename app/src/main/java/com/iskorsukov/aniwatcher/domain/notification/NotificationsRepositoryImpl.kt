@@ -12,9 +12,11 @@ class NotificationsRepositoryImpl @Inject constructor(
 
     override val notificationsFlow: Flow<List<NotificationItem>> =
         mediaDatabaseExecutor.notificationsFlow.map {
-            it.map {
-                NotificationItem.fromEntity(it.key, it.value)
-            }.sortedByDescending { it.firedAtMillis }
+            it.map { entry ->
+                entry.value.map {
+                    NotificationItem.fromEntity(entry.key, it)
+                }
+            }.flatten().sortedByDescending { it.firedAtMillis }
         }
 
     override suspend fun saveNotification(notificationItem: NotificationItem) {

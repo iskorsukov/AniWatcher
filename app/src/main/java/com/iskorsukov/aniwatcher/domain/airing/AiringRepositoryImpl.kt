@@ -1,7 +1,8 @@
 package com.iskorsukov.aniwatcher.domain.airing
 
 import com.iskorsukov.aniwatcher.SeasonAiringDataQuery
-import com.iskorsukov.aniwatcher.data.entity.MediaItemWithAiringSchedulesEntity
+import com.iskorsukov.aniwatcher.data.entity.AiringScheduleEntity
+import com.iskorsukov.aniwatcher.data.entity.MediaItemEntity
 import com.iskorsukov.aniwatcher.data.executor.AniListQueryExecutor
 import com.iskorsukov.aniwatcher.data.executor.MediaDatabaseExecutor
 import com.iskorsukov.aniwatcher.data.mapper.QueryDataToEntityMapper
@@ -19,43 +20,38 @@ class AiringRepositoryImpl @Inject constructor(
 
     override val mediaWithSchedulesFlow: Flow<Map<MediaItem, List<AiringScheduleItem>>> =
         mediaDatabaseExecutor.mediaDataFlow
-            .map { entityList ->
-                entityList.associate { entity ->
-                    val airingSchedules = AiringScheduleItem.fromEntity(entity)
-                    val mediaItem = if (airingSchedules.isNotEmpty()) {
-                        airingSchedules.first().mediaItem
-                    } else {
-                        MediaItem.fromEntity(
-                            entity.mediaItemWithAiringSchedulesEntity.mediaItemEntity,
-                            entity.followingEntity
-                        )
+            .map { mediaMap ->
+                mediaMap.map {
+                    val mediaItem = MediaItem.fromEntity(it.key.mediaItemEntity, it.key.followingEntity)
+                    val airingSchedules = it.value.map {
+                        AiringScheduleItem.fromEntity(it, mediaItem)
                     }
                     mediaItem to airingSchedules
-                }
+                }.associate { it.first to it.second }
             }
 
-    override fun getMediaWithAiringSchedules(mediaItemId: Int): Flow<Pair<MediaItem, List<AiringScheduleItem>>> {
+    override fun getMediaWithAiringSchedules(mediaItemId: Int): Flow<Pair<MediaItem, List<AiringScheduleItem>>?> {
         return mediaDatabaseExecutor.getMediaWithAiringSchedulesAndFollowing(mediaItemId).map {
-            val airingSchedules = AiringScheduleItem.fromEntity(it)
-            val mediaItem = if (airingSchedules.isNotEmpty()) {
-                airingSchedules.first().mediaItem
+            val entry = it.entries.firstOrNull()
+            if (entry == null) {
+                null
             } else {
-                MediaItem.fromEntity(
-                    it.mediaItemWithAiringSchedulesEntity.mediaItemEntity,
-                    it.followingEntity
-                )
+                val mediaItem = MediaItem.fromEntity(entry.key.mediaItemEntity, entry.key.followingEntity)
+                val airingSchedules = entry.value.map {
+                    AiringScheduleItem.fromEntity(it, mediaItem)
+                }
+                mediaItem to airingSchedules
             }
-            mediaItem to airingSchedules
         }
     }
 
     override suspend fun loadSeasonAiringData(year: Int, season: String) {
-        val entities = mutableListOf<MediaItemWithAiringSchedulesEntity>()
+        val entities = mutableMapOf<MediaItemEntity, List<AiringScheduleEntity>>()
         var data: SeasonAiringDataQuery.Data
         var page = 1
         do {
             data = aniListQueryExecutor.seasonAiringDataQuery(year, season, page)
-            entities.addAll(mapper.mapMediaWithSchedulesList(data))
+            entities.putAll(mapper.mapMediaWithSchedulesList(data))
             page++
         } while (data.Page?.pageInfo?.hasNextPage == true)
         mediaDatabaseExecutor.updateMedia(entities)

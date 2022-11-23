@@ -4,11 +4,10 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
-import com.iskorsukov.aniwatcher.data.entity.AiringScheduleWithNotificationEntity
+import com.iskorsukov.aniwatcher.data.entity.AiringScheduleAndNotificationEntity
+import com.iskorsukov.aniwatcher.data.entity.MediaItemAndFollowingEntity
 import com.iskorsukov.aniwatcher.test.EntityTestDataCreator
-import com.iskorsukov.aniwatcher.test.airingScheduleEntityList
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -38,19 +37,25 @@ class NotificationDaoTest {
 
     @Test
     fun insertNotification(): Unit = runBlocking {
-        val entity = EntityTestDataCreator.baseMediaItemWithAiringSchedulesAndFollowingEntity()
-            .mediaItemWithAiringSchedulesEntity
-        mediaDao.insertMedia(listOf(entity.mediaItemEntity))
-        mediaDao.insertSchedules(entity.airingScheduleEntityList)
+        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
+        val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
+
+        mediaDao.insertMedia(listOf(mediaItemEntity))
+        mediaDao.insertSchedules(airingScheduleEntityList)
 
         notificationsDao.insertNotification(EntityTestDataCreator.baseNotificationEntity())
 
         val outEntity = mediaDao.getAll().first()
 
         assertThat(outEntity.size).isEqualTo(1)
-        assertThat(outEntity[0]).isEqualTo(
-            EntityTestDataCreator.baseMediaItemWithAiringSchedulesAndFollowingEntity()
-                .airingScheduleEntityList(entity.airingScheduleEntityList)
+        assertThat(outEntity.keys).containsExactly(
+            MediaItemAndFollowingEntity(
+                mediaItemEntity,
+                null
+            )
+        )
+        assertThat(outEntity.values.flatten()).containsExactlyElementsIn(
+            airingScheduleEntityList
         )
 
         val notificationEntity = notificationsDao.getAll().first()
@@ -59,8 +64,8 @@ class NotificationDaoTest {
         assertThat(notificationEntity.keys).containsExactly(
             EntityTestDataCreator.baseMediaItemEntity()
         )
-        assertThat(notificationEntity.values).containsExactly(
-            AiringScheduleWithNotificationEntity(
+        assertThat(notificationEntity.values.flatten()).containsExactly(
+            AiringScheduleAndNotificationEntity(
                 EntityTestDataCreator.baseAiringScheduleEntity(),
                 EntityTestDataCreator.baseNotificationEntity()
             )

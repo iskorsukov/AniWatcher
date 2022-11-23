@@ -8,7 +8,7 @@ interface AiringRepository {
 
     val mediaWithSchedulesFlow: Flow<Map<MediaItem, List<AiringScheduleItem>>>
 
-    fun getMediaWithAiringSchedules(mediaItemId: Int): Flow<Pair<MediaItem, List<AiringScheduleItem>>>
+    fun getMediaWithAiringSchedules(mediaItemId: Int): Flow<Pair<MediaItem, List<AiringScheduleItem>>?>
 
     suspend fun loadSeasonAiringData(year: Int, season: String)
 

@@ -3,7 +3,6 @@ package com.iskorsukov.aniwatcher.data.executor
 import androidx.room.withTransaction
 import com.iskorsukov.aniwatcher.data.entity.*
 import com.iskorsukov.aniwatcher.data.room.MediaDatabase
-import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.model.NotificationItem
 import com.iskorsukov.aniwatcher.domain.util.DispatcherProvider
 import kotlinx.coroutines.flow.Flow
@@ -16,24 +15,23 @@ class MediaDatabaseExecutor @Inject constructor(
     private val mediaDao = mediaDatabase.mediaDao()
     private val notificationsDao = mediaDatabase.notificationsDao()
 
-    val mediaDataFlow: Flow<List<MediaItemWithAiringSchedulesAndFollowingEntity>> =
+    val mediaDataFlow: Flow<Map<MediaItemAndFollowingEntity, List<AiringScheduleEntity>>> =
         mediaDao.getAll()
 
-    val notificationsFlow: Flow<Map<MediaItemEntity, AiringScheduleWithNotificationEntity>> =
+    val notificationsFlow: Flow<Map<MediaItemEntity, List<AiringScheduleAndNotificationEntity>>> =
         notificationsDao.getAll()
 
-    suspend fun updateMedia(mediaEntityList: List<MediaItemWithAiringSchedulesEntity>) {
+    suspend fun updateMedia(mediaToAiringSchedulesMap: Map<MediaItemEntity, List<AiringScheduleEntity>>) {
         withContext(DispatcherProvider.io()) {
             mediaDatabase.withTransaction {
                 mediaDao.clearMedia()
-                mediaDao.insertMedia(mediaEntityList.map { it.mediaItemEntity })
-                mediaDao.insertSchedules(mediaEntityList.map { it.airingScheduleEntityList }
-                    .flatten())
+                mediaDao.insertMedia(mediaToAiringSchedulesMap.keys.toList())
+                mediaDao.insertSchedules(mediaToAiringSchedulesMap.values.flatten())
             }
         }
     }
 
-    fun getMediaWithAiringSchedulesAndFollowing(mediaItemId: Int): Flow<MediaItemWithAiringSchedulesAndFollowingEntity> {
+    fun getMediaWithAiringSchedulesAndFollowing(mediaItemId: Int): Flow<Map<MediaItemAndFollowingEntity, List<AiringScheduleEntity>>> {
         return mediaDao.getById(mediaItemId)
     }
 

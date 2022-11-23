@@ -15,7 +15,7 @@ interface NotificationsDao {
                 "ON airing.airingScheduleItemId = notifications.airingScheduleItemRelationId) " +
                 "ON media.mediaId = mediaItemRelationId"
     )
-    fun getAll(): Flow<Map<MediaItemEntity, AiringScheduleWithNotificationEntity>>
+    fun getAll(): Flow<Map<MediaItemEntity, List<AiringScheduleAndNotificationEntity>>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertNotification(notification: NotificationItemEntity)

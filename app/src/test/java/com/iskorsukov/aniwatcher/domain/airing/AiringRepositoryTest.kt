@@ -1,6 +1,7 @@
 package com.iskorsukov.aniwatcher.domain.airing
 
 import com.google.common.truth.Truth.assertThat
+import com.iskorsukov.aniwatcher.data.entity.MediaItemAndFollowingEntity
 import com.iskorsukov.aniwatcher.data.executor.AniListQueryExecutor
 import com.iskorsukov.aniwatcher.data.executor.MediaDatabaseExecutor
 import com.iskorsukov.aniwatcher.data.mapper.QueryDataToEntityMapper
@@ -31,12 +32,18 @@ class AiringRepositoryTest {
     @Test
     fun getMediaWithAiringSchedules() = runTest {
         coEvery { mediaDatabaseExecutor.getMediaWithAiringSchedulesAndFollowing(any()) } returns flowOf(
-            EntityTestDataCreator.baseMediaItemWithAiringSchedulesAndFollowingEntity()
+            mapOf(
+                MediaItemAndFollowingEntity(
+                    EntityTestDataCreator.baseMediaItemEntity(),
+                    null
+                ) to EntityTestDataCreator.baseAiringScheduleEntityList()
+            )
         )
 
         val model = repository.getMediaWithAiringSchedules(1).first()
 
-        assertThat(model.first).isEqualTo(ModelTestDataCreator.baseMediaItem())
+        assertThat(model).isNotNull()
+        assertThat(model!!.first).isEqualTo(ModelTestDataCreator.baseMediaItem())
         assertThat(model.second).isEqualTo(ModelTestDataCreator.baseAiringScheduleItemList())
 
         coVerify {

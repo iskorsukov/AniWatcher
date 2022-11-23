@@ -6,6 +6,7 @@ import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
 import com.iskorsukov.aniwatcher.domain.settings.SettingsState
+import com.iskorsukov.aniwatcher.domain.util.DispatcherProvider
 import com.iskorsukov.aniwatcher.service.util.NotificationBuilderHelper
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.test.airingAt
@@ -17,6 +18,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.*
+import org.junit.Before
 import org.junit.Test
 import java.util.concurrent.TimeUnit
 
@@ -41,17 +43,26 @@ class AiringNotificationInteractorTest {
         )
     }
     private val notificationManagerCompat: NotificationManagerCompat = mockk(relaxed = true)
-    private val settingsFlow = MutableStateFlow(SettingsState(NamingScheme.ENGLISH, true))
-    private val settingsRepository: SettingsRepository = mockk<SettingsRepository>(relaxed = true).apply {
-        coEvery { settingsStateFlow } returns settingsFlow
-    }
 
-    private val airingNotificationInteractor = AiringNotificationInteractorImpl(
-        context,
-        airingRepository,
-        notificationManagerCompat,
-        settingsRepository
-    )
+    private lateinit var settingsFlow: MutableStateFlow<SettingsState>
+    private lateinit var settingsRepository: SettingsRepository
+
+    private lateinit var airingNotificationInteractor: AiringNotificationInteractorImpl
+
+    @Before
+    fun initMocks() {
+        settingsFlow = MutableStateFlow(SettingsState(NamingScheme.ENGLISH, true))
+        settingsRepository = mockk<SettingsRepository>(relaxed = true).apply {
+            coEvery { settingsStateFlow } returns settingsFlow
+        }
+
+        airingNotificationInteractor = AiringNotificationInteractorImpl(
+            context,
+            airingRepository,
+            notificationManagerCompat,
+            settingsRepository
+        )
+    }
 
     @Test
     fun firesNotificationIfNeeded() = runTest {
@@ -91,21 +102,32 @@ class AiringNotificationInteractorTest {
 
     @Test
     fun stopsWhenNotificationsDisabled() = runTest {
-        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        Dispatchers.setMain(dispatcher)
+        mockkObject(DispatcherProvider)
+        every { DispatcherProvider.default() } returns dispatcher
+
+        airingNotificationInteractor = AiringNotificationInteractorImpl(
+            context,
+            airingRepository,
+            notificationManagerCompat,
+            settingsRepository
+        )
 
         mockkObject(NotificationBuilderHelper)
         every { NotificationBuilderHelper.buildNotification(any(), any()) } returns mockk()
 
         airingNotificationInteractor.startNotificationChecking()
-        advanceUntilIdle()
+        advanceTimeBy(TimeUnit.MINUTES.toMillis(2))
 
         settingsFlow.value = SettingsState(NamingScheme.ENGLISH, false)
-        advanceUntilIdle()
+        advanceTimeBy(TimeUnit.MINUTES.toMillis(5))
 
         coVerify(exactly = 1) {
             notificationManagerCompat.notify(1, any())
         }
 
         unmockkObject(NotificationBuilderHelper)
+        unmockkObject(DispatcherProvider)
     }
 }

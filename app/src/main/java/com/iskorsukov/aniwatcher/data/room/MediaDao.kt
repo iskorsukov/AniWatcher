@@ -13,12 +13,17 @@ import kotlinx.coroutines.flow.Flow
 interface MediaDao {
 
     @Transaction
-    @Query("SELECT * FROM media")
-    fun getAll(): Flow<List<MediaItemWithAiringSchedulesAndFollowingEntity>>
+    @Query("SELECT * FROM media " +
+            "LEFT JOIN following ON media.mediaId = following.mediaItemRelationId " +
+            "LEFT JOIN airing ON media.mediaId = airing.mediaItemRelationId")
+    fun getAll(): Flow<Map<MediaItemAndFollowingEntity, List<AiringScheduleEntity>>>
 
     @Transaction
-    @Query("SELECT * FROM media WHERE mediaId = :mediaItemId")
-    fun getById(mediaItemId: Int): Flow<MediaItemWithAiringSchedulesAndFollowingEntity>
+    @Query("SELECT * FROM media " +
+            "LEFT JOIN following ON media.mediaId = following.mediaItemRelationId " +
+            "LEFT JOIN airing ON media.mediaId = airing.mediaItemRelationId " +
+            "WHERE mediaId = :mediaItemId")
+    fun getById(mediaItemId: Int): Flow<Map<MediaItemAndFollowingEntity, List<AiringScheduleEntity>>>
 
     @Insert
     suspend fun followMedia(followingEntity: FollowingEntity)

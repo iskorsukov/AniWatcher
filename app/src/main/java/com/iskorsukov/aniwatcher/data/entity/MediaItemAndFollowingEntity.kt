@@ -3,11 +3,11 @@ package com.iskorsukov.aniwatcher.data.entity
 import androidx.room.Embedded
 import androidx.room.Relation
 
-data class MediaItemWithAiringSchedulesEntity(
+data class MediaItemAndFollowingEntity(
     @Embedded val mediaItemEntity: MediaItemEntity,
     @Relation(
         parentColumn = "mediaId",
         entityColumn = "mediaItemRelationId"
     )
-    val airingScheduleEntityList: List<AiringScheduleEntity>
+    val followingEntity: FollowingEntity?
 )

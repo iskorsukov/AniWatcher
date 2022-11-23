@@ -43,18 +43,12 @@ object EntityTestDataCreator {
         )
     }
 
-    fun baseMediaItemWithAiringSchedulesAndFollowingEntity(): MediaItemWithAiringSchedulesAndFollowingEntity {
-        return MediaItemWithAiringSchedulesAndFollowingEntity(
-            MediaItemWithAiringSchedulesEntity(
-                mediaItemEntity = baseMediaItemEntity(),
-                airingScheduleEntityList = listOf(
-                    baseAiringScheduleEntity(),
-                    baseAiringScheduleEntity().id(2).episode(2).airingAt(1667385638),
-                    baseAiringScheduleEntity().id(3).episode(3).airingAt(1667644838),
-                    baseAiringScheduleEntity().id(4).episode(4).airingAt(1667029460)
-                )
-            ),
-            followingEntity = null
+    fun baseAiringScheduleEntityList(): List<AiringScheduleEntity> {
+        return listOf(
+            baseAiringScheduleEntity(),
+            baseAiringScheduleEntity().id(2).episode(2).airingAt(1667385638),
+            baseAiringScheduleEntity().id(3).episode(3).airingAt(1667644838),
+            baseAiringScheduleEntity().id(4).episode(4).airingAt(1667029460)
         )
     }
 
@@ -89,16 +83,4 @@ fun AiringScheduleEntity.episode(episode: Int): AiringScheduleEntity {
 
 fun AiringScheduleEntity.mediaItemRelationId(mediaItemRelationId: Int): AiringScheduleEntity {
     return this.copy(mediaItemRelationId = mediaItemRelationId)
-}
-
-fun MediaItemWithAiringSchedulesAndFollowingEntity.mediaItemEntity(mediaItemEntity: MediaItemEntity): MediaItemWithAiringSchedulesAndFollowingEntity {
-    return this.copy(this.mediaItemWithAiringSchedulesEntity.copy(mediaItemEntity = mediaItemEntity))
-}
-
-fun MediaItemWithAiringSchedulesAndFollowingEntity.airingScheduleEntityList(airingScheduleEntityList: List<AiringScheduleEntity>): MediaItemWithAiringSchedulesAndFollowingEntity {
-    return this.copy(this.mediaItemWithAiringSchedulesEntity.copy(airingScheduleEntityList = airingScheduleEntityList))
-}
-
-fun MediaItemWithAiringSchedulesAndFollowingEntity.followingEntity(followingEntity: FollowingEntity?): MediaItemWithAiringSchedulesAndFollowingEntity {
-    return this.copy(followingEntity = followingEntity)
 }

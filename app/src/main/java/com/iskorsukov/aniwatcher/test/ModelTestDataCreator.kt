@@ -31,12 +31,12 @@ object ModelTestDataCreator {
         )
     }
 
-    fun baseAiringScheduleItem(): AiringScheduleItem {
+    fun baseAiringScheduleItem(isFollowing: Boolean = false): AiringScheduleItem {
         return AiringScheduleItem(
             1,
             1667833200,
             1,
-            baseMediaItem()
+            baseMediaItem().isFollowing(isFollowing)
         )
     }
 

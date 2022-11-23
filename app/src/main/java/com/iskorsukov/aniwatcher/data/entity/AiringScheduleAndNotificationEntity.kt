@@ -3,7 +3,7 @@ package com.iskorsukov.aniwatcher.data.entity
 import androidx.room.Embedded
 import androidx.room.Relation
 
-data class AiringScheduleWithNotificationEntity(
+data class AiringScheduleAndNotificationEntity(
     @Embedded
     val airingScheduleEntity: AiringScheduleEntity,
     @Relation(

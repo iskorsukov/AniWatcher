@@ -1,7 +1,7 @@
 package com.iskorsukov.aniwatcher.domain.notification
 
 import com.google.common.truth.Truth.assertThat
-import com.iskorsukov.aniwatcher.data.entity.AiringScheduleWithNotificationEntity
+import com.iskorsukov.aniwatcher.data.entity.AiringScheduleAndNotificationEntity
 import com.iskorsukov.aniwatcher.data.executor.MediaDatabaseExecutor
 import com.iskorsukov.aniwatcher.test.EntityTestDataCreator
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
@@ -22,9 +22,11 @@ class NotificationsRepositoryTest {
             coEvery { notificationsFlow } returns flowOf(
                 mapOf(
                     EntityTestDataCreator.baseMediaItemEntity() to
-                            AiringScheduleWithNotificationEntity(
-                                EntityTestDataCreator.baseAiringScheduleEntity(),
-                                EntityTestDataCreator.baseNotificationEntity()
+                            listOf(
+                                AiringScheduleAndNotificationEntity(
+                                    EntityTestDataCreator.baseAiringScheduleEntity(),
+                                    EntityTestDataCreator.baseNotificationEntity()
+                                )
                             )
                 )
             )

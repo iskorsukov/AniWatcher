@@ -23,13 +23,14 @@ class QueryDataToEntityMapperTest {
             )
         )
 
-        val entityList = mapper.mapMediaWithSchedulesList(data)
+        val entityMap = mapper.mapMediaWithSchedulesList(data)
 
-        assertThat(entityList.size).isEqualTo(1)
-        assertThat(entityList[0]).isEqualTo(
-            EntityTestDataCreator.baseMediaItemWithAiringSchedulesAndFollowingEntity()
-                .mediaItemWithAiringSchedulesEntity
+        assertThat(entityMap.size).isEqualTo(1)
+        assertThat(entityMap.keys).containsExactly(EntityTestDataCreator.baseMediaItemEntity())
+        assertThat(entityMap.values.flatten()).containsExactlyElementsIn(
+            EntityTestDataCreator.baseAiringScheduleEntityList()
         )
+
     }
 
     @Test(expected = IllegalArgumentException::class)

@@ -3,6 +3,7 @@ package com.iskorsukov.aniwatcher.data.executor
 import androidx.room.withTransaction
 import com.google.common.truth.Truth.assertThat
 import com.iskorsukov.aniwatcher.data.entity.FollowingEntity
+import com.iskorsukov.aniwatcher.data.entity.MediaItemAndFollowingEntity
 import com.iskorsukov.aniwatcher.data.room.MediaDao
 import com.iskorsukov.aniwatcher.data.room.MediaDatabase
 import com.iskorsukov.aniwatcher.domain.util.DispatcherProvider
@@ -25,6 +26,13 @@ class MediaDatabaseExecutorTest {
 
     private lateinit var mediaDatabaseExecutor: MediaDatabaseExecutor
 
+    val testData = mapOf(
+        MediaItemAndFollowingEntity(
+            EntityTestDataCreator.baseMediaItemEntity(),
+            null
+        ) to EntityTestDataCreator.baseAiringScheduleEntityList()
+    )
+
     private fun initMocks(testScheduler: TestCoroutineScheduler) {
         MockKAnnotations.init(this)
         mockkStatic("androidx.room.RoomDatabaseKt")
@@ -33,14 +41,8 @@ class MediaDatabaseExecutorTest {
         every { DispatcherProvider.io() } returns StandardTestDispatcher(testScheduler)
 
         every { mediaDatabase.mediaDao() } returns mediaDao
-        every { mediaDao.getAll() } returns flowOf(
-            listOf(
-                EntityTestDataCreator.baseMediaItemWithAiringSchedulesAndFollowingEntity()
-            )
-        )
-        every { mediaDao.getById(any()) } returns flowOf(
-            EntityTestDataCreator.baseMediaItemWithAiringSchedulesAndFollowingEntity()
-        )
+        every { mediaDao.getAll() } returns flowOf(testData)
+        every { mediaDao.getById(any()) } returns flowOf(testData)
 
         val transactionLambda = slot<suspend () -> Unit>()
         coEvery { mediaDatabase.withTransaction(capture(transactionLambda)) } coAnswers  {
@@ -63,7 +65,7 @@ class MediaDatabaseExecutorTest {
             .first()
 
         assertThat(entity)
-            .isEqualTo(EntityTestDataCreator.baseMediaItemWithAiringSchedulesAndFollowingEntity())
+            .isEqualTo(testData)
 
         coVerify {
             mediaDao.getById(1)
@@ -76,18 +78,18 @@ class MediaDatabaseExecutorTest {
     fun updateMedia() = runTest {
         initMocks(testScheduler)
 
-        val entityList = listOf(
-            EntityTestDataCreator.baseMediaItemWithAiringSchedulesAndFollowingEntity()
-                .mediaItemWithAiringSchedulesEntity
+        val entityMap = mapOf(
+            EntityTestDataCreator.baseMediaItemEntity() to
+                    EntityTestDataCreator.baseAiringScheduleEntityList()
         )
 
-        mediaDatabaseExecutor.updateMedia(entityList)
+        mediaDatabaseExecutor.updateMedia(entityMap)
         advanceUntilIdle()
 
         coVerify {
             mediaDao.clearMedia()
-            mediaDao.insertMedia(listOf(entityList[0].mediaItemEntity))
-            mediaDao.insertSchedules(entityList[0].airingScheduleEntityList)
+            mediaDao.insertMedia(entityMap.keys.toList())
+            mediaDao.insertSchedules(entityMap.values.flatten())
         }
 
         cleanupMocks()
