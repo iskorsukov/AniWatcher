@@ -61,8 +61,7 @@ private fun DetailScreenContent(
     ConstraintLayout(modifier = modifier.fillMaxSize()) {
         val (bannerImage,
             coverImage,
-            titleDescription,
-            airingSchedule,
+            contentBody,
             mediaInfo
         ) = createRefs()
 
@@ -70,6 +69,7 @@ private fun DetailScreenContent(
 
         val mediaInfoTopBarrier = createBottomBarrier(bannerImage, coverImage)
         val coverImageTopBarrier = createBottomBarrier(bannerImage, margin = (-40).dp)
+        val contentBodyTopBarrier = createBottomBarrier(bannerImage)
 
         if (mediaItem.bannerImageUrl != null) {
             MediaItemImage(
@@ -100,17 +100,20 @@ private fun DetailScreenContent(
             )
         }
 
-        DetailsTitleDescriptionColumn(
+        DetailsContentLazyColumn(
             mediaItem = mediaItem,
             preferredNamingScheme = preferredNamingScheme,
+            airingScheduleList = airingScheduleList,
+            timeInMinutes = timeInMinutes,
             modifier = Modifier
-                .padding(8.dp)
-                .constrainAs(titleDescription) {
-                    top.linkTo(bannerImage.bottom)
+                .constrainAs(contentBody) {
+                    top.linkTo(contentBodyTopBarrier)
+                    bottom.linkTo(parent.bottom)
                     start.linkTo(separatorGuideline)
                     end.linkTo(parent.end)
 
                     width = Dimension.fillToConstraints
+                    height = Dimension.fillToConstraints
                 }
         )
 
@@ -126,21 +129,43 @@ private fun DetailScreenContent(
                     width = Dimension.fillToConstraints
                 }
         )
+    }
+}
 
-        if (airingScheduleList?.isNotEmpty() == true) {
-            DetailsAiringSchedulesList(
-                airingScheduleList = airingScheduleList,
-                timeInMinutes = timeInMinutes,
-                modifier = Modifier
-                    .padding(horizontal = 8.dp)
-                    .constrainAs(airingSchedule) {
-                        top.linkTo(titleDescription.bottom)
-                        start.linkTo(separatorGuideline)
-                        end.linkTo(parent.end)
-
-                        width = Dimension.fillToConstraints
-                    },
+@Composable
+private fun DetailsContentLazyColumn(
+    mediaItem: MediaItem,
+    preferredNamingScheme: NamingScheme,
+    airingScheduleList: List<AiringScheduleItem>?,
+    timeInMinutes: Long,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(
+        modifier = modifier,
+        contentPadding = PaddingValues(8.dp)
+    ) {
+        item {
+            DetailsTitleDescriptionColumn(
+                mediaItem = mediaItem,
+                preferredNamingScheme = preferredNamingScheme
             )
+        }
+        if (airingScheduleList?.isNotEmpty() == true) {
+            item {
+                Text(
+                    text = stringResource(id = R.string.media_info_airing_schedule),
+                    style = LocalTextStyles.current.headline,
+                    modifier =  Modifier.padding(top = 8.dp)
+                )
+            }
+            airingScheduleList.map {
+                item {
+                    DetailsAiringScheduleCard(
+                        airingScheduleItem = it,
+                        timeInMinutes = timeInMinutes
+                    )
+                }
+            }
         }
     }
 }
@@ -156,18 +181,37 @@ private fun DetailsTitleDescriptionColumn(
     ) {
         Text(
             text = mediaItem.title.baseText(preferredNamingScheme),
-            style = LocalTextStyles.current.contentSmallLarger
+            style = LocalTextStyles.current.headline
         )
         if (mediaItem.title.subText().isNotEmpty()) {
             Text(
                 text = mediaItem.title.subText(preferredNamingScheme),
-                style = LocalTextStyles.current.contentSmall
+                style = LocalTextStyles.current.headlineSmall
             )
         }
         Spacer(modifier = Modifier.height(8.dp))
         HtmlText(
             text = mediaItem.description.orEmpty(),
             style = LocalTextStyles.current.contentSmallLarger
+        )
+    }
+}
+
+@Composable
+private fun DetailsAiringScheduleCard(
+    airingScheduleItem: AiringScheduleItem,
+    timeInMinutes: Long
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 4.dp),
+        elevation = 4.dp
+    ) {
+        MediaItemAiringInfoColumn(
+            airingScheduleItem = airingScheduleItem,
+            timeInMinutes = timeInMinutes,
+            modifier = Modifier.padding(4.dp)
         )
     }
 }
@@ -221,53 +265,6 @@ private fun DetailsMediaInfoItem(
         text = subLabel,
         style = LocalTextStyles.current.contentSmallLarger
     )
-}
-
-@Composable
-private fun DetailsAiringSchedulesList(
-    airingScheduleList: List<AiringScheduleItem>,
-    timeInMinutes: Long,
-    modifier: Modifier = Modifier
-) {
-    LazyColumn(
-        modifier = modifier,
-        userScrollEnabled = false,
-        contentPadding = PaddingValues(bottom = 16.dp)
-    ) {
-        item {
-            Text(
-                text = stringResource(id = R.string.media_info_airing_schedule),
-                style = LocalTextStyles.current.contentSmall
-            )
-        }
-        airingScheduleList.map {
-            item {
-                DetailsAiringScheduleCard(
-                    airingScheduleItem = it,
-                    timeInMinutes = timeInMinutes
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun DetailsAiringScheduleCard(
-    airingScheduleItem: AiringScheduleItem,
-    timeInMinutes: Long
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 4.dp),
-        elevation = 4.dp
-    ) {
-        MediaItemAiringInfoColumn(
-            airingScheduleItem = airingScheduleItem,
-            timeInMinutes = timeInMinutes,
-            modifier = Modifier.padding(4.dp)
-        )
-    }
 }
 
 @Composable
