@@ -5,19 +5,26 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -104,20 +111,33 @@ fun MediaItemFollowButton(
 @Composable
 fun MediaItemGenresFooter(
     genres: List<String>,
-    colorStr: String?,
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
+    colorStr: String? = null,
     onGenreChipClicked: ((String) -> Unit)? = null
 ) {
+    val state = rememberLazyListState()
+    val visibleChipsCount: State<Int> = remember {
+        derivedStateOf {
+            val layoutInfo = state.layoutInfo
+            val visibleItemsInfo = layoutInfo.visibleItemsInfo
+            visibleItemsInfo.count {
+                it.offset + it.size < layoutInfo.viewportStartOffset + layoutInfo.viewportEndOffset
+            }
+        }
+    }
     LazyRow(
+        state = state,
         modifier = modifier,
+        userScrollEnabled = false,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
     ) {
-        genres.take(3).map {
+        genres.mapIndexed { index, genre ->
             item {
                 GenreChip(
-                    genre = it,
+                    genre = genre,
                     colorStr = colorStr,
+                    isVisible = index < visibleChipsCount.value,
                     onGenreChipClicked = onGenreChipClicked
                 )
             }
@@ -126,19 +146,48 @@ fun MediaItemGenresFooter(
 }
 
 @Composable
-fun GenreChip(
+@Preview
+fun MediaItemGenresFooterPreview() {
+    MediaItemGenresFooter(
+        genres = listOf(
+            "Action",
+            "Comedy",
+            "Supernatural",
+            "Slice of life",
+            "Paranormal",
+            "Last"
+        ),
+        modifier = Modifier.width(200.dp)
+    )
+}
+
+@Composable
+private fun GenreChip(
     genre: String,
     colorStr: String?,
+    isVisible: Boolean = true,
     onGenreChipClicked: ((String) -> Unit)? = null
 ) {
-    val bgColor = getBackgroundColorForChip(bgColorStr = colorStr)
-    val textColor = getContrastTextColorForChip(bgColor = bgColor)
+    val bgColor = if (isVisible) {
+        getBackgroundColorForChip(bgColorStr = colorStr)
+    } else {
+        Color.Transparent
+    }
+    val textColor = if (isVisible) {
+        getContrastTextColorForChip(bgColor = bgColor)
+    } else {
+        Color.Transparent
+    }
     Text(
         text = genre,
         color = textColor,
         fontSize = 8.sp,
         modifier = Modifier
-            .clickable { onGenreChipClicked?.invoke(genre) }
+            .clickable {
+                if (isVisible) {
+                    onGenreChipClicked?.invoke(genre)
+                }
+            }
             .padding(
                 top = 4.dp,
                 bottom = 4.dp,

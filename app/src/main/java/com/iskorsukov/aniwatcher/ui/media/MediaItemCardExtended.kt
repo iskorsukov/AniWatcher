@@ -183,6 +183,7 @@ fun MediaItemCardExtended(
                 colorStr = mediaItem.colorStr,
                 modifier = Modifier
                     .background(color = LocalColors.current.cardFooterBackground)
+                    .padding(end = 30.dp)
                     .constrainAs(genresFooter) {
                         top.linkTo(genresFooterTopGuideline)
                         bottom.linkTo(parent.bottom)
