@@ -36,14 +36,39 @@ class NotificationDaoTest {
     }
 
     @Test
+    fun getAll(): Unit = runBlocking {
+        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
+        val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
+        val notificationEntity = EntityTestDataCreator.baseNotificationEntity()
+
+        mediaDao.insertMedia(listOf(mediaItemEntity))
+        mediaDao.insertSchedules(airingScheduleEntityList)
+        notificationsDao.insertNotification(notificationEntity)
+
+        val mediaWithAiringSchedulesAndNotificationsEntity = notificationsDao.getAll().first()
+
+        assertThat(mediaWithAiringSchedulesAndNotificationsEntity.size).isEqualTo(1)
+        assertThat(mediaWithAiringSchedulesAndNotificationsEntity.keys).containsExactly(
+            mediaItemEntity
+        )
+        assertThat(mediaWithAiringSchedulesAndNotificationsEntity.values.flatten()).containsExactly(
+            AiringScheduleAndNotificationEntity(
+                EntityTestDataCreator.baseAiringScheduleEntity(),
+                notificationEntity
+            )
+        )
+    }
+
+    @Test
     fun insertNotification(): Unit = runBlocking {
         val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
         val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
+        val notificationEntity = EntityTestDataCreator.baseNotificationEntity()
 
         mediaDao.insertMedia(listOf(mediaItemEntity))
         mediaDao.insertSchedules(airingScheduleEntityList)
 
-        notificationsDao.insertNotification(EntityTestDataCreator.baseNotificationEntity())
+        notificationsDao.insertNotification(notificationEntity)
 
         val outEntity = mediaDao.getAll().first()
 
@@ -58,16 +83,16 @@ class NotificationDaoTest {
             airingScheduleEntityList
         )
 
-        val notificationEntity = notificationsDao.getAll().first()
+        val mediaWithAiringSchedulesAndNotificationsEntity = notificationsDao.getAll().first()
 
-        assertThat(notificationEntity.size).isEqualTo(1)
-        assertThat(notificationEntity.keys).containsExactly(
+        assertThat(mediaWithAiringSchedulesAndNotificationsEntity.size).isEqualTo(1)
+        assertThat(mediaWithAiringSchedulesAndNotificationsEntity.keys).containsExactly(
             mediaItemEntity
         )
-        assertThat(notificationEntity.values.flatten()).containsExactly(
+        assertThat(mediaWithAiringSchedulesAndNotificationsEntity.values.flatten()).containsExactly(
             AiringScheduleAndNotificationEntity(
                 EntityTestDataCreator.baseAiringScheduleEntity(),
-                EntityTestDataCreator.baseNotificationEntity()
+                notificationEntity
             )
         )
     }

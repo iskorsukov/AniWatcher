@@ -11,7 +11,7 @@ import androidx.room.PrimaryKey
             entity = AiringScheduleEntity::class,
             parentColumns = ["airingScheduleItemId"],
             childColumns = ["airingScheduleItemRelationId"],
-            onDelete = ForeignKey.NO_ACTION
+            onDelete = ForeignKey.CASCADE
         )
     ])
 data class NotificationItemEntity(

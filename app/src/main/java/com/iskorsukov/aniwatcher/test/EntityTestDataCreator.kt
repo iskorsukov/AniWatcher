@@ -65,6 +65,18 @@ object EntityTestDataCreator {
     }
 }
 
+fun MediaItemEntity.mediaId(mediaId: Int): MediaItemEntity {
+    return this.copy(mediaId = mediaId)
+}
+
+fun FollowingEntity.followingEntryId(followingEntryId: Int): FollowingEntity {
+    return this.copy(followingEntryId = followingEntryId)
+}
+
+fun FollowingEntity.mediaItemRelationId(mediaItemRelationId: Int): FollowingEntity {
+    return this.copy(mediaItemRelationId = mediaItemRelationId)
+}
+
 fun AiringScheduleEntity.id(id: Int): AiringScheduleEntity {
     return this.copy(airingScheduleItemId = id)
 }

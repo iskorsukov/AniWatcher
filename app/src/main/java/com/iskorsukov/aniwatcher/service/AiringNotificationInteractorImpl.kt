@@ -16,6 +16,7 @@ import com.iskorsukov.aniwatcher.domain.util.DispatcherProvider
 import com.iskorsukov.aniwatcher.service.util.NotificationBuilderHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -35,8 +36,16 @@ class AiringNotificationInteractorImpl @Inject constructor(
     // NOTE: may be smart to synchronize access to runningJob to avoid races
     private var runningJob: Job? = null
 
+    private val notificationsFlow = notificationsRepository.notificationsFlow
+
     private val followingMediaFlow = airingRepository.mediaWithSchedulesFlow.map { map ->
-        map.filter { it.key.isFollowing }.filter { it.value.isNotEmpty() }
+        map.filter { it.key.isFollowing }
+    }.combine(notificationsFlow) { followingMap, notificationsList ->
+        followingMap.mapValues { followingEntry ->
+            followingEntry.value.filterNot {
+                    item -> notificationsList.any { it.airingScheduleItem.id == item.id }
+            }
+        }.filter { it.value.isNotEmpty() }
     }.distinctUntilChanged()
 
     private val settingsStateFlow = settingsRepository.settingsStateFlow
