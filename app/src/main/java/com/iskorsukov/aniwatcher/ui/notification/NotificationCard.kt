@@ -82,11 +82,9 @@ fun NotificationCard(
 @Composable
 @Preview
 private fun NotificationCardPreview() {
-    val timeInMinutes = 27785711L
-
     NotificationCard(
         notificationItem = ModelTestDataCreator.baseNotificationItem(),
-        timeInMinutes = timeInMinutes,
+        timeInMinutes = ModelTestDataCreator.timeInMunites,
         preferredNamingScheme = NamingScheme.ENGLISH
     )
 }

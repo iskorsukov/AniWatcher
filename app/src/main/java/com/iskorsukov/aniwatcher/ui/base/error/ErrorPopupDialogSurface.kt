@@ -27,7 +27,7 @@ fun ErrorPopupDialogSurface(
 
 @Composable
 @Preview
-private fun ErrorDialogPreview() {
+private fun ErrorPopupDialogSurfacePreview() {
     ErrorPopupDialogSurface(
         errorItem = ErrorItem.LoadingData,
         onActionClicked = { },

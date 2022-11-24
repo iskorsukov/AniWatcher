@@ -18,12 +18,13 @@ import androidx.compose.ui.unit.dp
 import com.iskorsukov.aniwatcher.ui.theme.*
 
 @Composable
-fun EmptyDataFullscreenPlaceholder(
+fun EmptyDataPlaceholder(
     @DrawableRes iconResId: Int,
     @StringRes labelResId: Int,
-    @StringRes subLabelResId: Int
+    @StringRes subLabelResId: Int,
+    modifier: Modifier = Modifier
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = modifier) {
         Column(
             modifier = Modifier
                 .align(Alignment.Center),

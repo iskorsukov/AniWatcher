@@ -12,7 +12,7 @@ import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.model.NotificationItem
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
-import com.iskorsukov.aniwatcher.ui.base.placeholder.EmptyDataFullscreenPlaceholder
+import com.iskorsukov.aniwatcher.ui.base.placeholder.EmptyDataPlaceholder
 import com.iskorsukov.aniwatcher.ui.theme.*
 import kotlinx.coroutines.flow.Flow
 
@@ -52,10 +52,11 @@ fun NotificationsScreenContent(
 ) {
     Box(modifier = modifier) {
         if (notificationsList.isEmpty()) {
-            EmptyDataFullscreenPlaceholder(
+            EmptyDataPlaceholder(
                 iconResId = R.drawable.ic_baseline_notifications_none_24,
                 labelResId = R.string.notifications_data_empty_label,
-                subLabelResId = R.string.notifications_data_empty_sub_label
+                subLabelResId = R.string.notifications_data_empty_sub_label,
+                modifier = Modifier.fillMaxSize()
             )
         } else {
             LazyColumn {
@@ -77,13 +78,11 @@ fun NotificationsScreenContent(
 @Composable
 @Preview
 private fun NotificationsScreenPreview() {
-    val timeInMinutes = 27785711L
-
     NotificationsScreenContent(
         notificationsList = listOf(
             ModelTestDataCreator.baseNotificationItem()
         ),
-        timeInMinutes = timeInMinutes,
+        timeInMinutes = ModelTestDataCreator.timeInMunites,
         preferredNamingScheme = NamingScheme.ENGLISH,
         onNotificationClicked = { }
     )
@@ -92,11 +91,9 @@ private fun NotificationsScreenPreview() {
 @Composable
 @Preview
 private fun NotificationsScreenEmptyPreview() {
-    val timeInMinutes = 27785711L
-
     NotificationsScreenContent(
         notificationsList = emptyList(),
-        timeInMinutes = timeInMinutes,
+        timeInMinutes = ModelTestDataCreator.timeInMunites,
         preferredNamingScheme = NamingScheme.ENGLISH,
         onNotificationClicked = { }
     )

@@ -2,20 +2,14 @@ package com.iskorsukov.aniwatcher.ui.media
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
+import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 import com.iskorsukov.aniwatcher.ui.theme.LocalTextStyles
 import com.iskorsukov.aniwatcher.ui.util.getBackgroundColorForChip
@@ -49,10 +44,28 @@ fun MediaItemImage(
 }
 
 @Composable
+@Preview
+private fun MediaItemImagePreview() {
+    MediaItemImage(
+        imageUrl = "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx142838-ECZSqfknAqAT.jpg",
+        modifier = Modifier.size(42.dp)
+    )
+}
+
+@Composable
+@Preview
+private fun MediaItemImageErrorPreview() {
+    MediaItemImage(
+        imageUrl = "https://s4.anilist.co/",
+        modifier = Modifier.size(42.dp)
+    )
+}
+
+@Composable
 fun MediaItemAiringInfoColumn(
     airingScheduleItem: AiringScheduleItem?,
     modifier: Modifier = Modifier,
-    timeInMinutes: Long = 0L,
+    timeInMinutes: Long,
 ) {
     Column(modifier = modifier) {
         if (airingScheduleItem != null) {
@@ -83,6 +96,16 @@ fun MediaItemAiringInfoColumn(
 }
 
 @Composable
+@Preview
+private fun MediaItemAiringInfoColumnPreview() {
+    MediaItemAiringInfoColumn(
+        airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
+        timeInMinutes = ModelTestDataCreator.timeInMunites
+    )
+}
+
+
+@Composable
 fun MediaItemFollowButton(
     isFollowing: Boolean,
     modifier: Modifier,
@@ -105,6 +128,18 @@ fun MediaItemFollowButton(
                 tint = LocalColors.current.text
             )
         }
+    }
+}
+
+@Composable
+@Preview
+private fun MediaItemFollowButtonPreview() {
+    val isFollowing = remember { mutableStateOf(false) }
+    MediaItemFollowButton(
+        isFollowing = isFollowing.value,
+        modifier = Modifier.size(24.dp)
+    ) {
+        isFollowing.value = !isFollowing.value
     }
 }
 
@@ -147,7 +182,7 @@ fun MediaItemGenresFooter(
 
 @Composable
 @Preview
-fun MediaItemGenresFooterPreview() {
+private fun MediaItemGenresFooterPreview() {
     MediaItemGenresFooter(
         genres = listOf(
             "Action",
@@ -202,6 +237,12 @@ private fun GenreChip(
 }
 
 @Composable
+@Preview
+private fun GenreChipPreview() {
+    GenreChip(genre = "Genre", colorStr = null)
+}
+
+@Composable
 fun MediaFormatText(
     text: String,
     modifier: Modifier = Modifier,
@@ -218,4 +259,10 @@ fun MediaFormatText(
             )
             .padding(horizontal = 8.dp)
     )
+}
+
+@Composable
+@Preview
+private fun MediaFormatTextPreview() {
+    MediaFormatText(text = "TV")
 }

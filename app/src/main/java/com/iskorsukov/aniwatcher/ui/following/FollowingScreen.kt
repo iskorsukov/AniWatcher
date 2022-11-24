@@ -21,7 +21,7 @@ import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.test.isFollowing
-import com.iskorsukov.aniwatcher.ui.base.placeholder.EmptyDataFullscreenPlaceholder
+import com.iskorsukov.aniwatcher.ui.base.placeholder.EmptyDataPlaceholder
 import com.iskorsukov.aniwatcher.ui.main.MainActivityViewModel
 import com.iskorsukov.aniwatcher.ui.media.MediaItemCardExtended
 import kotlinx.coroutines.flow.Flow
@@ -96,10 +96,11 @@ fun FollowingScreenContent(
     listState: LazyListState,
 ) {
     if (followingMediaMap.isEmpty()) {
-        EmptyDataFullscreenPlaceholder(
+        EmptyDataPlaceholder(
             iconResId = R.drawable.ic_baseline_add_circle_outline_24_gray,
             labelResId = R.string.following_data_empty_label,
-            subLabelResId = R.string.following_data_empty_sub_label
+            subLabelResId = R.string.following_data_empty_sub_label,
+            modifier = Modifier.fillMaxSize()
         )
     } else {
         LazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
@@ -123,11 +124,9 @@ fun FollowingScreenContent(
 @Composable
 @Preview
 private fun FollowingScreenEmptyPreview() {
-    val timeInMinutes = 27785711L
-
     FollowingScreenContent(
         followingMediaMap = emptyMap(),
-        timeInMinutes = timeInMinutes,
+        timeInMinutes = ModelTestDataCreator.timeInMunites,
         onFollowClicked = {},
         preferredNamingScheme = NamingScheme.ENGLISH,
         onMediaClicked = {},
@@ -139,8 +138,6 @@ private fun FollowingScreenEmptyPreview() {
 @Composable
 @Preview
 private fun FollowingScreenPreview() {
-    val timeInMinutes = 27785711L
-
     FollowingScreenContent(
         followingMediaMap = MediaItemMapper.groupMediaWithNextAiringSchedule(
             mapOf(
@@ -148,7 +145,7 @@ private fun FollowingScreenPreview() {
                         ModelTestDataCreator.baseAiringScheduleItemList()
             )
         ).filterKeys { it.isFollowing },
-        timeInMinutes = timeInMinutes,
+        timeInMinutes = ModelTestDataCreator.timeInMunites,
         onFollowClicked = {},
         preferredNamingScheme = NamingScheme.ENGLISH,
         onMediaClicked = {},

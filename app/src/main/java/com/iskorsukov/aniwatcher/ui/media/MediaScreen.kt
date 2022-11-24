@@ -117,8 +117,6 @@ private fun MediaScreenContent(
 @Composable
 @Preview
 fun MediaScreenPreview() {
-    val timeInMinutes = 27785710L
-
     MediaScreenContent(
         mediaItemWithNextAiringMap = MediaItemMapper.groupMediaWithNextAiringSchedule(
             mapOf(
@@ -128,7 +126,7 @@ fun MediaScreenPreview() {
         ),
         swipeRefreshState = rememberSwipeRefreshState(false),
         listState = rememberLazyListState(),
-        timeInMinutes = timeInMinutes,
+        timeInMinutes = ModelTestDataCreator.timeInMunites,
         preferredNamingScheme = NamingScheme.ENGLISH,
         onRefresh = { },
         onFollowClicked = { },

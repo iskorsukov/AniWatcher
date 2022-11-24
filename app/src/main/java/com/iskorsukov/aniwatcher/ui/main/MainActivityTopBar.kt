@@ -4,10 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -50,37 +47,12 @@ fun TopBar(
 
     TopAppBar(backgroundColor = LocalColors.current.primary) {
         if (screen?.hasSearchBar == true) {
-            AnimatedVisibility(
-                visible = uiState.searchFieldOpen,
-                enter = expandHorizontally(expandFrom = Alignment.Start),
-                exit = shrinkHorizontally(shrinkTowards = Alignment.Start)
-            ) {
-                SearchField(
-                    searchText = uiState.searchText,
-                    onSearchTextChanged = onSearchTextInput,
-                    onSearchCancelled = {
-                        onSearchFieldOpenChange.invoke(false)
-                    },
-                    focusRequester = focusRequester
-                )
-                LaunchedEffect(Unit) {
-                    focusRequester.requestFocus()
-                }
-            }
-
-            if (!uiState.searchFieldOpen) {
-                IconButton(
-                    onClick = {
-                        onSearchFieldOpenChange.invoke(true)
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = null,
-                        tint = LocalColors.current.onPrimary
-                    )
-                }
-            }
+            AnimatedSearchField(
+                uiState = uiState,
+                onSearchTextInput = onSearchTextInput,
+                onSearchFieldOpenChange = onSearchFieldOpenChange,
+                focusRequester = focusRequester
+            )
         }
         if (screen?.hasSortingOptions == true) {
             IconButton(onClick = onSelectSortingOptionClicked) {
@@ -129,8 +101,92 @@ fun TopBar(
 }
 
 @Composable
+private fun AnimatedSearchField(
+    uiState: MainActivityUiState,
+    onSearchTextInput: (String) -> Unit,
+    onSearchFieldOpenChange: (Boolean) -> Unit,
+    focusRequester: FocusRequester
+) {
+    AnimatedVisibility(
+        visible = uiState.searchFieldOpen,
+        enter = expandHorizontally(expandFrom = Alignment.Start),
+        exit = shrinkHorizontally(shrinkTowards = Alignment.Start)
+    ) {
+        SearchField(
+            searchText = uiState.searchText,
+            onSearchTextChanged = onSearchTextInput,
+            onSearchCancelled = {
+                onSearchFieldOpenChange.invoke(false)
+            },
+            focusRequester = focusRequester
+        )
+        LaunchedEffect(Unit) {
+            focusRequester.requestFocus()
+        }
+    }
+
+    if (!uiState.searchFieldOpen) {
+        IconButton(
+            onClick = {
+                onSearchFieldOpenChange.invoke(true)
+            }
+        ) {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = null,
+                tint = LocalColors.current.onPrimary
+            )
+        }
+    }
+}
+
+@Composable
 @Preview
-fun TopBarPreview() {
+private fun AnimatedSearchFieldPreview() {
+    val focusRequester = remember { FocusRequester() }
+    val uiStateFlow = remember {
+        mutableStateOf(MainActivityUiState(false))
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(48.dp)
+            .background(LocalColors.current.primary)
+    ) {
+        if (uiStateFlow.value.searchFieldOpen) {
+            AnimatedSearchField(
+                uiState = uiStateFlow.value,
+                onSearchTextInput = {
+                    uiStateFlow.value = MainActivityUiState(
+                        false,
+                        searchText = it,
+                        searchFieldOpen = true
+                    )
+                },
+                onSearchFieldOpenChange = {
+                    uiStateFlow.value = MainActivityUiState(false, searchFieldOpen = it)
+                },
+                focusRequester = focusRequester
+            )
+        } else {
+            IconButton(
+                onClick = {
+                    uiStateFlow.value = MainActivityUiState(false, searchFieldOpen = true)
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = null,
+                    tint = LocalColors.current.onPrimary
+                )
+            }
+        }
+    }
+}
+
+@Composable
+@Preview
+private fun TopBarPreview() {
     val navController = rememberNavController()
     val uiStateFlow = MutableStateFlow(MainActivityUiState(false))
     val uiState by uiStateFlow.collectAsState()
@@ -172,7 +228,7 @@ fun TopBarPreview() {
 
 @Composable
 @Preview
-fun TopBarNoSearchAndOptionsPreview() {
+private fun TopBarNoSearchAndOptionsPreview() {
     val navController = rememberNavController()
     val uiState = MainActivityUiState(false)
     Scaffold(
@@ -200,7 +256,7 @@ fun TopBarNoSearchAndOptionsPreview() {
 
 @Composable
 @Preview
-fun TopBarUnreadNotificationsPreview() {
+private fun TopBarUnreadNotificationsPreview() {
     val navController = rememberNavController()
     val uiState = MainActivityUiState(false)
     Scaffold(

@@ -144,7 +144,6 @@ private fun AiringScreenMultipleInOneDayPreview() {
 private fun AiringScreenPreviewContent(
     airingSchedulesByDayOfWeekMap: Map<DayOfWeekLocal, List<AiringScheduleItem>>
 ) {
-    val timeInMinutes = 27785711L
     val swipeRefreshState = rememberSwipeRefreshState(false)
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -152,7 +151,7 @@ private fun AiringScreenPreviewContent(
             swipeRefreshState = swipeRefreshState,
             onRefresh = { },
             airingSchedulesByDayOfWeekMap = airingSchedulesByDayOfWeekMap,
-            timeInMinutes = timeInMinutes,
+            timeInMinutes = ModelTestDataCreator.timeInMunites,
             onFollowClicked = { },
             onMediaClicked = { },
             preferredNamingScheme = NamingScheme.ENGLISH

@@ -106,11 +106,9 @@ fun MediaItemCardCollapsed(
 @Composable
 @Preview
 private fun MediaItemCardCollapsedPreview() {
-    val timeInMinutes = 27785711L
-
     MediaItemCardCollapsed(
         airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
-        timeInMinutes = timeInMinutes,
+        timeInMinutes = ModelTestDataCreator.timeInMunites,
         onFollowClicked = { },
         onMediaClicked = { },
         preferredNamingScheme = NamingScheme.ENGLISH

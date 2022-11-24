@@ -26,7 +26,6 @@ import com.iskorsukov.aniwatcher.ui.media.MediaItemAiringInfoColumn
 import com.iskorsukov.aniwatcher.ui.media.MediaItemImage
 import com.iskorsukov.aniwatcher.ui.theme.*
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 
 @OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
@@ -171,6 +170,17 @@ private fun DetailsContentLazyColumn(
 }
 
 @Composable
+@Preview
+private fun DetailsContentLazyColumnPreview() {
+    DetailsContentLazyColumn(
+        mediaItem = ModelTestDataCreator.baseMediaItem(),
+        preferredNamingScheme = NamingScheme.ENGLISH,
+        airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
+        timeInMinutes = ModelTestDataCreator.timeInMunites
+    )
+}
+
+@Composable
 private fun DetailsTitleDescriptionColumn(
     mediaItem: MediaItem,
     preferredNamingScheme: NamingScheme,
@@ -198,6 +208,15 @@ private fun DetailsTitleDescriptionColumn(
 }
 
 @Composable
+@Preview
+private fun DetailsTitleDescriptionColumPreview() {
+    DetailsTitleDescriptionColumn(
+        mediaItem = ModelTestDataCreator.baseMediaItem(),
+        preferredNamingScheme = NamingScheme.ENGLISH
+    )
+}
+
+@Composable
 private fun DetailsAiringScheduleCard(
     airingScheduleItem: AiringScheduleItem,
     timeInMinutes: Long
@@ -217,6 +236,15 @@ private fun DetailsAiringScheduleCard(
 }
 
 @Composable
+@Preview
+private fun DetailsAiringScheduleCardPreview() {
+    DetailsAiringScheduleCard(
+        airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
+        timeInMinutes = ModelTestDataCreator.timeInMunites
+    )
+}
+
+@Composable
 private fun DetailsMediaInfoColumn(
     mediaItem: MediaItem,
     modifier: Modifier = Modifier
@@ -224,6 +252,12 @@ private fun DetailsMediaInfoColumn(
     Column(
         modifier = modifier
     ) {
+        if (mediaItem.format != null) {
+            DetailsMediaInfoItem(
+                label = stringResource(id = R.string.media_info_format),
+                subLabel = stringResource(id = mediaItem.format.labelResId)
+            )
+        }
         if (mediaItem.mainStudio != null) {
             DetailsMediaInfoItem(
                 label = stringResource(id = R.string.media_info_studio),
@@ -252,6 +286,14 @@ private fun DetailsMediaInfoColumn(
 }
 
 @Composable
+@Preview
+private fun DetailsMediaInfoColumnPreview() {
+    DetailsMediaInfoColumn(
+        mediaItem = ModelTestDataCreator.baseMediaItem()
+    )
+}
+
+@Composable
 private fun DetailsMediaInfoItem(
     label: String,
     subLabel: String
@@ -270,35 +312,43 @@ private fun DetailsMediaInfoItem(
 @Composable
 @Preview
 private fun DetailsScreenPreview() {
-    val timeInMinutes = flowOf(27785711L)
-
-    DetailsScreen(
-        timeInMinutesFlow = timeInMinutes,
+    DetailScreenContent(
+        timeInMinutes = ModelTestDataCreator.timeInMunites,
         mediaItem = ModelTestDataCreator.baseMediaItem(),
-        airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList()
+        airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
+        preferredNamingScheme = NamingScheme.ENGLISH
     )
 }
 
 @Composable
 @Preview
 private fun DetailsScreenPreview_noBanner() {
-    val timeInMinutes = flowOf(27785711L)
-
-    DetailsScreen(
-        timeInMinutesFlow = timeInMinutes,
+    DetailScreenContent(
+        timeInMinutes = ModelTestDataCreator.timeInMunites,
         mediaItem = ModelTestDataCreator.baseMediaItem().bannerImage(null),
-        airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList()
+        airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
+        preferredNamingScheme = NamingScheme.ENGLISH
     )
 }
 
 @Composable
 @Preview
 private fun DetailsScreenPreview_noBannerOrImage() {
-    val timeInMinutes = flowOf(27785711L)
-
-    DetailsScreen(
-        timeInMinutesFlow = timeInMinutes,
+    DetailScreenContent(
+        timeInMinutes = ModelTestDataCreator.timeInMunites,
         mediaItem = ModelTestDataCreator.baseMediaItem().bannerImage(null).coverImageUrl(null),
-        airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList()
+        airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
+        preferredNamingScheme = NamingScheme.ENGLISH
+    )
+}
+
+@Composable
+@Preview
+private fun DetailsScreenPreview_noAiringSchedule() {
+    DetailScreenContent(
+        timeInMinutes = ModelTestDataCreator.timeInMunites,
+        mediaItem = ModelTestDataCreator.baseMediaItem().bannerImage(null).coverImageUrl(null),
+        airingScheduleList = emptyList(),
+        preferredNamingScheme = NamingScheme.ENGLISH
     )
 }

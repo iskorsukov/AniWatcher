@@ -109,41 +109,14 @@ fun SearchField(
 @Composable
 @Preview
 fun SearchFieldPreview() {
-    val searchFieldVisibleState = remember { mutableStateOf(false) }
-    val focusRequester = remember { FocusRequester() }
     val searchText = remember {
         mutableStateOf("")
     }
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(48.dp)
-            .background(LocalColors.current.primary)
-    ) {
-        if (searchFieldVisibleState.value) {
-            AnimatedVisibility(
-                visible = searchFieldVisibleState.value,
-                enter = expandHorizontally(expandFrom = Alignment.Start),
-                exit = shrinkHorizontally(shrinkTowards = Alignment.Start)
-            ) {
-                SearchField(
-                    searchText = searchText.value,
-                    onSearchTextChanged = { searchText.value = it },
-                    onSearchCancelled = { searchFieldVisibleState.value = false },
-                    focusRequester = focusRequester
-                )
-                LaunchedEffect(Unit) {
-                    focusRequester.requestFocus()
-                }
-            }
-        } else {
-            IconButton(onClick = { searchFieldVisibleState.value = true }) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = null,
-                    tint = LocalColors.current.onPrimary
-                )
-            }
-        }
-    }
+    val focusRequester = remember { FocusRequester() }
+    SearchField(
+        searchText = searchText.value,
+        onSearchTextChanged = { searchText.value = it },
+        onSearchCancelled = {  },
+        focusRequester = focusRequester
+    )
 }
