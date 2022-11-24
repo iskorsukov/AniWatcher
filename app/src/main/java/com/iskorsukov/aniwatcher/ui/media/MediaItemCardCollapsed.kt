@@ -8,13 +8,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
-import com.iskorsukov.aniwatcher.ui.theme.ContentTextStyleSmallLarger
+import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 import com.iskorsukov.aniwatcher.ui.theme.LocalTextStyles
 
@@ -100,4 +101,18 @@ fun MediaItemCardCollapsed(
             )
         }
     }
+}
+
+@Composable
+@Preview
+private fun MediaItemCardCollapsedPreview() {
+    val timeInMinutes = 27785711L
+
+    MediaItemCardCollapsed(
+        airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
+        timeInMinutes = timeInMinutes,
+        onFollowClicked = { },
+        onMediaClicked = { },
+        preferredNamingScheme = NamingScheme.ENGLISH
+    )
 }

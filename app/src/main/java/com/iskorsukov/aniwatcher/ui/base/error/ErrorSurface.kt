@@ -7,7 +7,7 @@ import com.iskorsukov.aniwatcher.ui.base.popup.PopupDialogSurface
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 
 @Composable
-fun ErrorSurfaceContent(
+fun ErrorPopupDialogSurface(
     errorItem: ErrorItem,
     onActionClicked: () -> Unit,
     onDismissRequest: () -> Unit,
@@ -28,7 +28,7 @@ fun ErrorSurfaceContent(
 @Composable
 @Preview
 private fun ErrorDialogPreview() {
-    ErrorSurfaceContent(
+    ErrorPopupDialogSurface(
         errorItem = ErrorItem.LoadingData,
         onActionClicked = { },
         onDismissRequest = { }

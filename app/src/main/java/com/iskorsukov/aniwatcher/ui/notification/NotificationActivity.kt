@@ -15,11 +15,23 @@ import com.iskorsukov.aniwatcher.ui.details.DetailsActivity
 import com.iskorsukov.aniwatcher.ui.theme.AniWatcherTheme
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flow
+import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
 class NotificationActivity : ComponentActivity() {
 
     private val notificationsViewModel: NotificationsViewModel by viewModels()
+
+    private val timeInMinutesFlow = flow {
+        while (true) {
+            val timeInMillis = System.currentTimeMillis()
+            emit(TimeUnit.MILLISECONDS.toMinutes(timeInMillis))
+            delay(TimeUnit.SECONDS.toMillis(10))
+        }
+    }.distinctUntilChanged()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +47,7 @@ class NotificationActivity : ComponentActivity() {
                 ) { innerPadding ->
                     NotificationsScreen(
                         notificationsViewModel = notificationsViewModel,
+                        timeInMinutesFlow = timeInMinutesFlow,
                         onNotificationClicked = this::startDetailsActivity,
                         modifier = Modifier.padding(innerPadding)
                     )

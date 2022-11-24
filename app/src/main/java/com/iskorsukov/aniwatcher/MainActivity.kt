@@ -6,37 +6,26 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.animation.*
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.iskorsukov.aniwatcher.service.NotificationService
-import com.iskorsukov.aniwatcher.ui.Screen
 import com.iskorsukov.aniwatcher.ui.airing.AiringScreen
 import com.iskorsukov.aniwatcher.ui.airing.AiringViewModel
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
-import com.iskorsukov.aniwatcher.ui.base.error.ErrorSurfaceContent
-import com.iskorsukov.aniwatcher.ui.base.topbar.SearchField
+import com.iskorsukov.aniwatcher.ui.base.error.ErrorPopupDialogSurface
 import com.iskorsukov.aniwatcher.ui.details.DetailsActivity
 import com.iskorsukov.aniwatcher.ui.following.FollowingScreen
 import com.iskorsukov.aniwatcher.ui.following.FollowingViewModel
+import com.iskorsukov.aniwatcher.ui.main.BottomNavigationBar
 import com.iskorsukov.aniwatcher.ui.main.MainActivityViewModel
+import com.iskorsukov.aniwatcher.ui.main.TopBar
 import com.iskorsukov.aniwatcher.ui.media.MediaScreen
 import com.iskorsukov.aniwatcher.ui.media.MediaViewModel
 import com.iskorsukov.aniwatcher.ui.notification.NotificationActivity
@@ -90,14 +79,21 @@ class MainActivity : ComponentActivity() {
                 Scaffold(
                     topBar = {
                         TopBar(
+                            uiState = uiState,
                             navController = navController,
-                            onSelectSortingOptionClicked = { shouldShowSortingOptionsDialog = true },
+                            onSelectSortingOptionClicked = {
+                                shouldShowSortingOptionsDialog = true
+                            },
                             onSettingsClicked = { startSettingsActivity() },
                             onNotificationsClicked = { startNotificationsActivity() },
+                            onSearchTextInput = mainActivityViewModel::onSearchTextInput,
+                            onSearchFieldOpenChange = mainActivityViewModel::onSearchFieldOpenChange,
                             unreadNotifications = unreadNotifications
                         )
                     },
-                    bottomBar = { BottomNavigationBar(navController = navController) },
+                    bottomBar = {
+                        BottomNavigationBar(navController = navController)
+                    },
                     scaffoldState = scaffoldState,
                     backgroundColor = LocalColors.current.background
                 ) { innerPadding ->
@@ -150,7 +146,7 @@ class MainActivity : ComponentActivity() {
                                 .padding(8.dp)
                         ) {
                             val errorItem = uiState.errorItem!!
-                            ErrorSurfaceContent(
+                            ErrorPopupDialogSurface(
                                 errorItem = errorItem,
                                 onActionClicked = {
                                     when (errorItem.action) {
@@ -189,150 +185,6 @@ class MainActivity : ComponentActivity() {
         startActivity(
             Intent(this, NotificationActivity::class.java)
         )
-    }
-}
-
-@Composable
-fun BottomNavigationBar(navController: NavHostController) {
-    val items = listOf(
-        Screen.MediaScreen,
-        Screen.AiringScreen,
-        Screen.FollowingScreen
-    )
-    BottomNavigation(backgroundColor = LocalColors.current.primary) {
-        val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentDestination = navBackStackEntry?.destination
-        items.forEach { screen ->
-            BottomNavigationItem(
-                icon = {
-                    Icon(
-                        painter = painterResource(id = screen.iconDrawableId),
-                        contentDescription = null
-                    )
-                },
-                label = {
-                    Text(
-                        text = stringResource(screen.labelStringId)
-                    )
-                },
-                selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
-                onClick = {
-                    navController.navigate(screen.route) {
-                        // Pop up to the start destination of the graph to
-                        // avoid building up a large stack of destinations
-                        // on the back stack as users select items
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
-                        }
-                        // Avoid multiple copies of the same destination when
-                        // reselecting the same item
-                        launchSingleTop = true
-                        // Restore state when reselecting a previously selected item
-                        restoreState = true
-                    }
-                },
-                selectedContentColor = LocalColors.current.secondary,
-                unselectedContentColor = LocalColors.current.onPrimary
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalLifecycleComposeApi::class)
-@Composable
-fun TopBar(
-    mainActivityViewModel: MainActivityViewModel = viewModel(),
-    navController: NavHostController,
-    onSelectSortingOptionClicked: () -> Unit,
-    onSettingsClicked: () -> Unit,
-    onNotificationsClicked: () -> Unit,
-    unreadNotifications: Int = 0
-) {
-    val uiState by mainActivityViewModel.uiState
-        .collectAsStateWithLifecycle()
-
-    val focusRequester = remember { FocusRequester() }
-
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination
-    val screen = Screen.ofRoute(currentDestination?.route.orEmpty())
-
-    TopAppBar(backgroundColor = LocalColors.current.primary) {
-        if (screen?.hasSearchBar == true) {
-            AnimatedVisibility(
-                visible = uiState.searchFieldOpen,
-                enter = expandHorizontally(expandFrom = Alignment.Start),
-                exit = shrinkHorizontally(shrinkTowards = Alignment.Start)
-            ) {
-                SearchField(
-                    searchText = uiState.searchText,
-                    onSearchTextChanged = mainActivityViewModel::onSearchTextInput,
-                    onSearchCancelled = {
-                        mainActivityViewModel.onSearchFieldOpenChange(false)
-                    },
-                    focusRequester = focusRequester
-                )
-                LaunchedEffect(Unit) {
-                    focusRequester.requestFocus()
-                }
-            }
-
-            if (!uiState.searchFieldOpen) {
-                IconButton(
-                    onClick = {
-                        mainActivityViewModel.onSearchFieldOpenChange(true)
-                    }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = null,
-                        tint = LocalColors.current.onPrimary
-                    )
-                }
-            }
-        }
-        if (screen?.hasSortingOptions == true) {
-            IconButton(onClick = onSelectSortingOptionClicked) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_baseline_sort_24),
-                    contentDescription = null,
-                    tint = LocalColors.current.onPrimary
-                )
-            }
-        }
-        Spacer(
-            Modifier
-                .weight(1f)
-                .fillMaxHeight()
-        )
-        IconButton(onClick = onNotificationsClicked) {
-            Box {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_baseline_notifications_24),
-                    contentDescription = null,
-                    tint = LocalColors.current.onPrimary
-                )
-                if (unreadNotifications > 0) {
-                    Text(
-                        text = unreadNotifications.toString(),
-                        style = LocalTextStyles.current.contentSmallEmphasisWhite,
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .background(
-                                LocalColors.current.attentionBackground,
-                                CircleShape
-                            )
-                    )
-                }
-            }
-        }
-        IconButton(onClick = onSettingsClicked) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_baseline_settings_24),
-                contentDescription = null,
-                tint = LocalColors.current.onPrimary
-            )
-        }
     }
 }
 
