@@ -6,7 +6,7 @@ import com.iskorsukov.aniwatcher.domain.model.NotificationItem
 
 object ModelTestDataCreator {
 
-    val timeInMunites = 27785711L
+    const val TIME_IN_MINUTES = 27785711L
 
     fun baseMediaItem(): MediaItem {
         return MediaItem(
@@ -107,8 +107,4 @@ fun AiringScheduleItem.episode(episode: Int): AiringScheduleItem {
 
 fun AiringScheduleItem.airingAt(airingAt: Int): AiringScheduleItem {
     return this.copy(airingAt = airingAt)
-}
-
-fun AiringScheduleItem.mediaItem(mediaItem: MediaItem): AiringScheduleItem {
-    return this.copy(mediaItem = mediaItem)
 }

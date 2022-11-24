@@ -26,7 +26,7 @@ class MediaDatabaseExecutorTest {
 
     private lateinit var mediaDatabaseExecutor: MediaDatabaseExecutor
 
-    val testData = mapOf(
+    private val testData = mapOf(
         MediaItemAndFollowingEntity(
             EntityTestDataCreator.baseMediaItemEntity(),
             null

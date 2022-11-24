@@ -100,7 +100,7 @@ fun MediaItemAiringInfoColumn(
 private fun MediaItemAiringInfoColumnPreview() {
     MediaItemAiringInfoColumn(
         airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
-        timeInMinutes = ModelTestDataCreator.timeInMunites
+        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES
     )
 }
 

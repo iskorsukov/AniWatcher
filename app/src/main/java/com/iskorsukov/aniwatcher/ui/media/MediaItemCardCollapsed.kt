@@ -108,7 +108,7 @@ fun MediaItemCardCollapsed(
 private fun MediaItemCardCollapsedPreview() {
     MediaItemCardCollapsed(
         airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
-        timeInMinutes = ModelTestDataCreator.timeInMunites,
+        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         onFollowClicked = { },
         onMediaClicked = { },
         preferredNamingScheme = NamingScheme.ENGLISH

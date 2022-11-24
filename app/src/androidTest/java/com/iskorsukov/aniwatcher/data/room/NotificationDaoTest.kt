@@ -62,7 +62,7 @@ class NotificationDaoTest {
 
         assertThat(notificationEntity.size).isEqualTo(1)
         assertThat(notificationEntity.keys).containsExactly(
-            EntityTestDataCreator.baseMediaItemEntity()
+            mediaItemEntity
         )
         assertThat(notificationEntity.values.flatten()).containsExactly(
             AiringScheduleAndNotificationEntity(

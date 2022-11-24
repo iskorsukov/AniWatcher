@@ -103,7 +103,7 @@ class MediaDaoTest {
         val followingEntity = EntityTestDataCreator.baseFollowingEntity()
 
         mediaDao.insertMedia(listOf(mediaItemEntity))
-        mediaDao.followMedia(EntityTestDataCreator.baseFollowingEntity())
+        mediaDao.followMedia(followingEntity)
 
         val outEntity = mediaDao.getAll().first()
 
@@ -126,7 +126,7 @@ class MediaDaoTest {
 
         mediaDao.insertMedia(listOf(mediaItemEntity))
         mediaDao.followMedia(followingEntity)
-        mediaDao.unfollowMedia(mediaItemEntity.mediaId)
+        mediaDao.unfollowMedia(followingEntity.mediaItemRelationId)
 
         val outEntity = mediaDao.getAll().first()
 

@@ -151,7 +151,7 @@ private fun AiringScreenPreviewContent(
             swipeRefreshState = swipeRefreshState,
             onRefresh = { },
             airingSchedulesByDayOfWeekMap = airingSchedulesByDayOfWeekMap,
-            timeInMinutes = ModelTestDataCreator.timeInMunites,
+            timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
             onFollowClicked = { },
             onMediaClicked = { },
             preferredNamingScheme = NamingScheme.ENGLISH

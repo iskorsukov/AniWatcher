@@ -49,7 +49,14 @@ object QueryTestDataCreator {
             meanScore = 1,
             genres = listOf("Action", "Comedy"),
             siteUrl = "AniListUrl",
-            airingSchedule = baseSeasonAiringDataSchedule(),
+            airingSchedule = SeasonAiringDataQuery.AiringSchedule(
+                airingScheduleNode = listOf(
+                    baseSeasonAiringDataNode(),
+                    baseSeasonAiringDataNode().id(2).episode(2).airingAt(1667385638),
+                    baseSeasonAiringDataNode().id(3).episode(3).airingAt(1667644838),
+                    baseSeasonAiringDataNode().id(4).episode(4).airingAt(1667029460)
+                )
+            ),
             season = MediaSeason.FALL,
             nextAiringEpisode = SeasonAiringDataQuery.NextAiringEpisode(1667833200),
             format = MediaFormat.TV
@@ -64,17 +71,6 @@ object QueryTestDataCreator {
             1
         )
     }
-
-    fun baseSeasonAiringDataSchedule(): SeasonAiringDataQuery.AiringSchedule {
-        return SeasonAiringDataQuery.AiringSchedule(
-            airingScheduleNode = listOf(
-                baseSeasonAiringDataNode(),
-                baseSeasonAiringDataNode().id(2).episode(2).airingAt(1667385638),
-                baseSeasonAiringDataNode().id(3).episode(3).airingAt(1667644838),
-                baseSeasonAiringDataNode().id(4).episode(4).airingAt(1667029460)
-            )
-        )
-    }
 }
 
 fun SeasonAiringDataQuery.AiringScheduleNode.id(id: Int): SeasonAiringDataQuery.AiringScheduleNode {
@@ -87,14 +83,6 @@ fun SeasonAiringDataQuery.AiringScheduleNode.episode(episode: Int): SeasonAiring
 
 fun SeasonAiringDataQuery.AiringScheduleNode.airingAt(airingAt: Int): SeasonAiringDataQuery.AiringScheduleNode {
     return this.copy(airingAt = airingAt)
-}
-
-fun SeasonAiringDataQuery.Medium.nullGenres(): SeasonAiringDataQuery.Medium {
-    return this.copy(genres = null)
-}
-
-fun SeasonAiringDataQuery.Medium.emptyGenres(): SeasonAiringDataQuery.Medium {
-    return this.copy(genres = emptyList())
 }
 
 fun SeasonAiringDataQuery.Medium.nullAiringSchedule(): SeasonAiringDataQuery.Medium {

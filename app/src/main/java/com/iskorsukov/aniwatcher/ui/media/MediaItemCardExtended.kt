@@ -274,7 +274,7 @@ fun MediaItemCardExtendedPreview() {
     MediaItemCardExtended(
         mediaItem = ModelTestDataCreator.baseMediaItem().description("Word ".repeat(50)),
         airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
-        timeInMinutes = ModelTestDataCreator.timeInMunites,
+        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         onFollowClicked = {},
         onMediaClicked = {}
     )
@@ -286,7 +286,7 @@ fun MediaItemCardExtendedPreview_noAiringSchedule() {
     MediaItemCardExtended(
         mediaItem = ModelTestDataCreator.baseMediaItem().description("Word ".repeat(50)),
         airingScheduleItem = null,
-        timeInMinutes = ModelTestDataCreator.timeInMunites,
+        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         onFollowClicked = {},
         onMediaClicked = {}
     )
@@ -299,7 +299,7 @@ fun MediaItemCardExtendedPreview_noRankScore() {
         mediaItem = ModelTestDataCreator.baseMediaItem().description("Word ".repeat(50))
             .ranking(null).meanScore(null),
         airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
-        timeInMinutes = ModelTestDataCreator.timeInMunites,
+        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         onFollowClicked = {},
         onMediaClicked = {}
     )
@@ -312,7 +312,7 @@ fun MediaItemCardExtendedPreview_noAiringSchedule_noRankScore() {
         mediaItem = ModelTestDataCreator.baseMediaItem().description("Word ".repeat(50))
             .ranking(null).meanScore(null),
         airingScheduleItem = null,
-        timeInMinutes = ModelTestDataCreator.timeInMunites,
+        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         onFollowClicked = {},
         onMediaClicked = {}
     )

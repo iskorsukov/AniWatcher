@@ -126,7 +126,7 @@ fun MediaScreenPreview() {
         ),
         swipeRefreshState = rememberSwipeRefreshState(false),
         listState = rememberLazyListState(),
-        timeInMinutes = ModelTestDataCreator.timeInMunites,
+        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         preferredNamingScheme = NamingScheme.ENGLISH,
         onRefresh = { },
         onFollowClicked = { },

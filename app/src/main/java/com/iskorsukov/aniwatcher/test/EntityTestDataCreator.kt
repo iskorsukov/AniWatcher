@@ -1,6 +1,9 @@
 package com.iskorsukov.aniwatcher.test
 
-import com.iskorsukov.aniwatcher.data.entity.*
+import com.iskorsukov.aniwatcher.data.entity.AiringScheduleEntity
+import com.iskorsukov.aniwatcher.data.entity.FollowingEntity
+import com.iskorsukov.aniwatcher.data.entity.MediaItemEntity
+import com.iskorsukov.aniwatcher.data.entity.NotificationItemEntity
 
 object EntityTestDataCreator {
     fun baseMediaItemEntity(): MediaItemEntity {
@@ -62,14 +65,6 @@ object EntityTestDataCreator {
     }
 }
 
-fun MediaItemEntity.nullGenres(): MediaItemEntity {
-    return this.copy(genresCommaSeparated = null)
-}
-
-fun MediaItemEntity.emptyGenres(): MediaItemEntity {
-    return this.copy(genresCommaSeparated = "")
-}
-
 fun AiringScheduleEntity.id(id: Int): AiringScheduleEntity {
     return this.copy(airingScheduleItemId = id)
 }
@@ -80,8 +75,4 @@ fun AiringScheduleEntity.airingAt(airingAt: Int): AiringScheduleEntity {
 
 fun AiringScheduleEntity.episode(episode: Int): AiringScheduleEntity {
     return this.copy(episode = episode)
-}
-
-fun AiringScheduleEntity.mediaItemRelationId(mediaItemRelationId: Int): AiringScheduleEntity {
-    return this.copy(mediaItemRelationId = mediaItemRelationId)
 }

@@ -126,7 +126,7 @@ fun FollowingScreenContent(
 private fun FollowingScreenEmptyPreview() {
     FollowingScreenContent(
         followingMediaMap = emptyMap(),
-        timeInMinutes = ModelTestDataCreator.timeInMunites,
+        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         onFollowClicked = {},
         preferredNamingScheme = NamingScheme.ENGLISH,
         onMediaClicked = {},
@@ -145,7 +145,7 @@ private fun FollowingScreenPreview() {
                         ModelTestDataCreator.baseAiringScheduleItemList()
             )
         ).filterKeys { it.isFollowing },
-        timeInMinutes = ModelTestDataCreator.timeInMunites,
+        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         onFollowClicked = {},
         preferredNamingScheme = NamingScheme.ENGLISH,
         onMediaClicked = {},

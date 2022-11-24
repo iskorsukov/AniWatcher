@@ -176,7 +176,7 @@ private fun DetailsContentLazyColumnPreview() {
         mediaItem = ModelTestDataCreator.baseMediaItem(),
         preferredNamingScheme = NamingScheme.ENGLISH,
         airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
-        timeInMinutes = ModelTestDataCreator.timeInMunites
+        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES
     )
 }
 
@@ -240,7 +240,7 @@ private fun DetailsAiringScheduleCard(
 private fun DetailsAiringScheduleCardPreview() {
     DetailsAiringScheduleCard(
         airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
-        timeInMinutes = ModelTestDataCreator.timeInMunites
+        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES
     )
 }
 
@@ -313,7 +313,7 @@ private fun DetailsMediaInfoItem(
 @Preview
 private fun DetailsScreenPreview() {
     DetailScreenContent(
-        timeInMinutes = ModelTestDataCreator.timeInMunites,
+        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         mediaItem = ModelTestDataCreator.baseMediaItem(),
         airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
         preferredNamingScheme = NamingScheme.ENGLISH
@@ -324,8 +324,19 @@ private fun DetailsScreenPreview() {
 @Preview
 private fun DetailsScreenPreview_noBanner() {
     DetailScreenContent(
-        timeInMinutes = ModelTestDataCreator.timeInMunites,
+        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         mediaItem = ModelTestDataCreator.baseMediaItem().bannerImage(null),
+        airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
+        preferredNamingScheme = NamingScheme.ENGLISH
+    )
+}
+
+@Composable
+@Preview
+private fun DetailsScreenPreview_noCoverImage() {
+    DetailScreenContent(
+        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
+        mediaItem = ModelTestDataCreator.baseMediaItem().coverImageUrl(null),
         airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
         preferredNamingScheme = NamingScheme.ENGLISH
     )
@@ -335,7 +346,7 @@ private fun DetailsScreenPreview_noBanner() {
 @Preview
 private fun DetailsScreenPreview_noBannerOrImage() {
     DetailScreenContent(
-        timeInMinutes = ModelTestDataCreator.timeInMunites,
+        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         mediaItem = ModelTestDataCreator.baseMediaItem().bannerImage(null).coverImageUrl(null),
         airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
         preferredNamingScheme = NamingScheme.ENGLISH
@@ -346,8 +357,8 @@ private fun DetailsScreenPreview_noBannerOrImage() {
 @Preview
 private fun DetailsScreenPreview_noAiringSchedule() {
     DetailScreenContent(
-        timeInMinutes = ModelTestDataCreator.timeInMunites,
-        mediaItem = ModelTestDataCreator.baseMediaItem().bannerImage(null).coverImageUrl(null),
+        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
+        mediaItem = ModelTestDataCreator.baseMediaItem(),
         airingScheduleList = emptyList(),
         preferredNamingScheme = NamingScheme.ENGLISH
     )

@@ -84,7 +84,7 @@ fun NotificationCard(
 private fun NotificationCardPreview() {
     NotificationCard(
         notificationItem = ModelTestDataCreator.baseNotificationItem(),
-        timeInMinutes = ModelTestDataCreator.timeInMunites,
+        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         preferredNamingScheme = NamingScheme.ENGLISH
     )
 }

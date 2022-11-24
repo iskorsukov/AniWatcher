@@ -82,7 +82,7 @@ private fun NotificationsScreenPreview() {
         notificationsList = listOf(
             ModelTestDataCreator.baseNotificationItem()
         ),
-        timeInMinutes = ModelTestDataCreator.timeInMunites,
+        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         preferredNamingScheme = NamingScheme.ENGLISH,
         onNotificationClicked = { }
     )
@@ -93,7 +93,7 @@ private fun NotificationsScreenPreview() {
 private fun NotificationsScreenEmptyPreview() {
     NotificationsScreenContent(
         notificationsList = emptyList(),
-        timeInMinutes = ModelTestDataCreator.timeInMunites,
+        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         preferredNamingScheme = NamingScheme.ENGLISH,
         onNotificationClicked = { }
     )
