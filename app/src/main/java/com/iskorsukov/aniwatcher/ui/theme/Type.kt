@@ -52,9 +52,20 @@ val ContentTextStyleMedium = TextStyle(
     fontSize = 14.sp
 )
 
+val ContentTextStyleMediumWhite = TextStyle(
+    color = Color.White,
+    fontSize = 14.sp
+)
+
 val ContentTextStyleMediumEmphasis = TextStyle(
     fontWeight = FontWeight.Medium,
     color = TextColor,
+    fontSize = 14.sp
+)
+
+val ContentTextStyleMediumEmphasisWhite = TextStyle(
+    fontWeight = FontWeight.Medium,
+    color = Color.White,
     fontSize = 14.sp
 )
 
@@ -80,39 +91,17 @@ val HeadlineTextStyleSmall = TextStyle(
     fontSize = 12.sp
 )
 
-val ErrorLabelTextStyle = TextStyle(
-    fontWeight = FontWeight.Medium,
-    fontSize = 12.sp,
-    color = OnErrorColor
-)
-
-val ErrorSubLabelTextStyle = TextStyle(
-    fontSize = 14.sp,
-    color = OnErrorColor
-)
-
-val ErrorButtonTextStyle = TextStyle(
+val PopupButtonTextStyle = TextStyle(
     fontWeight = FontWeight.Medium,
     fontSize = 14.sp,
-    color = OnErrorColor,
+    color = Color.White,
     textAlign = TextAlign.Center
 )
 
-val ErrorLabelTextStyleDark = TextStyle(
+val PopupButtonTextStyleDark = TextStyle(
     fontWeight = FontWeight.Medium,
-    fontSize = 12.sp,
-    color = OnErrorColorDark
-)
-
-val ErrorSubLabelTextStyleDark = TextStyle(
     fontSize = 14.sp,
-    color = OnErrorColorDark
-)
-
-val ErrorButtonTextStyleDark = TextStyle(
-    fontWeight = FontWeight.Medium,
-    fontSize = 16.sp,
-    color = OnErrorColorDark,
+    color = TextColor,
     textAlign = TextAlign.Center
 )
 
@@ -125,13 +114,15 @@ data class ThemedTextStyles(
     val contentSmallLargerEmphasis: TextStyle = ContentTextStyleSmallLargerEmphasis,
     val contentSmallLargerWhite: TextStyle = ContentTextStyleSmallLargerWhite,
     val contentMedium: TextStyle = ContentTextStyleMedium,
+    val contentMediumWhite: TextStyle = ContentTextStyleMediumWhite,
     val contentMediumEmphasis: TextStyle = ContentTextStyleMediumEmphasis,
+    val contentMediumEmphasisWhite: TextStyle = ContentTextStyleMediumEmphasisWhite,
     val headline: TextStyle = HeadlineTextStyle,
     val headlineSmall: TextStyle = HeadlineTextStyleSmall,
     val topBarTitle: TextStyle = TopBarTitleTextStyleWhite,
-    val errorLabel: TextStyle = ErrorLabelTextStyle,
-    val errorSubLabel: TextStyle = ErrorSubLabelTextStyle,
-    val errorButton: TextStyle = ErrorButtonTextStyle,
+    val popupMessageLabel: TextStyle = ContentTextStyleMediumEmphasisWhite,
+    val popupMessageSubLabel: TextStyle = ContentTextStyleMediumWhite,
+    val popupMessageButton: TextStyle = PopupButtonTextStyle,
     val onTitleOverlay: TextStyle = ContentTextStyleSmallLargerWhite
 ) {
     companion object {
@@ -139,9 +130,9 @@ data class ThemedTextStyles(
 
         val DARK = ThemedTextStyles(
             topBarTitle = TopBarTitleTextStyle,
-            errorLabel = ErrorLabelTextStyleDark,
-            errorSubLabel = ErrorSubLabelTextStyleDark,
-            errorButton = ErrorButtonTextStyleDark
+            popupMessageLabel = ContentTextStyleMedium,
+            popupMessageSubLabel = ContentTextStyleSmallEmphasis,
+            popupMessageButton = PopupButtonTextStyleDark
         )
     }
 }

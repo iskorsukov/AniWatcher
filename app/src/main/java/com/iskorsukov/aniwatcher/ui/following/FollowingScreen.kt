@@ -1,14 +1,16 @@
 package com.iskorsukov.aniwatcher.ui.following
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -41,6 +43,9 @@ fun FollowingScreen(
     val followingMediaMap by viewModel.followingMediaFlow
         .collectAsStateWithLifecycle(initialValue = emptyMap())
 
+    val finishedShowsList by viewModel.finishedFollowingShowsFlow
+        .collectAsStateWithLifecycle(initialValue = emptyList())
+
     val timeInMinutes by timeInMinutesFlow
         .collectAsStateWithLifecycle(initialValue = 0)
 
@@ -51,18 +56,33 @@ fun FollowingScreen(
         listState.scrollToItem(0)
     }
 
-    FollowingScreenContent(
-        followingMediaMap = followingMediaMap,
-        timeInMinutes = timeInMinutes,
-        onFollowClicked = viewModel::onFollowClicked,
-        preferredNamingScheme = settingsState.preferredNamingScheme,
-        onMediaClicked = onMediaClicked,
-        onGenreChipClicked = {
-            mainActivityViewModel.onSearchFieldOpenChange(true)
-            mainActivityViewModel.appendSearchText(it)
-        },
-        listState = listState
-    )
+    var shouldShowFinishedShowsDialog by remember(finishedShowsList.size) {
+        mutableStateOf(finishedShowsList.isNotEmpty())
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (shouldShowFinishedShowsDialog) {
+            FinishedFollowingSurface(
+                onActionClicked = { viewModel.unfollowFinishedShows() },
+                onDismissRequest = { shouldShowFinishedShowsDialog = false },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(8.dp)
+            )
+        }
+        FollowingScreenContent(
+            followingMediaMap = followingMediaMap,
+            timeInMinutes = timeInMinutes,
+            onFollowClicked = viewModel::onFollowClicked,
+            preferredNamingScheme = settingsState.preferredNamingScheme,
+            onMediaClicked = onMediaClicked,
+            onGenreChipClicked = {
+                mainActivityViewModel.onSearchFieldOpenChange(true)
+                mainActivityViewModel.appendSearchText(it)
+            },
+            listState = listState
+        )
+    }
 }
 
 @Composable

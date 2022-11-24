@@ -16,5 +16,7 @@ interface AiringRepository {
 
     suspend fun unfollowMedia(mediaItem: MediaItem)
 
+    suspend fun unfollowMedia(mediaItemList: List<MediaItem>)
+
     suspend fun clearAiredSchedules()
 }
