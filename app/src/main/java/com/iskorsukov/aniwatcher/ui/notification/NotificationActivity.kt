@@ -54,6 +54,7 @@ class NotificationActivity : ComponentActivity() {
                 }
             }
         }
+        notificationsViewModel.resetNotificationsCounter()
     }
 
     private fun startDetailsActivity(mediaId: Int) {

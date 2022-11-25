@@ -103,6 +103,7 @@ class AiringNotificationInteractorTest {
         }
         coVerify(exactly = 2) {
             notificationManagerCompat.notify(1, any())
+            notificationsRepository.increaseUnreadNotificationsCounter()
         }
         coVerify(exactly = 0) {
             notificationManagerCompat.notify(2, any())

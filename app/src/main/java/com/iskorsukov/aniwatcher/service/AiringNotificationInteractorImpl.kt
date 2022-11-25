@@ -109,6 +109,7 @@ class AiringNotificationInteractorImpl @Inject constructor(
                 airingScheduleItem = airingScheduleItem
             )
         )
+        notificationsRepository.increaseUnreadNotificationsCounter()
     }
 
     companion object {
