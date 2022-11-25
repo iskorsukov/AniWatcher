@@ -13,6 +13,7 @@ class NotificationService: Service() {
     lateinit var airingNotificationInteractorImpl: AiringNotificationInteractor
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
         airingNotificationInteractorImpl.startNotificationChecking()
         return START_STICKY
     }
