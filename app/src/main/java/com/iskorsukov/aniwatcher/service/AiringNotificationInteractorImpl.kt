@@ -13,10 +13,10 @@ import com.iskorsukov.aniwatcher.domain.model.NotificationItem
 import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
 import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
 import com.iskorsukov.aniwatcher.domain.util.DispatcherProvider
+import com.iskorsukov.aniwatcher.service.util.LocalClock
 import com.iskorsukov.aniwatcher.service.util.NotificationBuilderHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -25,6 +25,7 @@ import javax.inject.Inject
 
 class AiringNotificationInteractorImpl @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val clock: LocalClock,
     private val airingRepository: AiringRepository,
     private val notificationsRepository: NotificationsRepository,
     private val notificationManagerCompat: NotificationManagerCompat,
@@ -36,18 +37,9 @@ class AiringNotificationInteractorImpl @Inject constructor(
     // NOTE: may be smart to synchronize access to runningJob to avoid races
     private var runningJob: Job? = null
 
-    private val notificationsFlow = notificationsRepository.notificationsFlow
-
     private val followingMediaFlow = airingRepository.mediaWithSchedulesFlow
         .map { map ->
             map.filter { it.key.isFollowing }.filter { it.value.isNotEmpty() }
-        }
-        .combine(notificationsFlow) { followingMap, notificationsList ->
-            followingMap.mapValues { followingEntry ->
-                followingEntry.value.filterNot { item ->
-                    notificationsList.any { it.airingScheduleItem.id == item.id }
-                }
-            }.filter { it.value.isNotEmpty() }
         }
         .distinctUntilChanged()
 
@@ -57,7 +49,6 @@ class AiringNotificationInteractorImpl @Inject constructor(
         if (runningJob?.isActive == true || !settingsStateFlow.value.notificationsEnabled) return
         createNotificationChannel()
         runningJob = coroutineScope.launch {
-            airingRepository.clearAiredSchedules()
             while (true) {
                 if (!settingsStateFlow.value.notificationsEnabled) {
                     stopNotificationChecking()
@@ -66,8 +57,7 @@ class AiringNotificationInteractorImpl @Inject constructor(
                 followingMediaFlow.firstOrNull()?.let {
                     fireNotificationsIfNeeded(it)
                 }
-                airingRepository.clearAiredSchedules()
-                delay(TimeUnit.MINUTES.toMillis(5L))
+                delay(TimeUnit.SECONDS.toMillis(DELAY_SECONDS))
             }
         }
     }
@@ -93,9 +83,10 @@ class AiringNotificationInteractorImpl @Inject constructor(
     }
 
     private suspend fun fireNotificationsIfNeeded(mediaWithAiringSchedulesMap: Map<MediaItem, List<AiringScheduleItem>>) {
-        val timeInSeconds = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
+        val timeInSeconds = TimeUnit.MILLISECONDS.toSeconds(clock.currentTimeMillis())
         mediaWithAiringSchedulesMap.values.flatten().forEach { airingScheduleItem ->
-            if (airingScheduleItem.airingAt - timeInSeconds <= 0) {
+            // if episode aired during last delay
+            if (timeInSeconds - airingScheduleItem.airingAt in 0 until DELAY_SECONDS) {
                 fireAiredNotification(airingScheduleItem)
             }
         }
@@ -106,7 +97,8 @@ class AiringNotificationInteractorImpl @Inject constructor(
         notificationManagerCompat.notify(airingScheduleItem.id, notification)
         notificationsRepository.saveNotification(
             NotificationItem(
-                airingScheduleItem = airingScheduleItem
+                airingScheduleItem = airingScheduleItem,
+                firedAtMillis = clock.currentTimeMillis()
             )
         )
         notificationsRepository.increaseUnreadNotificationsCounter()
@@ -114,5 +106,6 @@ class AiringNotificationInteractorImpl @Inject constructor(
 
     companion object {
         const val CHANNEL_ID = "AniWatcherAiring"
+        const val DELAY_SECONDS = 5L * 60
     }
 }

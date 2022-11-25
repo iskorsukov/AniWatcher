@@ -4,6 +4,8 @@ import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
 import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepositoryImpl
 import com.iskorsukov.aniwatcher.service.AiringNotificationInteractor
 import com.iskorsukov.aniwatcher.service.AiringNotificationInteractorImpl
+import com.iskorsukov.aniwatcher.service.util.LocalClock
+import com.iskorsukov.aniwatcher.service.util.LocalClockSystem
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -25,4 +27,7 @@ abstract class NotificationDIModule {
     abstract fun bindsNotificationsRepository(
         notificationsRepositoryImpl: NotificationsRepositoryImpl
     ): NotificationsRepository
+
+    @Binds
+    abstract fun bindsLocalClick(localClockSystem: LocalClockSystem): LocalClock
 }

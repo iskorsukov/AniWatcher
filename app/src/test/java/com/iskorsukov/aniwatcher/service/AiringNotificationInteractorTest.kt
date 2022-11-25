@@ -3,12 +3,12 @@ package com.iskorsukov.aniwatcher.service
 import android.content.Context
 import androidx.core.app.NotificationManagerCompat
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
-import com.iskorsukov.aniwatcher.domain.model.NotificationItem
 import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
 import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.domain.util.DispatcherProvider
+import com.iskorsukov.aniwatcher.service.util.LocalClock
 import com.iskorsukov.aniwatcher.service.util.NotificationBuilderHelper
 import com.iskorsukov.aniwatcher.test.*
 import io.mockk.*
@@ -27,6 +27,10 @@ class AiringNotificationInteractorTest {
         every { getString(any()) } returns "Some string"
         every { getString(any(), any()) } returns "Some string"
     }
+    private val clock: LocalClock = mockk<LocalClock>().apply {
+        every { currentTimeMillis() } returns TimeUnit.MINUTES.toMillis(0)
+    }
+
     private val airingRepository: AiringRepository = mockk(relaxed = true)
     private val notificationManagerCompat: NotificationManagerCompat = mockk(relaxed = true)
 
@@ -34,7 +38,6 @@ class AiringNotificationInteractorTest {
     private lateinit var settingsRepository: SettingsRepository
 
     private lateinit var unreadNotificationsFlow: MutableStateFlow<Int>
-    private lateinit var notificationsFlow: MutableStateFlow<List<NotificationItem>>
     private lateinit var notificationsRepository: NotificationsRepository
 
     private lateinit var airingNotificationInteractor: AiringNotificationInteractorImpl
@@ -53,10 +56,10 @@ class AiringNotificationInteractorTest {
                 ModelTestDataCreator.baseMediaItem().isFollowing(true) to
                         listOf(
                             ModelTestDataCreator.baseAiringScheduleItem()
-                                .airingAt((System.currentTimeMillis() / 1000).toInt() - 50 * 60 * 1000),
+                                .airingAt(TimeUnit.MINUTES.toSeconds(0L).toInt()),
                             ModelTestDataCreator.baseAiringScheduleItem()
                                 .id(2)
-                                .airingAt((System.currentTimeMillis() / 1000).toInt() + 50 * 60 * 1000)
+                                .airingAt(TimeUnit.MINUTES.toSeconds(5L).toInt())
                         )
             )
         )
@@ -67,14 +70,13 @@ class AiringNotificationInteractorTest {
         }
 
         unreadNotificationsFlow = MutableStateFlow(0)
-        notificationsFlow = MutableStateFlow(emptyList())
         notificationsRepository = mockk<NotificationsRepository>(relaxed = true).apply {
             coEvery { unreadNotificationsCounterStateFlow } returns unreadNotificationsFlow
-            coEvery { notificationsFlow } returns this@AiringNotificationInteractorTest.notificationsFlow
         }
 
         airingNotificationInteractor = AiringNotificationInteractorImpl(
             context,
+            clock,
             airingRepository,
             notificationsRepository,
             notificationManagerCompat,
@@ -94,19 +96,31 @@ class AiringNotificationInteractorTest {
 
         airingNotificationInteractor.startNotificationChecking()
 
+        every { clock.currentTimeMillis() } returns TimeUnit.MINUTES.toMillis(1)
         advanceTimeBy(TimeUnit.MINUTES.toMillis(1))
+
+        every { clock.currentTimeMillis() } returns TimeUnit.MINUTES.toMillis(6)
         advanceTimeBy(TimeUnit.MINUTES.toMillis(5))
         airingNotificationInteractor.stopNotificationChecking()
 
-        coVerify(exactly = 3) {
-            airingRepository.clearAiredSchedules()
+        coVerify(exactly = 1) {
+            notificationManagerCompat.notify(1, any())
+            notificationsRepository.saveNotification(
+                match {
+                    it.airingScheduleItem.id == 1
+                }
+            )
+        }
+        coVerify(exactly = 1) {
+            notificationManagerCompat.notify(2, any())
+            notificationsRepository.saveNotification(
+                match {
+                    it.airingScheduleItem.id == 2
+                }
+            )
         }
         coVerify(exactly = 2) {
-            notificationManagerCompat.notify(1, any())
             notificationsRepository.increaseUnreadNotificationsCounter()
-        }
-        coVerify(exactly = 0) {
-            notificationManagerCompat.notify(2, any())
         }
 
         cleanupMocks()
@@ -120,11 +134,11 @@ class AiringNotificationInteractorTest {
 
         airingNotificationInteractor.startNotificationChecking()
 
+        every { clock.currentTimeMillis() } returns TimeUnit.MINUTES.toMillis(1)
         advanceTimeBy(TimeUnit.MINUTES.toMillis(1))
         airingNotificationInteractor.stopNotificationChecking()
 
         coVerify(exactly = 0) {
-            airingRepository.clearAiredSchedules()
             notificationManagerCompat.notify(1, any())
         }
 
@@ -137,37 +151,14 @@ class AiringNotificationInteractorTest {
 
         airingNotificationInteractor.startNotificationChecking()
 
+        every { clock.currentTimeMillis() } returns TimeUnit.MINUTES.toMillis(1)
         advanceTimeBy(TimeUnit.MINUTES.toMillis(1))
         settingsFlow.value = SettingsState(NamingScheme.ENGLISH, false)
 
+        every { clock.currentTimeMillis() } returns TimeUnit.MINUTES.toMillis(6)
         advanceTimeBy(TimeUnit.MINUTES.toMillis(5))
         airingNotificationInteractor.stopNotificationChecking()
 
-        coVerify(exactly = 2) {
-            airingRepository.clearAiredSchedules()
-        }
-        coVerify(exactly = 1) {
-            notificationManagerCompat.notify(1, any())
-        }
-
-        cleanupMocks()
-    }
-
-    @Test
-    fun filtersSchedulesWhereNotificationWasAlreadyFired() = runTest {
-        initMocks(testScheduler)
-
-        airingNotificationInteractor.startNotificationChecking()
-
-        advanceTimeBy(TimeUnit.MINUTES.toMillis(1))
-        notificationsFlow.value = listOf(ModelTestDataCreator.baseNotificationItem())
-
-        advanceTimeBy(TimeUnit.MINUTES.toMillis(5))
-        airingNotificationInteractor.stopNotificationChecking()
-
-        coVerify(exactly = 3) {
-            airingRepository.clearAiredSchedules()
-        }
         coVerify(exactly = 1) {
             notificationManagerCompat.notify(1, any())
         }
