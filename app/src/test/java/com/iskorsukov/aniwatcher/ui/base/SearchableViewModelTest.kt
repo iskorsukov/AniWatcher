@@ -21,7 +21,7 @@ class SearchableViewModelTest {
     private val firstItem = ModelTestDataCreator.baseMediaItem() to
             ModelTestDataCreator.baseAiringScheduleItemList()
     private val secondItem = ModelTestDataCreator.baseMediaItem().id(2)
-        .title(MediaItem.Title(null, "SearchText", null)) to
+        .title(MediaItem.Title(null, "SearchText", "Title")) to
             ModelTestDataCreator.baseAiringScheduleItemList()
     private val data = mapOf(firstItem, secondItem)
 
@@ -42,6 +42,20 @@ class SearchableViewModelTest {
         assertThat(result.keys).containsExactlyElementsIn(data.keys)
 
         viewModel.onSearchTextChanged("SearchText")
+        result = viewModel.searchedMediaFlow.first()
+
+        assertThat(result.size).isEqualTo(1)
+        assertThat(result.keys).containsExactly(secondItem.first)
+    }
+
+    @Test
+    fun filtersFlowBySearchText_multiple() = runTest {
+        var result: Map<MediaItem, List<AiringScheduleItem>> = viewModel.searchedMediaFlow.first()
+
+        assertThat(result.size).isEqualTo(2)
+        assertThat(result.keys).containsExactlyElementsIn(data.keys)
+
+        viewModel.onSearchTextChanged("Search Title")
         result = viewModel.searchedMediaFlow.first()
 
         assertThat(result.size).isEqualTo(1)

@@ -6,11 +6,16 @@ import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.test.*
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -39,6 +44,24 @@ class FollowingViewModelTest {
     }
 
     @Test
+    fun finishedFollowingShowsFlow() = runTest {
+        coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(
+            mapOf(
+                ModelTestDataCreator.baseMediaItem().isFollowing(true) to
+                        listOf(ModelTestDataCreator.baseAiringScheduleItem(true).airingAt(1))
+            )
+        )
+        viewModel = FollowingViewModel(airingRepository)
+
+        val result = viewModel.finishedFollowingShowsFlow.first()
+
+        assertThat(result.size).isEqualTo(1)
+        assertThat(result).containsExactly(
+            ModelTestDataCreator.baseMediaItem().isFollowing(true)
+        )
+    }
+
+    @Test
     fun followingMediaFlow_empty() = runTest {
         coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(
             mapOf(
@@ -51,5 +74,27 @@ class FollowingViewModelTest {
         val result: Map<MediaItem, AiringScheduleItem?> = viewModel.followingMediaFlow.first()
 
         assertThat(result.size).isEqualTo(0)
+    }
+
+    @Test
+    fun unfollowFinishedShows() = runTest {
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+
+        coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(
+            mapOf(
+                ModelTestDataCreator.baseMediaItem().isFollowing(true) to
+                        listOf(ModelTestDataCreator.baseAiringScheduleItem(true).airingAt(1))
+            )
+        )
+        viewModel = FollowingViewModel(airingRepository)
+
+        viewModel.unfollowFinishedShows()
+        advanceUntilIdle()
+
+        coVerify {
+            airingRepository.unfollowMedia(
+                listOf(ModelTestDataCreator.baseMediaItem().isFollowing(true))
+            )
+        }
     }
 }

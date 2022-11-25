@@ -79,4 +79,12 @@ class MediaItemTest {
         mediaItem = ModelTestDataCreator.baseMediaItem().title(mediaItem.title.copy(romaji = null))
         assertThat(mediaItem.title.subText(NamingScheme.NATIVE)).isEqualTo(mediaItem.title.english)
     }
+
+    @Test
+    fun titleContainsIgnoreCase() {
+        val mediaItem = ModelTestDataCreator.baseMediaItem()
+        assertThat(mediaItem.title.containsIgnoreCase(mediaItem.title.english!!.uppercase())).isTrue()
+        assertThat(mediaItem.title.containsIgnoreCase(mediaItem.title.romaji!!.uppercase())).isTrue()
+        assertThat(mediaItem.title.containsIgnoreCase(mediaItem.title.native!!.uppercase())).isTrue()
+    }
 }

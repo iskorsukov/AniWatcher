@@ -26,7 +26,7 @@ class FollowingViewModel @Inject constructor(
 
     val finishedFollowingShowsFlow = followingMediaFlow.map { map ->
         val currentSeconds = System.currentTimeMillis() / 1000
-        map.filterValues { it == null || it.airingAt > currentSeconds }.keys.toList()
+        map.filterValues { it == null || it.airingAt < currentSeconds }.keys.toList()
     }
 
     fun unfollowFinishedShows() {

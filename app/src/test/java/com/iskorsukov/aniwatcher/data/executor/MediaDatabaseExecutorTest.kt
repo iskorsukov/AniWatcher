@@ -2,10 +2,12 @@ package com.iskorsukov.aniwatcher.data.executor
 
 import androidx.room.withTransaction
 import com.google.common.truth.Truth.assertThat
+import com.iskorsukov.aniwatcher.data.entity.AiringScheduleAndNotificationEntity
 import com.iskorsukov.aniwatcher.data.entity.FollowingEntity
 import com.iskorsukov.aniwatcher.data.entity.MediaItemAndFollowingEntity
 import com.iskorsukov.aniwatcher.data.room.MediaDao
 import com.iskorsukov.aniwatcher.data.room.MediaDatabase
+import com.iskorsukov.aniwatcher.data.room.NotificationsDao
 import com.iskorsukov.aniwatcher.domain.util.DispatcherProvider
 import com.iskorsukov.aniwatcher.test.EntityTestDataCreator
 import io.mockk.*
@@ -22,15 +24,25 @@ import org.junit.Test
 class MediaDatabaseExecutorTest {
 
     private val mediaDao: MediaDao = mockk(relaxed = true)
+    private val notificationsDao: NotificationsDao = mockk(relaxed = true)
     private val mediaDatabase: MediaDatabase = mockk(relaxed = true)
 
     private lateinit var mediaDatabaseExecutor: MediaDatabaseExecutor
 
-    private val testData = mapOf(
+    private val mediaFlowData = mapOf(
         MediaItemAndFollowingEntity(
             EntityTestDataCreator.baseMediaItemEntity(),
             null
         ) to EntityTestDataCreator.baseAiringScheduleEntityList()
+    )
+    private val notificationFlowData = mapOf(
+        EntityTestDataCreator.baseMediaItemEntity() to
+                listOf(
+                    AiringScheduleAndNotificationEntity(
+                        EntityTestDataCreator.baseAiringScheduleEntity(),
+                        EntityTestDataCreator.baseNotificationEntity()
+                    )
+                )
     )
 
     private fun initMocks(testScheduler: TestCoroutineScheduler) {
@@ -41,8 +53,11 @@ class MediaDatabaseExecutorTest {
         every { DispatcherProvider.io() } returns StandardTestDispatcher(testScheduler)
 
         every { mediaDatabase.mediaDao() } returns mediaDao
-        every { mediaDao.getAll() } returns flowOf(testData)
-        every { mediaDao.getById(any()) } returns flowOf(testData)
+        every { mediaDao.getAll() } returns flowOf(mediaFlowData)
+        every { mediaDao.getById(any()) } returns flowOf(mediaFlowData)
+
+        every { mediaDatabase.notificationsDao() } returns notificationsDao
+        every { notificationsDao.getAll() } returns flowOf(notificationFlowData)
 
         val transactionLambda = slot<suspend () -> Unit>()
         coEvery { mediaDatabase.withTransaction(capture(transactionLambda)) } coAnswers  {
@@ -57,6 +72,33 @@ class MediaDatabaseExecutorTest {
     }
 
     @Test
+    fun mediaDataFlow() = runTest {
+        initMocks(testScheduler)
+
+        val entity = mediaDatabaseExecutor.mediaDataFlow.first()
+
+        assertThat(entity)
+            .isEqualTo(mediaFlowData)
+
+        coVerify { mediaDao.getAll() }
+
+        cleanupMocks()
+    }
+
+    @Test
+    fun notificationsFlow() = runTest {
+        initMocks(testScheduler)
+
+        val entity = mediaDatabaseExecutor.notificationsFlow.first()
+
+        assertThat(entity).isEqualTo(notificationFlowData)
+
+        coVerify { notificationsDao.getAll() }
+
+        cleanupMocks()
+    }
+
+    @Test
     fun getMediaWithAiringSchedulesAndFollowing() = runTest {
         initMocks(testScheduler)
 
@@ -65,7 +107,7 @@ class MediaDatabaseExecutorTest {
             .first()
 
         assertThat(entity)
-            .isEqualTo(testData)
+            .isEqualTo(mediaFlowData)
 
         coVerify {
             mediaDao.getById(1)
@@ -119,6 +161,17 @@ class MediaDatabaseExecutorTest {
         coVerify {
             mediaDao.unfollowMedia(1)
         }
+
+        cleanupMocks()
+    }
+
+    @Test
+    fun clearAiredSchedules() = runTest {
+        initMocks(testScheduler)
+
+        mediaDatabaseExecutor.clearAiredSchedules()
+
+        coVerify { mediaDao.clearAiredSchedules() }
 
         cleanupMocks()
     }

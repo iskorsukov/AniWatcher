@@ -29,24 +29,27 @@ class AiringNotificationInteractorImpl @Inject constructor(
     private val notificationsRepository: NotificationsRepository,
     private val notificationManagerCompat: NotificationManagerCompat,
     settingsRepository: SettingsRepository,
-): AiringNotificationInteractor {
+) : AiringNotificationInteractor {
 
-    private val coroutineScope = CoroutineScope(DispatcherProvider.default() + Job())
+    private val coroutineScope = CoroutineScope(DispatcherProvider.default())
 
     // NOTE: may be smart to synchronize access to runningJob to avoid races
     private var runningJob: Job? = null
 
     private val notificationsFlow = notificationsRepository.notificationsFlow
 
-    private val followingMediaFlow = airingRepository.mediaWithSchedulesFlow.map { map ->
-        map.filter { it.key.isFollowing }
-    }.combine(notificationsFlow) { followingMap, notificationsList ->
-        followingMap.mapValues { followingEntry ->
-            followingEntry.value.filterNot {
-                    item -> notificationsList.any { it.airingScheduleItem.id == item.id }
-            }
-        }.filter { it.value.isNotEmpty() }
-    }.distinctUntilChanged()
+    private val followingMediaFlow = airingRepository.mediaWithSchedulesFlow
+        .map { map ->
+            map.filter { it.key.isFollowing }.filter { it.value.isNotEmpty() }
+        }
+        .combine(notificationsFlow) { followingMap, notificationsList ->
+            followingMap.mapValues { followingEntry ->
+                followingEntry.value.filterNot { item ->
+                    notificationsList.any { it.airingScheduleItem.id == item.id }
+                }
+            }.filter { it.value.isNotEmpty() }
+        }
+        .distinctUntilChanged()
 
     private val settingsStateFlow = settingsRepository.settingsStateFlow
 

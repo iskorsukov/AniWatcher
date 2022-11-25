@@ -84,4 +84,18 @@ class MainActivityViewModelTest {
 
         assertThat(viewModel.uiState.first().sortingOption).isEqualTo(SortingOption.SCORE)
     }
+
+    @Test
+    fun appendSearchText() = runTest {
+        viewModel.appendSearchText("Text")
+
+        assertThat(viewModel.uiState.first().searchText).isEqualTo("Text")
+    }
+
+    @Test
+    fun onSearchFieldOpenChange() = runTest {
+        viewModel.onSearchFieldOpenChange(true)
+
+        assertThat(viewModel.uiState.first().searchFieldOpen).isTrue()
+    }
 }
