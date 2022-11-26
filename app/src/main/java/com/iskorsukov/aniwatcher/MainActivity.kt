@@ -15,7 +15,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.*
-import com.iskorsukov.aniwatcher.service.NotificationService
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import com.iskorsukov.aniwatcher.domain.notification.work.NotificationsWorker
 import com.iskorsukov.aniwatcher.ui.airing.AiringScreen
 import com.iskorsukov.aniwatcher.ui.airing.AiringViewModel
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
@@ -58,12 +61,28 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mainActivityViewModel.loadAiringData()
-        startNotificationService()
         setContent {
             val navController = rememberNavController()
 
             val scaffoldState = rememberScaffoldState()
             val uiState by mainActivityViewModel.uiState.collectAsStateWithLifecycle()
+
+            val settingsState by mainActivityViewModel.settingsState.collectAsStateWithLifecycle()
+            LaunchedEffect(settingsState.notificationsEnabled) {
+                if (settingsState.notificationsEnabled) {
+                    val notificationsWorkRequest = PeriodicWorkRequestBuilder<NotificationsWorker>(
+                        15,
+                        TimeUnit.MINUTES
+                    ).build()
+                    WorkManager.getInstance(this@MainActivity).enqueueUniquePeriodicWork(
+                        NOTIFICATIONS_WORK_TAG,
+                        ExistingPeriodicWorkPolicy.KEEP,
+                        notificationsWorkRequest
+                    )
+                } else {
+                    WorkManager.getInstance(this@MainActivity).cancelUniqueWork(NOTIFICATIONS_WORK_TAG)
+                }
+            }
 
             val unreadNotifications by mainActivityViewModel.unreadNotificationsState
                 .collectAsStateWithLifecycle()
@@ -163,10 +182,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun startNotificationService() {
-        startService(Intent(this, NotificationService::class.java))
-    }
-
     private fun startDetailsActivity(mediaItemId: Int) {
         startActivity(
             Intent(this, DetailsActivity::class.java).apply {
@@ -185,6 +200,10 @@ class MainActivity : ComponentActivity() {
         startActivity(
             Intent(this, NotificationActivity::class.java)
         )
+    }
+
+    companion object {
+        const val NOTIFICATIONS_WORK_TAG = "notifications_work"
     }
 }
 
