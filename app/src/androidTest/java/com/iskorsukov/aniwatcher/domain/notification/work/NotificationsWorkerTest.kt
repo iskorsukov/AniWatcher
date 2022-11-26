@@ -48,16 +48,13 @@ class NotificationsWorkerTest {
         mockkObject(NotificationBuilderHelper)
         every { NotificationBuilderHelper.buildNotification(any(), any()) } returns mockk()
 
-        coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(
-            mapOf(
-                ModelTestDataCreator.baseMediaItem().isFollowing(true) to
-                        listOf(
-                            ModelTestDataCreator.baseAiringScheduleItem()
-                                .airingAt(TimeUnit.MINUTES.toSeconds(0L).toInt()),
-                            ModelTestDataCreator.baseAiringScheduleItem()
-                                .id(2)
-                                .airingAt(TimeUnit.MINUTES.toSeconds(12L).toInt())
-                        )
+        coEvery { notificationsRepository.getPendingSchedulesToNotifyFlow() } returns flowOf(
+            listOf(
+                ModelTestDataCreator.baseAiringScheduleItem()
+                    .airingAt(TimeUnit.MINUTES.toSeconds(0L).toInt()),
+                ModelTestDataCreator.baseAiringScheduleItem()
+                    .id(2)
+                    .airingAt(TimeUnit.MINUTES.toSeconds(12L).toInt())
             )
         )
 
@@ -73,7 +70,6 @@ class NotificationsWorkerTest {
                     return NotificationsWorker(
                         context,
                         workerParameters,
-                        airingRepository,
                         clock,
                         notificationsRepository,
                         notificationManagerCompat

@@ -9,40 +9,30 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.iskorsukov.aniwatcher.R
-import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
-import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.model.NotificationItem
 import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
 import com.iskorsukov.aniwatcher.domain.notification.work.util.LocalClockSystem
 import com.iskorsukov.aniwatcher.domain.notification.work.util.NotificationBuilderHelper
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.flow.first
 
 @HiltWorker
 class NotificationsWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    airingRepository: AiringRepository,
     private val clock: LocalClockSystem,
     private val notificationsRepository: NotificationsRepository,
     private val notificationManagerCompat: NotificationManagerCompat
 ): CoroutineWorker(appContext, workerParams) {
 
-    private val followingMediaFlow = airingRepository.mediaWithSchedulesFlow
-        .map { map ->
-            map.filter { it.key.isFollowing }.filter { it.value.isNotEmpty() }
-        }
-        .distinctUntilChanged()
-
     override suspend fun doWork(): Result {
         createNotificationChannel()
-        followingMediaFlow.firstOrNull()?.let {
-            fireNotificationsIfNeeded(it)
+        notificationsRepository.getPendingSchedulesToNotifyFlow().first().let {
+            it.forEach {
+                fireAiredNotification(it)
+            }
         }
         return Result.success()
     }
@@ -62,16 +52,6 @@ class NotificationsWorker @AssistedInject constructor(
         }
     }
 
-    private suspend fun fireNotificationsIfNeeded(mediaWithAiringSchedulesMap: Map<MediaItem, List<AiringScheduleItem>>) {
-        val timeInSeconds = TimeUnit.MILLISECONDS.toSeconds(clock.currentTimeMillis())
-        mediaWithAiringSchedulesMap.values.flatten().forEach { airingScheduleItem ->
-            // if episode aired during last delay
-            if (timeInSeconds - airingScheduleItem.airingAt in 0 until DELAY_SECONDS) {
-                fireAiredNotification(airingScheduleItem)
-            }
-        }
-    }
-
     private suspend fun fireAiredNotification(airingScheduleItem: AiringScheduleItem) {
         val notification = NotificationBuilderHelper.buildNotification(applicationContext, airingScheduleItem)
         notificationManagerCompat.notify(airingScheduleItem.id, notification)
@@ -86,7 +66,6 @@ class NotificationsWorker @AssistedInject constructor(
 
     companion object {
         const val CHANNEL_ID = "AniWatcherAiring"
-        const val DELAY_SECONDS = 15L * 60
     }
 
 }

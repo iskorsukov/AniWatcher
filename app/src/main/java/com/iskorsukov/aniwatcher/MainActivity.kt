@@ -1,7 +1,11 @@
 package com.iskorsukov.aniwatcher
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.SystemClock
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -18,6 +22,7 @@ import androidx.navigation.compose.*
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.iskorsukov.aniwatcher.domain.notification.alarm.NotificationsAlarmReceiver
 import com.iskorsukov.aniwatcher.domain.notification.work.NotificationsWorker
 import com.iskorsukov.aniwatcher.ui.airing.AiringScreen
 import com.iskorsukov.aniwatcher.ui.airing.AiringViewModel
@@ -37,6 +42,7 @@ import com.iskorsukov.aniwatcher.ui.sorting.SelectSortingOptionDialog
 import com.iskorsukov.aniwatcher.ui.theme.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import java.util.concurrent.TimeUnit
@@ -60,7 +66,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mainActivityViewModel.loadAiringData()
         setContent {
             val navController = rememberNavController()
 
@@ -70,17 +75,9 @@ class MainActivity : ComponentActivity() {
             val settingsState by mainActivityViewModel.settingsState.collectAsStateWithLifecycle()
             LaunchedEffect(settingsState.notificationsEnabled) {
                 if (settingsState.notificationsEnabled) {
-                    val notificationsWorkRequest = PeriodicWorkRequestBuilder<NotificationsWorker>(
-                        15,
-                        TimeUnit.MINUTES
-                    ).build()
-                    WorkManager.getInstance(this@MainActivity).enqueueUniquePeriodicWork(
-                        NOTIFICATIONS_WORK_TAG,
-                        ExistingPeriodicWorkPolicy.KEEP,
-                        notificationsWorkRequest
-                    )
+                    scheduleNotificationChecks()
                 } else {
-                    WorkManager.getInstance(this@MainActivity).cancelUniqueWork(NOTIFICATIONS_WORK_TAG)
+                    cancelNotificationChecks()
                 }
             }
 
@@ -182,6 +179,43 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun scheduleNotificationChecks() {
+        val alarmManager =
+            applicationContext.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+        if (alarmManager != null) {
+            val receiverIntent = Intent(this, NotificationsAlarmReceiver::class.java)
+            val alarmIntent = PendingIntent.getBroadcast(
+                this,
+                NOTIFICATIONS_ALARM_REQUEST_CODE,
+                receiverIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            alarmManager.setInexactRepeating(
+                AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() + AlarmManager.INTERVAL_FIFTEEN_MINUTES,
+                AlarmManager.INTERVAL_FIFTEEN_MINUTES,
+                alarmIntent
+            )
+        }
+    }
+
+    private fun cancelNotificationChecks() {
+        val alarmManager =
+            applicationContext.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
+        if (alarmManager != null) {
+            val receiverIntent = Intent(this, NotificationsAlarmReceiver::class.java)
+            val alarmIntent = PendingIntent.getBroadcast(
+                this,
+                NOTIFICATIONS_ALARM_REQUEST_CODE,
+                receiverIntent,
+                PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+            )
+            if (alarmIntent != null) {
+                alarmManager.cancel(alarmIntent)
+            }
+        }
+    }
+
     private fun startDetailsActivity(mediaItemId: Int) {
         startActivity(
             Intent(this, DetailsActivity::class.java).apply {
@@ -203,7 +237,7 @@ class MainActivity : ComponentActivity() {
     }
 
     companion object {
-        const val NOTIFICATIONS_WORK_TAG = "notifications_work"
+        const val NOTIFICATIONS_ALARM_REQUEST_CODE = 1117
     }
 }
 

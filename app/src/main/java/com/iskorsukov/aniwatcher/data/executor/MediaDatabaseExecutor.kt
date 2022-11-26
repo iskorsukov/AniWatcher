@@ -35,6 +35,10 @@ class MediaDatabaseExecutor @Inject constructor(
         return mediaDao.getById(mediaItemId)
     }
 
+    fun getPendingNotificationsFlow(): Flow<Map<MediaItemEntity, List<AiringScheduleEntity>>> {
+        return notificationsDao.getPending()
+    }
+
     suspend fun followMedia(mediaItemId: Int) {
         withContext(DispatcherProvider.io()) {
             mediaDao.followMedia(FollowingEntity(null, mediaItemId))

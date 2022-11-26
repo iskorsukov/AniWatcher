@@ -37,6 +37,10 @@
             android:name=".ui.notification.NotificationActivity"
             android:theme="@style/Theme.AniWatcher" />
 
+        <receiver
+            android:name=".domain.notification.alarm.NotificationsAlarmReceiver"
+            android:exported="false" />
+
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"

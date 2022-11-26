@@ -24,9 +24,13 @@ class FollowingViewModel @Inject constructor(
         .combine(searchTextFlow, this::filterMediaFlow)
         .combine(sortingOptionFlow, this::sortMediaFlow)
 
-    val finishedFollowingShowsFlow = followingMediaFlow.map { map ->
+    val finishedFollowingShowsFlow = airingRepository.mediaWithSchedulesFlow.map { map ->
         val currentSeconds = System.currentTimeMillis() / 1000
-        map.filterValues { it == null || it.airingAt < currentSeconds }.keys.toList()
+        map
+            .filterKeys { it.isFollowing }
+            .filterValues { it.all { item -> item.airingAt < currentSeconds } }
+            .keys
+            .toList()
     }
 
     fun unfollowFinishedShows() {

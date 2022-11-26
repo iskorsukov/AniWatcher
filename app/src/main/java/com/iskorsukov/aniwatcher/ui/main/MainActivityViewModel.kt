@@ -31,6 +31,10 @@ class MainActivityViewModel @Inject constructor(
     )
     val uiState: StateFlow<MainActivityUiState> = _uiState
 
+    init {
+        loadAiringData()
+    }
+
     fun loadAiringData() {
         _uiState.value = MainActivityUiState(true)
         val year = DateTimeHelper.currentYear(Calendar.getInstance())

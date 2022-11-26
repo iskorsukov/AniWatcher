@@ -8,12 +8,14 @@ import com.google.common.truth.Truth.assertThat
 import com.iskorsukov.aniwatcher.data.entity.AiringScheduleAndNotificationEntity
 import com.iskorsukov.aniwatcher.data.entity.MediaItemAndFollowingEntity
 import com.iskorsukov.aniwatcher.test.EntityTestDataCreator
+import com.iskorsukov.aniwatcher.test.airingAt
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 class NotificationDaoTest {
@@ -95,5 +97,46 @@ class NotificationDaoTest {
                 notificationEntity
             )
         )
+    }
+
+    @Test
+    fun getPending(): Unit = runBlocking {
+        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
+        val followingEntity = EntityTestDataCreator.baseFollowingEntity()
+        val airingScheduleEntity = EntityTestDataCreator.baseAiringScheduleEntity()
+            .airingAt(
+                (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - TimeUnit.HOURS.toSeconds(5L)).toInt()
+            )
+
+        mediaDao.insertMedia(listOf(mediaItemEntity))
+        mediaDao.insertSchedules(listOf(airingScheduleEntity))
+        mediaDao.followMedia(followingEntity)
+
+        val pendingScheduleEntityMap = notificationsDao.getPending().first()
+
+        assertThat(pendingScheduleEntityMap.size).isEqualTo(1)
+        assertThat(pendingScheduleEntityMap.values.flatten()).containsExactly(
+            airingScheduleEntity
+        )
+    }
+
+    @Test
+    fun getPending_ignoresAired(): Unit = runBlocking {
+        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
+        val followingEntity = EntityTestDataCreator.baseFollowingEntity()
+        val airingScheduleEntity = EntityTestDataCreator.baseAiringScheduleEntity()
+            .airingAt(
+                (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - TimeUnit.MINUTES.toSeconds(5L)).toInt()
+            )
+        val notificationEntity = EntityTestDataCreator.baseNotificationEntity()
+
+        mediaDao.insertMedia(listOf(mediaItemEntity))
+        mediaDao.insertSchedules(listOf(airingScheduleEntity))
+        mediaDao.followMedia(followingEntity)
+        notificationsDao.insertNotification(notificationEntity)
+
+        val pendingScheduleEntityMap = notificationsDao.getPending().first()
+
+        assertThat(pendingScheduleEntityMap.size).isEqualTo(0)
     }
 }

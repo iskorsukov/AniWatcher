@@ -2,6 +2,8 @@ package com.iskorsukov.aniwatcher.domain.notification
 
 import android.content.SharedPreferences
 import com.iskorsukov.aniwatcher.data.executor.MediaDatabaseExecutor
+import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
+import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.model.NotificationItem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,6 +33,17 @@ class NotificationsRepositoryImpl @Inject constructor(
 
     override suspend fun saveNotification(notificationItem: NotificationItem) {
         mediaDatabaseExecutor.saveNotification(notificationItem)
+    }
+
+    override suspend fun getPendingSchedulesToNotifyFlow(): Flow<List<AiringScheduleItem>> {
+        return mediaDatabaseExecutor.getPendingNotificationsFlow().map { entityMap ->
+            entityMap.map { entityMapEntry ->
+                val mediaItem = MediaItem.fromEntity(entityMapEntry.key, null)
+                entityMapEntry.value.map {
+                    AiringScheduleItem.fromEntity(it, mediaItem)
+                }
+            }.flatten()
+        }
     }
 
     override suspend fun increaseUnreadNotificationsCounter() {
