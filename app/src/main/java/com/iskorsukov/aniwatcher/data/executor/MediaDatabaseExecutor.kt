@@ -16,7 +16,7 @@ class MediaDatabaseExecutor @Inject constructor(
     private val notificationsDao = mediaDatabase.notificationsDao()
 
     val mediaDataFlow: Flow<Map<MediaItemAndFollowingEntity, List<AiringScheduleEntity>>> =
-        mediaDao.getAll()
+        mediaDao.getAllNotAired()
 
     val notificationsFlow: Flow<Map<MediaItemEntity, List<AiringScheduleAndNotificationEntity>>> =
         notificationsDao.getAll()
@@ -24,7 +24,8 @@ class MediaDatabaseExecutor @Inject constructor(
     suspend fun updateMedia(mediaToAiringSchedulesMap: Map<MediaItemEntity, List<AiringScheduleEntity>>) {
         withContext(DispatcherProvider.io()) {
             mediaDatabase.withTransaction {
-                mediaDao.clearMedia()
+                mediaDao.clearNotFollowedMedia()
+                mediaDao.clearNotFollowedAiringSchedules()
                 mediaDao.insertMedia(mediaToAiringSchedulesMap.keys.toList())
                 mediaDao.insertSchedules(mediaToAiringSchedulesMap.values.flatten())
             }
@@ -32,7 +33,7 @@ class MediaDatabaseExecutor @Inject constructor(
     }
 
     fun getMediaWithAiringSchedulesAndFollowing(mediaItemId: Int): Flow<Map<MediaItemAndFollowingEntity, List<AiringScheduleEntity>>> {
-        return mediaDao.getById(mediaItemId)
+        return mediaDao.getByIdNotAired(mediaItemId)
     }
 
     fun getPendingNotificationsFlow(): Flow<Map<MediaItemEntity, List<AiringScheduleEntity>>> {
@@ -41,7 +42,10 @@ class MediaDatabaseExecutor @Inject constructor(
 
     suspend fun followMedia(mediaItemId: Int) {
         withContext(DispatcherProvider.io()) {
-            mediaDao.followMedia(FollowingEntity(null, mediaItemId))
+            mediaDatabase.withTransaction {
+                mediaDao.clearNotNotifiedAiredSchedules(mediaItemId) // so that only aired schedules from now on get notifications
+                mediaDao.followMedia(FollowingEntity(null, mediaItemId))
+            }
         }
     }
 
@@ -54,12 +58,6 @@ class MediaDatabaseExecutor @Inject constructor(
     suspend fun unfollowMedia(mediaItemIdList: List<Int>) {
         withContext(DispatcherProvider.io()) {
             mediaDao.unfollowMedia(mediaItemIdList)
-        }
-    }
-
-    suspend fun clearAiredSchedules() {
-        withContext(DispatcherProvider.io()) {
-            mediaDao.clearAiredSchedules()
         }
     }
 

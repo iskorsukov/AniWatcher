@@ -46,6 +46,8 @@ class AiringRepositoryTest {
         assertThat(model).isNotNull()
         assertThat(model.keys).containsExactly(ModelTestDataCreator.baseMediaItem())
         assertThat(model.values.flatten()).containsExactlyElementsIn(ModelTestDataCreator.baseAiringScheduleItemList())
+
+        coVerify { mediaDatabaseExecutor.mediaDataFlow }
     }
 
     @Test
@@ -150,14 +152,5 @@ class AiringRepositoryTest {
         repository.unfollowMedia(listOf(mediaItem))
 
         coVerify { mediaDatabaseExecutor.unfollowMedia(listOf(mediaItem.id)) }
-    }
-
-    @Test
-    fun clearAiredSchedules() = runTest {
-        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor)
-
-        repository.clearAiredSchedules()
-
-        coVerify { mediaDatabaseExecutor.clearAiredSchedules() }
     }
 }

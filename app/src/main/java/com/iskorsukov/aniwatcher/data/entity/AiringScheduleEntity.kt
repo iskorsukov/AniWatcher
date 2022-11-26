@@ -11,8 +11,7 @@ import com.iskorsukov.aniwatcher.SeasonAiringDataQuery
         ForeignKey(
             entity = MediaItemEntity::class,
             parentColumns = ["mediaId"],
-            childColumns = ["mediaItemRelationId"],
-            onDelete = ForeignKey.CASCADE
+            childColumns = ["mediaItemRelationId"]
         )
     ]
 )

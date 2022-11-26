@@ -10,15 +10,16 @@ interface MediaDao {
     @Transaction
     @Query("SELECT * FROM media " +
             "LEFT JOIN following ON media.mediaId = following.mediaItemRelationId " +
-            "LEFT JOIN airing ON media.mediaId = airing.mediaItemRelationId")
-    fun getAll(): Flow<Map<MediaItemAndFollowingEntity, List<AiringScheduleEntity>>>
+            "LEFT JOIN airing ON media.mediaId = airing.mediaItemRelationId " +
+            "WHERE airingAt > strftime('%s', 'now')")
+    fun getAllNotAired(): Flow<Map<MediaItemAndFollowingEntity, List<AiringScheduleEntity>>>
 
     @Transaction
     @Query("SELECT * FROM media " +
             "LEFT JOIN following ON media.mediaId = following.mediaItemRelationId " +
             "LEFT JOIN airing ON media.mediaId = airing.mediaItemRelationId " +
-            "WHERE mediaId = :mediaItemId")
-    fun getById(mediaItemId: Int): Flow<Map<MediaItemAndFollowingEntity, List<AiringScheduleEntity>>>
+            "WHERE mediaId = :mediaItemId AND airingAt > strftime('%s', 'now')")
+    fun getByIdNotAired(mediaItemId: Int): Flow<Map<MediaItemAndFollowingEntity, List<AiringScheduleEntity>>>
 
     @Insert
     suspend fun followMedia(followingEntity: FollowingEntity)
@@ -40,9 +41,13 @@ interface MediaDao {
 
     @Transaction
     @Query("DELETE FROM media WHERE mediaId NOT IN (SELECT mediaItemRelationId FROM following)")
-    suspend fun clearMedia()
+    suspend fun clearNotFollowedMedia()
 
     @Transaction
-    @Query("DELETE FROM airing WHERE airingAt < strftime('%s', 'now') AND airingScheduleItemId NOT IN (SELECT airingScheduleItemRelationId FROM notifications)")
-    suspend fun clearAiredSchedules()
+    @Query("DELETE FROM airing WHERE airing.mediaItemRelationId NOT IN (SELECT mediaItemRelationId FROM following) AND airingScheduleItemId NOT IN (SELECT airingScheduleItemRelationId FROM notifications)")
+    suspend fun clearNotFollowedAiringSchedules()
+
+    @Transaction
+    @Query("DELETE FROM airing WHERE airing.mediaItemRelationId = :mediaId AND airingAt < strftime('%s', 'now') AND airingScheduleItemId NOT IN (SELECT airingScheduleItemRelationId FROM notifications)")
+    suspend fun clearNotNotifiedAiredSchedules(mediaId: Int)
 }

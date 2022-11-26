@@ -72,7 +72,7 @@ class NotificationDaoTest {
 
         notificationsDao.insertNotification(notificationEntity)
 
-        val outEntity = mediaDao.getAll().first()
+        val outEntity = mediaDao.getAllNotAired().first()
 
         assertThat(outEntity.size).isEqualTo(1)
         assertThat(outEntity.keys).containsExactly(
@@ -121,12 +121,12 @@ class NotificationDaoTest {
     }
 
     @Test
-    fun getPending_ignoresAired(): Unit = runBlocking {
+    fun getPending_ignoresFired(): Unit = runBlocking {
         val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
         val followingEntity = EntityTestDataCreator.baseFollowingEntity()
         val airingScheduleEntity = EntityTestDataCreator.baseAiringScheduleEntity()
             .airingAt(
-                (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - TimeUnit.MINUTES.toSeconds(5L)).toInt()
+                (TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()) - TimeUnit.HOURS.toSeconds(5L)).toInt()
             )
         val notificationEntity = EntityTestDataCreator.baseNotificationEntity()
 

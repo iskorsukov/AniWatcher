@@ -36,14 +36,14 @@ class MediaDaoTest {
     }
 
     @Test
-    fun getAll(): Unit = runBlocking {
+    fun getAllNotAired(): Unit = runBlocking {
         val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
         val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
 
         mediaDao.insertMedia(listOf(mediaItemEntity))
         mediaDao.insertSchedules(airingScheduleEntityList)
 
-        val outEntity = mediaDao.getAll().first()
+        val outEntity = mediaDao.getAllNotAired().first()
 
         assertThat(outEntity.size).isEqualTo(1)
         assertThat(outEntity.keys).containsExactly(
@@ -58,12 +58,12 @@ class MediaDaoTest {
     }
 
     @Test
-    fun getAll_emptySchedules(): Unit = runBlocking {
+    fun getAllNotAired_emptySchedules(): Unit = runBlocking {
         val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
 
         mediaDao.insertMedia(listOf(mediaItemEntity))
 
-        val outEntity = mediaDao.getAll().first()
+        val outEntity = mediaDao.getAllNotAired().first()
 
         assertThat(outEntity.size).isEqualTo(1)
         assertThat(outEntity.keys).containsExactly(
@@ -76,14 +76,14 @@ class MediaDaoTest {
     }
 
     @Test
-    fun getById(): Unit = runBlocking {
+    fun getByIdNotAired(): Unit = runBlocking {
         val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
         val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
 
         mediaDao.insertMedia(listOf(mediaItemEntity))
         mediaDao.insertSchedules(airingScheduleEntityList)
 
-        val outEntity = mediaDao.getById(1).first()
+        val outEntity = mediaDao.getByIdNotAired(1).first()
 
         assertThat(outEntity.size).isEqualTo(1)
         assertThat(outEntity.keys).containsExactly(
@@ -98,12 +98,12 @@ class MediaDaoTest {
     }
 
     @Test
-    fun getById_emptySchedules(): Unit = runBlocking {
+    fun getByIdNotAired_emptySchedules(): Unit = runBlocking {
         val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
 
         mediaDao.insertMedia(listOf(mediaItemEntity))
 
-        val outEntity = mediaDao.getById(1).first()
+        val outEntity = mediaDao.getByIdNotAired(1).first()
 
         assertThat(outEntity.size).isEqualTo(1)
         assertThat(outEntity.keys).containsExactly(
@@ -121,7 +121,7 @@ class MediaDaoTest {
 
         mediaDao.insertMedia(listOf(mediaItemEntity))
 
-        val outEntity = mediaDao.getAll().first()
+        val outEntity = mediaDao.getAllNotAired().first()
 
         assertThat(outEntity.size).isEqualTo(1)
         assertThat(outEntity.keys).containsExactly(
@@ -144,7 +144,7 @@ class MediaDaoTest {
 
         mediaDao.insertSchedules(airingScheduleEntityList)
 
-        val outEntity = mediaDao.getAll().first()
+        val outEntity = mediaDao.getAllNotAired().first()
 
         assertThat(outEntity.size).isEqualTo(1)
         assertThat(outEntity.keys).containsExactly(
@@ -167,7 +167,7 @@ class MediaDaoTest {
 
         mediaDao.followMedia(followingEntity)
 
-        val outEntity = mediaDao.getAll().first()
+        val outEntity = mediaDao.getAllNotAired().first()
 
         assertThat(outEntity.size).isEqualTo(1)
         assertThat(outEntity.keys).containsExactly(
@@ -185,7 +185,7 @@ class MediaDaoTest {
 
         mediaDao.insertMedia(listOf(mediaItemEntity))
 
-        var outEntity = mediaDao.getAll().first()
+        var outEntity = mediaDao.getAllNotAired().first()
 
         assertThat(outEntity.size).isEqualTo(1)
         assertThat(outEntity.keys).containsExactly(
@@ -200,7 +200,7 @@ class MediaDaoTest {
 
         mediaDao.followMedia(followingEntity)
 
-        outEntity = mediaDao.getAll().first()
+        outEntity = mediaDao.getAllNotAired().first()
 
         assertThat(outEntity.size).isEqualTo(1)
         assertThat(outEntity.keys).containsExactly(
@@ -221,7 +221,7 @@ class MediaDaoTest {
 
         mediaDao.unfollowMedia(followingEntity.mediaItemRelationId)
 
-        val outEntity = mediaDao.getAll().first()
+        val outEntity = mediaDao.getAllNotAired().first()
 
         assertThat(outEntity.size).isEqualTo(1)
         assertThat(outEntity.keys).containsExactly(
@@ -251,7 +251,7 @@ class MediaDaoTest {
 
         mediaDao.unfollowMedia(listOf(1, 2))
 
-        val outEntity = mediaDao.getAll().first()
+        val outEntity = mediaDao.getAllNotAired().first()
 
         assertThat(outEntity.size).isEqualTo(2)
         assertThat(outEntity.keys).containsExactly(
@@ -267,37 +267,20 @@ class MediaDaoTest {
     }
 
     @Test
-    fun clearMedia() = runBlocking {
+    fun clearNotFollowedMedia() = runBlocking {
         val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
 
         mediaDao.insertMedia(listOf(mediaItemEntity))
 
-        mediaDao.clearMedia()
+        mediaDao.clearNotFollowedMedia()
 
-        val outEntity = mediaDao.getAll().first()
+        val outEntity = mediaDao.getAllNotAired().first()
 
         assertThat(outEntity).isEmpty()
     }
 
     @Test
-    fun clearMedia_cascadesToAiringSchedules() = runBlocking {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
-        val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
-
-        mediaDao.insertMedia(listOf(mediaItemEntity))
-        mediaDao.insertSchedules(airingScheduleEntityList)
-
-        mediaDao.clearMedia()
-
-        val outEntity = mediaDao.getAll().first()
-
-        val airingCursor = mediaDatabase.query("SELECT * FROM airing", null)
-        assertThat(outEntity).isEmpty()
-        assertThat(airingCursor.count).isEqualTo(0)
-    }
-
-    @Test
-    fun clearMedia_ignoresFollowedMedia() = runBlocking {
+    fun clearNotFollowedMedia_ignoresFollowedMedia() = runBlocking {
         val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
         val followingEntity = EntityTestDataCreator.baseFollowingEntity()
         val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
@@ -306,9 +289,9 @@ class MediaDaoTest {
         mediaDao.insertSchedules(airingScheduleEntityList)
         mediaDao.followMedia(followingEntity)
 
-        mediaDao.clearMedia()
+        mediaDao.clearNotFollowedMedia()
 
-        val outEntity = mediaDao.getAll().first()
+        val outEntity = mediaDao.getAllNotAired().first()
 
         val airingCursor = mediaDatabase.query("SELECT * FROM airing", null)
         assertThat(outEntity.keys).containsExactly(
@@ -321,7 +304,103 @@ class MediaDaoTest {
     }
 
     @Test
-    fun clearMedia_cascadesToNotifications() = runBlocking {
+    fun clearNotFollowedAiringSchedules(): Unit = runBlocking {
+        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
+        val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
+
+        mediaDao.insertMedia(listOf(mediaItemEntity))
+        mediaDao.insertSchedules(airingScheduleEntityList)
+
+        mediaDao.clearNotFollowedAiringSchedules()
+
+        val airingCursor = mediaDatabase.query("SELECT * FROM airing", null)
+        assertThat(airingCursor.count).isEqualTo(0)
+    }
+
+    @Test
+    fun clearNotFollowedAiringSchedules_ignoresFollowedMedia(): Unit = runBlocking {
+        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
+        val followingEntity = EntityTestDataCreator.baseFollowingEntity()
+        val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
+
+        mediaDao.insertMedia(listOf(mediaItemEntity))
+        mediaDao.insertSchedules(airingScheduleEntityList)
+        mediaDao.followMedia(followingEntity)
+
+        mediaDao.clearNotFollowedAiringSchedules()
+
+        val airingCursor = mediaDatabase.query("SELECT * FROM airing", null)
+        assertThat(airingCursor.count).isEqualTo(airingScheduleEntityList.size)
+    }
+
+    @Test
+    fun clearNotFollowedAiringSchedules_ignoresNotified(): Unit = runBlocking {
+        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
+        val notificationItemEntity = EntityTestDataCreator.baseNotificationEntity()
+        val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
+
+        mediaDao.insertMedia(listOf(mediaItemEntity))
+        mediaDao.insertSchedules(airingScheduleEntityList)
+        notificationsDao.insertNotification(notificationItemEntity)
+
+        mediaDao.clearNotFollowedAiringSchedules()
+
+        val airingCursor = mediaDatabase.query("SELECT * FROM airing", null)
+        assertThat(airingCursor.count).isEqualTo(1)
+    }
+
+    @Test
+    fun clearNotFollowedMedia_clearNotFollowedSchedules_keepsOldSchedulesForFollowedMedia() = runBlocking {
+        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
+        val followingEntity = EntityTestDataCreator.baseFollowingEntity()
+        val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
+
+        mediaDao.insertMedia(listOf(mediaItemEntity))
+        mediaDao.insertSchedules(airingScheduleEntityList.subList(2, 4))
+        mediaDao.followMedia(followingEntity)
+
+        mediaDao.clearNotFollowedMedia()
+        mediaDao.clearNotFollowedAiringSchedules()
+
+        mediaDao.insertMedia(listOf(mediaItemEntity))
+        mediaDao.insertSchedules(airingScheduleEntityList.subList(0, 2))
+
+        val outEntity = mediaDao.getAllNotAired().first()
+        val airingCursor = mediaDatabase.query("SELECT * FROM airing", null)
+
+        assertThat(outEntity.keys).containsExactly(
+            MediaItemAndFollowingEntity(
+                mediaItemEntity,
+                followingEntity
+            )
+        )
+        assertThat(airingCursor.count).isEqualTo(airingScheduleEntityList.size)
+    }
+
+    @Test
+    fun clearNotNotifiedAiredSchedules(): Unit = runBlocking {
+        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
+        val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
+
+        mediaDao.insertMedia(listOf(mediaItemEntity))
+        mediaDao.insertSchedules(airingScheduleEntityList)
+
+        mediaDao.clearNotNotifiedAiredSchedules(mediaItemEntity.mediaId)
+
+        val outEntity = mediaDao.getAllNotAired().first()
+        val airingCursor = mediaDatabase.query("SELECT * FROM airing", null)
+
+        assertThat(outEntity.keys).containsExactly(
+            MediaItemAndFollowingEntity(
+                mediaItemEntity,
+                null
+            )
+        )
+        assertThat(airingCursor.count).isEqualTo(0)
+    }
+
+    @Test
+    fun clearNotNotifiedAiredSchedules_ignoresNotified(): Unit = runBlocking {
         val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
         val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
         val notificationItemEntity = EntityTestDataCreator.baseNotificationEntity()
@@ -330,12 +409,17 @@ class MediaDaoTest {
         mediaDao.insertSchedules(airingScheduleEntityList)
         notificationsDao.insertNotification(notificationItemEntity)
 
-        mediaDao.clearMedia()
+        mediaDao.clearNotNotifiedAiredSchedules(mediaItemEntity.mediaId)
 
-        val outEntity = mediaDao.getAll().first()
+        val outEntity = mediaDao.getAllNotAired().first()
+        val airingCursor = mediaDatabase.query("SELECT * FROM airing", null)
 
-        val notificationsCursor = mediaDatabase.query("SELECT * FROM notifications", null)
-        assertThat(outEntity.keys).isEmpty()
-        assertThat(notificationsCursor.count).isEqualTo(0)
+        assertThat(outEntity.keys).containsExactly(
+            MediaItemAndFollowingEntity(
+                mediaItemEntity,
+                null
+            )
+        )
+        assertThat(airingCursor.count).isEqualTo(1)
     }
 }

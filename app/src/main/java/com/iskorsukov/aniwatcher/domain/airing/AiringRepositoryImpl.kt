@@ -68,8 +68,4 @@ class AiringRepositoryImpl @Inject constructor(
     override suspend fun unfollowMedia(mediaItemList: List<MediaItem>) {
         mediaDatabaseExecutor.unfollowMedia(mediaItemList.map { it.id })
     }
-
-    override suspend fun clearAiredSchedules() {
-        mediaDatabaseExecutor.clearAiredSchedules()
-    }
 }

@@ -53,8 +53,8 @@ class MediaDatabaseExecutorTest {
         every { DispatcherProvider.io() } returns StandardTestDispatcher(testScheduler)
 
         every { mediaDatabase.mediaDao() } returns mediaDao
-        every { mediaDao.getAll() } returns flowOf(mediaFlowData)
-        every { mediaDao.getById(any()) } returns flowOf(mediaFlowData)
+        every { mediaDao.getAllNotAired() } returns flowOf(mediaFlowData)
+        every { mediaDao.getByIdNotAired(any()) } returns flowOf(mediaFlowData)
 
         every { mediaDatabase.notificationsDao() } returns notificationsDao
         every { notificationsDao.getAll() } returns flowOf(notificationFlowData)
@@ -80,7 +80,7 @@ class MediaDatabaseExecutorTest {
         assertThat(entity)
             .isEqualTo(mediaFlowData)
 
-        coVerify { mediaDao.getAll() }
+        coVerify { mediaDao.getAllNotAired() }
 
         cleanupMocks()
     }
@@ -110,7 +110,7 @@ class MediaDatabaseExecutorTest {
             .isEqualTo(mediaFlowData)
 
         coVerify {
-            mediaDao.getById(1)
+            mediaDao.getByIdNotAired(1)
         }
 
         cleanupMocks()
@@ -129,7 +129,8 @@ class MediaDatabaseExecutorTest {
         advanceUntilIdle()
 
         coVerify {
-            mediaDao.clearMedia()
+            mediaDao.clearNotFollowedMedia()
+            mediaDao.clearNotFollowedAiringSchedules()
             mediaDao.insertMedia(entityMap.keys.toList())
             mediaDao.insertSchedules(entityMap.values.flatten())
         }
@@ -145,6 +146,7 @@ class MediaDatabaseExecutorTest {
         advanceUntilIdle()
 
         coVerify {
+            mediaDao.clearNotNotifiedAiredSchedules(1)
             mediaDao.followMedia(FollowingEntity(null, 1))
         }
 
@@ -161,17 +163,6 @@ class MediaDatabaseExecutorTest {
         coVerify {
             mediaDao.unfollowMedia(1)
         }
-
-        cleanupMocks()
-    }
-
-    @Test
-    fun clearAiredSchedules() = runTest {
-        initMocks(testScheduler)
-
-        mediaDatabaseExecutor.clearAiredSchedules()
-
-        coVerify { mediaDao.clearAiredSchedules() }
 
         cleanupMocks()
     }
