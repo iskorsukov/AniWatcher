@@ -10,6 +10,12 @@ plugins {
 
     // Hilt
     id 'com.google.dagger.hilt.android'
+
+    // Google Services
+    id 'com.google.gms.google-services'
+
+    // Firebase Crashlytics
+    id 'com.google.firebase.crashlytics'
 }
 
 android {
@@ -174,4 +180,11 @@ dependencies {
     implementation "androidx.work:work-runtime-ktx:$work_version"
     // Work Manager Testing
     androidTestImplementation "androidx.work:work-testing:$work_version"
+
+    // Firebase
+    implementation platform('com.google.firebase:firebase-bom:31.1.0')
+    // Google Analytics
+    implementation 'com.google.firebase:firebase-analytics'
+    // Crashlytics
+    implementation 'com.google.firebase:firebase-crashlytics'
 }
