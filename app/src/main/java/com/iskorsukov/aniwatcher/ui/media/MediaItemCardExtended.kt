@@ -62,7 +62,7 @@ fun MediaItemCardExtended(
             ) = createRefs()
 
             val imageEndGuideline = createGuidelineFromStart(0.35f)
-            val titleOverlayTopGuideline = createGuidelineFromBottom(0.25f)
+            val titleOverlayTopGuideline = createGuidelineFromBottom(0.30f)
             val genresFooterTopGuideline = createGuidelineFromBottom(0.15f)
 
             MediaItemImage(
@@ -183,7 +183,7 @@ fun MediaItemCardExtended(
                 colorStr = mediaItem.colorStr,
                 modifier = Modifier
                     .background(color = LocalColors.current.cardFooterBackground)
-                    .padding(end = 30.dp)
+                    .padding(end = 32.dp)
                     .constrainAs(genresFooter) {
                         top.linkTo(genresFooterTopGuideline)
                         bottom.linkTo(parent.bottom)
@@ -200,7 +200,7 @@ fun MediaItemCardExtended(
                 isFollowing = mediaItem.isFollowing,
                 modifier = Modifier
                     .padding(4.dp)
-                    .size(22.dp)
+                    .size(24.dp)
                     .constrainAs(followButton) {
                         end.linkTo(parent.end)
                         bottom.linkTo(parent.bottom)

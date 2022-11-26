@@ -31,7 +31,7 @@ fun MediaItemCardCollapsed(
     Card(
         modifier = Modifier
             .padding(top = 8.dp, start = 8.dp, end = 8.dp)
-            .height(76.dp)
+            .height(110.dp)
             .fillMaxWidth()
             .clickable { onMediaClicked.invoke(mediaItem) },
         elevation = 4.dp,
@@ -39,7 +39,7 @@ fun MediaItemCardCollapsed(
     ) {
         ConstraintLayout {
             val (image, format, cardContent, followButton) = createRefs()
-            val imageEndGuideline = createGuidelineFromStart(0.2f)
+            val imageEndGuideline = createGuidelineFromStart(0.25f)
 
             MediaItemImage(
                 imageUrl = mediaItem.coverImageUrl,
@@ -80,7 +80,7 @@ fun MediaItemCardCollapsed(
                     text = mediaItem.title.baseText(preferredNamingScheme),
                     style = LocalTextStyles.current.contentSmallLargerEmphasis,
                     overflow = TextOverflow.Ellipsis,
-                    maxLines = 1
+                    maxLines = 2
                 )
                 MediaItemAiringInfoColumn(
                     airingScheduleItem = airingScheduleItem,
@@ -92,7 +92,7 @@ fun MediaItemCardCollapsed(
                 isFollowing = mediaItem.isFollowing,
                 modifier = Modifier
                     .padding(8.dp)
-                    .size(22.dp)
+                    .size(24.dp)
                     .constrainAs(followButton) {
                         end.linkTo(parent.end)
                         bottom.linkTo(parent.bottom)

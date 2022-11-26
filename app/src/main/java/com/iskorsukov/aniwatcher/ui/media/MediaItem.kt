@@ -76,12 +76,12 @@ fun MediaItemAiringInfoColumn(
             }
             Text(
                 text = String.format(episodeAiringStr, airingScheduleItem.episode),
-                style = LocalTextStyles.current.contentSmallEmphasis
+                style = LocalTextStyles.current.contentSmall
             )
             airingScheduleItem.getAiringInFormatted(timeInMinutes)?.let {
                 Text(
                     text = it,
-                    style = LocalTextStyles.current.contentSmallLarger
+                    style = LocalTextStyles.current.contentSmallEmphasis
                 )
             }
             Text(
@@ -89,7 +89,7 @@ fun MediaItemAiringInfoColumn(
                     stringResource(id = R.string.episode_airing_at),
                     airingScheduleItem.getAiringAtDateTimeFormatted()
                 ),
-                style = LocalTextStyles.current.contentSmallEmphasis
+                style = LocalTextStyles.current.contentSmall
             )
         }
     }
@@ -216,7 +216,7 @@ private fun GenreChip(
     Text(
         text = genre,
         color = textColor,
-        fontSize = 8.sp,
+        fontSize = 10.sp,
         modifier = Modifier
             .clickable {
                 if (isVisible) {

@@ -14,7 +14,8 @@ data class AiringScheduleItem(
 ): Serializable {
 
     fun getAiringAtDateTimeFormatted(): String {
-        val formatter = SimpleDateFormat("MMMM dd',' HH':'mm", Locale.getDefault())
+        val locale = Locale.US
+        val formatter = SimpleDateFormat("MMMM dd',' HH':'mm", locale)
         val calendar = Calendar.getInstance().apply { timeInMillis = (airingAt.toLong() * 1000) }
         return formatter.format(calendar.time)
     }

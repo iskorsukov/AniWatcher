@@ -9,98 +9,103 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 
 val CategoryTextStyle = TextStyle(
-    fontSize = 18.sp,
+    fontSize = 20.sp,
     color = TextColor,
     fontFamily = FontFamily.Monospace
 )
 
 val ContentTextStyleSmallLargerWhite = TextStyle(
     color = Color.White,
-    fontSize = 12.sp
+    fontSize = 14.sp
 )
 
 val ContentTextStyleSmall = TextStyle(
     color = TextColor,
-    fontSize = 10.sp
+    fontSize = 12.sp
+)
+
+val ContentTextStyleSmallWhite = TextStyle(
+    color = Color.White,
+    fontSize = 12.sp
 )
 
 val ContentTextStyleSmallEmphasis = TextStyle(
     fontWeight = FontWeight.Medium,
     color = TextColor,
-    fontSize = 10.sp
+    fontSize = 12.sp
 )
 
 val ContentTextStyleSmallEmphasisWhite = TextStyle(
     fontWeight = FontWeight.Medium,
     color = Color.White,
-    fontSize = 10.sp
+    fontSize = 12.sp
 )
 
 val ContentTextStyleSmallLarger = TextStyle(
     color = TextColor,
-    fontSize = 12.sp
+    fontSize = 14.sp
 )
 
 val ContentTextStyleSmallLargerEmphasis = TextStyle(
     fontWeight = FontWeight.Medium,
     color = TextColor,
-    fontSize = 12.sp
+    fontSize = 14.sp
 )
 
 val ContentTextStyleMedium = TextStyle(
     color = TextColor,
-    fontSize = 14.sp
+    fontSize = 16.sp
 )
 
 val ContentTextStyleMediumWhite = TextStyle(
     color = Color.White,
-    fontSize = 14.sp
+    fontSize = 16.sp
 )
 
 val ContentTextStyleMediumEmphasis = TextStyle(
     fontWeight = FontWeight.Medium,
     color = TextColor,
-    fontSize = 14.sp
+    fontSize = 16.sp
 )
 
 val ContentTextStyleMediumEmphasisWhite = TextStyle(
     fontWeight = FontWeight.Medium,
     color = Color.White,
-    fontSize = 14.sp
+    fontSize = 16.sp
 )
 
 val HeadlineTextStyle = TextStyle(
     color = TextColor,
-    fontSize = 16.sp
+    fontSize = 18.sp
 )
 
 val TopBarTitleTextStyle = TextStyle(
     fontWeight = FontWeight.Medium,
     color = TextColor,
-    fontSize = 20.sp
+    fontSize = 22.sp
 )
 
 val TopBarTitleTextStyleWhite = TextStyle(
     fontWeight = FontWeight.Medium,
     color = Color.White,
-    fontSize = 20.sp
+    fontSize = 22.sp
 )
 
 val HeadlineTextStyleSmall = TextStyle(
     color = TextColor,
-    fontSize = 12.sp
+    fontSize = 14.sp
 )
 
 val PopupButtonTextStyle = TextStyle(
     fontWeight = FontWeight.Medium,
-    fontSize = 14.sp,
+    fontSize = 16.sp,
     color = Color.White,
     textAlign = TextAlign.Center
 )
 
 val PopupButtonTextStyleDark = TextStyle(
     fontWeight = FontWeight.Medium,
-    fontSize = 14.sp,
+    fontSize = 16.sp,
     color = TextColor,
     textAlign = TextAlign.Center
 )
@@ -123,7 +128,7 @@ data class ThemedTextStyles(
     val popupMessageLabel: TextStyle = ContentTextStyleMediumEmphasisWhite,
     val popupMessageSubLabel: TextStyle = ContentTextStyleMediumWhite,
     val popupMessageButton: TextStyle = PopupButtonTextStyle,
-    val onTitleOverlay: TextStyle = ContentTextStyleSmallLargerWhite
+    val onTitleOverlay: TextStyle = ContentTextStyleSmallWhite
 ) {
     companion object {
         val LIGHT = ThemedTextStyles()
