@@ -99,6 +99,10 @@ class MainActivity : ComponentActivity() {
                 mutableStateOf(uiState.errorItem != null)
             }
 
+            LaunchedEffect(settingsState.scheduleType) {
+                mainActivityViewModel.loadAiringData()
+            }
+
             AniWatcherTheme {
                 Scaffold(
                     topBar = {

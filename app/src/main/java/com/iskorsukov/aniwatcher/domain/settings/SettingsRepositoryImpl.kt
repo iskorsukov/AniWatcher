@@ -15,6 +15,7 @@ class SettingsRepositoryImpl @Inject constructor(
 
     private val _settingsStateFlow: MutableStateFlow<SettingsState> = MutableStateFlow(
         SettingsState(
+            getScheduleType(),
             getPreferredNamingScheme(),
             getNotificationsEnabled()
         )
@@ -23,8 +24,18 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override fun onPreferenceChanged() {
         _settingsStateFlow.value = SettingsState(
+            getScheduleType(),
             getPreferredNamingScheme(),
             getNotificationsEnabled()
+        )
+    }
+
+    private fun getScheduleType(): ScheduleType {
+        return ScheduleType.valueOf(
+            sharedPreferences.getString(
+                context.getString(R.string.settings_schedule_type_key),
+                context.getString(R.string.schedule_type_default_value)
+            )!!
         )
     }
 

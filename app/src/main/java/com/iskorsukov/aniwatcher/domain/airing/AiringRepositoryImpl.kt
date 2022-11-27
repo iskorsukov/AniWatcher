@@ -1,5 +1,6 @@
 package com.iskorsukov.aniwatcher.domain.airing
 
+import com.iskorsukov.aniwatcher.RangeAiringDataQuery
 import com.iskorsukov.aniwatcher.SeasonAiringDataQuery
 import com.iskorsukov.aniwatcher.data.entity.AiringScheduleEntity
 import com.iskorsukov.aniwatcher.data.entity.MediaItemEntity
@@ -51,6 +52,18 @@ class AiringRepositoryImpl @Inject constructor(
         var page = 1
         do {
             data = aniListQueryExecutor.seasonAiringDataQuery(year, season, page)
+            entities.putAll(mapper.mapMediaWithSchedulesList(data))
+            page++
+        } while (data.Page?.pageInfo?.hasNextPage == true)
+        mediaDatabaseExecutor.updateMedia(entities)
+    }
+
+    override suspend fun loadRangeAiringData(startSeconds: Int, endSeconds: Int) {
+        val entities = mutableMapOf<MediaItemEntity, List<AiringScheduleEntity>>()
+        var data: RangeAiringDataQuery.Data
+        var page = 1
+        do {
+            data = aniListQueryExecutor.rangeAiringDataQuery(startSeconds, endSeconds, page)
             entities.putAll(mapper.mapMediaWithSchedulesList(data))
             page++
         } while (data.Page?.pageInfo?.hasNextPage == true)

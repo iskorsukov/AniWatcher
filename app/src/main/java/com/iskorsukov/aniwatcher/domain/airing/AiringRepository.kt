@@ -12,6 +12,8 @@ interface AiringRepository {
 
     suspend fun loadSeasonAiringData(year: Int, season: String)
 
+    suspend fun loadRangeAiringData(startSeconds: Int, endSeconds: Int)
+
     suspend fun followMedia(mediaItem: MediaItem)
 
     suspend fun unfollowMedia(mediaItem: MediaItem)

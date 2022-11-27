@@ -3,6 +3,7 @@ package com.iskorsukov.aniwatcher.data.entity
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.iskorsukov.aniwatcher.RangeAiringDataQuery
 import com.iskorsukov.aniwatcher.SeasonAiringDataQuery
 import com.iskorsukov.aniwatcher.type.MediaRankType
 
@@ -56,6 +57,30 @@ data class MediaItemEntity(
                             season!!.name
                         )
                     },
+                    meanScore = meanScore,
+                    genresCommaSeparated = genres?.filterNotNull()?.joinToString(separator = ","),
+                    siteUrl = siteUrl,
+                    nextEpisodeAiringAt = nextAiringEpisode?.airingAt,
+                    format = format?.name
+                )
+            }
+        }
+
+        fun fromData(data: RangeAiringDataQuery.Media): MediaItemEntity {
+            return data.run {
+                MediaItemEntity(
+                    mediaId = id,
+                    title = Title(
+                        title?.romaji,
+                        title?.english,
+                        title?.native,
+                    ),
+                    description = description,
+                    coverImageUrl = coverImage?.large,
+                    colorStr = coverImage?.color,
+                    bannerImageUrl = bannerImage,
+                    mainStudio = studios?.studioNode?.firstOrNull()?.name,
+                    seasonRanking = null,
                     meanScore = meanScore,
                     genresCommaSeparated = genres?.filterNotNull()?.joinToString(separator = ","),
                     siteUrl = siteUrl,

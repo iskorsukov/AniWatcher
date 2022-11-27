@@ -37,6 +37,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
         )?.apply {
             summaryProvider = ListPreference.SimpleSummaryProvider.getInstance()
         }
+        findPreference<ListPreference>(
+            getString(R.string.settings_schedule_type_key)
+        )?.apply {
+            summaryProvider = ListPreference.SimpleSummaryProvider.getInstance()
+        }
     }
 
     override fun onDestroy() {

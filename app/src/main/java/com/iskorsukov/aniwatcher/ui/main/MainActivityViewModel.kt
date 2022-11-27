@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
+import com.iskorsukov.aniwatcher.domain.settings.ScheduleType
 import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
 import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
@@ -31,17 +32,18 @@ class MainActivityViewModel @Inject constructor(
     )
     val uiState: StateFlow<MainActivityUiState> = _uiState
 
-    init {
-        loadAiringData()
-    }
-
     fun loadAiringData() {
         _uiState.value = MainActivityUiState(true)
         val year = DateTimeHelper.currentYear(Calendar.getInstance())
         val season = DateTimeHelper.currentSeason(Calendar.getInstance())
+        val weekStartEndSeconds = DateTimeHelper.currentWeekStartToEndSeconds(Calendar.getInstance())
         viewModelScope.launch {
             try {
-                airingRepository.loadSeasonAiringData(year, season)
+                if (settingsState.value.scheduleType == ScheduleType.ALL) {
+                    airingRepository.loadRangeAiringData(weekStartEndSeconds.first, weekStartEndSeconds.second)
+                } else {
+                    airingRepository.loadSeasonAiringData(year, season)
+                }
                 _uiState.value = MainActivityUiState(false)
             } catch (e: Exception) {
                 e.printStackTrace()

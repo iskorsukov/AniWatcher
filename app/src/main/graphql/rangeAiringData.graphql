@@ -1,0 +1,46 @@
+query RangeAiringData($page: Int!, $startSeconds: Int!, $endSeconds: Int!) {
+    Page(page: $page) {
+        pageInfo {
+            currentPage
+            hasNextPage
+        }
+        airingSchedules(airingAt_greater: $startSeconds, airingAt_lesser: $endSeconds) {
+            id
+            media {
+                id
+                title {
+                    romaji
+                    english
+                    native
+                }
+                description(asHtml: false)
+                coverImage {
+                    large
+                    color
+                }
+                bannerImage
+                popularity
+                format
+                meanScore
+                genres
+                studios(isMain: true) {
+                    studioNode: nodes {
+                        name
+                    }
+                }
+                siteUrl
+                nextAiringEpisode {
+                    airingAt
+                }
+                airingSchedule(notYetAired: true) {
+                    airingScheduleNode: nodes {
+                        id
+                        airingAt
+                        episode
+                        mediaId
+                    }
+                }
+            }
+        }
+    }
+}

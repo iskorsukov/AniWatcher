@@ -3,6 +3,7 @@ package com.iskorsukov.aniwatcher.data.entity
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import com.iskorsukov.aniwatcher.RangeAiringDataQuery
 import com.iskorsukov.aniwatcher.SeasonAiringDataQuery
 
 @Entity(
@@ -23,6 +24,17 @@ data class AiringScheduleEntity(
 ) {
     companion object {
         fun fromData(data: SeasonAiringDataQuery.AiringScheduleNode): AiringScheduleEntity {
+            return data.run {
+                AiringScheduleEntity(
+                    airingScheduleItemId = id,
+                    airingAt = airingAt,
+                    episode = episode,
+                    mediaItemRelationId = mediaId
+                )
+            }
+        }
+
+        fun fromData(data: RangeAiringDataQuery.AiringScheduleNode): AiringScheduleEntity {
             return data.run {
                 AiringScheduleEntity(
                     airingScheduleItemId = id,

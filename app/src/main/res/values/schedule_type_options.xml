@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="schedule_type_default_value">ALL</string>
+    <string-array name="schedule_type_labels">
+        <item>All shows</item>
+        <item>Only current season</item>
+    </string-array>
+    <string-array name="schedule_type_values">
+        <item>ALL</item>
+        <item>SEASON</item>
+    </string-array>
+</resources>

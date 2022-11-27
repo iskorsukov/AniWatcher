@@ -1,5 +1,6 @@
 package com.iskorsukov.aniwatcher.data.mapper
 
+import com.iskorsukov.aniwatcher.RangeAiringDataQuery
 import com.iskorsukov.aniwatcher.SeasonAiringDataQuery
 import com.iskorsukov.aniwatcher.data.entity.AiringScheduleEntity
 import com.iskorsukov.aniwatcher.data.entity.MediaItemEntity
@@ -14,6 +15,20 @@ class QueryDataToEntityMapper @Inject constructor() {
         return data.Page.media.filterNotNull().associate {
             MediaItemEntity.fromData(it) to
                     it.airingSchedule!!.airingScheduleNode!!.filterNotNull().map {
+                        AiringScheduleEntity.fromData(it)
+                    }
+        }
+    }
+
+    fun mapMediaWithSchedulesList(data: RangeAiringDataQuery.Data): Map<MediaItemEntity, List<AiringScheduleEntity>> {
+        if (data.Page?.airingSchedules == null ||
+            data.Page.airingSchedules.any { it?.media?.airingSchedule == null }) {
+            throw IllegalArgumentException("Unexpected null value in query data")
+        }
+        return data.Page.airingSchedules.filterNotNull().associate { outerSchedule ->
+            val media = outerSchedule.media!!
+            MediaItemEntity.fromData(media) to
+                    media.airingSchedule!!.airingScheduleNode!!.filterNotNull().map {
                         AiringScheduleEntity.fromData(it)
                     }
         }
