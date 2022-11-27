@@ -30,4 +30,12 @@ interface NotificationsDao {
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertNotification(notification: NotificationItemEntity)
+
+    @Transaction
+    @Query("DELETE FROM notifications WHERE airingScheduleItemRelationId IN (SELECT airingScheduleItemId FROM airing WHERE airing.mediaItemRelationId = :mediaId)")
+    suspend fun clearNotificationsByMediaId(mediaId: Int)
+
+    @Transaction
+    @Query("DELETE FROM notifications WHERE airingScheduleItemRelationId IN (SELECT airingScheduleItemId FROM airing WHERE airing.mediaItemRelationId IN (:mediaIdList))")
+    suspend fun clearNotificationsByMediaId(mediaIdList: List<Int>)
 }

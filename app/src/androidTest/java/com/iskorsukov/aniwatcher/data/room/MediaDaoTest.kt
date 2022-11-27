@@ -18,9 +18,9 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class MediaDaoTest {
 
-    lateinit var mediaDao: MediaDao
-    lateinit var notificationsDao: NotificationsDao
-    lateinit var mediaDatabase: MediaDatabase
+    private lateinit var mediaDao: MediaDao
+    private lateinit var notificationsDao: NotificationsDao
+    private lateinit var mediaDatabase: MediaDatabase
 
     @Before
     fun createDb() {
@@ -255,6 +255,31 @@ class MediaDaoTest {
         mediaDao.insertMedia(listOf(mediaItemEntity))
         mediaDao.followMedia(followingEntity)
 
+        notificationsDao.clearNotificationsByMediaId(followingEntity.mediaItemRelationId)
+        mediaDao.unfollowMedia(followingEntity.mediaItemRelationId)
+
+        val outEntity = mediaDao.getAllNotAired(0).first()
+
+        assertThat(outEntity.size).isEqualTo(1)
+        assertThat(outEntity.keys).containsExactly(
+            MediaItemAndFollowingEntity(
+                mediaItemEntity,
+                null
+            )
+        )
+    }
+
+    @Test
+    fun unfollowMedia_clearNotifications(): Unit = runBlocking {
+        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
+        val followingEntity = EntityTestDataCreator.baseFollowingEntity()
+        val notificationItemEntity = EntityTestDataCreator.baseNotificationEntity()
+
+        mediaDao.insertMedia(listOf(mediaItemEntity))
+        mediaDao.followMedia(followingEntity)
+        notificationsDao.insertNotification(notificationItemEntity)
+
+        notificationsDao.clearNotificationsByMediaId(followingEntity.mediaItemRelationId)
         mediaDao.unfollowMedia(followingEntity.mediaItemRelationId)
 
         val outEntity = mediaDao.getAllNotAired(0).first()
@@ -285,6 +310,7 @@ class MediaDaoTest {
         mediaDao.followMedia(followingEntityList[0])
         mediaDao.followMedia(followingEntityList[1])
 
+        notificationsDao.clearNotificationsByMediaId(listOf(1, 2))
         mediaDao.unfollowMedia(listOf(1, 2))
 
         val outEntity = mediaDao.getAllNotAired(0).first()

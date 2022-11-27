@@ -53,13 +53,19 @@ class MediaDatabaseExecutor @Inject constructor(
 
     suspend fun unfollowMedia(mediaItemId: Int) {
         withContext(DispatcherProvider.io()) {
-            mediaDao.unfollowMedia(mediaItemId)
+            mediaDatabase.withTransaction {
+                notificationsDao.clearNotificationsByMediaId(mediaItemId)
+                mediaDao.unfollowMedia(mediaItemId)
+            }
         }
     }
 
     suspend fun unfollowMedia(mediaItemIdList: List<Int>) {
         withContext(DispatcherProvider.io()) {
-            mediaDao.unfollowMedia(mediaItemIdList)
+            mediaDatabase.withTransaction {
+                notificationsDao.clearNotificationsByMediaId(mediaItemIdList)
+                mediaDao.unfollowMedia(mediaItemIdList)
+            }
         }
     }
 

@@ -181,6 +181,7 @@ class MediaDatabaseExecutorTest {
         advanceUntilIdle()
 
         coVerify {
+            notificationsDao.clearNotificationsByMediaId(1)
             mediaDao.unfollowMedia(1)
         }
 
