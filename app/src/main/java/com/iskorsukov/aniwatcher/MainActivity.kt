@@ -80,12 +80,17 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val navController = rememberNavController()
-
             val scaffoldState = rememberScaffoldState()
-            val uiState by mainActivityViewModel.uiState.collectAsStateWithLifecycle()
 
+            val uiState by mainActivityViewModel.uiState
+                .collectAsStateWithLifecycle()
+            val settingsState by mainActivityViewModel.settingsState
+                .collectAsStateWithLifecycle()
             val unreadNotifications by mainActivityViewModel.unreadNotificationsState
                 .collectAsStateWithLifecycle()
+
+            val timeInMinutes by timeInMinutesFlow
+                .collectAsStateWithLifecycle(initialValue = 0)
 
             var shouldShowSortingOptionsDialog by rememberSaveable {
                 mutableStateOf(false)
@@ -133,24 +138,40 @@ class MainActivity : ComponentActivity() {
                         ) {
                             composable("media") {
                                 MediaScreen(
-                                    mainActivityViewModel,
-                                    mediaViewModel,
-                                    timeInMinutesFlow
-                                ) { startDetailsActivity(it.id) }
+                                    viewModel = mediaViewModel,
+                                    uiState = uiState,
+                                    settingsState = settingsState,
+                                    timeInMinutes = timeInMinutes,
+                                    onMediaClicked = { startDetailsActivity(it.id) },
+                                    onRefresh = mainActivityViewModel::loadAiringData,
+                                    onGenreChipClicked = {
+                                        mainActivityViewModel.onSearchFieldOpenChange(true)
+                                        mainActivityViewModel.appendSearchText(it)
+                                    }
+                                )
                             }
                             composable("airing") {
                                 AiringScreen(
-                                    mainActivityViewModel,
-                                    airingViewModel,
-                                    timeInMinutesFlow
-                                ) { startDetailsActivity(it.id) }
+                                    viewModel = airingViewModel,
+                                    uiState = uiState,
+                                    settingsState = settingsState,
+                                    timeInMinutes = timeInMinutes,
+                                    onMediaClicked = { startDetailsActivity(it.id) },
+                                    onRefresh = mainActivityViewModel::loadAiringData
+                                )
                             }
                             composable("following") {
                                 FollowingScreen(
-                                    mainActivityViewModel,
-                                    followingViewModel,
-                                    timeInMinutesFlow
-                                ) { startDetailsActivity(it.id) }
+                                    viewModel = followingViewModel,
+                                    uiState = uiState,
+                                    settingsState = settingsState,
+                                    timeInMinutes = timeInMinutes,
+                                    onMediaClicked = { startDetailsActivity(it.id) },
+                                    onGenreChipClicked = {
+                                        mainActivityViewModel.onSearchFieldOpenChange(true)
+                                        mainActivityViewModel.appendSearchText(it)
+                                    }
+                                )
                             }
                         }
 

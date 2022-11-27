@@ -13,41 +13,33 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
+import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.test.isFollowing
 import com.iskorsukov.aniwatcher.ui.base.placeholder.EmptyDataPlaceholder
-import com.iskorsukov.aniwatcher.ui.main.MainActivityViewModel
+import com.iskorsukov.aniwatcher.ui.main.MainActivityUiState
 import com.iskorsukov.aniwatcher.ui.media.MediaItemCardExtended
-import kotlinx.coroutines.flow.Flow
 
 @OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun FollowingScreen(
-    mainActivityViewModel: MainActivityViewModel = viewModel(),
-    viewModel: FollowingViewModel = viewModel(),
-    timeInMinutesFlow: Flow<Long>,
-    onMediaClicked: (MediaItem) -> Unit
+    viewModel: FollowingViewModel,
+    uiState: MainActivityUiState,
+    settingsState: SettingsState,
+    timeInMinutes: Long,
+    onMediaClicked: (MediaItem) -> Unit,
+    onGenreChipClicked: (String) -> Unit
 ) {
-    val uiState by mainActivityViewModel
-        .uiState.collectAsStateWithLifecycle()
-
-    val settingsState by mainActivityViewModel
-        .settingsState.collectAsStateWithLifecycle()
-
     val followingMediaMap by viewModel.followingMediaFlow
         .collectAsStateWithLifecycle(initialValue = emptyMap())
 
     val finishedShowsList by viewModel.finishedFollowingShowsFlow
         .collectAsStateWithLifecycle(initialValue = emptyList())
-
-    val timeInMinutes by timeInMinutesFlow
-        .collectAsStateWithLifecycle(initialValue = 0)
 
     val listState = rememberLazyListState()
     LaunchedEffect(uiState.searchText, uiState.sortingOption) {
@@ -76,10 +68,7 @@ fun FollowingScreen(
             onFollowClicked = viewModel::onFollowClicked,
             preferredNamingScheme = settingsState.preferredNamingScheme,
             onMediaClicked = onMediaClicked,
-            onGenreChipClicked = {
-                mainActivityViewModel.onSearchFieldOpenChange(true)
-                mainActivityViewModel.appendSearchText(it)
-            },
+            onGenreChipClicked = onGenreChipClicked,
             listState = listState
         )
     }
