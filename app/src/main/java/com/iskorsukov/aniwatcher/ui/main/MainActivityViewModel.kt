@@ -44,6 +44,7 @@ class MainActivityViewModel @Inject constructor(
                 airingRepository.loadSeasonAiringData(year, season)
                 _uiState.value = MainActivityUiState(false)
             } catch (e: Exception) {
+                e.printStackTrace()
                 _uiState.value = MainActivityUiState(false, ErrorItem.LoadingData)
                 return@launch
             }

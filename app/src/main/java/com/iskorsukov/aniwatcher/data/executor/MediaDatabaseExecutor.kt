@@ -24,8 +24,8 @@ class MediaDatabaseExecutor @Inject constructor(
     suspend fun updateMedia(mediaToAiringSchedulesMap: Map<MediaItemEntity, List<AiringScheduleEntity>>) {
         withContext(DispatcherProvider.io()) {
             mediaDatabase.withTransaction {
-                mediaDao.clearNotFollowedMedia()
                 mediaDao.clearNotFollowedAiringSchedules()
+                mediaDao.clearNotFollowedMedia()
                 mediaDao.insertMedia(mediaToAiringSchedulesMap.keys.toList())
                 mediaDao.insertSchedules(mediaToAiringSchedulesMap.values.flatten())
             }
