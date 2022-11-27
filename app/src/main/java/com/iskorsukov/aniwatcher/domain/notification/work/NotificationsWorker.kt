@@ -71,6 +71,8 @@ class NotificationsWorker @AssistedInject constructor(
         )
         if (notification != null) {
             notificationManagerCompat.notify(GROUP_NOTIFICATION_ID, notification)
+        } else {
+            notificationManagerCompat.cancel(GROUP_NOTIFICATION_ID)
         }
     }
 

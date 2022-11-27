@@ -41,6 +41,9 @@ object NotificationBuilderHelper {
             val existingMessages = getActiveNotificationsMessageMap(notificationManager)
             val newMessages = getNotificationsMessageMap(context, airingScheduleItemList)
             val messages = existingMessages.plus(newMessages)
+            if (messages.isEmpty()) {
+                return null
+            }
             val style = NotificationCompat.InboxStyle()
             messages.values.forEach { style.addLine(it) }
             return NotificationCompat.Builder(
