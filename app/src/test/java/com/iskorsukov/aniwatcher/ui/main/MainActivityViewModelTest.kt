@@ -3,7 +3,10 @@ package com.iskorsukov.aniwatcher.ui.main
 import com.google.common.truth.Truth.assertThat
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
+import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
+import com.iskorsukov.aniwatcher.domain.settings.ScheduleType
 import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
+import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 import io.mockk.*
@@ -27,12 +30,15 @@ class MainActivityViewModelTest {
     private val viewModel = MainActivityViewModel(airingRepository, settingsRepository, notificationsRepository)
 
     @Test
-    fun loadAiringData() = runTest {
+    fun loadAiringData_season() = runTest {
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
 
         mockkObject(DateTimeHelper)
         every { DateTimeHelper.currentYear(any()) } returns 2022
         every { DateTimeHelper.currentSeason(any()) } returns "FALL"
+
+        coEvery { settingsRepository.settingsStateFlow.value } returns
+                SettingsState(ScheduleType.SEASON, NamingScheme.ROMAJI, true)
 
         viewModel.loadAiringData()
         assertThat(viewModel.uiState.first().isRefreshing).isTrue()
@@ -46,12 +52,38 @@ class MainActivityViewModelTest {
     }
 
     @Test
+    fun loadAiringData_range() = runTest {
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+
+        mockkObject(DateTimeHelper)
+        every { DateTimeHelper.currentYear(any()) } returns 2022
+        every { DateTimeHelper.currentSeason(any()) } returns "FALL"
+        every { DateTimeHelper.currentWeekStartToEndSeconds(any()) } returns (0 to 1)
+
+        coEvery { settingsRepository.settingsStateFlow.value } returns
+                SettingsState(ScheduleType.ALL, NamingScheme.ROMAJI, true)
+
+        viewModel.loadAiringData()
+        assertThat(viewModel.uiState.first().isRefreshing).isTrue()
+
+        advanceUntilIdle()
+        assertThat(viewModel.uiState.first().isRefreshing).isFalse()
+
+        coVerify { airingRepository.loadRangeAiringData(0, 1) }
+
+        unmockkObject(DateTimeHelper)
+    }
+
+    @Test
     fun loadAiringData_exception() = runTest {
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
 
         mockkObject(DateTimeHelper)
         every { DateTimeHelper.currentYear(any()) } returns 2022
         every { DateTimeHelper.currentSeason(any()) } returns "FALL"
+
+        coEvery { settingsRepository.settingsStateFlow.value } returns
+                SettingsState(ScheduleType.SEASON, NamingScheme.ROMAJI, true)
 
         coEvery { airingRepository.loadSeasonAiringData(any(), any()) } throws IOException()
 

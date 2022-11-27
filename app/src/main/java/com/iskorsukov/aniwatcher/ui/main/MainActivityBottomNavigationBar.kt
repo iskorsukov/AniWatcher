@@ -15,18 +15,22 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.iskorsukov.aniwatcher.domain.settings.ScheduleType
 import com.iskorsukov.aniwatcher.ui.Screen
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 
 @Composable
 fun BottomNavigationBar(
-    navController: NavHostController
+    navController: NavHostController,
+    scheduleType: ScheduleType
 ) {
-    val items = listOf(
-        Screen.MediaScreen,
-        Screen.AiringScreen,
-        Screen.FollowingScreen
-    )
+    val items = mutableListOf<Screen>()
+    if (scheduleType == ScheduleType.SEASON) {
+        items.add(Screen.MediaScreen)
+    }
+    items.add(Screen.AiringScreen)
+    items.add(Screen.FollowingScreen)
+
     BottomNavigation(backgroundColor = LocalColors.current.primary) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
@@ -72,7 +76,34 @@ private fun BottomNavigationBarPreview() {
     val navController = rememberNavController()
     Scaffold(
         bottomBar = {
-            BottomNavigationBar(navController = navController)
+            BottomNavigationBar(
+                navController = navController,
+                scheduleType = ScheduleType.SEASON
+            )
+        }
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = "airing",
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable("media") { }
+            composable("airing") { }
+            composable("following") { }
+        }
+    }
+}
+
+@Composable
+@Preview
+private fun BottomNavigationBarPreview_scheduleTypeAll() {
+    val navController = rememberNavController()
+    Scaffold(
+        bottomBar = {
+            BottomNavigationBar(
+                navController = navController,
+                scheduleType = ScheduleType.ALL
+            )
         }
     ) { innerPadding ->
         NavHost(

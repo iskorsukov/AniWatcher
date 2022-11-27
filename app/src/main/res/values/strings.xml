@@ -6,8 +6,8 @@
     <string name="settings">Settings</string>
     <string name="notifications">Notifications</string>
 
-    <string name="media_screen_label">Media</string>
-    <string name="airing_screen_label">Airing</string>
+    <string name="media_screen_label">Shows</string>
+    <string name="airing_screen_label">Schedule</string>
     <string name="following_screen_label">Following</string>
 
     <string name="loading_error_label">Failed to load data</string>

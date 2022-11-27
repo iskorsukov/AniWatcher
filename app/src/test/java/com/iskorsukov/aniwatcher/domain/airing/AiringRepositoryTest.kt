@@ -1,6 +1,8 @@
 package com.iskorsukov.aniwatcher.domain.airing
 
 import com.google.common.truth.Truth.assertThat
+import com.iskorsukov.aniwatcher.RangeAiringDataQuery
+import com.iskorsukov.aniwatcher.SeasonAiringDataQuery
 import com.iskorsukov.aniwatcher.data.entity.MediaItemAndFollowingEntity
 import com.iskorsukov.aniwatcher.data.executor.AniListQueryExecutor
 import com.iskorsukov.aniwatcher.data.executor.MediaDatabaseExecutor
@@ -26,6 +28,8 @@ class AiringRepositoryTest {
     private val season = "FALL"
     private val year = 2022
     private val page = 1
+    private val start = 0
+    private val end = 1
 
     private lateinit var repository: AiringRepositoryImpl
 
@@ -74,7 +78,7 @@ class AiringRepositoryTest {
 
         coVerify {
             aniListQueryExecutor.seasonAiringDataQuery(year, season, page)
-            mapper.mapMediaWithSchedulesList(any())
+            mapper.mapMediaWithSchedulesList(any<SeasonAiringDataQuery.Data>())
             mediaDatabaseExecutor.updateMedia(any())
         }
     }
@@ -96,13 +100,13 @@ class AiringRepositoryTest {
     fun loadSeasonAiringData_mapperException() = runTest {
         repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor)
 
-        coEvery { mapper.mapMediaWithSchedulesList(any()) } throws IllegalArgumentException()
+        coEvery { mapper.mapMediaWithSchedulesList(any<SeasonAiringDataQuery.Data>()) } throws IllegalArgumentException()
 
         repository.loadSeasonAiringData(year, season)
 
         coVerify {
             aniListQueryExecutor.seasonAiringDataQuery(year, season, page)
-            mapper.mapMediaWithSchedulesList(any())
+            mapper.mapMediaWithSchedulesList(any<SeasonAiringDataQuery.Data>())
         }
     }
 
@@ -116,7 +120,49 @@ class AiringRepositoryTest {
 
         coVerify {
             aniListQueryExecutor.seasonAiringDataQuery(year, season, page)
-            mapper.mapMediaWithSchedulesList(any())
+            mapper.mapMediaWithSchedulesList(any<SeasonAiringDataQuery.Data>())
+            mediaDatabaseExecutor.updateMedia(any())
+        }
+    }
+
+    @Test
+    fun loadRangeAiringData() = runTest {
+        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor)
+
+        repository.loadRangeAiringData(start, end)
+
+        coVerify {
+            aniListQueryExecutor.rangeAiringDataQuery(start, end, page)
+            mapper.mapMediaWithSchedulesList(any<RangeAiringDataQuery.Data>())
+            mediaDatabaseExecutor.updateMedia(any())
+        }
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun loadRangeAiringData_mapperException() = runTest {
+        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor)
+
+        coEvery { mapper.mapMediaWithSchedulesList(any<RangeAiringDataQuery.Data>()) } throws IllegalArgumentException()
+
+        repository.loadRangeAiringData(start, end)
+
+        coVerify {
+            aniListQueryExecutor.rangeAiringDataQuery(start, end, page)
+            mapper.mapMediaWithSchedulesList(any<RangeAiringDataQuery.Data>())
+        }
+    }
+
+    @Test(expected = IOException::class)
+    fun loadRangeAiringData_databaseException() = runTest {
+        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor)
+
+        coEvery { mediaDatabaseExecutor.updateMedia(any()) } throws IOException()
+
+        repository.loadRangeAiringData(start, end)
+
+        coVerify {
+            aniListQueryExecutor.rangeAiringDataQuery(start, end, page)
+            mapper.mapMediaWithSchedulesList(any<RangeAiringDataQuery.Data>())
             mediaDatabaseExecutor.updateMedia(any())
         }
     }

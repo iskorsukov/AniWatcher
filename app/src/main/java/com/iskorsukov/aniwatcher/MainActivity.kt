@@ -21,6 +21,7 @@ import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.*
 import com.iskorsukov.aniwatcher.domain.notification.alarm.NotificationsAlarmBuilder
 import com.iskorsukov.aniwatcher.ui.airing.AiringScreen
@@ -100,6 +101,7 @@ class MainActivity : ComponentActivity() {
             }
 
             LaunchedEffect(settingsState.scheduleType) {
+                navController.popBackStack(navController.graph.findStartDestination().id, false)
                 mainActivityViewModel.loadAiringData()
             }
 
@@ -118,7 +120,10 @@ class MainActivity : ComponentActivity() {
                         )
                     },
                     bottomBar = {
-                        BottomNavigationBar(navController = navController)
+                        BottomNavigationBar(
+                            navController = navController,
+                            scheduleType = settingsState.scheduleType
+                        )
                     },
                     scaffoldState = scaffoldState,
                     backgroundColor = LocalColors.current.background

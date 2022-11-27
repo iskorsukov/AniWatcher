@@ -69,6 +69,10 @@ fun MediaItemEntity.mediaId(mediaId: Int): MediaItemEntity {
     return this.copy(mediaId = mediaId)
 }
 
+fun MediaItemEntity.seasonRanking(seasonRanking: MediaItemEntity.Ranking?): MediaItemEntity {
+    return this.copy(seasonRanking = seasonRanking)
+}
+
 fun FollowingEntity.followingEntryId(followingEntryId: Int): FollowingEntity {
     return this.copy(followingEntryId = followingEntryId)
 }
