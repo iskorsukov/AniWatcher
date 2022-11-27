@@ -9,7 +9,9 @@ val OnPrimaryColor = Color(0xFFFFFFFF)
 val OnPrimaryColorDark = Color(0xFF6E859E)
 val SecondaryColor = Color(0xFF60EDFF)
 val BackgroundColor = Color(0xFFFFFFFF)
+val BackgroundSecondaryColor = Color(0xFFEDF1F5)
 val BackgroundColorDark = Color(0xFF13171D)
+val BackgroundSecondaryColorDark = Color(0xFF1F232D)
 
 val TitleOverlayColor = Color(0xE6292929)
 
@@ -35,6 +37,7 @@ data class ThemedColors(
     val primary: Color = PrimaryColor,
     val onPrimary: Color = OnPrimaryColor,
     val background: Color = BackgroundColor,
+    val backgroundSecondary: Color = BackgroundSecondaryColor,
     val attentionBackground: Color = AttentionBackgroundColor,
     val secondary: Color = SecondaryColor,
     val titleOverlay: Color = TitleOverlayColor,
@@ -54,6 +57,7 @@ data class ThemedColors(
             primary = PrimaryColorDark,
             onPrimary = OnPrimaryColorDark,
             background = BackgroundColorDark,
+            backgroundSecondary = BackgroundSecondaryColorDark,
             cardBackground = CardBackgroundColorDark,
             cardFooterBackground = CardFooterBackgroundColorDark,
             error = ErrorColorDark,

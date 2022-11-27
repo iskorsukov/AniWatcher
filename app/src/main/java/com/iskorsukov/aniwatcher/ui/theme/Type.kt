@@ -79,6 +79,12 @@ val HeadlineTextStyle = TextStyle(
     fontSize = 18.sp
 )
 
+val HeadlineEmphasisTextStyle = TextStyle(
+    fontWeight = FontWeight.Medium,
+    color = TextColor,
+    fontSize = 18.sp
+)
+
 val TopBarTitleTextStyle = TextStyle(
     fontWeight = FontWeight.Medium,
     color = TextColor,
@@ -96,6 +102,12 @@ val HeadlineTextStyleSmall = TextStyle(
     fontSize = 14.sp
 )
 
+val HeadlineTextStyleSmallEmphasis = TextStyle(
+    fontWeight = FontWeight.Medium,
+    color = TextColor,
+    fontSize = 14.sp
+)
+
 val PopupButtonTextStyle = TextStyle(
     fontWeight = FontWeight.Medium,
     fontSize = 16.sp,
@@ -106,7 +118,7 @@ val PopupButtonTextStyle = TextStyle(
 val PopupButtonTextStyleDark = TextStyle(
     fontWeight = FontWeight.Medium,
     fontSize = 16.sp,
-    color = TextColor,
+    color = Color.White,
     textAlign = TextAlign.Center
 )
 
@@ -123,7 +135,9 @@ data class ThemedTextStyles(
     val contentMediumEmphasis: TextStyle = ContentTextStyleMediumEmphasis,
     val contentMediumEmphasisWhite: TextStyle = ContentTextStyleMediumEmphasisWhite,
     val headline: TextStyle = HeadlineTextStyle,
+    val headlineEmphasis: TextStyle = HeadlineEmphasisTextStyle,
     val headlineSmall: TextStyle = HeadlineTextStyleSmall,
+    val headlineSmallEmphasis: TextStyle = HeadlineTextStyleSmallEmphasis,
     val topBarTitle: TextStyle = TopBarTitleTextStyleWhite,
     val popupMessageLabel: TextStyle = ContentTextStyleMediumEmphasisWhite,
     val popupMessageSubLabel: TextStyle = ContentTextStyleMediumWhite,
@@ -135,8 +149,8 @@ data class ThemedTextStyles(
 
         val DARK = ThemedTextStyles(
             topBarTitle = TopBarTitleTextStyle,
-            popupMessageLabel = ContentTextStyleMedium,
-            popupMessageSubLabel = ContentTextStyleSmallEmphasis,
+            popupMessageLabel = ContentTextStyleMediumWhite,
+            popupMessageSubLabel = ContentTextStyleSmallEmphasisWhite,
             popupMessageButton = PopupButtonTextStyleDark
         )
     }

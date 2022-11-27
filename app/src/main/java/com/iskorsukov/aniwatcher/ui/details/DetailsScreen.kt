@@ -1,5 +1,6 @@
 package com.iskorsukov.aniwatcher.ui.details
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Card
@@ -58,15 +59,18 @@ private fun DetailScreenContent(
     preferredNamingScheme: NamingScheme
 ) {
     ConstraintLayout(modifier = modifier.fillMaxSize()) {
-        val (bannerImage,
+        val (
+            bannerImage,
             coverImage,
             contentBody,
-            mediaInfo
+            mediaInfo,
+            mediaInfoBackground
         ) = createRefs()
 
         val separatorGuideline = createGuidelineFromStart(0.35f)
 
-        val mediaInfoTopBarrier = createBottomBarrier(bannerImage, coverImage)
+        val mediaInfoBackgroundTopBarrier = createBottomBarrier(bannerImage)
+        val mediaInfoContentTopBarrier = createBottomBarrier(bannerImage, coverImage)
         val coverImageTopBarrier = createBottomBarrier(bannerImage, margin = (-40).dp)
         val contentBodyTopBarrier = createBottomBarrier(bannerImage)
 
@@ -83,12 +87,27 @@ private fun DetailScreenContent(
             )
         }
 
+        Box(
+            modifier = Modifier
+                .background(LocalColors.current.backgroundSecondary)
+                .constrainAs(mediaInfoBackground) {
+                    start.linkTo(parent.start)
+                    end.linkTo(separatorGuideline)
+                    top.linkTo(mediaInfoBackgroundTopBarrier)
+                    bottom.linkTo(parent.bottom)
+
+                    width = Dimension.fillToConstraints
+                    height = Dimension.fillToConstraints
+                }
+        )
+
+
         if (mediaItem.coverImageUrl != null) {
             MediaItemImage(
                 imageUrl = mediaItem.coverImageUrl,
                 modifier = Modifier
                     .height(160.dp)
-                    .padding(start = 8.dp, top = 8.dp)
+                    .padding(start = 8.dp, end = 8.dp, top = 8.dp)
                     .constrainAs(coverImage) {
                         start.linkTo(parent.start)
                         end.linkTo(separatorGuideline)
@@ -98,6 +117,19 @@ private fun DetailScreenContent(
                     }
             )
         }
+
+        DetailsMediaInfoColumn(
+            mediaItem = mediaItem,
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .constrainAs(mediaInfo) {
+                    start.linkTo(parent.start)
+                    end.linkTo(separatorGuideline)
+                    top.linkTo(mediaInfoContentTopBarrier)
+
+                    width = Dimension.fillToConstraints
+                }
+        )
 
         DetailsContentLazyColumn(
             mediaItem = mediaItem,
@@ -113,19 +145,6 @@ private fun DetailScreenContent(
 
                     width = Dimension.fillToConstraints
                     height = Dimension.fillToConstraints
-                }
-        )
-
-        DetailsMediaInfoColumn(
-            mediaItem = mediaItem,
-            modifier = Modifier
-                .padding(horizontal = 8.dp)
-                .constrainAs(mediaInfo) {
-                    top.linkTo(mediaInfoTopBarrier)
-                    start.linkTo(parent.start)
-                    end.linkTo(separatorGuideline)
-
-                    width = Dimension.fillToConstraints
                 }
         )
     }
@@ -153,8 +172,8 @@ private fun DetailsContentLazyColumn(
             item {
                 Text(
                     text = stringResource(id = R.string.media_info_airing_schedule),
-                    style = LocalTextStyles.current.headline,
-                    modifier =  Modifier.padding(top = 8.dp)
+                    style = LocalTextStyles.current.headlineSmallEmphasis,
+                    modifier =  Modifier.padding(top = 4.dp)
                 )
             }
             airingScheduleList.map {
@@ -191,7 +210,7 @@ private fun DetailsTitleDescriptionColumn(
     ) {
         Text(
             text = mediaItem.title.baseText(preferredNamingScheme),
-            style = LocalTextStyles.current.headline
+            style = LocalTextStyles.current.headlineEmphasis
         )
         if (mediaItem.title.subText().isNotEmpty()) {
             Text(
@@ -199,7 +218,7 @@ private fun DetailsTitleDescriptionColumn(
                 style = LocalTextStyles.current.headlineSmall
             )
         }
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         HtmlText(
             text = mediaItem.description.orEmpty(),
             style = LocalTextStyles.current.contentSmallLarger
@@ -225,6 +244,7 @@ private fun DetailsAiringScheduleCard(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 4.dp),
+        backgroundColor = LocalColors.current.cardBackground,
         elevation = 4.dp
     ) {
         MediaItemAiringInfoColumn(

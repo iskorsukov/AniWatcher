@@ -11,6 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iskorsukov.aniwatcher.ui.base.topbar.BackArrowTopAppBar
+import com.iskorsukov.aniwatcher.ui.theme.AniWatcherTheme
+import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -44,22 +46,25 @@ class DetailsActivity: ComponentActivity() {
             val mediaItemToAiringSchedules by viewModel.getMediaWithAiringSchedules(mediaItemId)
                 .collectAsStateWithLifecycle(null)
 
-            Scaffold(
-                topBar = {
-                    BackArrowTopAppBar {
-                        finish()
+            AniWatcherTheme {
+                Scaffold(
+                    topBar = {
+                        BackArrowTopAppBar {
+                            finish()
+                        }
+                    },
+                    backgroundColor = LocalColors.current.background
+                ) { innerPadding ->
+                    if (mediaItemToAiringSchedules != null) {
+                        DetailsScreen(
+                            timeInMinutesFlow = timeInMinutesFlow,
+                            mediaItem = mediaItemToAiringSchedules!!.first,
+                            airingScheduleList = mediaItemToAiringSchedules!!.second
+                                .sortedBy { it.airingAt },
+                            preferredNamingScheme = settingsState.preferredNamingScheme,
+                            modifier = Modifier.padding(innerPadding)
+                        )
                     }
-                }
-            ) { innerPadding ->
-                if (mediaItemToAiringSchedules != null) {
-                    DetailsScreen(
-                        timeInMinutesFlow = timeInMinutesFlow,
-                        mediaItem = mediaItemToAiringSchedules!!.first,
-                        airingScheduleList = mediaItemToAiringSchedules!!.second
-                            .sortedBy { it.airingAt },
-                        preferredNamingScheme = settingsState.preferredNamingScheme,
-                        modifier = Modifier.padding(innerPadding)
-                    )
                 }
             }
         }

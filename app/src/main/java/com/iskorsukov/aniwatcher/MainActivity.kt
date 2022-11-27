@@ -19,11 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.*
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
 import com.iskorsukov.aniwatcher.domain.notification.alarm.NotificationsAlarmReceiver
-import com.iskorsukov.aniwatcher.domain.notification.work.NotificationsWorker
 import com.iskorsukov.aniwatcher.ui.airing.AiringScreen
 import com.iskorsukov.aniwatcher.ui.airing.AiringViewModel
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
@@ -42,7 +38,6 @@ import com.iskorsukov.aniwatcher.ui.sorting.SelectSortingOptionDialog
 import com.iskorsukov.aniwatcher.ui.theme.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import java.util.concurrent.TimeUnit
@@ -159,7 +154,6 @@ class MainActivity : ComponentActivity() {
                             exit = slideOutVertically(targetOffsetY = { it * 2 }),
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
-                                .padding(8.dp)
                         ) {
                             val errorItem = uiState.errorItem!!
                             ErrorPopupDialogSurface(
@@ -170,7 +164,8 @@ class MainActivity : ComponentActivity() {
                                         ErrorItem.Action.DISMISS -> {}
                                     }
                                 },
-                                onDismissRequest = { shouldShowErrorDialog = false }
+                                onDismissRequest = { shouldShowErrorDialog = false },
+                                modifier = Modifier.padding(8.dp)
                             )
                         }
                     }
