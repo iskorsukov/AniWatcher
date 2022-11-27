@@ -26,10 +26,11 @@ class NotificationsWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         createNotificationChannel()
-        notificationsRepository.getPendingSchedulesToNotify().let {
-            it.forEach {
+        notificationsRepository.getPendingSchedulesToNotify().let { list ->
+            list.forEach {
                 fireAiredNotification(it)
             }
+            fireUpdatedGroupNotification(list)
         }
         return Result.success()
     }
@@ -50,7 +51,9 @@ class NotificationsWorker @AssistedInject constructor(
     }
 
     private suspend fun fireAiredNotification(airingScheduleItem: AiringScheduleItem) {
-        val notification = NotificationBuilderHelper.buildNotification(applicationContext, airingScheduleItem)
+        val notification = NotificationBuilderHelper.buildNotification(
+            applicationContext, airingScheduleItem
+        )
         notificationManagerCompat.notify(airingScheduleItem.id, notification)
         notificationsRepository.saveNotification(
             NotificationItem(
@@ -61,8 +64,19 @@ class NotificationsWorker @AssistedInject constructor(
         notificationsRepository.increaseUnreadNotificationsCounter()
     }
 
+    private fun fireUpdatedGroupNotification(airingScheduleItemList: List<AiringScheduleItem>) {
+        val notification = NotificationBuilderHelper.buildGroupSummaryNotification(
+            applicationContext,
+            airingScheduleItemList
+        )
+        if (notification != null) {
+            notificationManagerCompat.notify(GROUP_NOTIFICATION_ID, notification)
+        }
+    }
+
     companion object {
         const val CHANNEL_ID = "AniWatcherAiring"
+        private const val GROUP_NOTIFICATION_ID = 554
     }
 
 }
