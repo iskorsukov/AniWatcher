@@ -52,9 +52,7 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun onSearchTextInput(searchText: String) {
-        if (searchText != _uiState.value.searchText) {
-            _uiState.value = _uiState.value.copy(searchText = searchText)
-        }
+        _uiState.value = _uiState.value.copy(searchText = searchText)
     }
 
     fun appendSearchText(searchText: String) {
@@ -67,14 +65,10 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun onSortingOptionSelected(sortingOption: SortingOption) {
-        if (sortingOption != _uiState.value.sortingOption) {
-            _uiState.value = _uiState.value.copy(sortingOption = sortingOption)
-        }
+        _uiState.value = _uiState.value.copy(sortingOption = sortingOption)
     }
 
     fun onSearchFieldOpenChange(isSearchFieldOpen: Boolean) {
-        if (isSearchFieldOpen != _uiState.value.searchFieldOpen) {
-            _uiState.value = _uiState.value.copy(searchFieldOpen = isSearchFieldOpen)
-        }
+        _uiState.value = _uiState.value.copy(searchFieldOpen = isSearchFieldOpen)
     }
 }

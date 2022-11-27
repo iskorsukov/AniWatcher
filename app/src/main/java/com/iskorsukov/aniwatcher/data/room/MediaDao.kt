@@ -27,15 +27,12 @@ interface MediaDao {
     @Query("DELETE FROM following WHERE mediaItemRelationId = :mediaId")
     suspend fun unfollowMedia(mediaId: Int)
 
-    @Transaction
     @Query("DELETE FROM following WHERE mediaItemRelationId IN (:mediaIdList)")
     suspend fun unfollowMedia(mediaIdList: List<Int>)
 
-    @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMedia(mediaItemEntityList: List<MediaItemEntity>)
 
-    @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSchedules(airingScheduleEntityList: List<AiringScheduleEntity>)
 

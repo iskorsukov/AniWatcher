@@ -12,11 +12,15 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.*
 import com.iskorsukov.aniwatcher.domain.notification.alarm.NotificationsAlarmBuilder
 import com.iskorsukov.aniwatcher.ui.airing.AiringScreen
@@ -39,6 +43,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalLifecycleComposeApi::class)
@@ -60,28 +65,32 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                mainActivityViewModel.settingsState.collect { state ->
+                    if (state.notificationsEnabled) {
+                        scheduleNotificationChecks()
+                    } else {
+                        cancelNotificationChecks()
+                    }
+                }
+            }
+        }
+
         setContent {
             val navController = rememberNavController()
 
             val scaffoldState = rememberScaffoldState()
             val uiState by mainActivityViewModel.uiState.collectAsStateWithLifecycle()
 
-            val settingsState by mainActivityViewModel.settingsState.collectAsStateWithLifecycle()
-            LaunchedEffect(settingsState.notificationsEnabled) {
-                if (settingsState.notificationsEnabled) {
-                    scheduleNotificationChecks()
-                } else {
-                    cancelNotificationChecks()
-                }
-            }
-
             val unreadNotifications by mainActivityViewModel.unreadNotificationsState
                 .collectAsStateWithLifecycle()
 
-            var shouldShowSortingOptionsDialog by remember {
+            var shouldShowSortingOptionsDialog by rememberSaveable {
                 mutableStateOf(false)
             }
-            var shouldShowErrorDialog by remember(uiState.errorItem) {
+            var shouldShowErrorDialog by rememberSaveable(uiState.errorItem) {
                 mutableStateOf(uiState.errorItem != null)
             }
 
@@ -91,11 +100,9 @@ class MainActivity : ComponentActivity() {
                         TopBar(
                             uiState = uiState,
                             navController = navController,
-                            onSelectSortingOptionClicked = {
-                                shouldShowSortingOptionsDialog = true
-                            },
-                            onSettingsClicked = { startSettingsActivity() },
-                            onNotificationsClicked = { startNotificationsActivity() },
+                            onSelectSortingOptionClicked = { shouldShowSortingOptionsDialog = true },
+                            onSettingsClicked = this::startSettingsActivity,
+                            onNotificationsClicked = this::startNotificationsActivity,
                             onSearchTextInput = mainActivityViewModel::onSearchTextInput,
                             onSearchFieldOpenChange = mainActivityViewModel::onSearchFieldOpenChange,
                             unreadNotifications = unreadNotifications
@@ -148,24 +155,26 @@ class MainActivity : ComponentActivity() {
                         }
 
                         AnimatedVisibility(
-                            visible = shouldShowErrorDialog && uiState.errorItem != null,
+                            visible = shouldShowErrorDialog,
                             enter = slideInVertically(initialOffsetY = { it * 2 }),
                             exit = slideOutVertically(targetOffsetY = { it * 2 }),
                             modifier = Modifier
                                 .align(Alignment.BottomCenter)
                         ) {
-                            val errorItem = uiState.errorItem!!
-                            ErrorPopupDialogSurface(
-                                errorItem = errorItem,
-                                onActionClicked = {
-                                    when (errorItem.action) {
-                                        ErrorItem.Action.REFRESH -> mainActivityViewModel.loadAiringData()
-                                        ErrorItem.Action.DISMISS -> {}
-                                    }
-                                },
-                                onDismissRequest = { shouldShowErrorDialog = false },
-                                modifier = Modifier.padding(8.dp)
-                            )
+                            val errorItem = uiState.errorItem
+                            if (errorItem != null) {
+                                ErrorPopupDialogSurface(
+                                    errorItem = errorItem,
+                                    onActionClicked = {
+                                        when (errorItem.action) {
+                                            ErrorItem.Action.REFRESH -> mainActivityViewModel.loadAiringData()
+                                            ErrorItem.Action.DISMISS -> {}
+                                        }
+                                    },
+                                    onDismissRequest = { shouldShowErrorDialog = false },
+                                    modifier = Modifier.padding(8.dp)
+                                )
+                            }
                         }
                     }
                 }
