@@ -11,7 +11,7 @@ interface NotificationsRepository {
 
     val unreadNotificationsCounterStateFlow: StateFlow<Int>
 
-    suspend fun getPendingSchedulesToNotifyFlow(): Flow<List<AiringScheduleItem>>
+    suspend fun getPendingSchedulesToNotify(): List<AiringScheduleItem>
 
     suspend fun saveNotification(notificationItem: NotificationItem)
 

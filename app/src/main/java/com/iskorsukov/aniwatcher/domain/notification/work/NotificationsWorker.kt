@@ -12,24 +12,21 @@ import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.NotificationItem
 import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
-import com.iskorsukov.aniwatcher.domain.notification.work.util.LocalClockSystem
 import com.iskorsukov.aniwatcher.domain.notification.work.util.NotificationBuilderHelper
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.flow.first
 
 @HiltWorker
 class NotificationsWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val clock: LocalClockSystem,
     private val notificationsRepository: NotificationsRepository,
     private val notificationManagerCompat: NotificationManagerCompat
 ): CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
         createNotificationChannel()
-        notificationsRepository.getPendingSchedulesToNotifyFlow().first().let {
+        notificationsRepository.getPendingSchedulesToNotify().let {
             it.forEach {
                 fireAiredNotification(it)
             }
@@ -58,7 +55,7 @@ class NotificationsWorker @AssistedInject constructor(
         notificationsRepository.saveNotification(
             NotificationItem(
                 airingScheduleItem = airingScheduleItem,
-                firedAtMillis = clock.currentTimeMillis()
+                firedAtMillis = System.currentTimeMillis()
             )
         )
         notificationsRepository.increaseUnreadNotificationsCounter()

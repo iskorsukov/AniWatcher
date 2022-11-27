@@ -4,19 +4,21 @@ import androidx.room.withTransaction
 import com.iskorsukov.aniwatcher.data.entity.*
 import com.iskorsukov.aniwatcher.data.room.MediaDatabase
 import com.iskorsukov.aniwatcher.domain.model.NotificationItem
+import com.iskorsukov.aniwatcher.domain.notification.work.util.LocalClockSystem
 import com.iskorsukov.aniwatcher.domain.util.DispatcherProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class MediaDatabaseExecutor @Inject constructor(
-    private val mediaDatabase: MediaDatabase
+    private val mediaDatabase: MediaDatabase,
+    private val clock: LocalClockSystem
 ) {
     private val mediaDao = mediaDatabase.mediaDao()
     private val notificationsDao = mediaDatabase.notificationsDao()
 
     val mediaDataFlow: Flow<Map<MediaItemAndFollowingEntity, List<AiringScheduleEntity>>> =
-        mediaDao.getAllNotAired()
+        mediaDao.getAllNotAired(clock.currentTimeSeconds())
 
     val notificationsFlow: Flow<Map<MediaItemEntity, List<AiringScheduleAndNotificationEntity>>> =
         notificationsDao.getAll()
@@ -33,17 +35,17 @@ class MediaDatabaseExecutor @Inject constructor(
     }
 
     fun getMediaWithAiringSchedulesAndFollowing(mediaItemId: Int): Flow<Map<MediaItemAndFollowingEntity, List<AiringScheduleEntity>>> {
-        return mediaDao.getByIdNotAired(mediaItemId)
+        return mediaDao.getByIdNotAired(mediaItemId, clock.currentTimeSeconds())
     }
 
-    fun getPendingNotificationsFlow(): Flow<Map<MediaItemEntity, List<AiringScheduleEntity>>> {
-        return notificationsDao.getPending()
+    suspend fun getPendingNotifications(): Map<MediaItemEntity, List<AiringScheduleEntity>> {
+        return notificationsDao.getPending(clock.currentTimeSeconds())
     }
 
     suspend fun followMedia(mediaItemId: Int) {
         withContext(DispatcherProvider.io()) {
             mediaDatabase.withTransaction {
-                mediaDao.clearNotNotifiedAiredSchedules(mediaItemId) // so that only aired schedules from now on get notifications
+                mediaDao.clearNotNotifiedAiredSchedules(mediaItemId, clock.currentTimeSeconds()) // so that only aired schedules from now on get notifications
                 mediaDao.followMedia(FollowingEntity(null, mediaItemId))
             }
         }

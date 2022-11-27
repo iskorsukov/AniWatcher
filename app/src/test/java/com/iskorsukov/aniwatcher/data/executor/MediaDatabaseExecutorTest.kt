@@ -44,6 +44,12 @@ class MediaDatabaseExecutorTest {
                     )
                 )
     )
+    private val pendingNotificationsData = mapOf(
+        EntityTestDataCreator.baseMediaItemEntity() to
+                listOf(
+                    EntityTestDataCreator.baseAiringScheduleEntity()
+                )
+    )
 
     private fun initMocks(testScheduler: TestCoroutineScheduler) {
         MockKAnnotations.init(this)
@@ -53,18 +59,19 @@ class MediaDatabaseExecutorTest {
         every { DispatcherProvider.io() } returns StandardTestDispatcher(testScheduler)
 
         every { mediaDatabase.mediaDao() } returns mediaDao
-        every { mediaDao.getAllNotAired() } returns flowOf(mediaFlowData)
-        every { mediaDao.getByIdNotAired(any()) } returns flowOf(mediaFlowData)
+        every { mediaDao.getAllNotAired(any()) } returns flowOf(mediaFlowData)
+        every { mediaDao.getByIdNotAired(any(), any()) } returns flowOf(mediaFlowData)
 
         every { mediaDatabase.notificationsDao() } returns notificationsDao
         every { notificationsDao.getAll() } returns flowOf(notificationFlowData)
+        coEvery { notificationsDao.getPending(any()) } returns pendingNotificationsData
 
         val transactionLambda = slot<suspend () -> Unit>()
         coEvery { mediaDatabase.withTransaction(capture(transactionLambda)) } coAnswers  {
             transactionLambda.captured.invoke()
         }
 
-        mediaDatabaseExecutor = MediaDatabaseExecutor(mediaDatabase)
+        mediaDatabaseExecutor = MediaDatabaseExecutor(mediaDatabase, mockk(relaxed = true))
     }
 
     private fun cleanupMocks() {
@@ -80,7 +87,7 @@ class MediaDatabaseExecutorTest {
         assertThat(entity)
             .isEqualTo(mediaFlowData)
 
-        coVerify { mediaDao.getAllNotAired() }
+        coVerify { mediaDao.getAllNotAired(0) }
 
         cleanupMocks()
     }
@@ -99,6 +106,19 @@ class MediaDatabaseExecutorTest {
     }
 
     @Test
+    fun getPendingNotifications() = runTest {
+        initMocks(testScheduler)
+
+        val entity = mediaDatabaseExecutor.getPendingNotifications()
+
+        assertThat(entity).isEqualTo(pendingNotificationsData)
+
+        coVerify { notificationsDao.getPending(0) }
+
+        cleanupMocks()
+    }
+
+    @Test
     fun getMediaWithAiringSchedulesAndFollowing() = runTest {
         initMocks(testScheduler)
 
@@ -110,7 +130,7 @@ class MediaDatabaseExecutorTest {
             .isEqualTo(mediaFlowData)
 
         coVerify {
-            mediaDao.getByIdNotAired(1)
+            mediaDao.getByIdNotAired(1, 0)
         }
 
         cleanupMocks()
@@ -146,7 +166,7 @@ class MediaDatabaseExecutorTest {
         advanceUntilIdle()
 
         coVerify {
-            mediaDao.clearNotNotifiedAiredSchedules(1)
+            mediaDao.clearNotNotifiedAiredSchedules(1, 0)
             mediaDao.followMedia(FollowingEntity(null, 1))
         }
 

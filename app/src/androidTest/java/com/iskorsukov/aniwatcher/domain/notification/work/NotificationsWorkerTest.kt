@@ -8,33 +8,22 @@ import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
-import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
-import com.iskorsukov.aniwatcher.domain.notification.work.util.LocalClockSystem
 import com.iskorsukov.aniwatcher.domain.notification.work.util.NotificationBuilderHelper
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
-import com.iskorsukov.aniwatcher.test.airingAt
 import com.iskorsukov.aniwatcher.test.id
-import com.iskorsukov.aniwatcher.test.isFollowing
 import io.mockk.*
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 class NotificationsWorkerTest {
 
     private lateinit var context: Context
 
-    private val clock: LocalClockSystem = mockk<LocalClockSystem>().apply {
-        every { currentTimeMillis() } returns TimeUnit.MINUTES.toMillis(10L)
-    }
-
-    private val airingRepository: AiringRepository = mockk(relaxed = true)
     private val notificationManagerCompat: NotificationManagerCompat = mockk(relaxed = true)
 
     private lateinit var notificationsRepository: NotificationsRepository
@@ -48,17 +37,12 @@ class NotificationsWorkerTest {
         mockkObject(NotificationBuilderHelper)
         every { NotificationBuilderHelper.buildNotification(any(), any()) } returns mockk()
 
-        coEvery { notificationsRepository.getPendingSchedulesToNotifyFlow() } returns flowOf(
-            listOf(
-                ModelTestDataCreator.baseAiringScheduleItem()
-                    .airingAt(TimeUnit.MINUTES.toSeconds(0L).toInt()),
-                ModelTestDataCreator.baseAiringScheduleItem()
-                    .id(2)
-                    .airingAt(TimeUnit.MINUTES.toSeconds(12L).toInt())
-            )
+        notificationsRepository = mockk(relaxed = true)
+        coEvery { notificationsRepository.getPendingSchedulesToNotify() } returns listOf(
+            ModelTestDataCreator.baseAiringScheduleItem(),
+            ModelTestDataCreator.baseAiringScheduleItem().id(2)
         )
 
-        notificationsRepository = mockk(relaxed = true)
 
         notificationsWorker = TestListenableWorkerBuilder<NotificationsWorker>(context)
             .setWorkerFactory(object : WorkerFactory() {
@@ -70,7 +54,6 @@ class NotificationsWorkerTest {
                     return NotificationsWorker(
                         context,
                         workerParameters,
-                        clock,
                         notificationsRepository,
                         notificationManagerCompat
                     )
@@ -85,10 +68,7 @@ class NotificationsWorkerTest {
     }
 
     @Test
-    fun firesNotificationIfNeeded() = runBlocking {
-        notificationsWorker.doWork()
-
-        every { clock.currentTimeMillis() } returns TimeUnit.MINUTES.toMillis(25L)
+    fun firesPendingNotifications() = runBlocking {
         notificationsWorker.doWork()
 
         coVerify(exactly = 1) {

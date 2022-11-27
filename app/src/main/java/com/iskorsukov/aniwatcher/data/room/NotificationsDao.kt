@@ -22,11 +22,12 @@ interface NotificationsDao {
         "SELECT * FROM media " +
                 "LEFT JOIN airing ON mediaId = airing.mediaItemRelationId " +
                 "WHERE mediaId IN (SELECT following.mediaItemRelationId FROM following) " +
-                "AND airingAt < strftime('%s', 'now') " +
+                "AND airingAt < :currentTimeInSeconds " +
                 "AND airingScheduleItemId NOT IN (SELECT airingScheduleItemRelationId FROM notifications) "
     )
-    fun getPending(): Flow<Map<MediaItemEntity, List<AiringScheduleEntity>>>
+    suspend fun getPending(currentTimeInSeconds: Int): Map<MediaItemEntity, List<AiringScheduleEntity>>
 
+    @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertNotification(notification: NotificationItemEntity)
 }
