@@ -31,7 +31,7 @@ fun MediaItemCardCollapsed(
     Card(
         modifier = Modifier
             .padding(top = 8.dp, start = 8.dp, end = 8.dp)
-            .height(110.dp)
+            .heightIn(min = 100.dp)
             .fillMaxWidth()
             .clickable { onMediaClicked.invoke(mediaItem) },
         elevation = 4.dp,
@@ -46,8 +46,11 @@ fun MediaItemCardCollapsed(
                 modifier = Modifier.constrainAs(image) {
                     start.linkTo(parent.start)
                     end.linkTo(imageEndGuideline)
-                    height = Dimension.matchParent
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom)
+
                     width = Dimension.fillToConstraints
+                    height = Dimension.fillToConstraints
                 }
             )
 
@@ -72,8 +75,8 @@ fun MediaItemCardCollapsed(
                     .constrainAs(cardContent) {
                         start.linkTo(imageEndGuideline)
                         end.linkTo(parent.end)
+
                         width = Dimension.fillToConstraints
-                        height = Dimension.matchParent
                     }
             ) {
                 Text(

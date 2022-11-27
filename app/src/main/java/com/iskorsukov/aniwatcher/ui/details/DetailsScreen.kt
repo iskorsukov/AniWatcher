@@ -129,7 +129,6 @@ private fun DetailScreenContent(
 
         DetailsMediaInfoColumn(
             mediaItem = mediaItem,
-            onLearnMoreClicked = onLearnMoreClicked,
             modifier = Modifier
                 .padding(horizontal = 8.dp)
                 .constrainAs(mediaInfo) {
@@ -146,6 +145,7 @@ private fun DetailScreenContent(
             preferredNamingScheme = preferredNamingScheme,
             airingScheduleList = airingScheduleList,
             timeInMinutes = timeInMinutes,
+            onLearnMoreClicked = onLearnMoreClicked,
             modifier = Modifier
                 .constrainAs(contentBody) {
                     top.linkTo(contentBodyTopBarrier)
@@ -166,7 +166,8 @@ private fun DetailsContentLazyColumn(
     preferredNamingScheme: NamingScheme,
     airingScheduleList: List<AiringScheduleItem>?,
     timeInMinutes: Long,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onLearnMoreClicked: (String) -> Unit
 ) {
     LazyColumn(
         modifier = modifier,
@@ -177,6 +178,28 @@ private fun DetailsContentLazyColumn(
                 mediaItem = mediaItem,
                 preferredNamingScheme = preferredNamingScheme
             )
+        }
+        item {
+            if (mediaItem.siteUrl != null) {
+                Text(
+                    text = stringResource(id = R.string.media_info_learn_more).uppercase(),
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 14.sp,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                        .background(
+                            LocalColors.current.primary,
+                            RoundedCornerShape(8.dp)
+                        )
+                        .clickable {
+                            onLearnMoreClicked.invoke(mediaItem.siteUrl)
+                        }
+                        .padding(8.dp)
+                )
+            }
         }
         if (airingScheduleList?.isNotEmpty() == true) {
             item {
@@ -205,7 +228,8 @@ private fun DetailsContentLazyColumnPreview() {
         mediaItem = ModelTestDataCreator.baseMediaItem(),
         preferredNamingScheme = NamingScheme.ENGLISH,
         airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
-        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES
+        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
+        onLearnMoreClicked = { }
     )
 }
 
@@ -277,8 +301,7 @@ private fun DetailsAiringScheduleCardPreview() {
 @Composable
 private fun DetailsMediaInfoColumn(
     mediaItem: MediaItem,
-    modifier: Modifier = Modifier,
-    onLearnMoreClicked: (String) -> Unit
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
@@ -313,26 +336,6 @@ private fun DetailsMediaInfoColumn(
                 subLabel = mediaItem.genres.joinToString(separator = ", ")
             )
         }
-        if (mediaItem.siteUrl != null) {
-            Text(
-                text = stringResource(id = R.string.media_info_learn_more).uppercase(),
-                fontWeight = FontWeight.Medium,
-                fontSize = 14.sp,
-                color = Color.White,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp)
-                    .background(
-                        LocalColors.current.primary,
-                        RoundedCornerShape(8.dp)
-                    )
-                    .clickable {
-                        onLearnMoreClicked.invoke(mediaItem.siteUrl)
-                    }
-                    .padding(8.dp)
-            )
-        }
     }
 }
 
@@ -340,8 +343,7 @@ private fun DetailsMediaInfoColumn(
 @Preview
 private fun DetailsMediaInfoColumnPreview() {
     DetailsMediaInfoColumn(
-        mediaItem = ModelTestDataCreator.baseMediaItem(),
-        onLearnMoreClicked = { }
+        mediaItem = ModelTestDataCreator.baseMediaItem()
     )
 }
 

@@ -43,7 +43,7 @@ fun MediaItemCardExtended(
     Card(
         modifier = Modifier
             .padding(8.dp)
-            .height(200.dp)
+            .heightIn(min = 200.dp)
             .fillMaxWidth()
             .clickable { onMediaClicked.invoke(mediaItem) },
         elevation = 8.dp,
@@ -55,6 +55,7 @@ fun MediaItemCardExtended(
                 format,
                 titleOverlay,
                 cardContent,
+                footerBackground,
                 genresFooter,
                 followButton,
                 rankScore,
@@ -63,15 +64,16 @@ fun MediaItemCardExtended(
 
             val imageEndGuideline = createGuidelineFromStart(0.35f)
             val titleOverlayTopGuideline = createGuidelineFromBottom(0.30f)
-            val genresFooterTopGuideline = createGuidelineFromBottom(0.15f)
 
             MediaItemImage(
                 imageUrl = mediaItem.coverImageUrl,
                 modifier = Modifier.constrainAs(image) {
                     start.linkTo(parent.start)
                     end.linkTo(imageEndGuideline)
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom)
 
-                    height = Dimension.matchParent
+                    height = Dimension.fillToConstraints
                     width = Dimension.fillToConstraints
                 }
             )
@@ -121,9 +123,8 @@ fun MediaItemCardExtended(
             HtmlText(
                 text = mediaItem.description.orEmpty(),
                 style = LocalTextStyles.current.contentSmall,
-                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
-                    .padding(8.dp)
+                    .padding(horizontal = 8.dp)
                     .constrainAs(description) {
                         bottom.linkTo(genresFooter.top)
                         start.linkTo(imageEndGuideline)
@@ -178,20 +179,33 @@ fun MediaItemCardExtended(
                 }
             }
 
-            MediaItemGenresFooter(
-                genres = mediaItem.genres,
-                colorStr = mediaItem.colorStr,
+            val footerBackgroundTopBarrier = createTopBarrier(genresFooter, followButton)
+
+            Box(
                 modifier = Modifier
                     .background(color = LocalColors.current.cardFooterBackground)
-                    .padding(end = 32.dp)
-                    .constrainAs(genresFooter) {
-                        top.linkTo(genresFooterTopGuideline)
+                    .constrainAs(footerBackground) {
+                        top.linkTo(footerBackgroundTopBarrier)
                         bottom.linkTo(parent.bottom)
                         start.linkTo(image.end)
                         end.linkTo(parent.end)
 
                         width = Dimension.fillToConstraints
                         height = Dimension.fillToConstraints
+                    }
+            )
+
+            MediaItemGenresFooter(
+                genres = mediaItem.genres,
+                colorStr = mediaItem.colorStr,
+                modifier = Modifier
+                    .constrainAs(genresFooter) {
+                        top.linkTo(footerBackgroundTopBarrier)
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(image.end)
+                        end.linkTo(followButton.start)
+
+                        width = Dimension.fillToConstraints
                     },
                 onGenreChipClicked = onGenreChipClicked
             )
@@ -203,6 +217,7 @@ fun MediaItemCardExtended(
                     .size(24.dp)
                     .constrainAs(followButton) {
                         end.linkTo(parent.end)
+                        top.linkTo(footerBackgroundTopBarrier)
                         bottom.linkTo(parent.bottom)
                     },
                 onFollowClicked = { onFollowClicked(mediaItem) }
