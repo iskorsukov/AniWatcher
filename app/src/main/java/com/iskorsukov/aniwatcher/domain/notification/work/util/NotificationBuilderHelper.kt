@@ -28,7 +28,6 @@ object NotificationBuilderHelper {
             )
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setGroup(GROUP_ID)
-            .setAutoCancel(true)
             .build()
     }
 
