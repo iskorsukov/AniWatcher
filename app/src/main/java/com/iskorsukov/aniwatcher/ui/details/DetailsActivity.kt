@@ -1,5 +1,7 @@
 package com.iskorsukov.aniwatcher.ui.details
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -62,12 +64,18 @@ class DetailsActivity: ComponentActivity() {
                             airingScheduleList = mediaItemToAiringSchedules!!.second
                                 .sortedBy { it.airingAt },
                             preferredNamingScheme = settingsState.preferredNamingScheme,
-                            modifier = Modifier.padding(innerPadding)
+                            modifier = Modifier.padding(innerPadding),
+                            onLearnMoreClicked = { navigateToAniList(it) }
                         )
                     }
                 }
             }
         }
+    }
+
+    private fun navigateToAniList(url: String) {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+        startActivity(intent)
     }
 
     companion object {

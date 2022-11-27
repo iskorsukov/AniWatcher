@@ -31,6 +31,7 @@
     <string name="media_info_genres">Genres</string>
     <string name="media_info_airing_schedule">Airing schedule</string>
     <string name="media_info_format">Format</string>
+    <string name="media_info_learn_more">Learn more</string>
 
     <string name="channel_name">AniWatcher Airing</string>
     <string name="channel_description">Airing media notification channel</string>

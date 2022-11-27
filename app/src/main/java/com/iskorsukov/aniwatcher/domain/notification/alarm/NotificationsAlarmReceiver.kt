@@ -1,14 +1,16 @@
 package com.iskorsukov.aniwatcher.domain.notification.alarm
 
+import android.app.AlarmManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.SystemClock
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.iskorsukov.aniwatcher.domain.notification.work.NotificationsWorker
 
-class NotificationsAlarmReceiver: BroadcastReceiver() {
+class NotificationsAlarmReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context != null) {
@@ -18,6 +20,12 @@ class NotificationsAlarmReceiver: BroadcastReceiver() {
                 ExistingWorkPolicy.KEEP,
                 notificationsWorkRequest
             )
+            (context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager)
+                ?.setAndAllowWhileIdle(
+                    AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    SystemClock.elapsedRealtime() + AlarmManager.INTERVAL_FIFTEEN_MINUTES,
+                    NotificationsAlarmBuilder.buildAlarmIntent(context)
+                )
         }
     }
 

@@ -1,7 +1,6 @@
 package com.iskorsukov.aniwatcher
 
 import android.app.AlarmManager
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -19,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.*
-import com.iskorsukov.aniwatcher.domain.notification.alarm.NotificationsAlarmReceiver
+import com.iskorsukov.aniwatcher.domain.notification.alarm.NotificationsAlarmBuilder
 import com.iskorsukov.aniwatcher.ui.airing.AiringScreen
 import com.iskorsukov.aniwatcher.ui.airing.AiringViewModel
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
@@ -175,39 +174,20 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun scheduleNotificationChecks() {
-        val alarmManager =
-            applicationContext.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
-        if (alarmManager != null) {
-            val receiverIntent = Intent(this, NotificationsAlarmReceiver::class.java)
-            val alarmIntent = PendingIntent.getBroadcast(
-                this,
-                NOTIFICATIONS_ALARM_REQUEST_CODE,
-                receiverIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            alarmManager.setInexactRepeating(
+        (getSystemService(Context.ALARM_SERVICE) as? AlarmManager)
+            ?.setAndAllowWhileIdle(
                 AlarmManager.ELAPSED_REALTIME_WAKEUP,
                 SystemClock.elapsedRealtime() + AlarmManager.INTERVAL_FIFTEEN_MINUTES,
-                AlarmManager.INTERVAL_FIFTEEN_MINUTES,
-                alarmIntent
+                NotificationsAlarmBuilder.buildAlarmIntent(this)
             )
-        }
     }
 
     private fun cancelNotificationChecks() {
-        val alarmManager =
-            applicationContext.getSystemService(Context.ALARM_SERVICE) as? AlarmManager
-        if (alarmManager != null) {
-            val receiverIntent = Intent(this, NotificationsAlarmReceiver::class.java)
-            val alarmIntent = PendingIntent.getBroadcast(
-                this,
-                NOTIFICATIONS_ALARM_REQUEST_CODE,
-                receiverIntent,
-                PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
-            )
-            if (alarmIntent != null) {
-                alarmManager.cancel(alarmIntent)
-            }
+        val cancellationCheckIntent =
+            NotificationsAlarmBuilder.buildCancellationCheckAlarmIntent(this)
+        if (cancellationCheckIntent != null) {
+            (getSystemService(Context.ALARM_SERVICE) as? AlarmManager)
+                ?.cancel(cancellationCheckIntent)
         }
     }
 
@@ -229,10 +209,6 @@ class MainActivity : ComponentActivity() {
         startActivity(
             Intent(this, NotificationActivity::class.java)
         )
-    }
-
-    companion object {
-        const val NOTIFICATIONS_ALARM_REQUEST_CODE = 1117
     }
 }
 

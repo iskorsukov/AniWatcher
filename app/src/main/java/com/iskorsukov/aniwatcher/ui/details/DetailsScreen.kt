@@ -1,16 +1,22 @@
 package com.iskorsukov.aniwatcher.ui.details
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
@@ -35,7 +41,8 @@ fun DetailsScreen(
     mediaItem: MediaItem,
     airingScheduleList: List<AiringScheduleItem>?,
     modifier: Modifier = Modifier,
-    preferredNamingScheme: NamingScheme = NamingScheme.ENGLISH
+    preferredNamingScheme: NamingScheme = NamingScheme.ENGLISH,
+    onLearnMoreClicked: (String) -> Unit
 ) {
 
     val timeInMinutes by timeInMinutesFlow
@@ -46,7 +53,8 @@ fun DetailsScreen(
         airingScheduleList = airingScheduleList,
         timeInMinutes = timeInMinutes,
         modifier = modifier,
-        preferredNamingScheme = preferredNamingScheme
+        preferredNamingScheme = preferredNamingScheme,
+        onLearnMoreClicked = onLearnMoreClicked
     )
 }
 
@@ -56,7 +64,8 @@ private fun DetailScreenContent(
     airingScheduleList: List<AiringScheduleItem>?,
     timeInMinutes: Long,
     modifier: Modifier = Modifier,
-    preferredNamingScheme: NamingScheme
+    preferredNamingScheme: NamingScheme,
+    onLearnMoreClicked: (String) -> Unit
 ) {
     ConstraintLayout(modifier = modifier.fillMaxSize()) {
         val (
@@ -120,6 +129,7 @@ private fun DetailScreenContent(
 
         DetailsMediaInfoColumn(
             mediaItem = mediaItem,
+            onLearnMoreClicked = onLearnMoreClicked,
             modifier = Modifier
                 .padding(horizontal = 8.dp)
                 .constrainAs(mediaInfo) {
@@ -267,7 +277,8 @@ private fun DetailsAiringScheduleCardPreview() {
 @Composable
 private fun DetailsMediaInfoColumn(
     mediaItem: MediaItem,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onLearnMoreClicked: (String) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -302,6 +313,26 @@ private fun DetailsMediaInfoColumn(
                 subLabel = mediaItem.genres.joinToString(separator = ", ")
             )
         }
+        if (mediaItem.siteUrl != null) {
+            Text(
+                text = stringResource(id = R.string.media_info_learn_more).uppercase(),
+                fontWeight = FontWeight.Medium,
+                fontSize = 14.sp,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp)
+                    .background(
+                        LocalColors.current.primary,
+                        RoundedCornerShape(8.dp)
+                    )
+                    .clickable {
+                        onLearnMoreClicked.invoke(mediaItem.siteUrl)
+                    }
+                    .padding(8.dp)
+            )
+        }
     }
 }
 
@@ -309,7 +340,8 @@ private fun DetailsMediaInfoColumn(
 @Preview
 private fun DetailsMediaInfoColumnPreview() {
     DetailsMediaInfoColumn(
-        mediaItem = ModelTestDataCreator.baseMediaItem()
+        mediaItem = ModelTestDataCreator.baseMediaItem(),
+        onLearnMoreClicked = { }
     )
 }
 
@@ -336,7 +368,8 @@ private fun DetailsScreenPreview() {
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         mediaItem = ModelTestDataCreator.baseMediaItem(),
         airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
-        preferredNamingScheme = NamingScheme.ENGLISH
+        preferredNamingScheme = NamingScheme.ENGLISH,
+        onLearnMoreClicked = { }
     )
 }
 
@@ -347,7 +380,8 @@ private fun DetailsScreenPreview_noBanner() {
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         mediaItem = ModelTestDataCreator.baseMediaItem().bannerImage(null),
         airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
-        preferredNamingScheme = NamingScheme.ENGLISH
+        preferredNamingScheme = NamingScheme.ENGLISH,
+        onLearnMoreClicked = { }
     )
 }
 
@@ -358,7 +392,8 @@ private fun DetailsScreenPreview_noCoverImage() {
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         mediaItem = ModelTestDataCreator.baseMediaItem().coverImageUrl(null),
         airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
-        preferredNamingScheme = NamingScheme.ENGLISH
+        preferredNamingScheme = NamingScheme.ENGLISH,
+        onLearnMoreClicked = { }
     )
 }
 
@@ -369,7 +404,8 @@ private fun DetailsScreenPreview_noBannerOrImage() {
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         mediaItem = ModelTestDataCreator.baseMediaItem().bannerImage(null).coverImageUrl(null),
         airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
-        preferredNamingScheme = NamingScheme.ENGLISH
+        preferredNamingScheme = NamingScheme.ENGLISH,
+        onLearnMoreClicked = { }
     )
 }
 
@@ -380,6 +416,7 @@ private fun DetailsScreenPreview_noAiringSchedule() {
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         mediaItem = ModelTestDataCreator.baseMediaItem(),
         airingScheduleList = emptyList(),
-        preferredNamingScheme = NamingScheme.ENGLISH
+        preferredNamingScheme = NamingScheme.ENGLISH,
+        onLearnMoreClicked = { }
     )
 }
