@@ -8,8 +8,10 @@ import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
+import com.iskorsukov.aniwatcher.domain.notification.NotificationsInteractor
 import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
 import com.iskorsukov.aniwatcher.domain.notification.work.util.NotificationBuilderHelper
+import com.iskorsukov.aniwatcher.domain.util.LocalClockSystem
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.test.id
 import io.mockk.*
@@ -24,7 +26,7 @@ class NotificationsWorkerTest {
 
     private lateinit var context: Context
 
-    private val notificationManagerCompat: NotificationManagerCompat = mockk(relaxed = true)
+    private val notificationsInteractor: NotificationsInteractor = mockk(relaxed = true)
 
     private lateinit var notificationsRepository: NotificationsRepository
 
@@ -43,7 +45,6 @@ class NotificationsWorkerTest {
             ModelTestDataCreator.baseAiringScheduleItem().id(2)
         )
 
-
         notificationsWorker = TestListenableWorkerBuilder<NotificationsWorker>(context)
             .setWorkerFactory(object : WorkerFactory() {
                 override fun createWorker(
@@ -54,8 +55,9 @@ class NotificationsWorkerTest {
                     return NotificationsWorker(
                         context,
                         workerParameters,
+                        LocalClockSystem(),
                         notificationsRepository,
-                        notificationManagerCompat
+                        notificationsInteractor
                     )
                 }
             })
@@ -72,7 +74,6 @@ class NotificationsWorkerTest {
         notificationsWorker.doWork()
 
         coVerify(exactly = 1) {
-            notificationManagerCompat.notify(1, any())
             notificationsRepository.saveNotification(
                 match {
                     it.airingScheduleItem.id == 1
@@ -80,7 +81,6 @@ class NotificationsWorkerTest {
             )
         }
         coVerify(exactly = 1) {
-            notificationManagerCompat.notify(2, any())
             notificationsRepository.saveNotification(
                 match {
                     it.airingScheduleItem.id == 2
@@ -89,6 +89,13 @@ class NotificationsWorkerTest {
         }
         coVerify(exactly = 2) {
             notificationsRepository.increaseUnreadNotificationsCounter()
+        }
+        coVerify(exactly = 1) {
+            notificationsInteractor.fireAiredNotifications(
+                match {
+                    it.size == 2
+                }
+            )
         }
     }
 }
