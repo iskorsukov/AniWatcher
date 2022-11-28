@@ -100,11 +100,6 @@ class MainActivity : ComponentActivity() {
                 mutableStateOf(uiState.errorItem != null)
             }
 
-            LaunchedEffect(settingsState.scheduleType) {
-                navController.popBackStack(navController.graph.findStartDestination().id, false)
-                mainActivityViewModel.loadAiringData()
-            }
-
             AniWatcherTheme {
                 Scaffold(
                     topBar = {
@@ -182,6 +177,11 @@ class MainActivity : ComponentActivity() {
                                     }
                                 )
                             }
+                        }
+
+                        LaunchedEffect(settingsState.scheduleType) {
+                            navController.popBackStack(navController.graph.findStartDestination().id, false)
+                            mainActivityViewModel.loadAiringData()
                         }
 
                         AnimatedVisibility(
