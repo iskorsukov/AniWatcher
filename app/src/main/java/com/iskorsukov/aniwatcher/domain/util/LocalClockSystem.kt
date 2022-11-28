@@ -1,4 +1,4 @@
-package com.iskorsukov.aniwatcher.domain.notification.work.util
+package com.iskorsukov.aniwatcher.domain.util
 
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject

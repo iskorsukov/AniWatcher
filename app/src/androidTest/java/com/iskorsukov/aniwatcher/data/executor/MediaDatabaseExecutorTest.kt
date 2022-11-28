@@ -11,7 +11,7 @@ import com.iskorsukov.aniwatcher.data.entity.MediaItemAndFollowingEntity
 import com.iskorsukov.aniwatcher.data.room.MediaDao
 import com.iskorsukov.aniwatcher.data.room.MediaDatabase
 import com.iskorsukov.aniwatcher.data.room.NotificationsDao
-import com.iskorsukov.aniwatcher.domain.notification.work.util.LocalClockSystem
+import com.iskorsukov.aniwatcher.domain.util.LocalClockSystem
 import com.iskorsukov.aniwatcher.test.EntityTestDataCreator
 import io.mockk.*
 import kotlinx.coroutines.flow.first

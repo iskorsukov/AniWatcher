@@ -55,6 +55,7 @@ class NotificationActivity : ComponentActivity() {
             }
         }
         notificationsViewModel.resetNotificationsCounter()
+        notificationsViewModel.cancelStatusBarNotifications()
     }
 
     private fun startDetailsActivity(mediaId: Int) {

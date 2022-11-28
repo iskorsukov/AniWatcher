@@ -6,6 +6,7 @@ import android.content.Context
 import androidx.core.app.NotificationCompat
 import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
+import com.iskorsukov.aniwatcher.domain.notification.NotificationsInteractor
 import com.iskorsukov.aniwatcher.domain.notification.work.NotificationsWorker
 
 object NotificationBuilderHelper {
@@ -15,7 +16,7 @@ object NotificationBuilderHelper {
     fun buildNotification(context: Context, airingScheduleItem: AiringScheduleItem): Notification {
         return NotificationCompat.Builder(
             context,
-            NotificationsWorker.CHANNEL_ID
+            NotificationsInteractor.CHANNEL_ID
         )
             .setSmallIcon(R.drawable.aniwatcher_icon_fg_white)
             .setContentTitle(airingScheduleItem.mediaItem.title.baseText())
@@ -49,7 +50,7 @@ object NotificationBuilderHelper {
             messages.values.forEach { style.addLine(it) }
             return NotificationCompat.Builder(
                 context,
-                NotificationsWorker.CHANNEL_ID
+                NotificationsInteractor.CHANNEL_ID
             )
                 .setSmallIcon(R.drawable.aniwatcher_icon_fg_white)
                 .setContentTitle(context.getString(R.string.app_name))

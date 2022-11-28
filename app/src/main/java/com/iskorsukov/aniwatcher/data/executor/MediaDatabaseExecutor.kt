@@ -4,7 +4,7 @@ import androidx.room.withTransaction
 import com.iskorsukov.aniwatcher.data.entity.*
 import com.iskorsukov.aniwatcher.data.room.MediaDatabase
 import com.iskorsukov.aniwatcher.domain.model.NotificationItem
-import com.iskorsukov.aniwatcher.domain.notification.work.util.LocalClockSystem
+import com.iskorsukov.aniwatcher.domain.util.LocalClockSystem
 import com.iskorsukov.aniwatcher.domain.util.DispatcherProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

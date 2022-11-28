@@ -1,5 +1,6 @@
 package com.iskorsukov.aniwatcher.ui.notification
 
+import com.iskorsukov.aniwatcher.domain.notification.NotificationsInteractor
 import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
 import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
 import io.mockk.coVerify
@@ -16,9 +17,12 @@ import org.junit.Test
 class NotificationViewModelTest {
 
     private val notificationsRepository: NotificationsRepository = mockk(relaxed = true)
+    private val notificationsInteractor: NotificationsInteractor = mockk(relaxed = true)
     private val settingsRepository: SettingsRepository = mockk(relaxed = true)
 
-    private val viewModel = NotificationsViewModel(notificationsRepository, settingsRepository)
+    private val viewModel = NotificationsViewModel(
+        notificationsRepository, notificationsInteractor, settingsRepository
+    )
 
     @Test
     fun resetNotificationsCounter() = runTest {
@@ -29,6 +33,18 @@ class NotificationViewModelTest {
 
         coVerify {
             notificationsRepository.resetUnreadNotificationsCounter()
+        }
+    }
+
+    @Test
+    fun cancelStatusBarNotifications() = runTest {
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+
+        viewModel.cancelStatusBarNotifications()
+        advanceUntilIdle()
+
+        coVerify {
+            notificationsInteractor.clearStatusBarNotifications()
         }
     }
 }
