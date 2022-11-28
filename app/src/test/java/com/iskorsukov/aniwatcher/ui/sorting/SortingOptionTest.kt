@@ -1,11 +1,10 @@
 package com.iskorsukov.aniwatcher.ui.sorting
 
 import com.google.common.truth.Truth.assertThat
-import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.test.meanScore
 import com.iskorsukov.aniwatcher.test.nextEpisodeAiringAt
-import com.iskorsukov.aniwatcher.test.ranking
+import com.iskorsukov.aniwatcher.test.popularity
 import org.junit.Test
 
 class SortingOptionTest {
@@ -42,8 +41,8 @@ class SortingOptionTest {
 
     @Test
     fun popularity_smaller() {
-        val first = ModelTestDataCreator.baseMediaItem().ranking(MediaItem.Ranking(1, ""))
-        val second = ModelTestDataCreator.baseMediaItem().ranking(MediaItem.Ranking(4, ""))
+        val first = ModelTestDataCreator.baseMediaItem().popularity(1)
+        val second = ModelTestDataCreator.baseMediaItem().popularity(4)
 
         val comparator = SortingOption.POPULARITY.comparator
 
@@ -52,8 +51,8 @@ class SortingOptionTest {
 
     @Test
     fun popularity_equal() {
-        val first = ModelTestDataCreator.baseMediaItem().ranking(MediaItem.Ranking(1, ""))
-        val second = ModelTestDataCreator.baseMediaItem().ranking(MediaItem.Ranking(1, ""))
+        val first = ModelTestDataCreator.baseMediaItem().popularity(1)
+        val second = ModelTestDataCreator.baseMediaItem().popularity(1)
 
         val comparator = SortingOption.POPULARITY.comparator
 
@@ -62,8 +61,8 @@ class SortingOptionTest {
 
     @Test
     fun popularity_bigger() {
-        val first = ModelTestDataCreator.baseMediaItem().ranking(MediaItem.Ranking(4, ""))
-        val second = ModelTestDataCreator.baseMediaItem().ranking(MediaItem.Ranking(1, ""))
+        val first = ModelTestDataCreator.baseMediaItem().popularity(4)
+        val second = ModelTestDataCreator.baseMediaItem().popularity(1)
 
         val comparator = SortingOption.POPULARITY.comparator
 

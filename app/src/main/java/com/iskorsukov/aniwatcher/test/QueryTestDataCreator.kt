@@ -3,7 +3,6 @@ package com.iskorsukov.aniwatcher.test
 import com.iskorsukov.aniwatcher.RangeAiringDataQuery
 import com.iskorsukov.aniwatcher.SeasonAiringDataQuery
 import com.iskorsukov.aniwatcher.type.MediaFormat
-import com.iskorsukov.aniwatcher.type.MediaRankType
 import com.iskorsukov.aniwatcher.type.MediaSeason
 
 object QueryTestDataCreator {
@@ -25,28 +24,7 @@ object QueryTestDataCreator {
             studios = SeasonAiringDataQuery.Studios(
                 listOf(SeasonAiringDataQuery.StudioNode("Studio"))
             ),
-            rankings = listOf(
-                SeasonAiringDataQuery.Ranking(
-                    type = MediaRankType.RATED,
-                    rank = 3,
-                    season = MediaSeason.FALL
-                ),
-                SeasonAiringDataQuery.Ranking(
-                    type = MediaRankType.POPULAR,
-                    rank = 2,
-                    season = null
-                ),
-                SeasonAiringDataQuery.Ranking(
-                    type = MediaRankType.RATED,
-                    rank = 31,
-                    season = null
-                ),
-                SeasonAiringDataQuery.Ranking(
-                    type = MediaRankType.POPULAR,
-                    rank = 1,
-                    season = MediaSeason.FALL
-                )
-            ),
+            popularity = 1,
             meanScore = 1,
             genres = listOf("Action", "Comedy"),
             siteUrl = "AniListUrl",
@@ -90,7 +68,7 @@ object QueryTestDataCreator {
             studios = RangeAiringDataQuery.Studios(
                 listOf(RangeAiringDataQuery.StudioNode("Studio"))
             ),
-            popularity = 10,
+            popularity = 1,
             meanScore = 1,
             genres = listOf("Action", "Comedy"),
             siteUrl = "AniListUrl",

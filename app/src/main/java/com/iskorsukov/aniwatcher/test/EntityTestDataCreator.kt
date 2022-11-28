@@ -19,10 +19,7 @@ object EntityTestDataCreator {
             colorStr = "#43aee4",
             bannerImageUrl = "https://s4.anilist.co/file/anilistcdn/media/anime/banner/139587-XFbotQOPcLC4.jpg",
             mainStudio = "Studio",
-            seasonRanking = MediaItemEntity.Ranking(
-                1,
-                "FALL"
-            ),
+            popularity = 1,
             meanScore = 1,
             genresCommaSeparated = "Action,Comedy",
             nextEpisodeAiringAt = 1667833200,
@@ -67,10 +64,6 @@ object EntityTestDataCreator {
 
 fun MediaItemEntity.mediaId(mediaId: Int): MediaItemEntity {
     return this.copy(mediaId = mediaId)
-}
-
-fun MediaItemEntity.seasonRanking(seasonRanking: MediaItemEntity.Ranking?): MediaItemEntity {
-    return this.copy(seasonRanking = seasonRanking)
 }
 
 fun FollowingEntity.followingEntryId(followingEntryId: Int): FollowingEntity {

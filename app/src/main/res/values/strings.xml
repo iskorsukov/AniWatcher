@@ -27,7 +27,7 @@
 
     <string name="media_info_studio">Studio</string>
     <string name="media_info_mean_score">Mean score</string>
-    <string name="media_info_rank_in_season">Ranked in season</string>
+    <string name="media_info_rank_in_season">Popularity</string>
     <string name="media_info_genres">Genres</string>
     <string name="media_info_airing_schedule">Airing schedule</string>
     <string name="media_info_format">Format</string>

@@ -17,11 +17,7 @@ query SeasonAiringData($year: Int!, $season: MediaSeason!, $page: Int!) {
                 color
             }
             bannerImage
-            rankings {
-                type
-                rank
-                season
-            }
+            popularity
             format
             season
             meanScore

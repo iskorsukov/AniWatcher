@@ -21,10 +21,7 @@ object ModelTestDataCreator {
             colorStr = "#43aee4",
             bannerImageUrl = "https://s4.anilist.co/file/anilistcdn/media/anime/banner/139587-XFbotQOPcLC4.jpg",
             mainStudio = "Studio",
-            seasonRanking = MediaItem.Ranking(
-                1,
-                "FALL"
-            ),
+            popularity = 1,
             meanScore = 1,
             genres = listOf("Action", "Comedy"),
             siteUrl = "AniListUrl",
@@ -81,8 +78,8 @@ fun MediaItem.description(description: String): MediaItem {
     return this.copy(description = description)
 }
 
-fun MediaItem.ranking(seasonRanking: MediaItem.Ranking?): MediaItem {
-    return this.copy(seasonRanking = seasonRanking)
+fun MediaItem.popularity(popularity: Int?): MediaItem {
+    return this.copy(popularity = popularity)
 }
 
 fun MediaItem.isFollowing(isFollowing: Boolean): MediaItem {

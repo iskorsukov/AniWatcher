@@ -7,6 +7,7 @@ import com.iskorsukov.aniwatcher.domain.model.NotificationItem
 import com.iskorsukov.aniwatcher.domain.notification.work.util.LocalClockSystem
 import com.iskorsukov.aniwatcher.domain.util.DispatcherProvider
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -19,6 +20,9 @@ class MediaDatabaseExecutor @Inject constructor(
 
     val mediaDataFlow: Flow<Map<MediaItemAndFollowingEntity, List<AiringScheduleEntity>>> =
         mediaDao.getAllNotAired(clock.currentTimeSeconds())
+            .map {
+                reassignPopularityToMedia(it)
+            }
 
     val notificationsFlow: Flow<Map<MediaItemEntity, List<AiringScheduleAndNotificationEntity>>> =
         notificationsDao.getAll()
@@ -79,5 +83,26 @@ class MediaDatabaseExecutor @Inject constructor(
                 )
             )
         }
+    }
+
+    private fun reassignPopularityToMedia(map: Map<MediaItemAndFollowingEntity, List<AiringScheduleEntity>>): Map<MediaItemAndFollowingEntity, List<AiringScheduleEntity>> {
+        val sortedMap = map.toSortedMap { first, second ->
+            val firstRank = first.mediaItemEntity.popularity ?: 0
+            val secondRank = second.mediaItemEntity.popularity ?: 0
+            val diff = secondRank - firstRank
+            if (diff == 0) {
+                -1
+            } else {
+                diff
+            }
+        }
+        val updatedMap = mutableMapOf<MediaItemAndFollowingEntity, List<AiringScheduleEntity>>()
+        sortedMap.onEachIndexed { index, entry ->
+            val updatedKey = entry.key.copy(
+                mediaItemEntity = entry.key.mediaItemEntity.copy(popularity = index + 1)
+            )
+            updatedMap[updatedKey] = entry.value
+        }
+        return updatedMap
     }
 }

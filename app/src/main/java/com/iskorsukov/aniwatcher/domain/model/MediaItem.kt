@@ -15,7 +15,7 @@ data class MediaItem(
     val colorStr: String?,
     val bannerImageUrl: String?,
     val mainStudio: String?,
-    val seasonRanking: Ranking?,
+    val popularity: Int?,
     val meanScore: Int?,
     val genres: List<String>,
     val siteUrl: String?,
@@ -55,11 +55,6 @@ data class MediaItem(
         }
     }
 
-    data class Ranking(
-        val rank: Int,
-        val season: String
-    ): Serializable
-
     enum class LocalFormat(@StringRes val labelResId: Int) {
         TV(R.string.format_tv),
         TV_SHORT(R.string.format_tv_short),
@@ -84,12 +79,7 @@ data class MediaItem(
                     colorStr = colorStr,
                     bannerImageUrl = bannerImageUrl,
                     mainStudio = mainStudio,
-                    seasonRanking = seasonRanking?.run {
-                        Ranking(
-                            rank,
-                            season
-                        )
-                    },
+                    popularity = popularity,
                     meanScore = meanScore,
                     genres = genresCommaSeparated?.split(",")
                         ?.filter { it.isNotEmpty() } ?: emptyList(),

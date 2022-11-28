@@ -318,10 +318,10 @@ private fun DetailsMediaInfoColumn(
                 subLabel = mediaItem.mainStudio
             )
         }
-        if (mediaItem.seasonRanking != null) {
+        if (mediaItem.popularity != null) {
             DetailsMediaInfoItem(
                 label = stringResource(id = R.string.media_info_rank_in_season),
-                subLabel = "#${mediaItem.seasonRanking.rank}"
+                subLabel = "#${mediaItem.popularity}"
             )
         }
         if (mediaItem.meanScore != null) {

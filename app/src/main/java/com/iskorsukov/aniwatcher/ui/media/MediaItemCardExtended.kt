@@ -25,7 +25,7 @@ import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.test.description
 import com.iskorsukov.aniwatcher.test.meanScore
-import com.iskorsukov.aniwatcher.test.ranking
+import com.iskorsukov.aniwatcher.test.popularity
 import com.iskorsukov.aniwatcher.ui.base.text.HtmlText
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 import com.iskorsukov.aniwatcher.ui.theme.LocalTextStyles
@@ -129,7 +129,7 @@ fun MediaItemCardExtended(
                         bottom.linkTo(genresFooter.top)
                         start.linkTo(imageEndGuideline)
 
-                        if (airingScheduleItem == null && mediaItem.seasonRanking == null && mediaItem.meanScore == null) {
+                        if (airingScheduleItem == null && mediaItem.popularity == null && mediaItem.meanScore == null) {
                             top.linkTo(cardContent.bottom)
                             end.linkTo(parent.end)
                         } else if (airingScheduleItem != null) {
@@ -145,7 +145,7 @@ fun MediaItemCardExtended(
                     }
             )
 
-            if (mediaItem.seasonRanking != null || mediaItem.meanScore != null) {
+            if (mediaItem.popularity != null || mediaItem.meanScore != null) {
                 Column(
                     modifier = Modifier
                         .padding(top = 8.dp, end = 8.dp)
@@ -169,11 +169,11 @@ fun MediaItemCardExtended(
                         )
                     }
                     Spacer(modifier = Modifier.height(2.dp))
-                    if (mediaItem.seasonRanking != null) {
+                    if (mediaItem.popularity != null) {
                         MediaItemIndicatorWithText(
                             iconResId = R.drawable.ic_outline_favorite_border_24_white,
                             iconTint = LocalColors.current.cardIndicatorLow,
-                            text = "#${mediaItem.seasonRanking.rank}"
+                            text = "#${mediaItem.popularity}"
                         )
                     }
                 }
@@ -312,7 +312,7 @@ fun MediaItemCardExtendedPreview_noAiringSchedule() {
 fun MediaItemCardExtendedPreview_noRankScore() {
     MediaItemCardExtended(
         mediaItem = ModelTestDataCreator.baseMediaItem().description("Word ".repeat(50))
-            .ranking(null).meanScore(null),
+            .popularity(null).meanScore(null),
         airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         onFollowClicked = {},
@@ -325,7 +325,7 @@ fun MediaItemCardExtendedPreview_noRankScore() {
 fun MediaItemCardExtendedPreview_noAiringSchedule_noRankScore() {
     MediaItemCardExtended(
         mediaItem = ModelTestDataCreator.baseMediaItem().description("Word ".repeat(50))
-            .ranking(null).meanScore(null),
+            .popularity(null).meanScore(null),
         airingScheduleItem = null,
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         onFollowClicked = {},

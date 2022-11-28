@@ -12,17 +12,17 @@ enum class SortingOption(
         val firstAiringAt = first.nextEpisodeAiringAt ?: Int.MAX_VALUE
         val secondAiringAt = second.nextEpisodeAiringAt ?: Int.MAX_VALUE
         val diff = firstAiringAt - secondAiringAt
-        if (diff == 0){
+        if (diff == 0) {
             -1
         } else {
             diff
         }
     }),
     POPULARITY(R.string.popularity, { first, second ->
-        val firstRank = first.seasonRanking?.rank ?: Int.MAX_VALUE
-        val secondRank = second.seasonRanking?.rank ?: Int.MAX_VALUE
+        val firstRank = first.popularity ?: 0
+        val secondRank = second.popularity ?: 0
         val diff = firstRank - secondRank
-        if (diff == 0){
+        if (diff == 0) {
             -1
         } else {
             diff
@@ -32,7 +32,7 @@ enum class SortingOption(
         val firstScore = first.meanScore ?: 0
         val secondScore = second.meanScore ?: 0
         val diff = secondScore - firstScore
-        if (diff == 0){
+        if (diff == 0) {
             -1
         } else {
             diff

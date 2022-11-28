@@ -272,17 +272,20 @@ class MediaDaoTest {
     @Test
     fun unfollowMedia_clearNotifications(): Unit = runBlocking {
         val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
+        val airingScheduleEntity = EntityTestDataCreator.baseAiringScheduleEntity()
         val followingEntity = EntityTestDataCreator.baseFollowingEntity()
         val notificationItemEntity = EntityTestDataCreator.baseNotificationEntity()
 
         mediaDao.insertMedia(listOf(mediaItemEntity))
         mediaDao.followMedia(followingEntity)
+        mediaDao.insertSchedules(listOf(airingScheduleEntity))
         notificationsDao.insertNotification(notificationItemEntity)
 
         notificationsDao.clearNotificationsByMediaId(followingEntity.mediaItemRelationId)
         mediaDao.unfollowMedia(followingEntity.mediaItemRelationId)
 
         val outEntity = mediaDao.getAllNotAired(0).first()
+        val notificationsCursor = mediaDatabase.query("SELECT * FROM notifications", null)
 
         assertThat(outEntity.size).isEqualTo(1)
         assertThat(outEntity.keys).containsExactly(
@@ -291,6 +294,7 @@ class MediaDaoTest {
                 null
             )
         )
+        assertThat(notificationsCursor.count).isEqualTo(0)
     }
 
     @Test

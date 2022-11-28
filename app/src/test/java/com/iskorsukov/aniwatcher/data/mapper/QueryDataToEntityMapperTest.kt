@@ -6,7 +6,6 @@ import com.iskorsukov.aniwatcher.SeasonAiringDataQuery
 import com.iskorsukov.aniwatcher.test.EntityTestDataCreator
 import com.iskorsukov.aniwatcher.test.QueryTestDataCreator
 import com.iskorsukov.aniwatcher.test.nullAiringSchedule
-import com.iskorsukov.aniwatcher.test.seasonRanking
 import org.junit.Test
 
 class QueryDataToEntityMapperTest {
@@ -71,7 +70,7 @@ class QueryDataToEntityMapperTest {
 
         assertThat(entityMap.size).isEqualTo(1)
         assertThat(entityMap.keys).containsExactly(
-            EntityTestDataCreator.baseMediaItemEntity().seasonRanking(null)
+            EntityTestDataCreator.baseMediaItemEntity()
         )
         assertThat(entityMap.values.flatten()).containsExactlyElementsIn(
             EntityTestDataCreator.baseAiringScheduleEntityList()
