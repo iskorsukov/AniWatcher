@@ -7,7 +7,6 @@ import androidx.core.app.NotificationCompat
 import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.notification.NotificationsInteractor
-import com.iskorsukov.aniwatcher.domain.notification.work.NotificationsWorker
 
 object NotificationBuilderHelper {
 
@@ -30,6 +29,7 @@ object NotificationBuilderHelper {
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setGroup(GROUP_ID)
+            .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN)
             .build()
     }
 
@@ -59,6 +59,7 @@ object NotificationBuilderHelper {
                 .setAutoCancel(true)
                 .setGroupSummary(true)
                 .setGroup(GROUP_ID)
+                .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_CHILDREN)
                 .build()
         } else {
             null

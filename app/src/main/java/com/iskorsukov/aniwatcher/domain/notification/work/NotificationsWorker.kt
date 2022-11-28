@@ -34,7 +34,7 @@ class NotificationsWorker @AssistedInject constructor(
             notificationsRepository.saveNotification(
                 NotificationItem(
                     airingScheduleItem = airingScheduleItem,
-                    firedAtMillis = System.currentTimeMillis()
+                    firedAtMillis = clock.currentTimeMillis()
                 )
             )
             notificationsRepository.increaseUnreadNotificationsCounter()
