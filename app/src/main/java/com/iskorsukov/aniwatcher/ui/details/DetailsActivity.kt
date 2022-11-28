@@ -64,8 +64,7 @@ class DetailsActivity: ComponentActivity() {
                             airingScheduleList = mediaItemToAiringSchedules!!.second
                                 .sortedBy { it.airingAt },
                             preferredNamingScheme = settingsState.preferredNamingScheme,
-                            modifier = Modifier.padding(innerPadding),
-                            onLearnMoreClicked = { navigateToAniList(it) }
+                            modifier = Modifier.padding(innerPadding)
                         )
                     }
                 }
