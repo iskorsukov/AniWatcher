@@ -1,5 +1,6 @@
 package com.iskorsukov.aniwatcher.ui.media
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -76,12 +77,12 @@ fun MediaItemAiringInfoColumn(
             }
             Text(
                 text = String.format(episodeAiringStr, airingScheduleItem.episode),
-                style = LocalTextStyles.current.contentSmall
+                style = LocalTextStyles.current.contentSmallLarger
             )
             airingScheduleItem.getAiringInFormatted(timeInMinutes)?.let {
                 Text(
                     text = it,
-                    style = LocalTextStyles.current.contentSmallEmphasis
+                    style = LocalTextStyles.current.contentSmallLargerEmphasis
                 )
             }
             Text(
@@ -89,7 +90,7 @@ fun MediaItemAiringInfoColumn(
                     stringResource(id = R.string.episode_airing_at),
                     airingScheduleItem.getAiringAtDateTimeFormatted()
                 ),
-                style = LocalTextStyles.current.contentSmall
+                style = LocalTextStyles.current.contentSmallLarger
             )
         }
     }
@@ -266,4 +267,40 @@ fun MediaFormatText(
 @Preview
 private fun MediaFormatTextPreview() {
     MediaFormatText(text = "TV")
+}
+
+@Composable
+fun MediaItemIndicatorWithText(
+    @DrawableRes iconResId: Int,
+    iconTint: Color,
+    text: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+    ) {
+        Icon(
+            painter = painterResource(id = iconResId),
+            contentDescription = null,
+            tint = iconTint,
+            modifier = Modifier.size(16.dp)
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(
+            text = text,
+            style = LocalTextStyles.current.contentSmallLarger
+        )
+    }
+}
+
+
+@Composable
+@Preview
+private fun MediaItemIndicatorWithTextPreview() {
+    MediaItemIndicatorWithText(
+        iconResId = R.drawable.ic_baseline_thumb_up_off_alt_24,
+        iconTint = Color.Blue,
+        text = "45%"
+    )
 }

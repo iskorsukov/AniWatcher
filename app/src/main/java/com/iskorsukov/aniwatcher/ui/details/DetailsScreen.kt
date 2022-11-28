@@ -205,7 +205,7 @@ private fun DetailsContentLazyColumn(
             item {
                 Text(
                     text = stringResource(id = R.string.media_info_airing_schedule),
-                    style = LocalTextStyles.current.headlineSmallEmphasis,
+                    style = LocalTextStyles.current.headlineEmphasis,
                     modifier =  Modifier.padding(top = 4.dp)
                 )
             }
@@ -321,7 +321,7 @@ private fun DetailsMediaInfoColumn(
         if (mediaItem.popularity != null) {
             DetailsMediaInfoItem(
                 label = stringResource(id = R.string.media_info_rank_in_season),
-                subLabel = "#${mediaItem.popularity}"
+                subLabel = "${mediaItem.popularity}"
             )
         }
         if (mediaItem.meanScore != null) {

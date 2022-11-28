@@ -1,17 +1,13 @@
 package com.iskorsukov.aniwatcher.ui.media
 
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Card
-import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -169,7 +165,7 @@ fun MediaItemCardExtended(
                         )
                     }
                     Spacer(modifier = Modifier.height(2.dp))
-                    if (mediaItem.popularity != null) {
+                    if (mediaItem.popularity != null && mediaItem.popularity <= 100) {
                         MediaItemIndicatorWithText(
                             iconResId = R.drawable.ic_outline_favorite_border_24_white,
                             iconTint = LocalColors.current.cardIndicatorLow,
@@ -249,37 +245,6 @@ private fun MediaItemOverlayTitlePreview() {
     MediaItemOverlayTitle(
         title = "Title",
         modifier = Modifier.size(40.dp, 24.dp)
-    )
-}
-
-@Composable
-private fun MediaItemIndicatorWithText(
-    @DrawableRes iconResId: Int,
-    iconTint: Color,
-    text: String
-) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Icon(
-            painter = painterResource(id = iconResId),
-            contentDescription = null,
-            tint = iconTint,
-            modifier = Modifier.size(16.dp)
-        )
-        Spacer(modifier = Modifier.width(4.dp))
-        Text(
-            text = text,
-            style = LocalTextStyles.current.contentSmallLarger
-        )
-    }
-}
-
-@Composable
-@Preview
-private fun MediaItemIndicatorWithTextPreview() {
-    MediaItemIndicatorWithText(
-        iconResId = R.drawable.ic_baseline_thumb_up_off_alt_24,
-        iconTint = Color.Blue,
-        text = "45%"
     )
 }
 

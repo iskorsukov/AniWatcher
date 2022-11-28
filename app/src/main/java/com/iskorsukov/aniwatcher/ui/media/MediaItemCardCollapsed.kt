@@ -12,6 +12,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
@@ -38,7 +39,13 @@ fun MediaItemCardCollapsed(
         backgroundColor = LocalColors.current.cardBackground
     ) {
         ConstraintLayout {
-            val (image, format, cardContent, followButton) = createRefs()
+            val (
+                image,
+                format,
+                popularityScore,
+                cardContent,
+                followButton
+            ) = createRefs()
             val imageEndGuideline = createGuidelineFromStart(0.25f)
 
             MediaItemImage(
@@ -69,12 +76,47 @@ fun MediaItemCardCollapsed(
                 )
             }
 
+            if (mediaItem.popularity != null || mediaItem.meanScore != null) {
+                Column(
+                    modifier = Modifier
+                        .padding(top = 8.dp, end = 8.dp)
+                        .constrainAs(popularityScore) {
+                            top.linkTo(parent.top)
+                            end.linkTo(parent.end)
+                        }
+                ) {
+                    if (mediaItem.meanScore != null) {
+                        val scoreTint = if (mediaItem.meanScore <= 33) {
+                            LocalColors.current.cardIndicatorLow
+                        } else if (mediaItem.meanScore <= 66) {
+                            LocalColors.current.cardIndicatorMedium
+                        } else {
+                            LocalColors.current.cardIndicatorHigh
+                        }
+                        MediaItemIndicatorWithText(
+                            iconResId = R.drawable.ic_baseline_thumb_up_off_alt_24,
+                            iconTint = scoreTint,
+                            text = "${mediaItem.meanScore}%"
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(2.dp))
+                    if (mediaItem.popularity != null && mediaItem.popularity <= 100) {
+                        MediaItemIndicatorWithText(
+                            iconResId = R.drawable.ic_outline_favorite_border_24_white,
+                            iconTint = LocalColors.current.cardIndicatorLow,
+                            text = "#${mediaItem.popularity}"
+                        )
+                    }
+                }
+            }
+
+            val contentEndBarrier = createStartBarrier(popularityScore)
             Column(
                 modifier = Modifier
                     .padding(8.dp)
                     .constrainAs(cardContent) {
                         start.linkTo(imageEndGuideline)
-                        end.linkTo(parent.end)
+                        end.linkTo(contentEndBarrier)
 
                         width = Dimension.fillToConstraints
                     }
