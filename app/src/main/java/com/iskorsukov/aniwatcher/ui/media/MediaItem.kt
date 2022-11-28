@@ -209,15 +209,7 @@ private fun GenreChip(
     } else {
         Color.Transparent
     }
-    val textColor = if (isVisible) {
-        if (colorStr != null) {
-            getContrastTextColorForChip(bgColorStr = colorStr)
-        } else {
-            getContrastTextColorForChip(bgColor = bgColor)
-        }
-    } else {
-        Color.Transparent
-    }
+    val textColor = getContrastTextColorForChip(bgColor = bgColor)
     Text(
         text = genre,
         color = textColor,
