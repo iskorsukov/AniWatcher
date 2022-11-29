@@ -1,6 +1,7 @@
 package com.iskorsukov.aniwatcher.ui.details
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -13,10 +14,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.constraintlayout.compose.Visibility
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iskorsukov.aniwatcher.R
@@ -41,7 +46,8 @@ fun DetailsScreen(
     mediaItem: MediaItem,
     airingScheduleList: List<AiringScheduleItem>?,
     modifier: Modifier = Modifier,
-    preferredNamingScheme: NamingScheme = NamingScheme.ENGLISH
+    preferredNamingScheme: NamingScheme = NamingScheme.ENGLISH,
+    onLearnMoreClicked: (String) -> Unit
 ) {
 
     val timeInMinutes by timeInMinutesFlow
@@ -52,7 +58,8 @@ fun DetailsScreen(
         airingScheduleList = airingScheduleList,
         timeInMinutes = timeInMinutes,
         modifier = modifier,
-        preferredNamingScheme = preferredNamingScheme
+        preferredNamingScheme = preferredNamingScheme,
+        onLearnMoreClicked = onLearnMoreClicked
     )
 }
 
@@ -62,119 +69,36 @@ private fun DetailScreenContent(
     airingScheduleList: List<AiringScheduleItem>?,
     timeInMinutes: Long,
     modifier: Modifier = Modifier,
-    preferredNamingScheme: NamingScheme
-) {
-    ConstraintLayout(modifier = modifier.fillMaxSize()) {
-        val (
-            bannerImage,
-            coverImage,
-            contentBody,
-            mediaInfo,
-            mediaInfoBackground
-        ) = createRefs()
-
-        val coverImageTop = createBottomBarrier(bannerImage, margin = (-40).dp)
-        val coverImageEnd = createGuidelineFromStart(0.30f)
-        val bannerBottom = createBottomBarrier(bannerImage)
-
-        if (mediaItem.bannerImageUrl != null) {
-            MediaItemImage(
-                imageUrl = mediaItem.bannerImageUrl,
-                modifier = Modifier
-                    .height(100.dp)
-                    .constrainAs(bannerImage) {
-                        top.linkTo(parent.top)
-
-                        width = Dimension.matchParent
-                    }
-            )
-        }
-
-        Box(
-            modifier = Modifier
-                .background(LocalColors.current.backgroundSecondary)
-                .constrainAs(mediaInfoBackground) {
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    top.linkTo(bannerBottom)
-                    bottom.linkTo(mediaInfo.bottom)
-
-                    width = Dimension.fillToConstraints
-                    height = Dimension.fillToConstraints
-                }
-        )
-
-
-        if (mediaItem.coverImageUrl != null) {
-            MediaItemImage(
-                imageUrl = mediaItem.coverImageUrl,
-                modifier = Modifier
-                    .padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
-                    .constrainAs(coverImage) {
-                        start.linkTo(parent.start)
-                        end.linkTo(coverImageEnd)
-                        top.linkTo(coverImageTop)
-                        bottom.linkTo(mediaInfo.bottom)
-
-                        width = Dimension.fillToConstraints
-                        height = Dimension.fillToConstraints
-                    }
-            )
-        }
-
-        DetailsMediaInfo(
-            mediaItem = mediaItem,
-            preferredNamingScheme = preferredNamingScheme,
-            modifier = Modifier
-                .padding(8.dp)
-                .constrainAs(mediaInfo) {
-                    start.linkTo(coverImageEnd)
-                    end.linkTo(parent.end)
-                    top.linkTo(bannerBottom)
-
-                    width = Dimension.fillToConstraints
-                }
-        )
-
-        DetailsContentLazyColumn(
-            mediaItem = mediaItem,
-            airingScheduleList = airingScheduleList,
-            timeInMinutes = timeInMinutes,
-            modifier = Modifier
-                .constrainAs(contentBody) {
-                    top.linkTo(mediaInfo.bottom)
-                    bottom.linkTo(parent.bottom)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-
-                    width = Dimension.fillToConstraints
-                    height = Dimension.fillToConstraints
-                }
-        )
-    }
-}
-
-@Composable
-private fun DetailsContentLazyColumn(
-    mediaItem: MediaItem,
-    airingScheduleList: List<AiringScheduleItem>?,
-    timeInMinutes: Long,
-    modifier: Modifier = Modifier
+    preferredNamingScheme: NamingScheme,
+    onLearnMoreClicked: (String) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
     LazyColumn(
         state = lazyListState,
-        modifier = modifier.verticalFadingEdge(
-            lazyListState,
-            42.dp,
-            LocalColors.current.backgroundSecondary
-        ),
-        contentPadding = PaddingValues(8.dp)
+        modifier = modifier
+            .fillMaxSize()
+            .verticalFadingEdge(
+                lazyListState = lazyListState,
+                length = 100.dp,
+                edgeColor = LocalColors.current.background,
+                topEdge = false
+            ),
+        contentPadding = PaddingValues(bottom = 8.dp)
     ) {
+        item {
+            DetailsContentHeader(
+                mediaItem = mediaItem,
+                preferredNamingScheme = preferredNamingScheme,
+                onLearnMoreClicked = onLearnMoreClicked,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
         item {
             HtmlText(
                 text = mediaItem.description.orEmpty(),
-                style = LocalTextStyles.current.contentSmallLarger
+                style = LocalTextStyles.current.contentMedium,
+                modifier = Modifier
+                    .padding(start = 8.dp, end = 8.dp, top = 8.dp)
             )
         }
         if (airingScheduleList?.isNotEmpty() == true) {
@@ -182,14 +106,23 @@ private fun DetailsContentLazyColumn(
                 Text(
                     text = stringResource(id = R.string.media_info_airing_schedule),
                     style = LocalTextStyles.current.headlineEmphasis,
-                    modifier =  Modifier.padding(top = 4.dp)
+                    modifier = Modifier.padding(
+                        top = 4.dp,
+                        start = 8.dp,
+                        end = 8.dp
+                    )
                 )
             }
             airingScheduleList.map {
                 item {
                     DetailsAiringScheduleCard(
                         airingScheduleItem = it,
-                        timeInMinutes = timeInMinutes
+                        timeInMinutes = timeInMinutes,
+                        modifier = Modifier.padding(
+                            top = 4.dp,
+                            start = 8.dp,
+                            end = 8.dp
+                        )
                     )
                 }
             }
@@ -198,22 +131,105 @@ private fun DetailsContentLazyColumn(
 }
 
 @Composable
+private fun DetailsContentHeader(
+    mediaItem: MediaItem,
+    modifier: Modifier = Modifier,
+    preferredNamingScheme: NamingScheme,
+    onLearnMoreClicked: (String) -> Unit
+) {
+    ConstraintLayout(
+        modifier = modifier
+    ) {
+        val (
+            bannerImage,
+            coverImage,
+            mediaInfo,
+            mediaInfoBackground
+        ) = createRefs()
+
+        MediaItemImage(
+            imageUrl = mediaItem.bannerImageUrl,
+            modifier = Modifier
+                .height(100.dp)
+                .constrainAs(bannerImage) {
+                    top.linkTo(parent.top)
+
+                    width = Dimension.matchParent
+                    visibility = if (mediaItem.bannerImageUrl == null)
+                        Visibility.Gone
+                    else
+                        Visibility.Visible
+                }
+        )
+
+        Box(
+            modifier = Modifier
+                .background(LocalColors.current.backgroundSecondary)
+                .constrainAs(mediaInfoBackground) {
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    top.linkTo(bannerImage.bottom)
+                    bottom.linkTo(mediaInfo.bottom)
+
+                    width = Dimension.fillToConstraints
+                    height = Dimension.fillToConstraints
+                }
+        )
+
+        MediaItemImage(
+            imageUrl = mediaItem.coverImageUrl,
+            modifier = Modifier
+                .fillMaxWidth(0.35f)
+                .padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
+                .constrainAs(coverImage) {
+                    start.linkTo(parent.start)
+                    top.linkTo(bannerImage.bottom, (-40).dp)
+                    bottom.linkTo(mediaInfo.bottom)
+
+                    height = Dimension.fillToConstraints
+
+                    visibility = if (mediaItem.coverImageUrl == null)
+                        Visibility.Gone
+                    else
+                        Visibility.Visible
+                }
+        )
+
+        DetailsMediaInfo(
+            mediaItem = mediaItem,
+            preferredNamingScheme = preferredNamingScheme,
+            onLearnMoreClicked = onLearnMoreClicked,
+            modifier = Modifier
+                .padding(8.dp)
+                .constrainAs(mediaInfo) {
+                    start.linkTo(coverImage.end)
+                    end.linkTo(parent.end)
+                    top.linkTo(bannerImage.bottom)
+
+                    width = Dimension.fillToConstraints
+                }
+        )
+    }
+}
+
+@Composable
 @Preview
-private fun DetailsContentLazyColumnPreview() {
-    DetailsContentLazyColumn(
+private fun DetailsContentHeaderPreview() {
+    DetailsContentHeader(
         mediaItem = ModelTestDataCreator.baseMediaItem(),
-        airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
-        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES
+        preferredNamingScheme = NamingScheme.ENGLISH,
+        onLearnMoreClicked = { }
     )
 }
 
 @Composable
 private fun DetailsAiringScheduleCard(
     airingScheduleItem: AiringScheduleItem,
-    timeInMinutes: Long
+    timeInMinutes: Long,
+    modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(top = 4.dp),
         backgroundColor = LocalColors.current.cardBackground,
@@ -240,7 +256,8 @@ private fun DetailsAiringScheduleCardPreview() {
 private fun DetailsMediaInfo(
     mediaItem: MediaItem,
     preferredNamingScheme: NamingScheme,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onLearnMoreClicked: (String) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
     Column(modifier = modifier) {
@@ -254,7 +271,26 @@ private fun DetailsMediaInfo(
                 style = LocalTextStyles.current.headlineSmall
             )
         }
-        Spacer(modifier = Modifier.height(16.dp))
+        if (mediaItem.siteUrl != null) {
+            Text(
+                text = stringResource(id = R.string.media_info_learn_more).uppercase(),
+                fontWeight = FontWeight.Medium,
+                fontSize = 14.sp,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+                    .background(
+                        LocalColors.current.primary,
+                        RoundedCornerShape(8.dp)
+                    )
+                    .clickable {
+                        onLearnMoreClicked.invoke(mediaItem.siteUrl)
+                    }
+                    .padding(8.dp)
+            )
+        }
         LazyRow(
             state = lazyListState,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -280,14 +316,6 @@ private fun DetailsMediaInfo(
                     )
                 }
             }
-            if (mediaItem.popularity != null) {
-                item {
-                    DetailsMediaInfoCard(
-                        label = stringResource(id = R.string.media_info_rank_in_season),
-                        subLabel = "${mediaItem.popularity}"
-                    )
-                }
-            }
             if (mediaItem.meanScore != null) {
                 item {
                     DetailsMediaInfoCard(
@@ -304,6 +332,14 @@ private fun DetailsMediaInfo(
                     )
                 }
             }
+            if (mediaItem.popularity != null) {
+                item {
+                    DetailsMediaInfoCard(
+                        label = stringResource(id = R.string.media_info_rank_in_season),
+                        subLabel = "${mediaItem.popularity}"
+                    )
+                }
+            }
         }
     }
 }
@@ -313,7 +349,8 @@ private fun DetailsMediaInfo(
 private fun DetailsMediaInfoPreview() {
     DetailsMediaInfo(
         mediaItem = ModelTestDataCreator.baseMediaItem(),
-        preferredNamingScheme = NamingScheme.ENGLISH
+        preferredNamingScheme = NamingScheme.ENGLISH,
+        onLearnMoreClicked = { }
     )
 }
 
@@ -359,7 +396,8 @@ private fun DetailsScreenPreview() {
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         mediaItem = ModelTestDataCreator.baseMediaItem(),
         airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
-        preferredNamingScheme = NamingScheme.ENGLISH
+        preferredNamingScheme = NamingScheme.ENGLISH,
+        onLearnMoreClicked = { }
     )
 }
 
@@ -370,7 +408,8 @@ private fun DetailsScreenPreview_noBanner() {
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         mediaItem = ModelTestDataCreator.baseMediaItem().bannerImage(null),
         airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
-        preferredNamingScheme = NamingScheme.ENGLISH
+        preferredNamingScheme = NamingScheme.ENGLISH,
+        onLearnMoreClicked = { }
     )
 }
 
@@ -381,7 +420,8 @@ private fun DetailsScreenPreview_noCoverImage() {
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         mediaItem = ModelTestDataCreator.baseMediaItem().coverImageUrl(null),
         airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
-        preferredNamingScheme = NamingScheme.ENGLISH
+        preferredNamingScheme = NamingScheme.ENGLISH,
+        onLearnMoreClicked = { }
     )
 }
 
@@ -392,7 +432,8 @@ private fun DetailsScreenPreview_noBannerOrImage() {
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         mediaItem = ModelTestDataCreator.baseMediaItem().bannerImage(null).coverImageUrl(null),
         airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
-        preferredNamingScheme = NamingScheme.ENGLISH
+        preferredNamingScheme = NamingScheme.ENGLISH,
+        onLearnMoreClicked = { }
     )
 }
 
@@ -403,6 +444,7 @@ private fun DetailsScreenPreview_noAiringSchedule() {
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         mediaItem = ModelTestDataCreator.baseMediaItem(),
         airingScheduleList = emptyList(),
-        preferredNamingScheme = NamingScheme.ENGLISH
+        preferredNamingScheme = NamingScheme.ENGLISH,
+        onLearnMoreClicked = { }
     )
 }

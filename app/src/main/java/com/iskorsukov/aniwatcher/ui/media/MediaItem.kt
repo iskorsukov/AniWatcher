@@ -213,7 +213,7 @@ private fun GenreChip(
     Text(
         text = genre,
         color = textColor,
-        fontSize = 10.sp,
+        fontSize = 14.sp,
         textAlign = TextAlign.Center,
         modifier = Modifier
             .clickable {

@@ -39,7 +39,7 @@ fun MediaItemCardExtended(
     Card(
         modifier = Modifier
             .padding(8.dp)
-            .heightIn(min = 200.dp)
+            .heightIn(min = 220.dp)
             .fillMaxWidth()
             .clickable { onMediaClicked.invoke(mediaItem) },
         elevation = 8.dp,
@@ -118,7 +118,7 @@ fun MediaItemCardExtended(
 
             HtmlText(
                 text = mediaItem.description.orEmpty(),
-                style = LocalTextStyles.current.contentSmall,
+                style = LocalTextStyles.current.contentSmallLarger,
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
                     .constrainAs(description) {

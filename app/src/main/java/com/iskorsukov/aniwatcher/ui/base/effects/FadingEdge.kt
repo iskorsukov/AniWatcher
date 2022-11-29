@@ -19,6 +19,8 @@ fun Modifier.verticalFadingEdge(
     lazyListState: LazyListState,
     length: Dp,
     edgeColor: Color? = null,
+    topEdge: Boolean = true,
+    bottomEdge: Boolean = true
 ) = composed(
     debugInspectorInfo {
         name = "length"
@@ -33,7 +35,7 @@ fun Modifier.verticalFadingEdge(
                 val firstItem = visibleItemsInfo.first()
                 when {
                     visibleItemsInfo.size in 0..1 -> 0f
-                    firstItem.index > 0 -> 1f // Added
+                    firstItem.index > 0 -> 1f
                     firstItem.offset == viewportStartOffset -> 0f
                     firstItem.offset < viewportStartOffset -> firstItem.run {
                         abs(offset) / size.toFloat()
@@ -47,10 +49,10 @@ fun Modifier.verticalFadingEdge(
                 val lastItem = visibleItemsInfo.last()
                 when {
                     visibleItemsInfo.size in 0..1 -> 0f
-                    lastItem.index < totalItemsCount - 1 -> 1f // Added
-                    lastItem.offset + lastItem.size <= viewportEndOffset -> 0f // added the <=
+                    lastItem.index < totalItemsCount - 1 -> 1f
+                    lastItem.offset + lastItem.size <= viewportEndOffset -> 0f
                     lastItem.offset + lastItem.size > viewportEndOffset -> lastItem.run {
-                        (size - (viewportEndOffset - offset)) / size.toFloat()  // Fixed the percentage computation
+                        (size - (viewportEndOffset - offset)) / size.toFloat()
                     }
                     else -> 1f
                 }
@@ -59,32 +61,36 @@ fun Modifier.verticalFadingEdge(
 
         drawContent()
 
-        drawRect(
-            brush = Brush.verticalGradient(
-                colors = listOf(
-                    color,
-                    Color.Transparent,
+        if (topEdge) {
+            drawRect(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        color,
+                        Color.Transparent,
+                    ),
+                    startY = 0f,
+                    endY = topFadingEdgeStrength,
                 ),
-                startY = 0f,
-                endY = topFadingEdgeStrength,
-            ),
-            size = Size(
-                this.size.width,
-                topFadingEdgeStrength
-            ),
-        )
+                size = Size(
+                    this.size.width,
+                    topFadingEdgeStrength
+                ),
+            )
+        }
 
-        drawRect(
-            brush = Brush.verticalGradient(
-                colors = listOf(
-                    Color.Transparent,
-                    color,
+        if (bottomEdge) {
+            drawRect(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color.Transparent,
+                        color,
+                    ),
+                    startY = size.height - bottomFadingEdgeStrength,
+                    endY = size.height,
                 ),
-                startY = size.height - bottomFadingEdgeStrength,
-                endY = size.height,
-            ),
-            topLeft = Offset(x = 0f, y = size.height - bottomFadingEdgeStrength),
-        )
+                topLeft = Offset(x = 0f, y = size.height - bottomFadingEdgeStrength),
+            )
+        }
     }
 }
 
@@ -106,7 +112,7 @@ fun Modifier.horizontalFadingEdge(
                 val firstItem = visibleItemsInfo.first()
                 when {
                     visibleItemsInfo.size in 0..1 -> 0f
-                    firstItem.index > 0 -> 1f // Added
+                    firstItem.index > 0 -> 1f
                     firstItem.offset == viewportStartOffset -> 0f
                     firstItem.offset < viewportStartOffset -> firstItem.run {
                         abs(offset) / size.toFloat()
@@ -120,10 +126,10 @@ fun Modifier.horizontalFadingEdge(
                 val lastItem = visibleItemsInfo.last()
                 when {
                     visibleItemsInfo.size in 0..1 -> 0f
-                    lastItem.index < totalItemsCount - 1 -> 1f // Added
-                    lastItem.offset + lastItem.size <= viewportEndOffset -> 0f // added the <=
+                    lastItem.index < totalItemsCount - 1 -> 1f
+                    lastItem.offset + lastItem.size <= viewportEndOffset -> 0f
                     lastItem.offset + lastItem.size > viewportEndOffset -> lastItem.run {
-                        (size - (viewportEndOffset - offset)) / size.toFloat()  // Fixed the percentage computation
+                        (size - (viewportEndOffset - offset)) / size.toFloat()
                     }
                     else -> 1f
                 }
