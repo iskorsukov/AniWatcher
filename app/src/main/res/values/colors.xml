@@ -8,4 +8,7 @@
     <color name="accent">#60EDFF</color>
     <color name="textColor">#6E859E</color>
     <color name="textColorSecondary">#8F959C</color>
+
+    <color name="statusBarDark">#FF283593</color>
+    <color name="backgroundDark">#13171D</color>
 </resources>

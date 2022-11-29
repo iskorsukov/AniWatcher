@@ -22,8 +22,10 @@ class SettingsRepositoryTest {
     fun settingsStateFlow() = runTest {
         every { context.getString(R.string.settings_naming_scheme_key) } returns "naming_scheme"
         every { context.getString(R.string.settings_schedule_type_key) } returns "schedule_type"
+        every { context.getString(R.string.settings_dark_mode_key) } returns "dark_mode"
         every { sharedPreferences.getString("naming_scheme", any()) } returns NamingScheme.ENGLISH.name
         every { sharedPreferences.getString("schedule_type", any()) } returns ScheduleType.ALL.name
+        every { sharedPreferences.getString("dark_mode", any()) } returns DarkModeOption.SYSTEM.name
 
         settingsRepository = SettingsRepositoryImpl(context, sharedPreferences)
 
@@ -34,6 +36,9 @@ class SettingsRepositoryTest {
         settingsRepository.onPreferenceChanged()
 
         every { sharedPreferences.getString("schedule_type", any()) } returns ScheduleType.SEASON.name
+        settingsRepository.onPreferenceChanged()
+
+        every { sharedPreferences.getString("dark_mode", any()) } returns DarkModeOption.SYSTEM.name
         settingsRepository.onPreferenceChanged()
 
         state = settingsRepository.settingsStateFlow.value

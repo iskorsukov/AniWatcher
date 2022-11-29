@@ -48,7 +48,7 @@ class DetailsActivity: ComponentActivity() {
             val mediaItemToAiringSchedules by viewModel.getMediaWithAiringSchedules(mediaItemId)
                 .collectAsStateWithLifecycle(null)
 
-            AniWatcherTheme {
+            AniWatcherTheme(settingsState.darkModeOption) {
                 Scaffold(
                     topBar = {
                         BackArrowTopAppBar {

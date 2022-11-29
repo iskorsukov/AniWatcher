@@ -15,6 +15,7 @@ class SettingsRepositoryImpl @Inject constructor(
 
     private val _settingsStateFlow: MutableStateFlow<SettingsState> = MutableStateFlow(
         SettingsState(
+            getDarkModeOption(),
             getScheduleType(),
             getPreferredNamingScheme(),
             getNotificationsEnabled()
@@ -24,9 +25,19 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override fun onPreferenceChanged() {
         _settingsStateFlow.value = SettingsState(
+            getDarkModeOption(),
             getScheduleType(),
             getPreferredNamingScheme(),
             getNotificationsEnabled()
+        )
+    }
+
+    private fun getDarkModeOption(): DarkModeOption {
+        return DarkModeOption.valueOf(
+            sharedPreferences.getString(
+                context.getString(R.string.settings_dark_mode_key),
+                context.getString(R.string.dark_mode_default_value)
+            )!!
         )
     }
 

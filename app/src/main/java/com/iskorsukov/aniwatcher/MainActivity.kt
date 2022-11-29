@@ -100,7 +100,7 @@ class MainActivity : ComponentActivity() {
                 mutableStateOf(uiState.errorItem != null)
             }
 
-            AniWatcherTheme {
+            AniWatcherTheme(settingsState.darkModeOption) {
                 Scaffold(
                     topBar = {
                         TopBar(

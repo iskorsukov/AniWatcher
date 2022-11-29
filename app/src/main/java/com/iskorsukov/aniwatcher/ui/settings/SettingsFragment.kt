@@ -19,8 +19,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
     lateinit var sharedPreferences: SharedPreferences
 
     private val onSharedPreferenceChangeListener =
-        SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
+        SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
             settingsRepository.onPreferenceChanged()
+            if (key == getString(R.string.settings_dark_mode_key)) {
+                activity?.recreate()
+            }
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,6 +42,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
         findPreference<ListPreference>(
             getString(R.string.settings_schedule_type_key)
+        )?.apply {
+            summaryProvider = ListPreference.SimpleSummaryProvider.getInstance()
+        }
+        findPreference<ListPreference>(
+            getString(R.string.settings_dark_mode_key)
         )?.apply {
             summaryProvider = ListPreference.SimpleSummaryProvider.getInstance()
         }

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dark_mode_default_value">SYSTEM</string>
+    <string-array name="dark_mode_labels">
+        <item>Same as device</item>
+        <item>Dark mode</item>
+        <item>Light mode</item>
+    </string-array>
+    <string-array name="dark_mode_values">
+        <item>SYSTEM</item>
+        <item>DARK</item>
+        <item>LIGHT</item>
+    </string-array>
+</resources>

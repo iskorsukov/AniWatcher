@@ -4,10 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
-import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
-import com.iskorsukov.aniwatcher.domain.settings.ScheduleType
-import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
-import com.iskorsukov.aniwatcher.domain.settings.SettingsState
+import com.iskorsukov.aniwatcher.domain.settings.*
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 import io.mockk.*
@@ -44,7 +41,12 @@ class MainActivityViewModelTest {
         every { DateTimeHelper.currentSeason(any()) } returns "FALL"
 
         coEvery { settingsRepository.settingsStateFlow.value } returns
-                SettingsState(ScheduleType.SEASON, NamingScheme.ROMAJI, true)
+                SettingsState(
+                    DarkModeOption.SYSTEM,
+                    ScheduleType.SEASON,
+                    NamingScheme.ROMAJI,
+                    true
+                )
 
         viewModel.loadAiringData()
         assertThat(viewModel.uiState.first().isRefreshing).isTrue()
@@ -72,7 +74,12 @@ class MainActivityViewModelTest {
         every { DateTimeHelper.currentWeekStartToEndSeconds(any()) } returns (0 to 1)
 
         coEvery { settingsRepository.settingsStateFlow.value } returns
-                SettingsState(ScheduleType.ALL, NamingScheme.ROMAJI, true)
+                SettingsState(
+                    DarkModeOption.SYSTEM,
+                    ScheduleType.ALL,
+                    NamingScheme.ROMAJI,
+                    true
+                )
 
         viewModel.loadAiringData()
         assertThat(viewModel.uiState.first().isRefreshing).isTrue()
@@ -101,7 +108,12 @@ class MainActivityViewModelTest {
         every { DateTimeHelper.currentSeason(any()) } returns "FALL"
 
         coEvery { settingsRepository.settingsStateFlow.value } returns
-                SettingsState(ScheduleType.SEASON, NamingScheme.ROMAJI, true)
+                SettingsState(
+                    DarkModeOption.SYSTEM,
+                    ScheduleType.SEASON,
+                    NamingScheme.ROMAJI,
+                    true
+                )
 
         coEvery { airingRepository.loadSeasonAiringData(any(), any()) } throws IOException()
 

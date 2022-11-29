@@ -19,4 +19,33 @@
         <item name="android:background">@color/primary</item>
         <item name="background">@color/primary</item>
     </style>
+
+    <style name="Theme.AniWatcher.AppCompat.Dark" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:statusBarColor">@color/statusBarDark</item>
+
+        <item name="android:windowBackground">@color/backgroundDark</item>
+        <item name="colorBackgroundFloating">@color/backgroundDark</item>
+
+        <item name="android:textColorPrimary">@color/textColor</item>
+        <item name="android:textColorSecondary">@color/textColorSecondary</item>
+        <item name="textColorAlertDialogListItem">@color/textColor</item>
+
+        <item name="android:actionBarStyle">@style/ActionBarLayoutStyle.Dark</item>
+        <item name="actionBarStyle">@style/ActionBarLayoutStyle.Dark</item>
+    </style>
+
+    <style name="ActionBarLayoutStyle.Dark" parent="Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@color/primaryDark</item>
+        <item name="background">@color/primaryDark</item>
+
+        <item name="android:titleTextStyle">@style/ActionBarTitleTextStyle.Dark</item>
+        <item name="titleTextStyle">@style/ActionBarTitleTextStyle.Dark</item>
+
+        <item name="android:homeAsUpIndicator">@drawable/ic_baseline_arrow_back_24_on_dark</item>
+        <item name="homeAsUpIndicator">@drawable/ic_baseline_arrow_back_24_on_dark</item>
+    </style>
+
+    <style name="ActionBarTitleTextStyle.Dark" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/textColor</item>
+    </style>
 </resources>

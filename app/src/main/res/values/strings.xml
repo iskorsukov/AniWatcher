@@ -47,10 +47,15 @@
 
     <string name="settings_naming_scheme_key">naming_scheme</string>
     <string name="settings_naming_scheme_label">Naming scheme</string>
+
     <string name="settings_schedule_type_key">schedule_type</string>
     <string name="settings_schedule_type_label">Schedule type</string>
+
     <string name="settings_notifications_enabled_key">notifications_enabled</string>
     <string name="settings_notifications_enabled_label">Notifications enabled</string>
+
+    <string name="settings_dark_mode_key">dark_mode</string>
+    <string name="settings_dark_mode_label">App theme</string>
 
     <string name="format_tv">TV</string>
     <string name="format_tv_short">TV Short</string>

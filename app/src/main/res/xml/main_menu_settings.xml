@@ -2,6 +2,13 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <ListPreference
+        android:key="@string/settings_dark_mode_key"
+        android:title="@string/settings_dark_mode_label"
+        android:entries="@array/dark_mode_labels"
+        android:entryValues="@array/dark_mode_values"
+        android:defaultValue="@string/dark_mode_default_value" />
+
+    <ListPreference
         android:key="@string/settings_naming_scheme_key"
         android:title="@string/settings_naming_scheme_label"
         android:entries="@array/naming_scheme_labels"
