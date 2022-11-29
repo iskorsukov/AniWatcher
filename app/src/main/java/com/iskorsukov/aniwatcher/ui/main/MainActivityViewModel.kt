@@ -2,6 +2,7 @@ package com.iskorsukov.aniwatcher.ui.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
 import com.iskorsukov.aniwatcher.domain.settings.ScheduleType
@@ -9,10 +10,10 @@ import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
 import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.ErrorFlowViewModel
 import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
@@ -22,7 +23,7 @@ class MainActivityViewModel @Inject constructor(
     private val airingRepository: AiringRepository,
     settingsRepository: SettingsRepository,
     notificationsRepository: NotificationsRepository
-): ViewModel() {
+): ViewModel(), ErrorFlowViewModel {
 
     val settingsState: StateFlow<SettingsState> = settingsRepository.settingsStateFlow
     val unreadNotificationsState: StateFlow<Int> = notificationsRepository.unreadNotificationsCounterStateFlow
@@ -31,6 +32,11 @@ class MainActivityViewModel @Inject constructor(
         MainActivityUiState(isRefreshing = false)
     )
     val uiState: StateFlow<MainActivityUiState> = _uiState
+    override val errorItemFlow: StateFlow<ErrorItem?> = uiState.map { it.errorItem }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(),
+        null
+    )
 
     fun loadAiringData() {
         _uiState.value = MainActivityUiState(true)
@@ -45,10 +51,10 @@ class MainActivityViewModel @Inject constructor(
                     airingRepository.loadSeasonAiringData(year, season)
                 }
                 _uiState.value = MainActivityUiState(false)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                _uiState.value = MainActivityUiState(false, ErrorItem.LoadingData)
-                return@launch
+            } catch (throwable: Throwable) {
+                throwable.printStackTrace()
+                FirebaseCrashlytics.getInstance().recordException(throwable)
+                _uiState.value = MainActivityUiState(false, ErrorItem.ofThrowable(throwable))
             }
         }
     }

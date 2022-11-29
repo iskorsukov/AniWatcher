@@ -7,6 +7,8 @@ import com.iskorsukov.aniwatcher.data.entity.MediaItemAndFollowingEntity
 import com.iskorsukov.aniwatcher.data.executor.AniListQueryExecutor
 import com.iskorsukov.aniwatcher.data.executor.MediaDatabaseExecutor
 import com.iskorsukov.aniwatcher.data.mapper.QueryDataToEntityMapper
+import com.iskorsukov.aniwatcher.domain.exception.ApolloException
+import com.iskorsukov.aniwatcher.domain.exception.RoomException
 import com.iskorsukov.aniwatcher.test.EntityTestDataCreator
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import io.mockk.coEvery
@@ -83,7 +85,7 @@ class AiringRepositoryTest {
         }
     }
 
-    @Test(expected = IOException::class)
+    @Test(expected = ApolloException::class)
     fun loadSeasonAiringData_queryException() = runTest {
         repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor)
 
@@ -110,7 +112,7 @@ class AiringRepositoryTest {
         }
     }
 
-    @Test(expected = IOException::class)
+    @Test(expected = RoomException::class)
     fun loadSeasonAiringData_databaseException() = runTest {
         repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor)
 
@@ -152,7 +154,7 @@ class AiringRepositoryTest {
         }
     }
 
-    @Test(expected = IOException::class)
+    @Test(expected = RoomException::class)
     fun loadRangeAiringData_databaseException() = runTest {
         repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor)
 

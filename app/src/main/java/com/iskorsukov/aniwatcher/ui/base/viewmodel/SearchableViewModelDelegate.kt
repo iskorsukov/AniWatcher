@@ -1,20 +1,20 @@
 package com.iskorsukov.aniwatcher.ui.base.viewmodel
 
-import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import javax.inject.Inject
 
-open class SearchableMediaViewModel(
-    airingRepository: AiringRepository
-): FollowableMediaViewModel(airingRepository) {
+class SearchableViewModelDelegate @Inject constructor(): SearchableViewModel {
 
-    protected val searchTextFlow: MutableStateFlow<String> = MutableStateFlow("")
+    private val _searchTextFlow = MutableStateFlow("")
+    val searchTextFlow: StateFlow<String> = _searchTextFlow
 
-    fun onSearchTextChanged(searchText: String) {
-        searchTextFlow.value = searchText
+    override fun onSearchTextChanged(searchText: String) {
+        _searchTextFlow.value = searchText
     }
 
-    protected fun <T> filterMediaFlow(map: Map<MediaItem, T>, searchText: String): Map<MediaItem, T> {
+    fun <T> filterMediaFlow(map: Map<MediaItem, T>, searchText: String): Map<MediaItem, T> {
         val searchTokens = searchText.split(" ", ", ", ",").filter { it.length > 3 }
         return if (searchText.length < 4) {
             map

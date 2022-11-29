@@ -2,6 +2,7 @@ package com.iskorsukov.aniwatcher.domain.notification
 
 import android.content.SharedPreferences
 import com.iskorsukov.aniwatcher.data.executor.MediaDatabaseExecutor
+import com.iskorsukov.aniwatcher.domain.exception.RoomException
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.model.NotificationItem
@@ -32,7 +33,11 @@ class NotificationsRepositoryImpl @Inject constructor(
         _unreadNotificationsCounterStateFlow
 
     override suspend fun saveNotification(notificationItem: NotificationItem) {
-        mediaDatabaseExecutor.saveNotification(notificationItem)
+        try {
+            mediaDatabaseExecutor.saveNotification(notificationItem)
+        } catch (e: Exception) {
+            throw RoomException(e)
+        }
     }
 
     override suspend fun getPendingSchedulesToNotify(): List<AiringScheduleItem> {

@@ -1,28 +1,40 @@
 package com.iskorsukov.aniwatcher.ui.following
 
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.SortableMediaViewModel
+import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.*
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class FollowingViewModel @Inject constructor(
-    private val airingRepository: AiringRepository
-): SortableMediaViewModel(airingRepository) {
+    private val airingRepository: AiringRepository,
+    private val searchableViewModelDelegate: SearchableViewModelDelegate = SearchableViewModelDelegate(),
+    private val sortableViewModelDelegate: SortableViewModelDelegate = SortableViewModelDelegate()
+): FollowableMediaViewModel(airingRepository),
+    SearchableViewModel by searchableViewModelDelegate,
+    SortableViewModel by sortableViewModelDelegate {
+
+    private val _errorItemFlow: MutableStateFlow<ErrorItem?> = MutableStateFlow(null)
+    override val errorItemFlow: StateFlow<ErrorItem?> = _errorItemFlow
 
     val followingMediaFlow = airingRepository.mediaWithSchedulesFlow.map { map ->
         MediaItemMapper.groupMediaWithNextAiringSchedule(map.filterKeys { it.isFollowing })
     }
         .distinctUntilChanged()
-        .combine(searchTextFlow, this::filterMediaFlow)
-        .combine(sortingOptionFlow, this::sortMediaFlow)
+        .combine(
+            searchableViewModelDelegate.searchTextFlow,
+            searchableViewModelDelegate::filterMediaFlow
+        )
+        .combine(
+            sortableViewModelDelegate.sortingOptionFlow,
+            sortableViewModelDelegate::sortMediaFlow
+        )
 
     val finishedFollowingShowsFlow = airingRepository.mediaWithSchedulesFlow.map { map ->
         val currentSeconds = System.currentTimeMillis() / 1000
@@ -36,7 +48,13 @@ class FollowingViewModel @Inject constructor(
     fun unfollowFinishedShows() {
         viewModelScope.launch {
             val finishedShows = finishedFollowingShowsFlow.first()
-            airingRepository.unfollowMedia(finishedShows)
+            try {
+                airingRepository.unfollowMedia(finishedShows)
+            } catch (throwable: Throwable) {
+                throwable.printStackTrace()
+                FirebaseCrashlytics.getInstance().recordException(throwable)
+                _errorItemFlow.value = ErrorItem.ofThrowable(throwable)
+            }
         }
     }
 }

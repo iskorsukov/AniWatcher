@@ -12,6 +12,10 @@
 
     <string name="loading_error_label">Failed to load data</string>
     <string name="loading_error_sub_label">Check you Internet connection and try again</string>
+    <string name="storing_error_label">Failed to store loaded data</string>
+    <string name="storing_error_sub_label">Check you Internet connection and try again</string>
+    <string name="unknown_error_label">Something went wrong</string>
+    <string name="unknown_error_sub_label">We will try to fix the problem as soon as possible</string>
 
     <string name="following_data_empty_label">You are not following any shows</string>
     <string name="following_data_empty_sub_label">Click the plus icon on a show card to follow it</string>

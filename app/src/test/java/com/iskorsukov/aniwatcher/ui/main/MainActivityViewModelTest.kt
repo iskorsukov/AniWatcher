@@ -1,6 +1,7 @@
 package com.iskorsukov.aniwatcher.ui.main
 
 import com.google.common.truth.Truth.assertThat
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
@@ -27,11 +28,16 @@ class MainActivityViewModelTest {
     private val settingsRepository: SettingsRepository = mockk(relaxed = true)
     private val notificationsRepository: NotificationsRepository = mockk(relaxed = true)
 
-    private val viewModel = MainActivityViewModel(airingRepository, settingsRepository, notificationsRepository)
+    private lateinit var viewModel: MainActivityViewModel
 
     @Test
     fun loadAiringData_season() = runTest {
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        viewModel = MainActivityViewModel(
+            airingRepository,
+            settingsRepository,
+            notificationsRepository
+        )
 
         mockkObject(DateTimeHelper)
         every { DateTimeHelper.currentYear(any()) } returns 2022
@@ -54,6 +60,11 @@ class MainActivityViewModelTest {
     @Test
     fun loadAiringData_range() = runTest {
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        viewModel = MainActivityViewModel(
+            airingRepository,
+            settingsRepository,
+            notificationsRepository
+        )
 
         mockkObject(DateTimeHelper)
         every { DateTimeHelper.currentYear(any()) } returns 2022
@@ -77,6 +88,13 @@ class MainActivityViewModelTest {
     @Test
     fun loadAiringData_exception() = runTest {
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        mockkStatic(FirebaseCrashlytics::class)
+        every { FirebaseCrashlytics.getInstance() } returns mockk(relaxed = true)
+        viewModel = MainActivityViewModel(
+            airingRepository,
+            settingsRepository,
+            notificationsRepository
+        )
 
         mockkObject(DateTimeHelper)
         every { DateTimeHelper.currentYear(any()) } returns 2022
@@ -102,6 +120,13 @@ class MainActivityViewModelTest {
 
     @Test
     fun onSearchTextInput() = runTest {
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        viewModel = MainActivityViewModel(
+            airingRepository,
+            settingsRepository,
+            notificationsRepository
+        )
+
         val searchText = "Search"
 
         assertThat(viewModel.uiState.first().searchText).isEmpty()
@@ -112,6 +137,13 @@ class MainActivityViewModelTest {
 
     @Test
     fun onSortingOptionSelected() = runTest {
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        viewModel = MainActivityViewModel(
+            airingRepository,
+            settingsRepository,
+            notificationsRepository
+        )
+
         viewModel.onSortingOptionSelected(SortingOption.SCORE)
 
         assertThat(viewModel.uiState.first().sortingOption).isEqualTo(SortingOption.SCORE)
@@ -119,6 +151,13 @@ class MainActivityViewModelTest {
 
     @Test
     fun appendSearchText() = runTest {
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        viewModel = MainActivityViewModel(
+            airingRepository,
+            settingsRepository,
+            notificationsRepository
+        )
+
         viewModel.appendSearchText("Text")
 
         assertThat(viewModel.uiState.first().searchText).isEqualTo("Text")
@@ -126,6 +165,13 @@ class MainActivityViewModelTest {
 
     @Test
     fun onSearchFieldOpenChange() = runTest {
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        viewModel = MainActivityViewModel(
+            airingRepository,
+            settingsRepository,
+            notificationsRepository
+        )
+
         viewModel.onSearchFieldOpenChange(true)
 
         assertThat(viewModel.uiState.first().searchFieldOpen).isTrue()

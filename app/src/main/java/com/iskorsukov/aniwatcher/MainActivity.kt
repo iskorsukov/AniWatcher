@@ -197,7 +197,9 @@ class MainActivity : ComponentActivity() {
                                     errorItem = errorItem,
                                     onActionClicked = {
                                         when (errorItem.action) {
-                                            ErrorItem.Action.REFRESH -> mainActivityViewModel.loadAiringData()
+                                            ErrorItem.Action.REFRESH -> {
+                                                mainActivityViewModel.loadAiringData()
+                                            }
                                             ErrorItem.Action.DISMISS -> {}
                                         }
                                     },

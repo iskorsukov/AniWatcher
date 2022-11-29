@@ -7,7 +7,7 @@ import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.test.meanScore
 import com.iskorsukov.aniwatcher.test.nextEpisodeAiringAt
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.SortableMediaViewModel
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.SortableViewModelDelegate
 import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 import io.mockk.coEvery
 import io.mockk.mockk
@@ -31,20 +31,22 @@ class SortableViewModelTest {
         coEvery { mediaWithSchedulesFlow } returns flowOf(data)
     }
 
-    private val viewModel = object : SortableMediaViewModel(airingRepository) {
-        val sortedMediaFlow = airingRepository.mediaWithSchedulesFlow
-            .combine(sortingOptionFlow, this::sortMediaFlow)
-    }
+    private val sortableViewModelDelegate = SortableViewModelDelegate()
+    private val sortedMediaFlow = airingRepository.mediaWithSchedulesFlow
+            .combine(
+                sortableViewModelDelegate.sortingOptionFlow,
+                sortableViewModelDelegate::sortMediaFlow
+            )
 
     @Test
     fun sortsMediaFlow() = runTest {
-        var result: Map<MediaItem, List<AiringScheduleItem>> = viewModel.sortedMediaFlow.first()
+        var result: Map<MediaItem, List<AiringScheduleItem>> = sortedMediaFlow.first()
 
         assertThat(result.size).isEqualTo(2)
         assertThat(result.keys).containsExactly(firstItem.first, secondItem.first).inOrder()
 
-        viewModel.onSortingOptionChanged(SortingOption.SCORE)
-        result = viewModel.sortedMediaFlow.first()
+        sortableViewModelDelegate.onSortingOptionChanged(SortingOption.SCORE)
+        result = sortedMediaFlow.first()
 
         assertThat(result.size).isEqualTo(2)
         assertThat(result.keys).containsExactly(secondItem.first, firstItem.first).inOrder()

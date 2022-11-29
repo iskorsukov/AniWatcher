@@ -5,7 +5,7 @@ import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.test.*
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.SearchableMediaViewModel
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.SearchableViewModelDelegate
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -16,7 +16,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class SearchableViewModelTest {
+class SearchableViewModelDelegateTest {
 
     private val firstItem = ModelTestDataCreator.baseMediaItem() to
             ModelTestDataCreator.baseAiringScheduleItemList()
@@ -29,20 +29,22 @@ class SearchableViewModelTest {
         coEvery { mediaWithSchedulesFlow } returns flowOf(data)
     }
 
-    private val viewModel = object : SearchableMediaViewModel(airingRepository) {
-        val searchedMediaFlow = airingRepository.mediaWithSchedulesFlow
-            .combine(searchTextFlow, this::filterMediaFlow)
-    }
+    private val searchableViewModelDelegate = SearchableViewModelDelegate()
+    private val searchedMediaFlow = airingRepository.mediaWithSchedulesFlow
+        .combine(
+            searchableViewModelDelegate.searchTextFlow,
+            searchableViewModelDelegate::filterMediaFlow
+        )
 
     @Test
     fun filtersFlowBySearchText() = runTest {
-        var result: Map<MediaItem, List<AiringScheduleItem>> = viewModel.searchedMediaFlow.first()
+        var result: Map<MediaItem, List<AiringScheduleItem>> = searchedMediaFlow.first()
 
         assertThat(result.size).isEqualTo(2)
         assertThat(result.keys).containsExactlyElementsIn(data.keys)
 
-        viewModel.onSearchTextChanged("SearchText")
-        result = viewModel.searchedMediaFlow.first()
+        searchableViewModelDelegate.onSearchTextChanged("SearchText")
+        result = searchedMediaFlow.first()
 
         assertThat(result.size).isEqualTo(1)
         assertThat(result.keys).containsExactly(secondItem.first)
@@ -50,13 +52,13 @@ class SearchableViewModelTest {
 
     @Test
     fun filtersFlowBySearchText_multiple() = runTest {
-        var result: Map<MediaItem, List<AiringScheduleItem>> = viewModel.searchedMediaFlow.first()
+        var result: Map<MediaItem, List<AiringScheduleItem>> = searchedMediaFlow.first()
 
         assertThat(result.size).isEqualTo(2)
         assertThat(result.keys).containsExactlyElementsIn(data.keys)
 
-        viewModel.onSearchTextChanged("Search Title")
-        result = viewModel.searchedMediaFlow.first()
+        searchableViewModelDelegate.onSearchTextChanged("Search Title")
+        result = searchedMediaFlow.first()
 
         assertThat(result.size).isEqualTo(1)
         assertThat(result.keys).containsExactly(secondItem.first)
@@ -64,13 +66,13 @@ class SearchableViewModelTest {
 
     @Test
     fun needsAtLeast4Characters() = runTest {
-        var result: Map<MediaItem, List<AiringScheduleItem>> = viewModel.searchedMediaFlow.first()
+        var result: Map<MediaItem, List<AiringScheduleItem>> = searchedMediaFlow.first()
 
         assertThat(result.size).isEqualTo(2)
         assertThat(result.keys).containsExactlyElementsIn(data.keys)
 
-        viewModel.onSearchTextChanged("Sea")
-        result = viewModel.searchedMediaFlow.first()
+        searchableViewModelDelegate.onSearchTextChanged("Sea")
+        result = searchedMediaFlow.first()
 
         assertThat(result.size).isEqualTo(2)
         assertThat(result.keys).containsExactlyElementsIn(data.keys)

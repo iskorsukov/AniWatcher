@@ -7,6 +7,8 @@ import com.iskorsukov.aniwatcher.data.entity.MediaItemEntity
 import com.iskorsukov.aniwatcher.data.executor.AniListQueryExecutor
 import com.iskorsukov.aniwatcher.data.executor.MediaDatabaseExecutor
 import com.iskorsukov.aniwatcher.data.mapper.QueryDataToEntityMapper
+import com.iskorsukov.aniwatcher.domain.exception.ApolloException
+import com.iskorsukov.aniwatcher.domain.exception.RoomException
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import kotlinx.coroutines.flow.Flow
@@ -51,11 +53,19 @@ class AiringRepositoryImpl @Inject constructor(
         var data: SeasonAiringDataQuery.Data
         var page = 1
         do {
-            data = aniListQueryExecutor.seasonAiringDataQuery(year, season, page)
+            data = try {
+                aniListQueryExecutor.seasonAiringDataQuery(year, season, page)
+            } catch (e: Exception) {
+                throw ApolloException(e)
+            }
             entities.putAll(mapper.mapMediaWithSchedulesList(data))
             page++
         } while (data.Page?.pageInfo?.hasNextPage == true)
-        mediaDatabaseExecutor.updateMedia(entities)
+        try {
+            mediaDatabaseExecutor.updateMedia(entities)
+        } catch (e: Exception) {
+            throw RoomException(e)
+        }
     }
 
     override suspend fun loadRangeAiringData(startSeconds: Int, endSeconds: Int) {
@@ -63,22 +73,42 @@ class AiringRepositoryImpl @Inject constructor(
         var data: RangeAiringDataQuery.Data
         var page = 1
         do {
-            data = aniListQueryExecutor.rangeAiringDataQuery(startSeconds, endSeconds, page)
+            data = try {
+                aniListQueryExecutor.rangeAiringDataQuery(startSeconds, endSeconds, page)
+            } catch (e: Exception) {
+                throw ApolloException(e)
+            }
             entities.putAll(mapper.mapMediaWithSchedulesList(data))
             page++
         } while (data.Page?.pageInfo?.hasNextPage == true)
-        mediaDatabaseExecutor.updateMedia(entities)
+        try {
+            mediaDatabaseExecutor.updateMedia(entities)
+        } catch (e: Exception) {
+            throw RoomException(e)
+        }
     }
 
     override suspend fun followMedia(mediaItem: MediaItem) {
-        mediaDatabaseExecutor.followMedia(mediaItem.id)
+        try {
+            mediaDatabaseExecutor.followMedia(mediaItem.id)
+        } catch (e: Exception) {
+            throw RoomException(e)
+        }
     }
 
     override suspend fun unfollowMedia(mediaItem: MediaItem) {
-        mediaDatabaseExecutor.unfollowMedia(mediaItem.id)
+        try {
+            mediaDatabaseExecutor.unfollowMedia(mediaItem.id)
+        } catch (e: Exception) {
+            throw RoomException(e)
+        }
     }
 
     override suspend fun unfollowMedia(mediaItemList: List<MediaItem>) {
-        mediaDatabaseExecutor.unfollowMedia(mediaItemList.map { it.id })
+        try {
+            mediaDatabaseExecutor.unfollowMedia(mediaItemList.map { it.id })
+        } catch (e: Exception) {
+            throw RoomException(e)
+        }
     }
 }
