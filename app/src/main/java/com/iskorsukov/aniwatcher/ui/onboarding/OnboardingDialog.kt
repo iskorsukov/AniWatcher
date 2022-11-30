@@ -4,10 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,7 +44,7 @@ fun OnboardingDialog(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(16.dp)
         ) {
             Surface(
                 shape = RoundedCornerShape(8.dp),
@@ -56,7 +53,10 @@ fun OnboardingDialog(
                     .fillMaxWidth()
             ) {
                 Column(
-                    modifier = Modifier.fillMaxWidth().weight(1f).padding(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .padding(8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
@@ -72,206 +72,230 @@ fun OnboardingDialog(
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
-            if (screenCount == 1) {
-                SelectAppThemeSurface(
-                    onDarkModeOptionSelected = {
-                        onDarkModeOptionSelected.invoke(it)
-                        screenCount++
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                )
-            } else if (screenCount == 2) {
-                SelectScheduleTypeSurface(
-                    onScheduleTypeSelected = {
-                        onScheduleTypeSelected.invoke(it)
-                        screenCount++
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                )
-            } else if (screenCount == 3) {
-                SelectNamingSchemeSurface(
-                    onNamingSchemeSelected = {
-                        onNamingSchemeSelected.invoke(it)
-                        screenCount++
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                )
-            } else {
-                onDismissRequest.invoke()
+            when (screenCount) {
+                1 -> {
+                    SelectAppThemeSurface(
+                        onDarkModeOptionSelected = {
+                            onDarkModeOptionSelected.invoke(it)
+                            screenCount++
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                }
+                2 -> {
+                    SelectScheduleTypeSurface(
+                        onScheduleTypeSelected = {
+                            onScheduleTypeSelected.invoke(it)
+                            screenCount++
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                }
+                3 -> {
+                    SelectNamingSchemeSurface(
+                        onNamingSchemeSelected = {
+                            onNamingSchemeSelected.invoke(it)
+                            screenCount++
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    )
+                }
+                else -> {
+                    onDismissRequest.invoke()
+                }
             }
         }
     }
 }
 
 @Composable
-fun SelectAppThemeSurface(
+private fun OnboardingContentSurface(
+    modifier: Modifier = Modifier,
+    title: String,
+    content: @Composable (ColumnScope) -> Unit
+) {
+    Surface(
+        shape = RoundedCornerShape(8.dp),
+        color = LocalColors.current.background,
+        modifier = modifier
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        ) {
+            Text(
+                text = title,
+                style = LocalTextStyles.current.contentMediumEmphasis
+            )
+            content.invoke(this)
+        }
+    }
+}
+
+@Composable
+private fun SelectAppThemeSurface(
     modifier: Modifier,
     onDarkModeOptionSelected: (DarkModeOption) -> Unit
 ) {
-    Surface(
-        shape = RoundedCornerShape(8.dp),
-        color = LocalColors.current.background,
+    OnboardingContentSurface(
+        title = stringResource(id = R.string.onboarding_dark_theme_title),
         modifier = modifier
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        ) {
-            Text(
-                text = stringResource(id = R.string.onboarding_dark_theme_title),
-                style = LocalTextStyles.current.contentMediumEmphasis
+        Column(modifier = Modifier.padding(8.dp)) {
+            DarkModeOptionCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                label = stringResource(id = R.string.onboarding_dark_theme_light),
+                imageResId = R.mipmap.light_screenshot,
+                onClick = {
+                    onDarkModeOptionSelected.invoke(DarkModeOption.LIGHT)
+                }
             )
-            Column(modifier = Modifier.padding(8.dp)) {
-                DarkModeOptionCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    label = stringResource(id = R.string.onboarding_dark_theme_light),
-                    imageResId = R.mipmap.light_screenshot,
-                    onClick = {
-                        onDarkModeOptionSelected.invoke(DarkModeOption.LIGHT)
-                    }
-                )
-                DarkModeOptionCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .padding(top = 8.dp),
-                    label = stringResource(id = R.string.onboarding_dark_theme_dark),
-                    imageResId = R.mipmap.dark_screenshot,
-                    onClick = {
-                        onDarkModeOptionSelected.invoke(DarkModeOption.DARK)
-                    }
-                )
-                DarkModeOptionCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .padding(top = 8.dp),
-                    label = stringResource(id = R.string.onboarding_dark_theme_system),
-                    imageResId = R.mipmap.system_screenshot,
-                    onClick = {
-                        onDarkModeOptionSelected.invoke(DarkModeOption.SYSTEM)
-                    }
-                )
-            }
+            DarkModeOptionCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(top = 8.dp),
+                label = stringResource(id = R.string.onboarding_dark_theme_dark),
+                imageResId = R.mipmap.dark_screenshot,
+                onClick = {
+                    onDarkModeOptionSelected.invoke(DarkModeOption.DARK)
+                }
+            )
+            DarkModeOptionCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(top = 8.dp),
+                label = stringResource(id = R.string.onboarding_dark_theme_system),
+                imageResId = R.mipmap.system_screenshot,
+                onClick = {
+                    onDarkModeOptionSelected.invoke(DarkModeOption.SYSTEM)
+                }
+            )
         }
     }
 }
 
 @Composable
-fun SelectScheduleTypeSurface(
+@Preview
+private fun SelectAppThemeSurfacePreview() {
+    SelectAppThemeSurface(
+        modifier = Modifier,
+        onDarkModeOptionSelected = { }
+    )
+}
+
+@Composable
+private fun SelectScheduleTypeSurface(
     modifier: Modifier,
     onScheduleTypeSelected: (ScheduleType) -> Unit
 ) {
-    Surface(
-        shape = RoundedCornerShape(8.dp),
-        color = LocalColors.current.background,
+    OnboardingContentSurface(
+        title = stringResource(id = R.string.onboarding_schedule_type_title),
         modifier = modifier
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        ) {
-            Text(
-                text = stringResource(id = R.string.onboarding_schedule_type_title),
-                style = LocalTextStyles.current.contentMediumEmphasis
+        Column(modifier = Modifier.padding(8.dp)) {
+            ScheduleTypeCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                label = stringResource(id = R.string.onboarding_schedule_type_all),
+                text = stringResource(id = R.string.onboarding_schedule_type_all_desc),
+                caption = stringResource(id = R.string.onboarding_schedule_type_all_desc_secondary),
+                onClick = {
+                    onScheduleTypeSelected.invoke(ScheduleType.ALL)
+                }
             )
-            Column {
-                ScheduleTypeCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp, start = 8.dp, end = 8.dp),
-                    label = stringResource(id = R.string.onboarding_schedule_type_all),
-                    text = stringResource(id = R.string.onboarding_schedule_type_all_desc),
-                    onClick = {
-                        onScheduleTypeSelected.invoke(ScheduleType.ALL)
-                    }
-                )
-                ScheduleTypeCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    label = stringResource(id = R.string.onboarding_schedule_type_season),
-                    text = stringResource(id = R.string.onboarding_schedule_type_season_desc),
-                    onClick = {
-                        onScheduleTypeSelected.invoke(ScheduleType.SEASON)
-                    }
-                )
-            }
+            ScheduleTypeCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(top = 8.dp),
+                label = stringResource(id = R.string.onboarding_schedule_type_season),
+                text = stringResource(id = R.string.onboarding_schedule_type_season_desc),
+                caption = stringResource(id = R.string.onboarding_schedule_type_season_desc_secondary),
+                onClick = {
+                    onScheduleTypeSelected.invoke(ScheduleType.SEASON)
+                }
+            )
         }
     }
 }
 
 @Composable
-fun SelectNamingSchemeSurface(
+@Preview
+private fun SelectScheduleTypeSurfacePreview() {
+    SelectScheduleTypeSurface(
+        modifier = Modifier,
+        onScheduleTypeSelected = { }
+    )
+}
+
+@Composable
+private fun SelectNamingSchemeSurface(
     modifier: Modifier,
     onNamingSchemeSelected: (NamingScheme) -> Unit
 ) {
-    Surface(
-        shape = RoundedCornerShape(8.dp),
-        color = LocalColors.current.background,
+    OnboardingContentSurface(
+        title = stringResource(id = R.string.onboarding_naming_preference_title),
         modifier = modifier
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        ) {
-            Text(
-                text = stringResource(id = R.string.onboarding_naming_preference_title),
-                style = LocalTextStyles.current.contentMediumEmphasis
+        Column(modifier = Modifier.padding(8.dp)) {
+            NamingSchemeCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                label = stringResource(id = R.string.onboarding_naming_preference_english),
+                imageResId = R.mipmap.naming_scheme_english,
+                onClick = {
+                    onNamingSchemeSelected.invoke(NamingScheme.ENGLISH)
+                }
             )
-            Column {
-                NamingSchemeCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .padding(vertical = 8.dp),
-                    label = stringResource(id = R.string.onboarding_naming_preference_english),
-                    imageResId = R.mipmap.naming_scheme_english,
-                    onClick = {
-                        onNamingSchemeSelected.invoke(NamingScheme.ENGLISH)
-                    }
-                )
-                NamingSchemeCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .padding(vertical = 4.dp),
-                    label = stringResource(id = R.string.onboarding_naming_preference_romaji),
-                    imageResId = R.mipmap.naming_scheme_romaji,
-                    onClick = {
-                        onNamingSchemeSelected.invoke(NamingScheme.ROMAJI)
-                    }
-                )
-                NamingSchemeCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .padding(vertical = 8.dp),
-                    label = stringResource(id = R.string.onboarding_naming_preference_native),
-                    imageResId = R.mipmap.naming_scheme_native,
-                    onClick = {
-                        onNamingSchemeSelected.invoke(NamingScheme.NATIVE)
-                    }
-                )
-            }
+            NamingSchemeCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(top = 8.dp),
+                label = stringResource(id = R.string.onboarding_naming_preference_romaji),
+                imageResId = R.mipmap.naming_scheme_romaji,
+                onClick = {
+                    onNamingSchemeSelected.invoke(NamingScheme.ROMAJI)
+                }
+            )
+            NamingSchemeCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(top = 8.dp),
+                label = stringResource(id = R.string.onboarding_naming_preference_native),
+                imageResId = R.mipmap.naming_scheme_native,
+                onClick = {
+                    onNamingSchemeSelected.invoke(NamingScheme.NATIVE)
+                }
+            )
         }
     }
+}
+
+@Composable
+@Preview
+private fun SelectNamingSchemeSurfacePreview() {
+    SelectNamingSchemeSurface(
+        modifier = Modifier,
+        onNamingSchemeSelected = { }
+    )
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun DarkModeOptionCard(
+private fun DarkModeOptionCard(
     modifier: Modifier,
     label: String,
     imageResId: Int,
@@ -279,7 +303,7 @@ fun DarkModeOptionCard(
 ) {
     Card(
         modifier = modifier,
-        elevation = 4.dp,
+        elevation = 8.dp,
         backgroundColor = LocalColors.current.cardBackground,
         onClick = {
             onClick.invoke()
@@ -308,17 +332,29 @@ fun DarkModeOptionCard(
     }
 }
 
+@Composable
+@Preview
+private fun DarkModeOptionCardPreview() {
+    DarkModeOptionCard(
+        modifier = Modifier,
+        label = stringResource(id = R.string.onboarding_dark_theme_light),
+        imageResId = R.mipmap.light_screenshot,
+        onClick = { }
+    )
+}
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ScheduleTypeCard(
+private fun ScheduleTypeCard(
     modifier: Modifier,
     label: String,
     text: String,
+    caption: String,
     onClick: () -> Unit
 ) {
     Card(
         modifier = modifier,
-        elevation = 4.dp,
+        elevation = 8.dp,
         backgroundColor = LocalColors.current.cardBackground,
         onClick = {
             onClick.invoke()
@@ -338,13 +374,30 @@ fun ScheduleTypeCard(
                 style = LocalTextStyles.current.contentMedium,
                 textAlign = TextAlign.Center
             )
+            Text(
+                text = caption,
+                style = LocalTextStyles.current.contentSmallLargerEmphasis,
+                textAlign = TextAlign.Center
+            )
         }
     }
 }
 
+@Composable
+@Preview
+private fun ScheduleTypeCardPreview() {
+    ScheduleTypeCard(
+        modifier = Modifier,
+        label = stringResource(id = R.string.onboarding_schedule_type_all),
+        text = stringResource(id = R.string.onboarding_schedule_type_all_desc),
+        caption = stringResource(id = R.string.onboarding_schedule_type_all_desc_secondary),
+        onClick = { }
+    )
+}
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun NamingSchemeCard(
+private fun NamingSchemeCard(
     modifier: Modifier,
     label: String,
     imageResId: Int,
@@ -352,7 +405,7 @@ fun NamingSchemeCard(
 ) {
     Card(
         modifier = modifier,
-        elevation = 4.dp,
+        elevation = 8.dp,
         backgroundColor = LocalColors.current.cardBackground,
         onClick = {
             onClick.invoke()
@@ -374,7 +427,18 @@ fun NamingSchemeCard(
 
 @Composable
 @Preview
-fun OnboardingDialogPreview() {
+private fun NamingSchemeCardPreview() {
+    NamingSchemeCard(
+        modifier = Modifier,
+        label = stringResource(id = R.string.onboarding_naming_preference_english),
+        imageResId = R.mipmap.naming_scheme_english,
+        onClick = { }
+    )
+}
+
+@Composable
+@Preview
+private fun OnboardingDialogPreview() {
     OnboardingDialog(
         { },
         { },

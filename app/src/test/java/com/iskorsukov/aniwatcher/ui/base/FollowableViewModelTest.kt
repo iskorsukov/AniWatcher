@@ -3,7 +3,7 @@ package com.iskorsukov.aniwatcher.ui.base
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.test.isFollowing
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.FollowableMediaViewModel
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.follow.FollowableMediaViewModel
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers

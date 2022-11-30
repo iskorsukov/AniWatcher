@@ -1,4 +1,4 @@
-package com.iskorsukov.aniwatcher.ui.base.viewmodel
+package com.iskorsukov.aniwatcher.ui.base.viewmodel.error
 
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
 import kotlinx.coroutines.flow.StateFlow

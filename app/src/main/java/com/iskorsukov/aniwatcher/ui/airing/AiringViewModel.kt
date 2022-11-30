@@ -3,7 +3,7 @@ package com.iskorsukov.aniwatcher.ui.airing
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.FollowableMediaViewModel
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.follow.FollowableMediaViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map

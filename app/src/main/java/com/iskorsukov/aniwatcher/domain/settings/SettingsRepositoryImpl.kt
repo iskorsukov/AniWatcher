@@ -40,7 +40,7 @@ class SettingsRepositoryImpl @Inject constructor(
                 context.getString(R.string.settings_dark_mode_key),
                 darkModeOption.name
             )
-            .commit()
+            .apply()
         onPreferenceChanged()
     }
 
@@ -50,7 +50,7 @@ class SettingsRepositoryImpl @Inject constructor(
                 context.getString(R.string.settings_schedule_type_key),
                 scheduleType.name
             )
-            .commit()
+            .apply()
         onPreferenceChanged()
     }
 
@@ -60,7 +60,7 @@ class SettingsRepositoryImpl @Inject constructor(
                 context.getString(R.string.settings_naming_scheme_key),
                 preferredNamingScheme.name
             )
-            .commit()
+            .apply()
         onPreferenceChanged()
     }
 
@@ -70,7 +70,7 @@ class SettingsRepositoryImpl @Inject constructor(
                 context.getString(R.string.settings_onboarding_complete_key),
                 onboardingComplete
             )
-            .commit()
+            .apply()
         onPreferenceChanged()
     }
 

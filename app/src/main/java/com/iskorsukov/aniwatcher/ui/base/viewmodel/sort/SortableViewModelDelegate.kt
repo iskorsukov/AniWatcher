@@ -1,4 +1,4 @@
-package com.iskorsukov.aniwatcher.ui.base.viewmodel
+package com.iskorsukov.aniwatcher.ui.base.viewmodel.sort
 
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.ui.sorting.SortingOption

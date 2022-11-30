@@ -1,4 +1,4 @@
-package com.iskorsukov.aniwatcher.ui.base.viewmodel
+package com.iskorsukov.aniwatcher.ui.base.viewmodel.search
 
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import kotlinx.coroutines.flow.MutableStateFlow

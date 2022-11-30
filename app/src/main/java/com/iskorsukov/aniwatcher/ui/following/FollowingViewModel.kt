@@ -5,7 +5,11 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.*
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.follow.FollowableMediaViewModel
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.search.SearchableViewModel
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.search.SearchableViewModelDelegate
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.sort.SortableViewModel
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.sort.SortableViewModelDelegate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch

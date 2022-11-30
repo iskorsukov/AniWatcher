@@ -7,7 +7,7 @@ import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.test.meanScore
 import com.iskorsukov.aniwatcher.test.nextEpisodeAiringAt
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.SortableViewModelDelegate
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.sort.SortableViewModelDelegate
 import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 import io.mockk.coEvery
 import io.mockk.mockk
