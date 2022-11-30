@@ -5,9 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
-import com.iskorsukov.aniwatcher.domain.settings.ScheduleType
-import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
-import com.iskorsukov.aniwatcher.domain.settings.SettingsState
+import com.iskorsukov.aniwatcher.domain.settings.*
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.ErrorFlowViewModel
@@ -21,7 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
     private val airingRepository: AiringRepository,
-    settingsRepository: SettingsRepository,
+    private val settingsRepository: SettingsRepository,
     notificationsRepository: NotificationsRepository
 ): ViewModel(), ErrorFlowViewModel {
 
@@ -78,5 +76,21 @@ class MainActivityViewModel @Inject constructor(
 
     fun onSearchFieldOpenChange(isSearchFieldOpen: Boolean) {
         _uiState.value = _uiState.value.copy(searchFieldOpen = isSearchFieldOpen)
+    }
+
+    fun onDarkModeOptionSelected(darkModeOption: DarkModeOption) {
+        settingsRepository.setDarkModeOption(darkModeOption)
+    }
+
+    fun onScheduleTypeSelected(scheduleType: ScheduleType) {
+        settingsRepository.setScheduleType(scheduleType)
+    }
+
+    fun onPreferredNamingSchemeSelected(namingScheme: NamingScheme) {
+        settingsRepository.setPreferredNamingScheme(namingScheme)
+    }
+
+    fun onOnboardingComplete() {
+        settingsRepository.setOnboardingComplete(true)
     }
 }

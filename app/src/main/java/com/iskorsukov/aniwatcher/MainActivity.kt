@@ -37,6 +37,7 @@ import com.iskorsukov.aniwatcher.ui.main.TopBar
 import com.iskorsukov.aniwatcher.ui.media.MediaScreen
 import com.iskorsukov.aniwatcher.ui.media.MediaViewModel
 import com.iskorsukov.aniwatcher.ui.notification.NotificationActivity
+import com.iskorsukov.aniwatcher.ui.onboarding.OnboardingDialog
 import com.iskorsukov.aniwatcher.ui.settings.SettingsCompatActivity
 import com.iskorsukov.aniwatcher.ui.sorting.SelectSortingOptionDialog
 import com.iskorsukov.aniwatcher.ui.theme.*
@@ -177,11 +178,26 @@ class MainActivity : ComponentActivity() {
                                     }
                                 )
                             }
+                            composable("onboarding") {
+                                OnboardingDialog(
+                                    onDarkModeOptionSelected = mainActivityViewModel::onDarkModeOptionSelected,
+                                    onScheduleTypeSelected = mainActivityViewModel::onScheduleTypeSelected,
+                                    onNamingSchemeSelected = mainActivityViewModel::onPreferredNamingSchemeSelected
+                                ) {
+                                    mainActivityViewModel.onOnboardingComplete()
+                                }
+                            }
                         }
 
-                        LaunchedEffect(settingsState.scheduleType) {
-                            navController.popBackStack(navController.graph.findStartDestination().id, false)
-                            mainActivityViewModel.loadAiringData()
+                        if (settingsState.onboardingComplete) {
+                            LaunchedEffect(settingsState.scheduleType) {
+                                navController.popBackStack(navController.graph.findStartDestination().id, false)
+                                mainActivityViewModel.loadAiringData()
+                            }
+                        } else {
+                            LaunchedEffect(Unit) {
+                                navController.navigate("onboarding")
+                            }
                         }
 
                         AnimatedVisibility(

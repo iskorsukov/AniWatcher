@@ -18,7 +18,8 @@ class SettingsRepositoryImpl @Inject constructor(
             getDarkModeOption(),
             getScheduleType(),
             getPreferredNamingScheme(),
-            getNotificationsEnabled()
+            getNotificationsEnabled(),
+            getOnboardingComplete()
         )
     )
     override val settingsStateFlow: StateFlow<SettingsState> = _settingsStateFlow
@@ -28,8 +29,49 @@ class SettingsRepositoryImpl @Inject constructor(
             getDarkModeOption(),
             getScheduleType(),
             getPreferredNamingScheme(),
-            getNotificationsEnabled()
+            getNotificationsEnabled(),
+            getOnboardingComplete()
         )
+    }
+
+    override fun setDarkModeOption(darkModeOption: DarkModeOption) {
+        sharedPreferences.edit()
+            .putString(
+                context.getString(R.string.settings_dark_mode_key),
+                darkModeOption.name
+            )
+            .commit()
+        onPreferenceChanged()
+    }
+
+    override fun setScheduleType(scheduleType: ScheduleType) {
+        sharedPreferences.edit()
+            .putString(
+                context.getString(R.string.settings_schedule_type_key),
+                scheduleType.name
+            )
+            .commit()
+        onPreferenceChanged()
+    }
+
+    override fun setPreferredNamingScheme(preferredNamingScheme: NamingScheme) {
+        sharedPreferences.edit()
+            .putString(
+                context.getString(R.string.settings_naming_scheme_key),
+                preferredNamingScheme.name
+            )
+            .commit()
+        onPreferenceChanged()
+    }
+
+    override fun setOnboardingComplete(onboardingComplete: Boolean) {
+        sharedPreferences.edit()
+            .putBoolean(
+                context.getString(R.string.settings_onboarding_complete_key),
+                onboardingComplete
+            )
+            .commit()
+        onPreferenceChanged()
     }
 
     private fun getDarkModeOption(): DarkModeOption {
@@ -63,6 +105,13 @@ class SettingsRepositoryImpl @Inject constructor(
         return sharedPreferences.getBoolean(
             context.getString(R.string.settings_notifications_enabled_key),
             true
+        )
+    }
+
+    private fun getOnboardingComplete(): Boolean {
+        return sharedPreferences.getBoolean(
+            context.getString(R.string.settings_onboarding_complete_key),
+            false
         )
     }
 }

@@ -57,6 +57,8 @@
     <string name="settings_dark_mode_key">dark_mode</string>
     <string name="settings_dark_mode_label">App theme</string>
 
+    <string name="settings_onboarding_complete_key">onboarding_complete</string>
+
     <string name="format_tv">TV</string>
     <string name="format_tv_short">TV Short</string>
     <string name="format_ova">OVA</string>
