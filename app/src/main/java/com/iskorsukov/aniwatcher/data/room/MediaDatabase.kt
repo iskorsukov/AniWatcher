@@ -14,7 +14,8 @@ import com.iskorsukov.aniwatcher.data.entity.NotificationItemEntity
         FollowingEntity::class,
         NotificationItemEntity::class
     ],
-    version = 1
+    version = 1,
+    exportSchema = true
 )
 abstract class MediaDatabase: RoomDatabase() {
 
