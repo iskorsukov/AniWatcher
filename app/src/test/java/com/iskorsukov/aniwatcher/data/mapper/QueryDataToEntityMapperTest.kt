@@ -98,4 +98,27 @@ class QueryDataToEntityMapperTest {
 
         mapper.mapMediaWithSchedulesList(data)
     }
+
+    @Test
+    fun mapRange_filtersAdultMedia() {
+        val data = RangeAiringDataQuery.Data(
+            RangeAiringDataQuery.Page(
+                pageInfo = RangeAiringDataQuery.PageInfo(
+                    currentPage = 1,
+                    hasNextPage = true
+                ),
+                airingSchedules = listOf(
+                    RangeAiringDataQuery.AiringSchedule(
+                        id = 1,
+                        media = QueryTestDataCreator.baseRangeAiringDataMedium().copy(isAdult = true)
+                    )
+                )
+            )
+        )
+
+        val entityMap = mapper.mapMediaWithSchedulesList(data)
+
+        assertThat(entityMap.size).isEqualTo(0)
+    }
+
 }
