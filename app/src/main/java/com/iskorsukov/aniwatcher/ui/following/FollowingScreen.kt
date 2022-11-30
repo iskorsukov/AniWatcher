@@ -48,9 +48,12 @@ fun FollowingScreen(
         listState.scrollToItem(0)
     }
 
+    /* TODO: Re-enable after finished shows detection is finished
     var shouldShowFinishedShowsDialog by remember(finishedShowsList.size) {
         mutableStateOf(finishedShowsList.isNotEmpty())
     }
+     */
+    var shouldShowFinishedShowsDialog = false
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (shouldShowFinishedShowsDialog) {
