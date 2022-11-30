@@ -23,7 +23,7 @@ class NotificationsAlarmReceiver : BroadcastReceiver() {
             (context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager)
                 ?.setAndAllowWhileIdle(
                     AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                    SystemClock.elapsedRealtime() + AlarmManager.INTERVAL_FIFTEEN_MINUTES,
+                    SystemClock.elapsedRealtime() + AlarmManager.INTERVAL_HALF_HOUR,
                     NotificationsAlarmBuilder.buildAlarmIntent(context)
                 )
         }

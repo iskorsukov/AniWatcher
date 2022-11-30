@@ -234,7 +234,7 @@ class MainActivity : ComponentActivity() {
         (getSystemService(Context.ALARM_SERVICE) as? AlarmManager)
             ?.setAndAllowWhileIdle(
                 AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime(),
+                SystemClock.elapsedRealtime() + AlarmManager.INTERVAL_FIFTEEN_MINUTES,
                 NotificationsAlarmBuilder.buildAlarmIntent(this)
             )
     }
