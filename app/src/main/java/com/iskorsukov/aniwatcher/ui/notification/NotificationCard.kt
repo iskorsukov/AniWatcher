@@ -20,6 +20,7 @@ import com.iskorsukov.aniwatcher.domain.model.NotificationItem
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.ui.media.MediaItemAiringInfoColumn
+import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 import com.iskorsukov.aniwatcher.ui.theme.LocalTextStyles
 
 @Composable
@@ -37,7 +38,8 @@ fun NotificationCard(
             .fillMaxWidth()
             .padding(8.dp)
             .clickable { onNotificationClicked?.invoke(mediaItem.id) },
-        elevation = 10.dp
+        elevation = 4.dp,
+        backgroundColor = LocalColors.current.cardBackground
     ) {
         ConstraintLayout {
             val (image, cardContent) = createRefs()

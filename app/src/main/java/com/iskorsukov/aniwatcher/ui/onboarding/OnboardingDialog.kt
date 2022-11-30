@@ -43,8 +43,8 @@ fun OnboardingDialog(
         }
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
+                .fillMaxWidth()
+                .fillMaxHeight(0.9f)
         ) {
             Surface(
                 shape = RoundedCornerShape(8.dp),
@@ -371,7 +371,7 @@ private fun ScheduleTypeCard(
             )
             Text(
                 text = text,
-                style = LocalTextStyles.current.contentMedium,
+                style = LocalTextStyles.current.contentSmallLarger,
                 textAlign = TextAlign.Center
             )
             Text(
@@ -415,10 +415,12 @@ private fun NamingSchemeCard(
             Text(
                 text = label,
                 style = LocalTextStyles.current.contentMediumEmphasis,
+                modifier = Modifier.padding(horizontal = 6.dp)
             )
             Image(
                 painter = painterResource(id = imageResId),
                 contentScale = ContentScale.Crop,
+                alignment = Alignment.TopCenter,
                 contentDescription = null
             )
         }

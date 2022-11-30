@@ -212,7 +212,7 @@ private fun GenreChip(
     val textColor = getContrastTextColorForChip(bgColor = bgColor)
     Text(
         text = genre,
-        color = textColor,
+        color = if (isVisible) textColor else Color.Transparent,
         fontSize = 14.sp,
         textAlign = TextAlign.Center,
         modifier = Modifier
