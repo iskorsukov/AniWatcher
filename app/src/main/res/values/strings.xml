@@ -6,7 +6,8 @@
     <string name="settings">Settings</string>
     <string name="notifications">Notifications</string>
 
-    <string name="media_screen_label">Shows</string>
+    <string name="media_screen_label">This week</string>
+    <string name="media_screen_season_label">This season</string>
     <string name="airing_screen_label">Schedule</string>
     <string name="following_screen_label">Following</string>
 

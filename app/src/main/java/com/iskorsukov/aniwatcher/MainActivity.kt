@@ -155,6 +155,20 @@ class MainActivity : ComponentActivity() {
                                     }
                                 )
                             }
+                            composable("media_season") {
+                                MediaScreen(
+                                    viewModel = mediaViewModel,
+                                    uiState = uiState,
+                                    settingsState = settingsState,
+                                    timeInMinutes = timeInMinutes,
+                                    onMediaClicked = { startDetailsActivity(it.id) },
+                                    onRefresh = mainActivityViewModel::loadAiringData,
+                                    onGenreChipClicked = {
+                                        mainActivityViewModel.onSearchFieldOpenChange(true)
+                                        mainActivityViewModel.appendSearchText(it)
+                                    }
+                                )
+                            }
                             composable("airing") {
                                 AiringScreen(
                                     viewModel = airingViewModel,

@@ -16,6 +16,11 @@ sealed class Screen(
         R.string.media_screen_label,
         R.drawable.ic_outline_video_library_24_white
     )
+    object MediaScreenSeason : Screen(
+        "media_season",
+        R.string.media_screen_season_label,
+        R.drawable.ic_outline_video_library_24_white
+    )
     object AiringScreen : Screen(
         "airing",
         R.string.airing_screen_label,

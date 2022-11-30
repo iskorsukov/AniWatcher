@@ -43,18 +43,14 @@ fun OnboardingDialog(
         }
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.9f)
+                .padding(8.dp)
         ) {
             Surface(
                 shape = RoundedCornerShape(8.dp),
-                color = LocalColors.current.background,
-                modifier = Modifier
-                    .fillMaxWidth()
+                color = LocalColors.current.background
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxWidth()
                         .weight(1f)
                         .padding(8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -80,7 +76,6 @@ fun OnboardingDialog(
                             screenCount++
                         },
                         modifier = Modifier
-                            .fillMaxWidth()
                     )
                 }
                 2 -> {
@@ -90,17 +85,15 @@ fun OnboardingDialog(
                             screenCount++
                         },
                         modifier = Modifier
-                            .fillMaxWidth()
                     )
                 }
                 3 -> {
                     SelectNamingSchemeSurface(
                         onNamingSchemeSelected = {
                             onNamingSchemeSelected.invoke(it)
-                            screenCount++
+                            onDismissRequest.invoke()
                         },
                         modifier = Modifier
-                            .fillMaxWidth()
                     )
                 }
                 else -> {
@@ -125,7 +118,6 @@ private fun OnboardingContentSurface(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .fillMaxWidth()
                 .padding(8.dp)
         ) {
             Text(
@@ -149,7 +141,6 @@ private fun SelectAppThemeSurface(
         Column(modifier = Modifier.padding(8.dp)) {
             DarkModeOptionCard(
                 modifier = Modifier
-                    .fillMaxWidth()
                     .weight(1f),
                 label = stringResource(id = R.string.onboarding_dark_theme_light),
                 imageResId = R.mipmap.light_screenshot,
@@ -159,7 +150,6 @@ private fun SelectAppThemeSurface(
             )
             DarkModeOptionCard(
                 modifier = Modifier
-                    .fillMaxWidth()
                     .weight(1f)
                     .padding(top = 8.dp),
                 label = stringResource(id = R.string.onboarding_dark_theme_dark),
@@ -170,7 +160,6 @@ private fun SelectAppThemeSurface(
             )
             DarkModeOptionCard(
                 modifier = Modifier
-                    .fillMaxWidth()
                     .weight(1f)
                     .padding(top = 8.dp),
                 label = stringResource(id = R.string.onboarding_dark_theme_system),
@@ -204,7 +193,6 @@ private fun SelectScheduleTypeSurface(
         Column(modifier = Modifier.padding(8.dp)) {
             ScheduleTypeCard(
                 modifier = Modifier
-                    .fillMaxWidth()
                     .weight(1f),
                 label = stringResource(id = R.string.onboarding_schedule_type_all),
                 text = stringResource(id = R.string.onboarding_schedule_type_all_desc),
@@ -215,7 +203,6 @@ private fun SelectScheduleTypeSurface(
             )
             ScheduleTypeCard(
                 modifier = Modifier
-                    .fillMaxWidth()
                     .weight(1f)
                     .padding(top = 8.dp),
                 label = stringResource(id = R.string.onboarding_schedule_type_season),
@@ -250,7 +237,6 @@ private fun SelectNamingSchemeSurface(
         Column(modifier = Modifier.padding(8.dp)) {
             NamingSchemeCard(
                 modifier = Modifier
-                    .fillMaxWidth()
                     .weight(1f),
                 label = stringResource(id = R.string.onboarding_naming_preference_english),
                 imageResId = R.mipmap.naming_scheme_english,
@@ -260,7 +246,6 @@ private fun SelectNamingSchemeSurface(
             )
             NamingSchemeCard(
                 modifier = Modifier
-                    .fillMaxWidth()
                     .weight(1f)
                     .padding(top = 8.dp),
                 label = stringResource(id = R.string.onboarding_naming_preference_romaji),
@@ -271,7 +256,6 @@ private fun SelectNamingSchemeSurface(
             )
             NamingSchemeCard(
                 modifier = Modifier
-                    .fillMaxWidth()
                     .weight(1f)
                     .padding(top = 8.dp),
                 label = stringResource(id = R.string.onboarding_naming_preference_native),

@@ -26,6 +26,8 @@ fun BottomNavigationBar(
 ) {
     val items = mutableListOf<Screen>()
     if (scheduleType == ScheduleType.SEASON) {
+        items.add(Screen.MediaScreenSeason)
+    } else {
         items.add(Screen.MediaScreen)
     }
     items.add(Screen.AiringScreen)
