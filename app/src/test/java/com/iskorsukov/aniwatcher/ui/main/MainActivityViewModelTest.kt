@@ -45,6 +45,7 @@ class MainActivityViewModelTest {
                     DarkModeOption.SYSTEM,
                     ScheduleType.SEASON,
                     NamingScheme.ROMAJI,
+                    true,
                     true
                 )
 
@@ -78,6 +79,7 @@ class MainActivityViewModelTest {
                     DarkModeOption.SYSTEM,
                     ScheduleType.ALL,
                     NamingScheme.ROMAJI,
+                    true,
                     true
                 )
 
@@ -112,6 +114,7 @@ class MainActivityViewModelTest {
                     DarkModeOption.SYSTEM,
                     ScheduleType.SEASON,
                     NamingScheme.ROMAJI,
+                    true,
                     true
                 )
 

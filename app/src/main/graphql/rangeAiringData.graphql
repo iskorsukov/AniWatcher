@@ -18,6 +18,7 @@ query RangeAiringData($page: Int!, $startSeconds: Int!, $endSeconds: Int!) {
                     large
                     color
                 }
+                isAdult
                 bannerImage
                 popularity
                 format

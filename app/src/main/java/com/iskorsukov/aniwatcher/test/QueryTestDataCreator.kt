@@ -70,6 +70,7 @@ object QueryTestDataCreator {
             ),
             popularity = 1,
             meanScore = 1,
+            isAdult = false,
             genres = listOf("Action", "Comedy"),
             siteUrl = "AniListUrl",
             airingSchedule = RangeAiringDataQuery.AiringSchedule1(

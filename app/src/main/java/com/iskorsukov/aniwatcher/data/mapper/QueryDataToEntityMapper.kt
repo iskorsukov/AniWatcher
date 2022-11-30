@@ -25,7 +25,10 @@ class QueryDataToEntityMapper @Inject constructor() {
             data.Page.airingSchedules.any { it?.media?.airingSchedule == null }) {
             throw IllegalArgumentException("Unexpected null value in query data")
         }
-        return data.Page.airingSchedules.filterNotNull().associate { outerSchedule ->
+        return data.Page.airingSchedules
+            .filterNotNull()
+            .filter { it.media?.isAdult != null && it.media.isAdult == false }
+            .associate { outerSchedule ->
             val media = outerSchedule.media!!
             MediaItemEntity.fromData(media) to
                     media.airingSchedule!!.airingScheduleNode!!.filterNotNull().map {
