@@ -95,6 +95,9 @@ class MainActivity : ComponentActivity() {
             val timeInMinutes by timeInMinutesFlow
                 .collectAsStateWithLifecycle(initialValue = 0)
 
+            val shouldShowOnboardingDialog by rememberSaveable(settingsState.onboardingComplete) {
+                mutableStateOf(!settingsState.onboardingComplete)
+            }
             var shouldShowSortingOptionsDialog by rememberSaveable {
                 mutableStateOf(false)
             }
@@ -134,6 +137,15 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding)
                             .fillMaxSize()
                     ) {
+                        if (shouldShowOnboardingDialog) {
+                            OnboardingDialog(
+                                onDarkModeOptionSelected = mainActivityViewModel::onDarkModeOptionSelected,
+                                onScheduleTypeSelected = mainActivityViewModel::onScheduleTypeSelected,
+                                onNamingSchemeSelected = mainActivityViewModel::onPreferredNamingSchemeSelected
+                            ) {
+                                mainActivityViewModel.onOnboardingComplete()
+                            }
+                        }
                         if (shouldShowSortingOptionsDialog) {
                             SelectSortingOptionDialog(
                                 onSortingOptionSelected = mainActivityViewModel::onSortingOptionSelected,
@@ -190,24 +202,11 @@ class MainActivity : ComponentActivity() {
                                     }
                                 )
                             }
-                            composable("onboarding") {
-                                OnboardingDialog(
-                                    onDarkModeOptionSelected = mainActivityViewModel::onDarkModeOptionSelected,
-                                    onScheduleTypeSelected = mainActivityViewModel::onScheduleTypeSelected,
-                                    onNamingSchemeSelected = mainActivityViewModel::onPreferredNamingSchemeSelected
-                                ) {
-                                    mainActivityViewModel.onOnboardingComplete()
-                                }
-                            }
                         }
 
                         if (settingsState.onboardingComplete) {
                             LaunchedEffect(settingsState.scheduleType, uiState.seasonYear) {
                                 mainActivityViewModel.loadAiringData()
-                            }
-                        } else {
-                            LaunchedEffect(Unit) {
-                                navController.navigate("onboarding")
                             }
                         }
 

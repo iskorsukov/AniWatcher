@@ -2,8 +2,8 @@
 <resources>
     <string name="schedule_type_default_value">ALL</string>
     <string-array name="schedule_type_labels">
-        <item>All shows</item>
-        <item>Only current season</item>
+        <item>All shows airing this week</item>
+        <item>Only shows from selected season</item>
     </string-array>
     <string-array name="schedule_type_values">
         <item>ALL</item>
