@@ -8,9 +8,26 @@ object DateTimeHelper {
         return DayOfWeekLocal.ofCalendar(Calendar.getInstance())
     }
 
+    fun currentDayEndSeconds(calendar: Calendar): Int {
+        calendar.apply {
+            add(Calendar.DAY_OF_YEAR, 1)
+            set(Calendar.MILLISECOND, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.HOUR_OF_DAY, 0)
+        }
+        return (calendar.timeInMillis / 1000).toInt()
+    }
+
     fun currentWeekStartToEndSeconds(calendar: Calendar): Pair<Int, Int> {
         val start = (calendar.timeInMillis / 1000).toInt()
-        calendar.add(Calendar.DAY_OF_YEAR, 7)
+        calendar.apply {
+            add(Calendar.DAY_OF_YEAR, 7)
+            set(Calendar.MILLISECOND, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.HOUR_OF_DAY, 0)
+        }
         val end = (calendar.timeInMillis / 1000).toInt()
         return start to end
     }

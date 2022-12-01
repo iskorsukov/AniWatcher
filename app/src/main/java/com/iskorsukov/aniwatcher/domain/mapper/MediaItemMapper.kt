@@ -2,6 +2,7 @@ package com.iskorsukov.aniwatcher.domain.mapper
 
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
+import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.domain.util.DayOfWeekLocal
 import java.util.*
 
@@ -13,11 +14,15 @@ object MediaItemMapper {
         val dowToSchedulesMap = mutableMapOf<DayOfWeekLocal, List<AiringScheduleItem>>()
         mediaItemToAiringSchedulesMap.mapNotNull {
             val map = mutableMapOf<DayOfWeekLocal, AiringScheduleItem>()
+            val currentDayOfWeek = DayOfWeekLocal.ofCalendar(Calendar.getInstance())
+            val currentDayEndInSeconds = DateTimeHelper.currentDayEndSeconds(Calendar.getInstance())
             it.value.forEach { item ->
                 val calendar = Calendar.getInstance().apply {
                     timeInMillis = item.airingAt.toLong() * 1000
                 }
                 val dayOfWeek = DayOfWeekLocal.ofCalendar(calendar)
+                if (dayOfWeek == currentDayOfWeek && item.airingAt > currentDayEndInSeconds)
+                    return@forEach
                 if (item.airingAt < (map[dayOfWeek]?.airingAt ?: Int.MAX_VALUE)) {
                     map[dayOfWeek] = item
                 }

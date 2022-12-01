@@ -6,6 +6,7 @@ import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
 import com.iskorsukov.aniwatcher.domain.settings.*
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
+import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
 import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 import io.mockk.*
 import kotlinx.coroutines.Dispatchers
@@ -132,7 +133,7 @@ class MainActivityViewModelTest {
 
         val state = viewModel.uiState.first()
         assertThat(state.isRefreshing).isFalse()
-        assertThat(state.errorItem).isNotNull()
+        assertThat(state.errorItem).isEqualTo(ErrorItem.Unknown)
 
         coVerify { airingRepository.loadSeasonAiringData(2023, "WINTER") }
 
