@@ -62,9 +62,9 @@ class DateTimeHelperTest {
     }
 
     companion object {
-        const val TEST_WEEK_START = 1665954000
-        const val TEST_WEEK_END = 1666558800
+        const val TEST_WEEK_START = 1666099271
+        const val TEST_WEEK_END = 1666704071
         val TEST_CALENDAR = GregorianCalendar(
-            2022, Calendar.OCTOBER, 17, 16, 21, 11)
+            2022, Calendar.OCTOBER, 18, 16, 21, 11)
     }
 }
