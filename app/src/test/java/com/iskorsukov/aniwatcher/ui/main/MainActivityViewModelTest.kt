@@ -17,6 +17,8 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.Test
 import java.io.IOException
+import java.util.Calendar
+import java.util.GregorianCalendar
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainActivityViewModelTest {
@@ -30,6 +32,10 @@ class MainActivityViewModelTest {
     @Test
     fun loadAiringData_season() = runTest {
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        mockkStatic(Calendar::class)
+        every { Calendar.getInstance() } returns GregorianCalendar().apply {
+            timeInMillis = 1669870920000L
+        }
         viewModel = MainActivityViewModel(
             airingRepository,
             settingsRepository,
@@ -37,7 +43,7 @@ class MainActivityViewModelTest {
         )
 
         mockkObject(DateTimeHelper)
-        every { DateTimeHelper.currentSeasonYear(any()) } returns DateTimeHelper.SeasonYear(DateTimeHelper.Season.WINTER, 2022)
+        every { DateTimeHelper.currentSeasonYear(any()) } returns DateTimeHelper.SeasonYear(DateTimeHelper.Season.WINTER, 2023)
 
         coEvery { settingsRepository.settingsStateFlow.value } returns
                 SettingsState(
@@ -54,9 +60,9 @@ class MainActivityViewModelTest {
         advanceUntilIdle()
         assertThat(viewModel.uiState.first().isRefreshing).isFalse()
 
-        coVerify { airingRepository.loadSeasonAiringData(2022, "FALL") }
+        coVerify { airingRepository.loadSeasonAiringData(2023, "WINTER") }
 
-        unmockkObject(DateTimeHelper)
+        unmockkAll()
     }
 
     @Test
@@ -69,7 +75,6 @@ class MainActivityViewModelTest {
         )
 
         mockkObject(DateTimeHelper)
-        every { DateTimeHelper.currentSeasonYear(any()) } returns DateTimeHelper.SeasonYear(DateTimeHelper.Season.WINTER, 2022)
         every { DateTimeHelper.currentWeekStartToEndSeconds(any()) } returns (0 to 1)
 
         coEvery { settingsRepository.settingsStateFlow.value } returns
@@ -89,7 +94,7 @@ class MainActivityViewModelTest {
 
         coVerify { airingRepository.loadRangeAiringData(0, 1) }
 
-        unmockkObject(DateTimeHelper)
+        unmockkAll()
     }
 
     @Test
@@ -97,6 +102,10 @@ class MainActivityViewModelTest {
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
         mockkStatic(FirebaseCrashlytics::class)
         every { FirebaseCrashlytics.getInstance() } returns mockk(relaxed = true)
+        mockkStatic(Calendar::class)
+        every { Calendar.getInstance() } returns GregorianCalendar().apply {
+            timeInMillis = 1669870920000L
+        }
         viewModel = MainActivityViewModel(
             airingRepository,
             settingsRepository,
@@ -104,7 +113,7 @@ class MainActivityViewModelTest {
         )
 
         mockkObject(DateTimeHelper)
-        every { DateTimeHelper.currentSeasonYear(any()) } returns DateTimeHelper.SeasonYear(DateTimeHelper.Season.WINTER, 2022)
+        every { DateTimeHelper.currentSeasonYear(any()) } returns DateTimeHelper.SeasonYear(DateTimeHelper.Season.WINTER, 2023)
 
         coEvery { settingsRepository.settingsStateFlow.value } returns
                 SettingsState(
@@ -125,9 +134,9 @@ class MainActivityViewModelTest {
         assertThat(state.isRefreshing).isFalse()
         assertThat(state.errorItem).isNotNull()
 
-        coVerify { airingRepository.loadSeasonAiringData(2022, "FALL") }
+        coVerify { airingRepository.loadSeasonAiringData(2023, "WINTER") }
 
-        unmockkObject(DateTimeHelper)
+        unmockkAll()
     }
 
     @Test

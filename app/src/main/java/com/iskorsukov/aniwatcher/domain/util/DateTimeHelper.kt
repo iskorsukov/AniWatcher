@@ -28,7 +28,7 @@ object DateTimeHelper {
         val currentYear = calendar.get(Calendar.YEAR)
         return SeasonYear(
             currentSeason,
-            if (currentSeason == Season.WINTER) currentYear + 1 else currentYear
+            if (currentSeason == Season.WINTER && calendar.get(Calendar.MONTH) == 11) currentYear + 1 else currentYear
         )
     }
 
