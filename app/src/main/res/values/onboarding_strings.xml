@@ -17,7 +17,7 @@
     <string name="onboarding_schedule_type_all">All currently airing shows</string>
     <string name="onboarding_schedule_type_all_desc">Schedule will show all currently airing shows regardless of their season</string>
     <string name="onboarding_schedule_type_all_desc_secondary">This mode is useful if you want to follow any currently airing long-running shows or shows from previous season</string>
-    <string name="onboarding_schedule_type_season">Only shows from current season</string>
-    <string name="onboarding_schedule_type_season_desc">Schedule will show currently airing shows that started or will start airing this season</string>
-    <string name="onboarding_schedule_type_season_desc_secondary">This mode is useful if you want to follow seasonal shows from the current season</string>
+    <string name="onboarding_schedule_type_season">Only shows from a selected season</string>
+    <string name="onboarding_schedule_type_season_desc">Schedule will show currently airing shows that started or will start airing in a selected season</string>
+    <string name="onboarding_schedule_type_season_desc_secondary">This mode is useful if you want to follow seasonal shows from the a selected season</string>
 </resources>

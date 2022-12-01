@@ -4,8 +4,10 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -16,6 +18,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -37,6 +40,7 @@ fun TopBar(
     onNotificationsClicked: () -> Unit,
     onSearchTextInput: (String) -> Unit,
     onSearchFieldOpenChange: (Boolean) -> Unit,
+    onSelectSeasonYearClicked: () -> Unit,
     unreadNotifications: Int = 0
 ) {
     val focusRequester = remember { FocusRequester() }
@@ -58,6 +62,27 @@ fun TopBar(
             IconButton(onClick = onSelectSortingOptionClicked) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_baseline_sort_24),
+                    contentDescription = null,
+                    tint = LocalColors.current.onPrimary
+                )
+            }
+        }
+        if (screen?.hasSeasonYear == true) {
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .clickable {
+                        onSelectSeasonYearClicked.invoke()
+                    },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "${uiState.seasonYear.season.name} ${uiState.seasonYear.year}",
+                    color = LocalColors.current.onPrimary,
+                    fontSize = 18.sp
+                )
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_baseline_arrow_drop_down_24),
                     contentDescription = null,
                     tint = LocalColors.current.onPrimary
                 )
@@ -212,16 +237,17 @@ private fun TopBarPreview() {
                             searchFieldOpen = true,
                             searchText = input
                         )
-                }
+                },
+                onSelectSeasonYearClicked = { }
             )
         }
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = "media",
+            startDestination = "media_season",
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable("media") { }
+            composable("media_season") { }
         }
     }
 }
@@ -240,7 +266,8 @@ private fun TopBarNoSearchAndOptionsPreview() {
                 onSettingsClicked = { },
                 onNotificationsClicked = { },
                 onSearchFieldOpenChange = { },
-                onSearchTextInput = { }
+                onSearchTextInput = { },
+                onSelectSeasonYearClicked = { }
             )
         }
     ) { innerPadding ->
@@ -269,16 +296,17 @@ private fun TopBarUnreadNotificationsPreview() {
                 onNotificationsClicked = { },
                 onSearchFieldOpenChange = { },
                 onSearchTextInput = { },
+                onSelectSeasonYearClicked = { },
                 unreadNotifications = 17
             )
         }
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = "airing",
+            startDestination = "airing_season",
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable("airing") { }
+            composable("airing_season") { }
         }
     }
 }

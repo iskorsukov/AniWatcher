@@ -31,38 +31,34 @@ class DateTimeHelperTest {
     }
 
     @Test
-    fun currentSeason() {
+    fun currentSeasonYear() {
         val inputCalendars = buildList<Calendar> {
             for (i in 0..11) {
                 add((Calendar.getInstance().apply {
+                    set(Calendar.YEAR, 2022)
                     set(Calendar.MONTH, i)
                     set(Calendar.DAY_OF_MONTH, 10)
                 }))
             }
         }
 
-        val seasonOutputs = inputCalendars.map { DateTimeHelper.currentSeason(it) }
+        val seasonOutputs = inputCalendars.map { DateTimeHelper.currentSeasonYear(it) }
         assertThat(seasonOutputs).containsExactlyElementsIn(
             listOf(
-                "WINTER",
-                "WINTER",
-                "SPRING",
-                "SPRING",
-                "SPRING",
-                "SUMMER",
-                "SUMMER",
-                "SUMMER",
-                "FALL",
-                "FALL",
-                "FALL",
-                "WINTER"
+                DateTimeHelper.SeasonYear(DateTimeHelper.Season.WINTER, 2022),
+                DateTimeHelper.SeasonYear(DateTimeHelper.Season.WINTER, 2022),
+                DateTimeHelper.SeasonYear(DateTimeHelper.Season.SPRING, 2022),
+                DateTimeHelper.SeasonYear(DateTimeHelper.Season.SPRING, 2022),
+                DateTimeHelper.SeasonYear(DateTimeHelper.Season.SPRING, 2022),
+                DateTimeHelper.SeasonYear(DateTimeHelper.Season.SUMMER, 2022),
+                DateTimeHelper.SeasonYear(DateTimeHelper.Season.SUMMER, 2022),
+                DateTimeHelper.SeasonYear(DateTimeHelper.Season.SUMMER, 2022),
+                DateTimeHelper.SeasonYear(DateTimeHelper.Season.FALL, 2022),
+                DateTimeHelper.SeasonYear(DateTimeHelper.Season.FALL, 2022),
+                DateTimeHelper.SeasonYear(DateTimeHelper.Season.FALL, 2022),
+                DateTimeHelper.SeasonYear(DateTimeHelper.Season.WINTER, 2023),
             )
         ).inOrder()
-    }
-
-    @Test
-    fun currentYear() {
-        assertThat(DateTimeHelper.currentYear(testCalendar)).isEqualTo(2022)
     }
 
     companion object {

@@ -9,18 +9,22 @@ sealed class Screen(
     @StringRes val labelStringId: Int,
     @DrawableRes val iconDrawableId: Int,
     val hasSearchBar: Boolean = true,
-    val hasSortingOptions: Boolean = true
+    val hasSortingOptions: Boolean = true,
+    val hasSeasonYear: Boolean = false
 ) {
     object MediaScreen : Screen(
         "media",
         R.string.media_screen_label,
         R.drawable.ic_outline_video_library_24_white
     )
+
     object MediaScreenSeason : Screen(
         "media_season",
         R.string.media_screen_season_label,
-        R.drawable.ic_outline_video_library_24_white
+        R.drawable.ic_outline_video_library_24_white,
+        hasSeasonYear = true
     )
+
     object AiringScreen : Screen(
         "airing",
         R.string.airing_screen_label,
@@ -28,6 +32,16 @@ sealed class Screen(
         false,
         false
     )
+
+    object AiringScreenSeason : Screen(
+        "airing_season",
+        R.string.airing_screen_label,
+        R.drawable.ic_outline_calendar_today_24_white,
+        false,
+        false,
+        true
+    )
+
     object FollowingScreen : Screen(
         "following",
         R.string.following_screen_label,
@@ -39,8 +53,14 @@ sealed class Screen(
             if (MediaScreen.route == route) {
                 return MediaScreen
             }
+            if (MediaScreenSeason.route == route) {
+                return MediaScreenSeason
+            }
             if (AiringScreen.route == route) {
                 return AiringScreen
+            }
+            if (AiringScreenSeason.route == route) {
+                return AiringScreenSeason
             }
             if (FollowingScreen.route == route) {
                 return FollowingScreen

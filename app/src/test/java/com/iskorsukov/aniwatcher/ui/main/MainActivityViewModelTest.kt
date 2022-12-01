@@ -37,8 +37,7 @@ class MainActivityViewModelTest {
         )
 
         mockkObject(DateTimeHelper)
-        every { DateTimeHelper.currentYear(any()) } returns 2022
-        every { DateTimeHelper.currentSeason(any()) } returns "FALL"
+        every { DateTimeHelper.currentSeasonYear(any()) } returns DateTimeHelper.SeasonYear(DateTimeHelper.Season.WINTER, 2022)
 
         coEvery { settingsRepository.settingsStateFlow.value } returns
                 SettingsState(
@@ -70,8 +69,7 @@ class MainActivityViewModelTest {
         )
 
         mockkObject(DateTimeHelper)
-        every { DateTimeHelper.currentYear(any()) } returns 2022
-        every { DateTimeHelper.currentSeason(any()) } returns "FALL"
+        every { DateTimeHelper.currentSeasonYear(any()) } returns DateTimeHelper.SeasonYear(DateTimeHelper.Season.WINTER, 2022)
         every { DateTimeHelper.currentWeekStartToEndSeconds(any()) } returns (0 to 1)
 
         coEvery { settingsRepository.settingsStateFlow.value } returns
@@ -106,8 +104,7 @@ class MainActivityViewModelTest {
         )
 
         mockkObject(DateTimeHelper)
-        every { DateTimeHelper.currentYear(any()) } returns 2022
-        every { DateTimeHelper.currentSeason(any()) } returns "FALL"
+        every { DateTimeHelper.currentSeasonYear(any()) } returns DateTimeHelper.SeasonYear(DateTimeHelper.Season.WINTER, 2022)
 
         coEvery { settingsRepository.settingsStateFlow.value } returns
                 SettingsState(

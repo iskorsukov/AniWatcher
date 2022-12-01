@@ -38,22 +38,24 @@ class MainActivityViewModel @Inject constructor(
     )
 
     fun loadAiringData() {
-        _uiState.value = MainActivityUiState(true)
-        val year = DateTimeHelper.currentYear(Calendar.getInstance())
-        val season = DateTimeHelper.currentSeason(Calendar.getInstance())
-        val weekStartEndSeconds = DateTimeHelper.currentWeekStartToEndSeconds(Calendar.getInstance())
+        _uiState.value = _uiState.value.copy(isRefreshing = true)
         viewModelScope.launch {
             try {
                 if (settingsState.value.scheduleType == ScheduleType.ALL) {
+                    val weekStartEndSeconds = DateTimeHelper.currentWeekStartToEndSeconds(Calendar.getInstance())
                     airingRepository.loadRangeAiringData(weekStartEndSeconds.first, weekStartEndSeconds.second)
                 } else {
-                    airingRepository.loadSeasonAiringData(year, season)
+                    val seasonYear = uiState.value.seasonYear
+                    airingRepository.loadSeasonAiringData(seasonYear.year, seasonYear.season.name)
                 }
-                _uiState.value = MainActivityUiState(false)
+                _uiState.value = _uiState.value.copy(isRefreshing = false)
             } catch (throwable: Throwable) {
                 throwable.printStackTrace()
                 FirebaseCrashlytics.getInstance().recordException(throwable)
-                _uiState.value = MainActivityUiState(false, ErrorItem.ofThrowable(throwable))
+                _uiState.value = _uiState.value.copy(
+                    isRefreshing = false,
+                    errorItem = ErrorItem.ofThrowable(throwable)
+                )
             }
         }
     }
@@ -77,5 +79,9 @@ class MainActivityViewModel @Inject constructor(
 
     fun onSearchFieldOpenChange(isSearchFieldOpen: Boolean) {
         _uiState.value = _uiState.value.copy(searchFieldOpen = isSearchFieldOpen)
+    }
+
+    fun onSeasonYearSelected(seasonYear: DateTimeHelper.SeasonYear) {
+        _uiState.value = _uiState.value.copy(seasonYear = seasonYear)
     }
 }

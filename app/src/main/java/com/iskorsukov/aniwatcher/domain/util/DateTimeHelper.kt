@@ -8,10 +8,6 @@ object DateTimeHelper {
         return DayOfWeekLocal.ofCalendar(Calendar.getInstance())
     }
 
-    fun currentYear(calendar: Calendar): Int {
-        return calendar.get(Calendar.YEAR)
-    }
-
     fun currentWeekStartToEndSeconds(calendar: Calendar): Pair<Int, Int> {
         val dayOfWeekDelta = calendar.get(Calendar.DAY_OF_WEEK) - 2 // -2 to account for start from Sunday and Sunday = 1
         calendar.apply {
@@ -27,12 +23,35 @@ object DateTimeHelper {
         return start to end
     }
 
-    fun currentSeason(calendar: Calendar): String {
-        return when (calendar.get(Calendar.MONTH)) {
-            11, 0, 1 -> "WINTER"
-            2, 3, 4 -> "SPRING"
-            5, 6, 7 -> "SUMMER"
-            else -> "FALL"
+    fun currentSeasonYear(calendar: Calendar): SeasonYear {
+        val currentSeason = Season.ofCalendarValue(calendar.get(Calendar.MONTH))
+        val currentYear = calendar.get(Calendar.YEAR)
+        return SeasonYear(
+            currentSeason,
+            if (currentSeason == Season.WINTER) currentYear + 1 else currentYear
+        )
+    }
+
+    enum class Season {
+        WINTER,
+        SPRING,
+        SUMMER,
+        FALL;
+
+        companion object {
+            fun ofCalendarValue(value: Int): Season {
+                return when (value) {
+                    11, 0, 1 -> WINTER
+                    2, 3, 4 -> SPRING
+                    5, 6, 7 -> SUMMER
+                    else -> FALL
+                }
+            }
         }
     }
+
+    data class SeasonYear(
+        val season: Season,
+        val year: Int
+    )
 }

@@ -46,6 +46,8 @@
     <string name="popularity">Popularity</string>
     <string name="mean_score">Mean score</string>
 
+    <string name="select_season">Select season</string>
+
     <string name="settings_naming_scheme_key">naming_scheme</string>
     <string name="settings_naming_scheme_label">Naming scheme</string>
 

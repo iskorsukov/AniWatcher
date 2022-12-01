@@ -21,9 +21,9 @@ import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.*
 import com.iskorsukov.aniwatcher.domain.notification.alarm.NotificationsAlarmBuilder
+import com.iskorsukov.aniwatcher.domain.settings.ScheduleType
 import com.iskorsukov.aniwatcher.ui.airing.AiringScreen
 import com.iskorsukov.aniwatcher.ui.airing.AiringViewModel
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
@@ -38,6 +38,7 @@ import com.iskorsukov.aniwatcher.ui.media.MediaScreen
 import com.iskorsukov.aniwatcher.ui.media.MediaViewModel
 import com.iskorsukov.aniwatcher.ui.notification.NotificationActivity
 import com.iskorsukov.aniwatcher.ui.onboarding.OnboardingDialog
+import com.iskorsukov.aniwatcher.ui.season.SelectSeasonYearDialog
 import com.iskorsukov.aniwatcher.ui.settings.SettingsCompatActivity
 import com.iskorsukov.aniwatcher.ui.sorting.SelectSortingOptionDialog
 import com.iskorsukov.aniwatcher.ui.theme.*
@@ -97,6 +98,9 @@ class MainActivity : ComponentActivity() {
             var shouldShowSortingOptionsDialog by rememberSaveable {
                 mutableStateOf(false)
             }
+            var shouldShowSeasonYearDialog by rememberSaveable {
+                mutableStateOf(false)
+            }
             var shouldShowErrorDialog by rememberSaveable(uiState.errorItem) {
                 mutableStateOf(uiState.errorItem != null)
             }
@@ -112,6 +116,7 @@ class MainActivity : ComponentActivity() {
                             onNotificationsClicked = this::startNotificationsActivity,
                             onSearchTextInput = mainActivityViewModel::onSearchTextInput,
                             onSearchFieldOpenChange = mainActivityViewModel::onSearchFieldOpenChange,
+                            onSelectSeasonYearClicked = { shouldShowSeasonYearDialog = true },
                             unreadNotifications = unreadNotifications
                         )
                     },
@@ -136,12 +141,19 @@ class MainActivity : ComponentActivity() {
                                 selectedOption = uiState.sortingOption
                             )
                         }
+                        if (shouldShowSeasonYearDialog) {
+                            SelectSeasonYearDialog(
+                                onSeasonYearSelected = mainActivityViewModel::onSeasonYearSelected,
+                                onDismissRequest = { shouldShowSeasonYearDialog = false },
+                                selectedSeasonYear = uiState.seasonYear
+                            )
+                        }
 
                         NavHost(
                             navController = navController,
-                            startDestination = "airing"
+                            startDestination = if (settingsState.scheduleType == ScheduleType.ALL) "airing" else "airing_season"
                         ) {
-                            composable("media") {
+                            composable(if (settingsState.scheduleType == ScheduleType.ALL) "media" else "media_season") {
                                 MediaScreen(
                                     viewModel = mediaViewModel,
                                     uiState = uiState,
@@ -155,21 +167,7 @@ class MainActivity : ComponentActivity() {
                                     }
                                 )
                             }
-                            composable("media_season") {
-                                MediaScreen(
-                                    viewModel = mediaViewModel,
-                                    uiState = uiState,
-                                    settingsState = settingsState,
-                                    timeInMinutes = timeInMinutes,
-                                    onMediaClicked = { startDetailsActivity(it.id) },
-                                    onRefresh = mainActivityViewModel::loadAiringData,
-                                    onGenreChipClicked = {
-                                        mainActivityViewModel.onSearchFieldOpenChange(true)
-                                        mainActivityViewModel.appendSearchText(it)
-                                    }
-                                )
-                            }
-                            composable("airing") {
+                            composable(if (settingsState.scheduleType == ScheduleType.ALL) "airing" else "airing_season") {
                                 AiringScreen(
                                     viewModel = airingViewModel,
                                     uiState = uiState,
@@ -204,8 +202,7 @@ class MainActivity : ComponentActivity() {
                         }
 
                         if (settingsState.onboardingComplete) {
-                            LaunchedEffect(settingsState.scheduleType) {
-                                navController.popBackStack(navController.graph.findStartDestination().id, false)
+                            LaunchedEffect(settingsState.scheduleType, uiState.seasonYear) {
                                 mainActivityViewModel.loadAiringData()
                             }
                         } else {

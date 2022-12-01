@@ -1,4 +1,4 @@
-package com.iskorsukov.aniwatcher.ui.sorting
+package com.iskorsukov.aniwatcher.ui.season
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -18,14 +18,37 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.iskorsukov.aniwatcher.R
-import com.iskorsukov.aniwatcher.ui.theme.*
+import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
+import com.iskorsukov.aniwatcher.ui.theme.LocalColors
+import com.iskorsukov.aniwatcher.ui.theme.LocalTextStyles
+import java.util.*
 
 @Composable
-fun SelectSortingOptionDialog(
-    onSortingOptionSelected: (SortingOption) -> Unit,
+fun SelectSeasonYearDialog(
+    onSeasonYearSelected: (DateTimeHelper.SeasonYear) -> Unit,
     onDismissRequest: () -> Unit,
-    selectedOption: SortingOption? = null
+    selectedSeasonYear: DateTimeHelper.SeasonYear
 ) {
+    val calendar = Calendar.getInstance()
+    val currentSeasonYear = DateTimeHelper.currentSeasonYear(calendar)
+    var season = currentSeasonYear.season
+    val items = mutableListOf<DateTimeHelper.SeasonYear>()
+    items.add(currentSeasonYear)
+    for (i in 1..3) {
+        season = DateTimeHelper.Season.values()[
+                if (season.ordinal - 1 >= 0) {
+                    season.ordinal - 1
+                } else {
+                    season.ordinal + 3
+                }
+        ]
+        val year = if (season.ordinal > currentSeasonYear.season.ordinal)
+            currentSeasonYear.year - 1
+        else
+            currentSeasonYear.year
+        items.add(DateTimeHelper.SeasonYear(season, year))
+    }
+
     Dialog(onDismissRequest = onDismissRequest) {
         Surface(
             shape = RoundedCornerShape(8.dp),
@@ -36,26 +59,26 @@ fun SelectSortingOptionDialog(
                 modifier = Modifier.padding(8.dp)
             ) {
                 Text(
-                    text = stringResource(id = R.string.select_season).uppercase(),
+                    text = stringResource(id = R.string.sort_by).uppercase(),
                     style = LocalTextStyles.current.category
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 LazyColumn {
-                    SortingOption.values().forEach {
+                    items.forEach { seasonYear ->
                         item {
                             TextButton(
                                 onClick = {
-                                    onSortingOptionSelected(it)
+                                    onSeasonYearSelected.invoke(seasonYear)
                                     onDismissRequest.invoke()
                                 }
                             ) {
                                 Text(
-                                    text = stringResource(id = it.labelResId).uppercase(),
-                                    style = if (it == selectedOption)
+                                    text = "${seasonYear.season.name} ${seasonYear.year}",
+                                    style = if (seasonYear == selectedSeasonYear)
                                         LocalTextStyles.current.contentMediumEmphasis
                                     else
                                         LocalTextStyles.current.contentMedium,
-                                    color = if (it == selectedOption)
+                                    color = if (seasonYear == selectedSeasonYear)
                                         LocalColors.current.secondary
                                     else
                                         Color.Unspecified
@@ -72,9 +95,9 @@ fun SelectSortingOptionDialog(
 @Composable
 @Preview
 fun SelectSortingOptionDialogPreview() {
-    SelectSortingOptionDialog(
-        onSortingOptionSelected = {},
-        onDismissRequest = {},
-        selectedOption = SortingOption.POPULARITY
+    SelectSeasonYearDialog(
+        onSeasonYearSelected = { },
+        onDismissRequest = { },
+        selectedSeasonYear = DateTimeHelper.currentSeasonYear(Calendar.getInstance())
     )
 }

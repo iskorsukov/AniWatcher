@@ -30,7 +30,11 @@ fun BottomNavigationBar(
     } else {
         items.add(Screen.MediaScreen)
     }
-    items.add(Screen.AiringScreen)
+    if (scheduleType == ScheduleType.SEASON) {
+        items.add(Screen.AiringScreenSeason)
+    } else {
+        items.add(Screen.AiringScreen)
+    }
     items.add(Screen.FollowingScreen)
 
     BottomNavigation(backgroundColor = LocalColors.current.primary) {
