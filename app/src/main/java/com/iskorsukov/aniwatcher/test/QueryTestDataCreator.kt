@@ -37,6 +37,7 @@ object QueryTestDataCreator {
                 )
             ),
             season = MediaSeason.FALL,
+            seasonYear = 2022,
             nextAiringEpisode = SeasonAiringDataQuery.NextAiringEpisode(1667833200),
             format = MediaFormat.TV
         )
@@ -71,6 +72,8 @@ object QueryTestDataCreator {
             popularity = 1,
             meanScore = 1,
             isAdult = false,
+            season = MediaSeason.FALL,
+            seasonYear = 2022,
             genres = listOf("Action", "Comedy"),
             siteUrl = "AniListUrl",
             airingSchedule = RangeAiringDataQuery.AiringSchedule1(

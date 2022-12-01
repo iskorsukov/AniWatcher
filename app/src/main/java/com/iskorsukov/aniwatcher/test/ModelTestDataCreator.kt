@@ -27,7 +27,9 @@ object ModelTestDataCreator {
             siteUrl = "AniListUrl",
             nextEpisodeAiringAt = 1667833200,
             format = MediaItem.LocalFormat.TV,
-            isFollowing = false
+            isFollowing = false,
+            season = "FALL",
+            year = 2022
         )
     }
 

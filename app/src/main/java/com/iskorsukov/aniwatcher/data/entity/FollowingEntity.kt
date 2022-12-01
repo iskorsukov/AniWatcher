@@ -1,5 +1,6 @@
 package com.iskorsukov.aniwatcher.data.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
@@ -17,5 +18,5 @@ import androidx.room.PrimaryKey
 )
 data class FollowingEntity(
     @PrimaryKey(autoGenerate = true) val followingEntryId: Int?,
-    val mediaItemRelationId: Int
+    @ColumnInfo(index = true) val mediaItemRelationId: Int
 )

@@ -48,7 +48,9 @@ fun AiringScreen(
         AiringScreenContent(
             swipeRefreshState = swipeRefreshState,
             onRefresh = onRefresh,
-            airingSchedulesByDayOfWeekMap = airingScheduleItemList,
+            airingSchedulesByDayOfWeekMap = MediaItemMapper.filterExtraFollowedAiringSchedules(
+                airingScheduleItemList, settingsState, uiState.seasonYear
+            ),
             timeInMinutes = timeInMinutes,
             onFollowClicked = viewModel::onFollowClicked,
             onMediaClicked = onMediaClicked,

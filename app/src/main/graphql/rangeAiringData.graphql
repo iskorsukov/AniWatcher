@@ -19,6 +19,8 @@ query RangeAiringData($page: Int!, $startSeconds: Int!, $endSeconds: Int!) {
                     color
                 }
                 isAdult
+                season
+                seasonYear
                 bannerImage
                 popularity
                 format

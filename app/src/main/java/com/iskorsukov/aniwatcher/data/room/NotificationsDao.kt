@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface NotificationsDao {
 
+    @RewriteQueriesToDropUnusedColumns
     @Transaction
     @Query(
         "SELECT * FROM media " +

@@ -1,5 +1,6 @@
 package com.iskorsukov.aniwatcher.data.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
@@ -16,5 +17,5 @@ import androidx.room.PrimaryKey
 data class NotificationItemEntity(
     @PrimaryKey(autoGenerate = true) val notificationItemId: Int?,
     val firedAtMillis: Long,
-    val airingScheduleItemRelationId: Int
+    @ColumnInfo(index = true) val airingScheduleItemRelationId: Int
 )

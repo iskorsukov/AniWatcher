@@ -20,7 +20,9 @@ data class MediaItemEntity(
     val genresCommaSeparated: String?,
     val siteUrl: String?,
     val nextEpisodeAiringAt: Int?,
-    val format: String?
+    val format: String?,
+    val season: String?,
+    val year: Int?
 ) {
     data class Title(
         val titleRomaji: String?,
@@ -48,7 +50,9 @@ data class MediaItemEntity(
                     genresCommaSeparated = genres?.filterNotNull()?.joinToString(separator = ","),
                     siteUrl = siteUrl,
                     nextEpisodeAiringAt = nextAiringEpisode?.airingAt,
-                    format = format?.name
+                    format = format?.name,
+                    season = season?.name,
+                    year = seasonYear
                 )
             }
         }
@@ -72,7 +76,9 @@ data class MediaItemEntity(
                     genresCommaSeparated = genres?.filterNotNull()?.joinToString(separator = ","),
                     siteUrl = siteUrl,
                     nextEpisodeAiringAt = nextAiringEpisode?.airingAt,
-                    format = format?.name
+                    format = format?.name,
+                    season = season?.name,
+                    year = seasonYear
                 )
             }
         }

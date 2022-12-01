@@ -1,5 +1,6 @@
 package com.iskorsukov.aniwatcher.data.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
@@ -20,7 +21,7 @@ data class AiringScheduleEntity(
     @PrimaryKey val airingScheduleItemId: Int,
     val airingAt: Int,
     val episode: Int,
-    val mediaItemRelationId: Int
+    @ColumnInfo(index = true) val mediaItemRelationId: Int
 ) {
     companion object {
         fun fromData(data: SeasonAiringDataQuery.AiringScheduleNode): AiringScheduleEntity {

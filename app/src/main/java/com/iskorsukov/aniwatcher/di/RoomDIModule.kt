@@ -19,6 +19,6 @@ class RoomDIModule {
     fun providesMediaDatabase(@ApplicationContext context: Context): MediaDatabase {
         return Room.databaseBuilder(
             context, MediaDatabase::class.java, "MediaDatabase"
-        ).fallbackToDestructiveMigration().build()
+        ).build()
     }
 }

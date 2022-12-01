@@ -21,6 +21,8 @@ data class MediaItem(
     val siteUrl: String?,
     val nextEpisodeAiringAt: Int?,
     val format: LocalFormat?,
+    val season: String?,
+    val year: Int?,
     val isFollowing: Boolean
 ): Serializable {
     data class Title(
@@ -86,6 +88,8 @@ data class MediaItem(
                     siteUrl = siteUrl,
                     nextEpisodeAiringAt = nextEpisodeAiringAt,
                     format = format?.let { LocalFormat.valueOf(it) },
+                    season = season,
+                    year = year,
                     isFollowing = followingEntity != null
                 )
             }

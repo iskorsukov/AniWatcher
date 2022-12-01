@@ -24,7 +24,9 @@ object EntityTestDataCreator {
             genresCommaSeparated = "Action,Comedy",
             nextEpisodeAiringAt = 1667833200,
             siteUrl = "AniListUrl",
-            format = "TV"
+            format = "TV",
+            season = "FALL",
+            year = 2022
         )
     }
 

@@ -49,7 +49,9 @@ fun MediaScreen(
     }
 
     MediaScreenContent(
-        mediaItemWithNextAiringMap = mediaFlow,
+        mediaItemWithNextAiringMap = MediaItemMapper.filterExtraFollowedMedia(
+            mediaFlow, settingsState, uiState.seasonYear
+        ),
         swipeRefreshState = swipeRefreshState,
         listState = listState,
         timeInMinutes = timeInMinutes,

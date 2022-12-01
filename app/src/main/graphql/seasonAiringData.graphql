@@ -20,6 +20,7 @@ query SeasonAiringData($year: Int!, $season: MediaSeason!, $page: Int!) {
             popularity
             format
             season
+            seasonYear
             meanScore
             genres
             studios(isMain: true) {
