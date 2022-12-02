@@ -59,7 +59,7 @@ fun SelectSeasonYearDialog(
                 modifier = Modifier.padding(8.dp)
             ) {
                 Text(
-                    text = stringResource(id = R.string.sort_by).uppercase(),
+                    text = stringResource(id = R.string.select_season).uppercase(),
                     style = LocalTextStyles.current.category
                 )
                 Spacer(modifier = Modifier.height(8.dp))
