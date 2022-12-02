@@ -2,6 +2,7 @@ package com.iskorsukov.aniwatcher.ui.onboarding
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -43,7 +44,9 @@ fun OnboardingDialog(
         }
         Column(
             modifier = Modifier
-                .padding(8.dp)
+                .fillMaxSize()
+                .padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Surface(
                 shape = RoundedCornerShape(8.dp),
@@ -51,7 +54,7 @@ fun OnboardingDialog(
             ) {
                 Column(
                     modifier = Modifier
-                        .weight(1f)
+                        .weight(5f)
                         .padding(8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -76,6 +79,7 @@ fun OnboardingDialog(
                             screenCount++
                         },
                         modifier = Modifier
+                            .weight(8f)
                     )
                 }
                 2 -> {
@@ -85,6 +89,7 @@ fun OnboardingDialog(
                             screenCount++
                         },
                         modifier = Modifier
+                            .weight(8f)
                     )
                 }
                 3 -> {
@@ -94,12 +99,23 @@ fun OnboardingDialog(
                             onDismissRequest.invoke()
                         },
                         modifier = Modifier
+                            .weight(8f)
                     )
                 }
                 else -> {
                     onDismissRequest.invoke()
                 }
             }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = stringResource(id = R.string.dismiss).uppercase(),
+                style = LocalTextStyles.current.popupMessageButton,
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable {
+                        onDismissRequest.invoke()
+                    }
+            )
         }
     }
 }
