@@ -24,6 +24,13 @@ class DateTimeHelperTest {
     }
 
     @Test
+    fun currentDayEndSeconds() {
+        val dayEndSeconds = DateTimeHelper.currentDayEndSeconds(testCalendar)
+
+        assertThat(dayEndSeconds).isEqualTo(TEST_DAY_END)
+    }
+
+    @Test
     fun currentWeekStartToEnd() {
         val startToEnd = DateTimeHelper.currentWeekStartToEndSeconds(testCalendar)
         assertThat(startToEnd.first).isEqualTo(TEST_WEEK_START)
@@ -64,6 +71,7 @@ class DateTimeHelperTest {
     companion object {
         const val TEST_WEEK_START = 1666099271
         const val TEST_WEEK_END = 1666645200
+        const val TEST_DAY_END = 1666126800
         val TEST_CALENDAR = GregorianCalendar(
             2022, Calendar.OCTOBER, 18, 16, 21, 11)
     }

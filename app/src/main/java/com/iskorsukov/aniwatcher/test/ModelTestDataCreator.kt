@@ -42,12 +42,12 @@ object ModelTestDataCreator {
         )
     }
 
-    fun baseAiringScheduleItemList(): List<AiringScheduleItem> {
+    fun baseAiringScheduleItemList(isFollowing: Boolean = false): List<AiringScheduleItem> {
         return listOf(
-            baseAiringScheduleItem(),
-            baseAiringScheduleItem().id(2).episode(2).airingAt(1667385638),
-            baseAiringScheduleItem().id(3).episode(3).airingAt(1667644838),
-            baseAiringScheduleItem().id(4).episode(4).airingAt(1667029460)
+            baseAiringScheduleItem(isFollowing),
+            baseAiringScheduleItem(isFollowing).id(2).episode(2).airingAt(1667385638),
+            baseAiringScheduleItem(isFollowing).id(3).episode(3).airingAt(1667644838),
+            baseAiringScheduleItem(isFollowing).id(4).episode(4).airingAt(1667029460)
         )
     }
 
