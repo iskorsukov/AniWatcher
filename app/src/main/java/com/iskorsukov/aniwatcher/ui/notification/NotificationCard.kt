@@ -1,10 +1,7 @@
 package com.iskorsukov.aniwatcher.ui.notification
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -34,9 +31,9 @@ fun NotificationCard(
     val mediaItem = notificationItem.airingScheduleItem.mediaItem
     Card(
         modifier = Modifier
-            .height(100.dp)
+            .heightIn(min = 100.dp)
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(top = 8.dp)
             .clickable { onNotificationClicked?.invoke(mediaItem.id) },
         elevation = 4.dp,
         backgroundColor = LocalColors.current.cardBackground
@@ -52,8 +49,11 @@ fun NotificationCard(
                 modifier = Modifier.constrainAs(image) {
                     start.linkTo(parent.start)
                     end.linkTo(imageEndGuideline)
-                    height = Dimension.matchParent
+                    top.linkTo(parent.top)
+                    bottom.linkTo(parent.bottom)
+
                     width = Dimension.fillToConstraints
+                    height = Dimension.fillToConstraints
                 }
             )
             Column(
@@ -62,15 +62,15 @@ fun NotificationCard(
                     .constrainAs(cardContent) {
                         start.linkTo(imageEndGuideline)
                         end.linkTo(parent.end)
+
                         width = Dimension.fillToConstraints
-                        height = Dimension.matchParent
                     }
             ) {
                 Text(
                     text = mediaItem.title.baseText(preferredNamingScheme),
-                    style = LocalTextStyles.current.contentSmallLarger,
+                    style = LocalTextStyles.current.contentSmallLargerEmphasis,
                     overflow = TextOverflow.Ellipsis,
-                    maxLines = 1
+                    maxLines = 2
                 )
                 MediaItemAiringInfoColumn(
                     airingScheduleItem = airingScheduleItem,

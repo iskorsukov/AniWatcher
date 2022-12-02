@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iskorsukov.aniwatcher.R
@@ -59,7 +60,7 @@ fun NotificationsScreenContent(
                 modifier = Modifier.fillMaxSize()
             )
         } else {
-            LazyColumn {
+            LazyColumn(contentPadding = PaddingValues(8.dp)) {
                 notificationsList.forEach {
                     item {
                         NotificationCard(

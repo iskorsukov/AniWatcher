@@ -2,11 +2,10 @@ package com.iskorsukov.aniwatcher.ui.base
 
 import com.google.common.truth.Truth.assertThat
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
-import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
-import com.iskorsukov.aniwatcher.domain.model.MediaItem
+import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
+import com.iskorsukov.aniwatcher.test.airingAt
 import com.iskorsukov.aniwatcher.test.meanScore
-import com.iskorsukov.aniwatcher.test.nextEpisodeAiringAt
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.sort.SortableViewModelDelegate
 import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 import io.mockk.coEvery
@@ -15,16 +14,17 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SortableViewModelTest {
 
-    private val firstItem = ModelTestDataCreator.baseMediaItem().nextEpisodeAiringAt(1) to
-            ModelTestDataCreator.baseAiringScheduleItemList()
-    private val secondItem = ModelTestDataCreator.baseMediaItem().nextEpisodeAiringAt(2).meanScore(2) to
-            ModelTestDataCreator.baseAiringScheduleItemList()
+    private val firstItem = ModelTestDataCreator.baseMediaItem() to
+            listOf(ModelTestDataCreator.baseAiringScheduleItem().airingAt(1))
+    private val secondItem = ModelTestDataCreator.baseMediaItem().meanScore(2) to
+            listOf(ModelTestDataCreator.baseAiringScheduleItem().airingAt(2))
     private val data = mapOf(firstItem, secondItem)
 
     private val airingRepository: AiringRepository = mockk<AiringRepository>(relaxed = true).apply {
@@ -33,6 +33,7 @@ class SortableViewModelTest {
 
     private val sortableViewModelDelegate = SortableViewModelDelegate()
     private val sortedMediaFlow = airingRepository.mediaWithSchedulesFlow
+            .map { MediaItemMapper.groupMediaWithNextAiringSchedule(it) }
             .combine(
                 sortableViewModelDelegate.sortingOptionFlow,
                 sortableViewModelDelegate::sortMediaFlow
@@ -40,7 +41,7 @@ class SortableViewModelTest {
 
     @Test
     fun sortsMediaFlow() = runTest {
-        var result: Map<MediaItem, List<AiringScheduleItem>> = sortedMediaFlow.first()
+        var result = sortedMediaFlow.first()
 
         assertThat(result.size).isEqualTo(2)
         assertThat(result.keys).containsExactly(firstItem.first, secondItem.first).inOrder()
