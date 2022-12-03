@@ -13,7 +13,10 @@ import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.yield
 import javax.inject.Inject
+import kotlin.coroutines.coroutineContext
 
 class AiringRepositoryImpl @Inject constructor(
     private val aniListQueryExecutor: AniListQueryExecutor,
@@ -60,6 +63,8 @@ class AiringRepositoryImpl @Inject constructor(
             }
             entities.putAll(mapper.mapMediaWithSchedulesList(data))
             page++
+            yield()
+            if (!coroutineContext.isActive) return
         } while (data.Page?.pageInfo?.hasNextPage == true)
         try {
             mediaDatabaseExecutor.updateMedia(entities)
@@ -80,6 +85,8 @@ class AiringRepositoryImpl @Inject constructor(
             }
             entities.putAll(mapper.mapMediaWithSchedulesList(data))
             page++
+            yield()
+            if (!coroutineContext.isActive) return
         } while (data.Page?.pageInfo?.hasNextPage == true)
         try {
             mediaDatabaseExecutor.updateMedia(entities)

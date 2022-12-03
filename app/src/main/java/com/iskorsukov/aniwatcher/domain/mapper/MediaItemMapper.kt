@@ -17,15 +17,11 @@ object MediaItemMapper {
     ): Map<DayOfWeekLocal, List<AiringScheduleItem>> {
         return dowToAiringSchedulesMap.mapValues { entry ->
             entry.value.filter { airingScheduleItem ->
-                if (!airingScheduleItem.mediaItem.isFollowing) {
-                    true
+                if (settingsState.scheduleType == ScheduleType.ALL) {
+                    val startToEnd = DateTimeHelper.currentWeekStartToEndSeconds(Calendar.getInstance())
+                    airingScheduleItem.airingAt in startToEnd.first..startToEnd.second
                 } else {
-                    if (settingsState.scheduleType == ScheduleType.ALL) {
-                        val startToEnd = DateTimeHelper.currentWeekStartToEndSeconds(Calendar.getInstance())
-                        airingScheduleItem.airingAt in startToEnd.first..startToEnd.second
-                    } else {
-                        airingScheduleItem.mediaItem.season == selectedSeasonYear.season.name && airingScheduleItem.mediaItem.year == selectedSeasonYear.year
-                    }
+                    airingScheduleItem.mediaItem.season == selectedSeasonYear.season.name && airingScheduleItem.mediaItem.year == selectedSeasonYear.year
                 }
             }
         }.filter { it.value.isNotEmpty() }
@@ -37,15 +33,11 @@ object MediaItemMapper {
         selectedSeasonYear: DateTimeHelper.SeasonYear
     ): Map<MediaItem, AiringScheduleItem?> {
         return mediaItemToAiringScheduleMap.filter { entry ->
-            if (!entry.key.isFollowing || entry.value == null) {
-                true
+            if (settingsState.scheduleType == ScheduleType.ALL) {
+                val startToEnd = DateTimeHelper.currentWeekStartToEndSeconds(Calendar.getInstance())
+                entry.value != null && entry.value!!.airingAt in startToEnd.first..startToEnd.second
             } else {
-                if (settingsState.scheduleType == ScheduleType.ALL) {
-                    val startToEnd = DateTimeHelper.currentWeekStartToEndSeconds(Calendar.getInstance())
-                    entry.value!!.airingAt in startToEnd.first..startToEnd.second
-                } else {
-                    entry.key.season == selectedSeasonYear.season.name && entry.key.year == selectedSeasonYear.year
-                }
+                entry.key.season == selectedSeasonYear.season.name && entry.key.year == selectedSeasonYear.year
             }
         }
     }
