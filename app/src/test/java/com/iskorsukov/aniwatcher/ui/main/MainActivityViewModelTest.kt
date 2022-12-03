@@ -133,7 +133,7 @@ class MainActivityViewModelTest {
 
         val state = viewModel.uiState.first()
         assertThat(state.isRefreshing).isFalse()
-        assertThat(state.errorItem).isEqualTo(ErrorItem.Unknown)
+        assertThat(state.errorItem).isInstanceOf(ErrorItem.Unknown::class.java)
 
         coVerify { airingRepository.loadSeasonAiringData(2023, "WINTER") }
 

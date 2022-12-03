@@ -29,7 +29,7 @@ fun ErrorPopupDialogSurface(
 @Preview
 private fun ErrorPopupDialogSurfacePreview() {
     ErrorPopupDialogSurface(
-        errorItem = ErrorItem.LoadingData,
+        errorItem = ErrorItem.LoadingData(),
         onActionClicked = { },
         onDismissRequest = { }
     )

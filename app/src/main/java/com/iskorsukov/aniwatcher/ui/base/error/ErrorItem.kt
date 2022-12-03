@@ -12,7 +12,7 @@ sealed class ErrorItem(
     val action: Action = Action.DISMISS,
     @StringRes val dismissLabelResId: Int?
 ) {
-    object LoadingData: ErrorItem(
+    class LoadingData: ErrorItem(
         labelResId = R.string.loading_error_label,
         subLabelResId = R.string.loading_error_sub_label,
         actionLabelResId = R.string.try_again,
@@ -20,14 +20,14 @@ sealed class ErrorItem(
         dismissLabelResId = null
     )
 
-    object StoringData: ErrorItem(
+    class StoringData: ErrorItem(
         labelResId = R.string.storing_error_label,
         subLabelResId = R.string.storing_error_sub_label,
         actionLabelResId = null,
         dismissLabelResId = R.string.dismiss
     )
 
-    object Unknown: ErrorItem(
+    class Unknown: ErrorItem(
         R.string.unknown_error_label,
         R.string.unknown_error_sub_label,
         actionLabelResId = null,
@@ -42,9 +42,9 @@ sealed class ErrorItem(
     companion object {
         fun ofThrowable(e: Throwable): ErrorItem {
             return when (e) {
-                is ApolloException -> LoadingData
-                is RoomException -> StoringData
-                else -> Unknown
+                is ApolloException -> LoadingData()
+                is RoomException -> StoringData()
+                else -> Unknown()
             }
         }
     }
