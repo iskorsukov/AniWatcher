@@ -84,4 +84,12 @@ class MainActivityViewModel @Inject constructor(
     fun onSeasonYearSelected(seasonYear: DateTimeHelper.SeasonYear) {
         _uiState.value = _uiState.value.copy(seasonYear = seasonYear)
     }
+
+    fun resetTopBarState() {
+        _uiState.value = _uiState.value.copy(
+            searchText = "",
+            searchFieldOpen = false,
+            sortingOption = SortingOption.AIRING_AT
+        )
+    }
 }

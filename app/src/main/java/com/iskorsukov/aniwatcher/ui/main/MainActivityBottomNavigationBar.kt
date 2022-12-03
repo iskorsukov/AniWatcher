@@ -22,7 +22,8 @@ import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 @Composable
 fun BottomNavigationBar(
     navController: NavHostController,
-    scheduleType: ScheduleType
+    scheduleType: ScheduleType,
+    onChangedDestination: () -> Unit = { }
 ) {
     val items = mutableListOf<Screen>()
     if (scheduleType == ScheduleType.SEASON) {
@@ -55,6 +56,9 @@ fun BottomNavigationBar(
                 },
                 selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                 onClick = {
+                    if (screen.route != currentDestination?.route) {
+                        onChangedDestination.invoke()
+                    }
                     navController.navigate(screen.route) {
                         // Pop up to the start destination of the graph to
                         // avoid building up a large stack of destinations
