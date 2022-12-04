@@ -30,6 +30,7 @@ class NotificationsInteractorImpl @Inject constructor(
     }
 
     override fun fireAiredNotifications(airingScheduleItemList: List<AiringScheduleItem>) {
+        if (airingScheduleItemList.isEmpty()) return
         airingScheduleItemList.forEach { airingScheduleItem ->
             val notification = NotificationBuilderHelper.buildNotification(
                 context, airingScheduleItem
