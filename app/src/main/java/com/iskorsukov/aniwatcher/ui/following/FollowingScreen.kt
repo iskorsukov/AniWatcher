@@ -67,6 +67,7 @@ fun FollowingScreen(
         }
         FollowingScreenContent(
             followingMediaMap = followingMediaMap,
+            searchTextIsEmpty = uiState.searchText.trim().length < 4,
             timeInMinutes = timeInMinutes,
             onFollowClicked = viewModel::onFollowClicked,
             preferredNamingScheme = settingsState.preferredNamingScheme,
@@ -80,6 +81,7 @@ fun FollowingScreen(
 @Composable
 fun FollowingScreenContent(
     followingMediaMap: Map<MediaItem, AiringScheduleItem?>,
+    searchTextIsEmpty: Boolean,
     timeInMinutes: Long,
     onFollowClicked: ((MediaItem) -> Unit),
     preferredNamingScheme: NamingScheme,
@@ -87,7 +89,7 @@ fun FollowingScreenContent(
     onGenreChipClicked: (String) -> Unit,
     listState: LazyListState,
 ) {
-    if (followingMediaMap.isEmpty()) {
+    if (followingMediaMap.isEmpty() && searchTextIsEmpty) {
         EmptyDataPlaceholder(
             iconResId = R.drawable.ic_baseline_add_circle_outline_24_gray,
             labelResId = R.string.following_data_empty_label,
@@ -118,6 +120,7 @@ fun FollowingScreenContent(
 private fun FollowingScreenEmptyPreview() {
     FollowingScreenContent(
         followingMediaMap = emptyMap(),
+        searchTextIsEmpty = true,
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         onFollowClicked = {},
         preferredNamingScheme = NamingScheme.ENGLISH,
@@ -137,6 +140,7 @@ private fun FollowingScreenPreview() {
                         ModelTestDataCreator.baseAiringScheduleItemList()
             )
         ).filterKeys { it.isFollowing },
+        searchTextIsEmpty = true,
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         onFollowClicked = {},
         preferredNamingScheme = NamingScheme.ENGLISH,
