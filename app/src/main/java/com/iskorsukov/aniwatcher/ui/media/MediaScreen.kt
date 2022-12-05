@@ -23,7 +23,9 @@ import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.ui.base.fab.ScrollToTopFab
+import com.iskorsukov.aniwatcher.ui.base.header.HeaderFlowRow
 import com.iskorsukov.aniwatcher.ui.main.MainActivityUiState
+import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 import kotlinx.coroutines.flow.*
 
@@ -36,7 +38,8 @@ fun MediaScreen(
     timeInMinutes: Long,
     onMediaClicked: (MediaItem) -> Unit,
     onRefresh: () -> Unit,
-    onGenreChipClicked: (String) -> Unit
+    onGenreChipClicked: (String) -> Unit,
+    onSelectSortingOptionClicked: () -> Unit,
 ) {
     val mediaFlow by viewModel.mediaFlow
         .collectAsStateWithLifecycle(initialValue = emptyMap())
@@ -64,7 +67,9 @@ fun MediaScreen(
             onRefresh = onRefresh,
             onFollowClicked = viewModel::onFollowClicked,
             onGenreChipClicked = onGenreChipClicked,
-            onMediaClicked = onMediaClicked
+            onMediaClicked = onMediaClicked,
+            onSelectSortingOptionClicked = onSelectSortingOptionClicked,
+            selectedSortingOption = uiState.sortingOption
         )
         ScrollToTopFab(
             lazyListState = listState,
@@ -83,10 +88,12 @@ private fun MediaScreenContent(
     listState: LazyListState,
     timeInMinutes: Long,
     preferredNamingScheme: NamingScheme,
+    selectedSortingOption: SortingOption,
     onRefresh: () -> Unit,
     onFollowClicked: (MediaItem) -> Unit,
     onMediaClicked: (MediaItem) -> Unit,
     onGenreChipClicked: (String) -> Unit,
+    onSelectSortingOptionClicked: () -> Unit
 ) {
     SwipeRefresh(
         state = swipeRefreshState,
@@ -100,20 +107,27 @@ private fun MediaScreenContent(
             )
         }
     ) {
-        Column {
-            LazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
-                mediaItemWithNextAiringMap.entries.forEach {
-                    item {
-                        MediaItemCardExtended(
-                            mediaItem = it.key,
-                            airingScheduleItem = it.value,
-                            timeInMinutes = timeInMinutes,
-                            onFollowClicked = onFollowClicked,
-                            onMediaClicked = onMediaClicked,
-                            onGenreChipClicked = onGenreChipClicked,
-                            preferredNamingScheme = preferredNamingScheme
-                        )
-                    }
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            state = listState
+        ) {
+            item {
+                HeaderFlowRow(
+                    selectedSortingOption = selectedSortingOption,
+                    onSelectSortingOptionClicked = onSelectSortingOptionClicked
+                )
+            }
+            mediaItemWithNextAiringMap.entries.forEach {
+                item {
+                    MediaItemCardExtended(
+                        mediaItem = it.key,
+                        airingScheduleItem = it.value,
+                        timeInMinutes = timeInMinutes,
+                        onFollowClicked = onFollowClicked,
+                        onMediaClicked = onMediaClicked,
+                        onGenreChipClicked = onGenreChipClicked,
+                        preferredNamingScheme = preferredNamingScheme
+                    )
                 }
             }
         }
@@ -137,6 +151,8 @@ fun MediaScreenPreview() {
         onRefresh = { },
         onFollowClicked = { },
         onMediaClicked = { },
-        onGenreChipClicked = { }
+        onGenreChipClicked = { },
+        onSelectSortingOptionClicked = { },
+        selectedSortingOption = SortingOption.AIRING_AT
     )
 }

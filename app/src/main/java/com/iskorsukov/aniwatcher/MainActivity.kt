@@ -114,7 +114,6 @@ class MainActivity : ComponentActivity() {
                         TopBar(
                             uiState = uiState,
                             navController = navController,
-                            onSelectSortingOptionClicked = { shouldShowSortingOptionsDialog = true },
                             onSettingsClicked = this::startSettingsActivity,
                             onNotificationsClicked = this::startNotificationsActivity,
                             onSearchTextInput = mainActivityViewModel::onSearchTextInput,
@@ -177,6 +176,9 @@ class MainActivity : ComponentActivity() {
                                     onGenreChipClicked = {
                                         mainActivityViewModel.onSearchFieldOpenChange(true)
                                         mainActivityViewModel.appendSearchText(it)
+                                    },
+                                    onSelectSortingOptionClicked = {
+                                        shouldShowSortingOptionsDialog = true
                                     }
                                 )
                             }
@@ -200,6 +202,9 @@ class MainActivity : ComponentActivity() {
                                     onGenreChipClicked = {
                                         mainActivityViewModel.onSearchFieldOpenChange(true)
                                         mainActivityViewModel.appendSearchText(it)
+                                    },
+                                    onSelectSortingOptionClicked = {
+                                        shouldShowSortingOptionsDialog = true
                                     }
                                 )
                             }

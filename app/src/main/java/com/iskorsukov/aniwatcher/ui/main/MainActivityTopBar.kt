@@ -7,7 +7,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -35,7 +34,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 fun TopBar(
     uiState: MainActivityUiState,
     navController: NavHostController,
-    onSelectSortingOptionClicked: () -> Unit,
     onSettingsClicked: () -> Unit,
     onNotificationsClicked: () -> Unit,
     onSearchTextInput: (String) -> Unit,
@@ -57,15 +55,6 @@ fun TopBar(
                 onSearchFieldOpenChange = onSearchFieldOpenChange,
                 focusRequester = focusRequester
             )
-        }
-        if (screen?.hasSortingOptions == true) {
-            IconButton(onClick = onSelectSortingOptionClicked) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_baseline_sort_24),
-                    contentDescription = null,
-                    tint = LocalColors.current.onPrimary
-                )
-            }
         }
         if (screen?.hasSeasonYear == true) {
             Row(
@@ -220,7 +209,6 @@ private fun TopBarPreview() {
             TopBar(
                 uiState = uiState,
                 navController = navController,
-                onSelectSortingOptionClicked = { },
                 onSettingsClicked = { },
                 onNotificationsClicked = { },
                 onSearchFieldOpenChange = { open ->
@@ -262,7 +250,6 @@ private fun TopBarNoSearchAndOptionsPreview() {
             TopBar(
                 uiState = uiState,
                 navController = navController,
-                onSelectSortingOptionClicked = { },
                 onSettingsClicked = { },
                 onNotificationsClicked = { },
                 onSearchFieldOpenChange = { },
@@ -291,7 +278,6 @@ private fun TopBarUnreadNotificationsPreview() {
             TopBar(
                 uiState = uiState,
                 navController = navController,
-                onSelectSortingOptionClicked = { },
                 onSettingsClicked = { },
                 onNotificationsClicked = { },
                 onSearchFieldOpenChange = { },

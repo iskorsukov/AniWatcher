@@ -21,9 +21,11 @@ import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.test.isFollowing
+import com.iskorsukov.aniwatcher.ui.base.header.HeaderFlowRow
 import com.iskorsukov.aniwatcher.ui.base.placeholder.EmptyDataPlaceholder
 import com.iskorsukov.aniwatcher.ui.main.MainActivityUiState
 import com.iskorsukov.aniwatcher.ui.media.MediaItemCardExtended
+import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 
 @OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
@@ -33,7 +35,8 @@ fun FollowingScreen(
     settingsState: SettingsState,
     timeInMinutes: Long,
     onMediaClicked: (MediaItem) -> Unit,
-    onGenreChipClicked: (String) -> Unit
+    onGenreChipClicked: (String) -> Unit,
+    onSelectSortingOptionClicked: () -> Unit
 ) {
     val followingMediaMap by viewModel.followingMediaFlow
         .collectAsStateWithLifecycle(initialValue = emptyMap())
@@ -73,7 +76,9 @@ fun FollowingScreen(
             preferredNamingScheme = settingsState.preferredNamingScheme,
             onMediaClicked = onMediaClicked,
             onGenreChipClicked = onGenreChipClicked,
-            listState = listState
+            listState = listState,
+            selectedSortingOption = uiState.sortingOption,
+            onSelectSortingOptionClicked = onSelectSortingOptionClicked
         )
     }
 }
@@ -88,6 +93,8 @@ fun FollowingScreenContent(
     onMediaClicked: (MediaItem) -> Unit,
     onGenreChipClicked: (String) -> Unit,
     listState: LazyListState,
+    selectedSortingOption: SortingOption,
+    onSelectSortingOptionClicked: () -> Unit
 ) {
     if (followingMediaMap.isEmpty() && searchTextIsEmpty) {
         EmptyDataPlaceholder(
@@ -98,6 +105,12 @@ fun FollowingScreenContent(
         )
     } else {
         LazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
+            item {
+                HeaderFlowRow(
+                    selectedSortingOption = selectedSortingOption,
+                    onSelectSortingOptionClicked = onSelectSortingOptionClicked
+                )
+            }
             followingMediaMap.entries.forEach {
                 item {
                     MediaItemCardExtended(
@@ -126,7 +139,9 @@ private fun FollowingScreenEmptyPreview() {
         preferredNamingScheme = NamingScheme.ENGLISH,
         onMediaClicked = {},
         onGenreChipClicked = {},
-        listState = rememberLazyListState()
+        listState = rememberLazyListState(),
+        selectedSortingOption = SortingOption.AIRING_AT,
+        onSelectSortingOptionClicked = { }
     )
 }
 
@@ -146,6 +161,8 @@ private fun FollowingScreenPreview() {
         preferredNamingScheme = NamingScheme.ENGLISH,
         onMediaClicked = {},
         onGenreChipClicked = {},
-        listState = rememberLazyListState()
+        listState = rememberLazyListState(),
+        selectedSortingOption = SortingOption.AIRING_AT,
+        onSelectSortingOptionClicked = { }
     )
 }
