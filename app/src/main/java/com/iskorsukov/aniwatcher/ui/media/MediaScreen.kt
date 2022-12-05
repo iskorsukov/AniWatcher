@@ -6,8 +6,10 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -20,6 +22,7 @@ import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
+import com.iskorsukov.aniwatcher.ui.base.fab.ScrollToTopFab
 import com.iskorsukov.aniwatcher.ui.main.MainActivityUiState
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 import kotlinx.coroutines.flow.*
@@ -41,6 +44,7 @@ fun MediaScreen(
     val swipeRefreshState = rememberSwipeRefreshState(uiState.isRefreshing)
 
     val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(uiState.searchText, uiState.sortingOption) {
         viewModel.onSearchTextChanged(uiState.searchText)
@@ -48,19 +52,28 @@ fun MediaScreen(
         listState.scrollToItem(0)
     }
 
-    MediaScreenContent(
-        mediaItemWithNextAiringMap = MediaItemMapper.filterExtraFollowedMedia(
-            mediaFlow, settingsState, uiState.seasonYear
-        ),
-        swipeRefreshState = swipeRefreshState,
-        listState = listState,
-        timeInMinutes = timeInMinutes,
-        preferredNamingScheme = settingsState.preferredNamingScheme,
-        onRefresh = onRefresh,
-        onFollowClicked = viewModel::onFollowClicked,
-        onGenreChipClicked = onGenreChipClicked,
-        onMediaClicked = onMediaClicked
-    )
+    Box(modifier = Modifier.fillMaxSize()) {
+        MediaScreenContent(
+            mediaItemWithNextAiringMap = MediaItemMapper.filterExtraFollowedMedia(
+                mediaFlow, settingsState, uiState.seasonYear
+            ),
+            swipeRefreshState = swipeRefreshState,
+            listState = listState,
+            timeInMinutes = timeInMinutes,
+            preferredNamingScheme = settingsState.preferredNamingScheme,
+            onRefresh = onRefresh,
+            onFollowClicked = viewModel::onFollowClicked,
+            onGenreChipClicked = onGenreChipClicked,
+            onMediaClicked = onMediaClicked
+        )
+        ScrollToTopFab(
+            lazyListState = listState,
+            coroutineScope = coroutineScope,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+        )
+    }
 }
 
 @Composable
