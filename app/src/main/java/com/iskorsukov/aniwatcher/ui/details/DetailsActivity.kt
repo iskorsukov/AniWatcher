@@ -48,11 +48,15 @@ class DetailsActivity: ComponentActivity() {
             val mediaItemToAiringSchedules by viewModel.getMediaWithAiringSchedules(mediaItemId)
                 .collectAsStateWithLifecycle(null)
 
+            val mediaItemHasBanner = mediaItemToAiringSchedules?.first?.bannerImageUrl != null
+
             AniWatcherTheme(settingsState.darkModeOption) {
                 Scaffold(
                     topBar = {
-                        BackArrowTopAppBar {
-                            finish()
+                        if (!mediaItemHasBanner) {
+                            BackArrowTopAppBar {
+                                finish()
+                            }
                         }
                     },
                     backgroundColor = LocalColors.current.background
@@ -65,6 +69,7 @@ class DetailsActivity: ComponentActivity() {
                                 .sortedBy { it.airingAt },
                             preferredNamingScheme = settingsState.preferredNamingScheme,
                             modifier = Modifier.padding(innerPadding),
+                            onBackButtonClicked = { finish() },
                             onLearnMoreClicked = { navigateToAniList(it) }
                         )
                     }

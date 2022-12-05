@@ -6,9 +6,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -46,6 +51,7 @@ fun DetailsScreen(
     mediaItem: MediaItem,
     airingScheduleList: List<AiringScheduleItem>?,
     modifier: Modifier = Modifier,
+    onBackButtonClicked: () -> Unit = { },
     preferredNamingScheme: NamingScheme = NamingScheme.ENGLISH,
     onLearnMoreClicked: (String) -> Unit
 ) {
@@ -59,6 +65,7 @@ fun DetailsScreen(
         timeInMinutes = timeInMinutes,
         modifier = modifier,
         preferredNamingScheme = preferredNamingScheme,
+        onBackButtonClicked = onBackButtonClicked,
         onLearnMoreClicked = onLearnMoreClicked
     )
 }
@@ -70,6 +77,7 @@ private fun DetailScreenContent(
     timeInMinutes: Long,
     modifier: Modifier = Modifier,
     preferredNamingScheme: NamingScheme,
+    onBackButtonClicked: () -> Unit,
     onLearnMoreClicked: (String) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
@@ -89,6 +97,7 @@ private fun DetailScreenContent(
             DetailsContentHeader(
                 mediaItem = mediaItem,
                 preferredNamingScheme = preferredNamingScheme,
+                onBackButtonClicked = onBackButtonClicked,
                 onLearnMoreClicked = onLearnMoreClicked,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -135,6 +144,7 @@ private fun DetailsContentHeader(
     mediaItem: MediaItem,
     modifier: Modifier = Modifier,
     preferredNamingScheme: NamingScheme,
+    onBackButtonClicked: () -> Unit,
     onLearnMoreClicked: (String) -> Unit
 ) {
     ConstraintLayout(
@@ -142,6 +152,7 @@ private fun DetailsContentHeader(
     ) {
         val (
             bannerImage,
+            backButton,
             coverImage,
             mediaInfo,
             mediaInfoBackground
@@ -161,6 +172,31 @@ private fun DetailsContentHeader(
                         Visibility.Visible
                 }
         )
+
+
+        if (mediaItem.bannerImageUrl != null) {
+            IconButton(
+                onClick = onBackButtonClicked,
+                modifier = Modifier
+                    .padding(start = 8.dp)
+                    .constrainAs(backButton) {
+                        top.linkTo(parent.top)
+                        start.linkTo(parent.start)
+                    }
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBack,
+                    contentDescription = null,
+                    tint = LocalColors.current.onPrimary,
+                    modifier = Modifier
+                        .background(
+                            color = LocalColors.current.titleOverlay,
+                            shape = CircleShape
+                        )
+                        .padding(4.dp)
+                )
+            }
+        }
 
         Box(
             modifier = Modifier
@@ -218,6 +254,7 @@ private fun DetailsContentHeaderPreview() {
     DetailsContentHeader(
         mediaItem = ModelTestDataCreator.baseMediaItem(),
         preferredNamingScheme = NamingScheme.ENGLISH,
+        onBackButtonClicked = { },
         onLearnMoreClicked = { }
     )
 }
@@ -397,6 +434,7 @@ private fun DetailsScreenPreview() {
         mediaItem = ModelTestDataCreator.baseMediaItem(),
         airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
         preferredNamingScheme = NamingScheme.ENGLISH,
+        onBackButtonClicked = { },
         onLearnMoreClicked = { }
     )
 }
@@ -409,6 +447,7 @@ private fun DetailsScreenPreview_noBanner() {
         mediaItem = ModelTestDataCreator.baseMediaItem().bannerImage(null),
         airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
         preferredNamingScheme = NamingScheme.ENGLISH,
+        onBackButtonClicked = { },
         onLearnMoreClicked = { }
     )
 }
@@ -421,6 +460,7 @@ private fun DetailsScreenPreview_noCoverImage() {
         mediaItem = ModelTestDataCreator.baseMediaItem().coverImageUrl(null),
         airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
         preferredNamingScheme = NamingScheme.ENGLISH,
+        onBackButtonClicked = { },
         onLearnMoreClicked = { }
     )
 }
@@ -433,6 +473,7 @@ private fun DetailsScreenPreview_noBannerOrImage() {
         mediaItem = ModelTestDataCreator.baseMediaItem().bannerImage(null).coverImageUrl(null),
         airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
         preferredNamingScheme = NamingScheme.ENGLISH,
+        onBackButtonClicked = { },
         onLearnMoreClicked = { }
     )
 }
@@ -445,6 +486,7 @@ private fun DetailsScreenPreview_noAiringSchedule() {
         mediaItem = ModelTestDataCreator.baseMediaItem(),
         airingScheduleList = emptyList(),
         preferredNamingScheme = NamingScheme.ENGLISH,
+        onBackButtonClicked = { },
         onLearnMoreClicked = { }
     )
 }
