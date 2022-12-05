@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -23,8 +24,10 @@ import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.test.isFollowing
 import com.iskorsukov.aniwatcher.ui.base.header.HeaderFlowRow
 import com.iskorsukov.aniwatcher.ui.base.placeholder.EmptyDataPlaceholder
+import com.iskorsukov.aniwatcher.ui.format.FilterFormatDialog
 import com.iskorsukov.aniwatcher.ui.main.MainActivityUiState
 import com.iskorsukov.aniwatcher.ui.media.MediaItemCardExtended
+import com.iskorsukov.aniwatcher.ui.sorting.SelectSortingOptionDialog
 import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 
 @OptIn(ExperimentalLifecycleComposeApi::class)
@@ -35,19 +38,22 @@ fun FollowingScreen(
     settingsState: SettingsState,
     timeInMinutes: Long,
     onMediaClicked: (MediaItem) -> Unit,
-    onGenreChipClicked: (String) -> Unit,
-    onSelectSortingOptionClicked: () -> Unit
+    onGenreChipClicked: (String) -> Unit
 ) {
     val followingMediaMap by viewModel.followingMediaFlow
         .collectAsStateWithLifecycle(initialValue = emptyMap())
+
+    val sortingOption by viewModel.sortingOptionFlow
+        .collectAsStateWithLifecycle()
+    val deselectedFormats by viewModel.deselectedFormatsFlow
+        .collectAsStateWithLifecycle()
 
     val finishedShowsList by viewModel.finishedFollowingShowsFlow
         .collectAsStateWithLifecycle(initialValue = emptyList())
 
     val listState = rememberLazyListState()
-    LaunchedEffect(uiState.searchText, uiState.sortingOption) {
+    LaunchedEffect(uiState.searchText, sortingOption) {
         viewModel.onSearchTextChanged(uiState.searchText)
-        viewModel.onSortingOptionChanged(uiState.sortingOption)
         listState.scrollToItem(0)
     }
 
@@ -57,6 +63,13 @@ fun FollowingScreen(
     }
      */
     var shouldShowFinishedShowsDialog = false
+
+    var shouldShowSortingOptionsDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+    var shouldShowFilterFormatDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (shouldShowFinishedShowsDialog) {
@@ -77,9 +90,27 @@ fun FollowingScreen(
             onMediaClicked = onMediaClicked,
             onGenreChipClicked = onGenreChipClicked,
             listState = listState,
-            selectedSortingOption = uiState.sortingOption,
-            onSelectSortingOptionClicked = onSelectSortingOptionClicked
+            selectedSortingOption = sortingOption,
+            onSelectSortingOptionClicked = { shouldShowSortingOptionsDialog = true },
+            deselectedFormats = deselectedFormats,
+            onFilterFormatClicked = { shouldShowFilterFormatDialog = true }
         )
+    }
+
+    if (shouldShowSortingOptionsDialog) {
+        SelectSortingOptionDialog(
+            onSortingOptionSelected = viewModel::onSortingOptionChanged,
+            onDismissRequest = { shouldShowSortingOptionsDialog = false },
+            selectedOption = sortingOption
+        )
+    }
+    if (shouldShowFilterFormatDialog) {
+        FilterFormatDialog(
+            deselectedFormats
+        ) { formats ->
+            shouldShowFilterFormatDialog = false
+            viewModel.onDeselectedFormatsChanged(formats)
+        }
     }
 }
 
@@ -94,7 +125,9 @@ fun FollowingScreenContent(
     onGenreChipClicked: (String) -> Unit,
     listState: LazyListState,
     selectedSortingOption: SortingOption,
-    onSelectSortingOptionClicked: () -> Unit
+    onSelectSortingOptionClicked: () -> Unit,
+    deselectedFormats: List<MediaItem.LocalFormat>,
+    onFilterFormatClicked: () -> Unit
 ) {
     if (followingMediaMap.isEmpty() && searchTextIsEmpty) {
         EmptyDataPlaceholder(
@@ -108,7 +141,9 @@ fun FollowingScreenContent(
             item {
                 HeaderFlowRow(
                     selectedSortingOption = selectedSortingOption,
-                    onSelectSortingOptionClicked = onSelectSortingOptionClicked
+                    onSelectSortingOptionClicked = onSelectSortingOptionClicked,
+                    deselectedFormats = deselectedFormats,
+                    onFilterFormatsClicked = onFilterFormatClicked
                 )
             }
             followingMediaMap.entries.forEach {
@@ -141,7 +176,9 @@ private fun FollowingScreenEmptyPreview() {
         onGenreChipClicked = {},
         listState = rememberLazyListState(),
         selectedSortingOption = SortingOption.AIRING_AT,
-        onSelectSortingOptionClicked = { }
+        onSelectSortingOptionClicked = { },
+        deselectedFormats = emptyList(),
+        onFilterFormatClicked = { }
     )
 }
 
@@ -163,6 +200,8 @@ private fun FollowingScreenPreview() {
         onGenreChipClicked = {},
         listState = rememberLazyListState(),
         selectedSortingOption = SortingOption.AIRING_AT,
-        onSelectSortingOptionClicked = { }
+        onSelectSortingOptionClicked = { },
+        deselectedFormats = emptyList(),
+        onFilterFormatClicked = { }
     )
 }

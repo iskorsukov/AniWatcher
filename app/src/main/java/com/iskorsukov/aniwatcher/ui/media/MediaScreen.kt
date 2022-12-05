@@ -6,12 +6,14 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.SwipeRefreshState
@@ -22,9 +24,12 @@ import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
+import com.iskorsukov.aniwatcher.ui.Screen
 import com.iskorsukov.aniwatcher.ui.base.fab.ScrollToTopFab
 import com.iskorsukov.aniwatcher.ui.base.header.HeaderFlowRow
+import com.iskorsukov.aniwatcher.ui.format.FilterFormatDialog
 import com.iskorsukov.aniwatcher.ui.main.MainActivityUiState
+import com.iskorsukov.aniwatcher.ui.sorting.SelectSortingOptionDialog
 import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 import kotlinx.coroutines.flow.*
@@ -38,20 +43,30 @@ fun MediaScreen(
     timeInMinutes: Long,
     onMediaClicked: (MediaItem) -> Unit,
     onRefresh: () -> Unit,
-    onGenreChipClicked: (String) -> Unit,
-    onSelectSortingOptionClicked: () -> Unit,
+    onGenreChipClicked: (String) -> Unit
 ) {
     val mediaFlow by viewModel.mediaFlow
         .collectAsStateWithLifecycle(initialValue = emptyMap())
+
+    val sortingOption by viewModel.sortingOptionFlow
+        .collectAsStateWithLifecycle()
+    val deselectedFormats by viewModel.deselectedFormatsFlow
+        .collectAsStateWithLifecycle()
 
     val swipeRefreshState = rememberSwipeRefreshState(uiState.isRefreshing)
 
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(uiState.searchText, uiState.sortingOption) {
+    var shouldShowSortingOptionsDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+    var shouldShowFilterFormatDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    LaunchedEffect(uiState.searchText) {
         viewModel.onSearchTextChanged(uiState.searchText)
-        viewModel.onSortingOptionChanged(uiState.sortingOption)
         listState.scrollToItem(0)
     }
 
@@ -68,8 +83,10 @@ fun MediaScreen(
             onFollowClicked = viewModel::onFollowClicked,
             onGenreChipClicked = onGenreChipClicked,
             onMediaClicked = onMediaClicked,
-            onSelectSortingOptionClicked = onSelectSortingOptionClicked,
-            selectedSortingOption = uiState.sortingOption
+            onSelectSortingOptionClicked = { shouldShowSortingOptionsDialog = true },
+            selectedSortingOption = sortingOption,
+            deselectedFormats = deselectedFormats,
+            onFilterFormatClicked = { shouldShowFilterFormatDialog = true }
         )
         ScrollToTopFab(
             lazyListState = listState,
@@ -78,6 +95,23 @@ fun MediaScreen(
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
         )
+    }
+
+    if (shouldShowSortingOptionsDialog) {
+        SelectSortingOptionDialog(
+            onSortingOptionSelected = viewModel::onSortingOptionChanged,
+            onDismissRequest = { shouldShowSortingOptionsDialog = false },
+            selectedOption = sortingOption
+        )
+    }
+
+    if (shouldShowFilterFormatDialog) {
+        FilterFormatDialog(
+            deselectedFormats
+        ) { formats ->
+            shouldShowFilterFormatDialog = false
+            viewModel.onDeselectedFormatsChanged(formats)
+        }
     }
 }
 
@@ -93,7 +127,9 @@ private fun MediaScreenContent(
     onFollowClicked: (MediaItem) -> Unit,
     onMediaClicked: (MediaItem) -> Unit,
     onGenreChipClicked: (String) -> Unit,
-    onSelectSortingOptionClicked: () -> Unit
+    onSelectSortingOptionClicked: () -> Unit,
+    deselectedFormats: List<MediaItem.LocalFormat>,
+    onFilterFormatClicked: () -> Unit
 ) {
     SwipeRefresh(
         state = swipeRefreshState,
@@ -114,7 +150,9 @@ private fun MediaScreenContent(
             item {
                 HeaderFlowRow(
                     selectedSortingOption = selectedSortingOption,
-                    onSelectSortingOptionClicked = onSelectSortingOptionClicked
+                    onSelectSortingOptionClicked = onSelectSortingOptionClicked,
+                    deselectedFormats = deselectedFormats,
+                    onFilterFormatsClicked = onFilterFormatClicked
                 )
             }
             mediaItemWithNextAiringMap.entries.forEach {
@@ -153,6 +191,8 @@ fun MediaScreenPreview() {
         onMediaClicked = { },
         onGenreChipClicked = { },
         onSelectSortingOptionClicked = { },
-        selectedSortingOption = SortingOption.AIRING_AT
+        selectedSortingOption = SortingOption.AIRING_AT,
+        deselectedFormats = emptyList(),
+        onFilterFormatClicked = { }
     )
 }

@@ -40,7 +40,6 @@ import com.iskorsukov.aniwatcher.ui.notification.NotificationActivity
 import com.iskorsukov.aniwatcher.ui.onboarding.OnboardingDialog
 import com.iskorsukov.aniwatcher.ui.season.SelectSeasonYearDialog
 import com.iskorsukov.aniwatcher.ui.settings.SettingsCompatActivity
-import com.iskorsukov.aniwatcher.ui.sorting.SelectSortingOptionDialog
 import com.iskorsukov.aniwatcher.ui.theme.*
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
@@ -98,9 +97,6 @@ class MainActivity : ComponentActivity() {
             val shouldShowOnboardingDialog by rememberSaveable(settingsState.onboardingComplete) {
                 mutableStateOf(!settingsState.onboardingComplete)
             }
-            var shouldShowSortingOptionsDialog by rememberSaveable {
-                mutableStateOf(false)
-            }
             var shouldShowSeasonYearDialog by rememberSaveable {
                 mutableStateOf(false)
             }
@@ -146,13 +142,6 @@ class MainActivity : ComponentActivity() {
                                 mainActivityViewModel.onOnboardingComplete()
                             }
                         }
-                        if (shouldShowSortingOptionsDialog) {
-                            SelectSortingOptionDialog(
-                                onSortingOptionSelected = mainActivityViewModel::onSortingOptionSelected,
-                                onDismissRequest = { shouldShowSortingOptionsDialog = false },
-                                selectedOption = uiState.sortingOption
-                            )
-                        }
                         if (shouldShowSeasonYearDialog) {
                             SelectSeasonYearDialog(
                                 onSeasonYearSelected = mainActivityViewModel::onSeasonYearSelected,
@@ -176,9 +165,6 @@ class MainActivity : ComponentActivity() {
                                     onGenreChipClicked = {
                                         mainActivityViewModel.onSearchFieldOpenChange(true)
                                         mainActivityViewModel.appendSearchText(it)
-                                    },
-                                    onSelectSortingOptionClicked = {
-                                        shouldShowSortingOptionsDialog = true
                                     }
                                 )
                             }
@@ -202,9 +188,6 @@ class MainActivity : ComponentActivity() {
                                     onGenreChipClicked = {
                                         mainActivityViewModel.onSearchFieldOpenChange(true)
                                         mainActivityViewModel.appendSearchText(it)
-                                    },
-                                    onSelectSortingOptionClicked = {
-                                        shouldShowSortingOptionsDialog = true
                                     }
                                 )
                             }

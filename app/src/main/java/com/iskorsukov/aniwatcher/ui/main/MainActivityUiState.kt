@@ -11,6 +11,5 @@ data class MainActivityUiState(
         DateTimeHelper.currentSeasonYear(Calendar.getInstance()),
     val errorItem: ErrorItem? = null,
     val searchText: String = "",
-    val searchFieldOpen: Boolean = false,
-    val sortingOption: SortingOption = SortingOption.AIRING_AT,
+    val searchFieldOpen: Boolean = false
 )

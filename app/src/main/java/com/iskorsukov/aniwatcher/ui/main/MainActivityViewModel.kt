@@ -10,7 +10,6 @@ import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.onboarding.OnboardingViewModel
-import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -73,10 +72,6 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    fun onSortingOptionSelected(sortingOption: SortingOption) {
-        _uiState.value = _uiState.value.copy(sortingOption = sortingOption)
-    }
-
     fun onSearchFieldOpenChange(isSearchFieldOpen: Boolean) {
         _uiState.value = _uiState.value.copy(searchFieldOpen = isSearchFieldOpen)
     }
@@ -88,8 +83,7 @@ class MainActivityViewModel @Inject constructor(
     fun resetTopBarState() {
         _uiState.value = _uiState.value.copy(
             searchText = "",
-            searchFieldOpen = false,
-            sortingOption = SortingOption.AIRING_AT
+            searchFieldOpen = false
         )
     }
 }

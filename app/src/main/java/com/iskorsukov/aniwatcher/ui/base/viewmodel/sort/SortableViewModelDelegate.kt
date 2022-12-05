@@ -10,7 +10,7 @@ import javax.inject.Inject
 class SortableViewModelDelegate @Inject constructor(): SortableViewModel {
 
     private val _sortingOptionFlow = MutableStateFlow(SortingOption.AIRING_AT)
-    val sortingOptionFlow: StateFlow<SortingOption> = _sortingOptionFlow
+    override val sortingOptionFlow: StateFlow<SortingOption> = _sortingOptionFlow
 
     override fun onSortingOptionChanged(sortingOption: SortingOption) {
         _sortingOptionFlow.value = sortingOption

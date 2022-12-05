@@ -6,6 +6,8 @@ import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.follow.FollowableMediaViewModel
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.format.FormatFilterableViewModel
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.format.FormatFilterableViewModelDelegate
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.search.SearchableViewModel
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.search.SearchableViewModelDelegate
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.sort.SortableViewModel
@@ -19,10 +21,12 @@ import javax.inject.Inject
 class FollowingViewModel @Inject constructor(
     private val airingRepository: AiringRepository,
     private val searchableViewModelDelegate: SearchableViewModelDelegate = SearchableViewModelDelegate(),
-    private val sortableViewModelDelegate: SortableViewModelDelegate = SortableViewModelDelegate()
+    private val sortableViewModelDelegate: SortableViewModelDelegate = SortableViewModelDelegate(),
+    private val formatFilterableViewModelDelegate: FormatFilterableViewModelDelegate = FormatFilterableViewModelDelegate()
 ): FollowableMediaViewModel(airingRepository),
     SearchableViewModel by searchableViewModelDelegate,
-    SortableViewModel by sortableViewModelDelegate {
+    SortableViewModel by sortableViewModelDelegate,
+    FormatFilterableViewModel by formatFilterableViewModelDelegate {
 
     private val _errorItemFlow: MutableStateFlow<ErrorItem?> = MutableStateFlow(null)
     override val errorItemFlow: StateFlow<ErrorItem?> = _errorItemFlow
@@ -34,6 +38,10 @@ class FollowingViewModel @Inject constructor(
         .combine(
             searchableViewModelDelegate.searchTextFlow,
             searchableViewModelDelegate::filterMediaFlow
+        )
+        .combine(
+            formatFilterableViewModelDelegate.deselectedFormatsFlow,
+            formatFilterableViewModelDelegate::filterFormatMediaFlow
         )
         .combine(
             sortableViewModelDelegate.sortingOptionFlow,

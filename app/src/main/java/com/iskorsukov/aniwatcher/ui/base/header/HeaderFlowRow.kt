@@ -13,23 +13,37 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.accompanist.flowlayout.FlowRow
 import com.iskorsukov.aniwatcher.R
+import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 
 @Composable
 fun HeaderFlowRow(
     selectedSortingOption: SortingOption,
-    onSelectSortingOptionClicked: () -> Unit
+    onSelectSortingOptionClicked: () -> Unit,
+    deselectedFormats: List<MediaItem.LocalFormat>,
+    onFilterFormatsClicked: () -> Unit
 ) {
+    val selectedSortingOptionLabel = "${stringResource(id = R.string.sort_by)}: ${stringResource(id = selectedSortingOption.labelResId).lowercase()}"
+    var deselectedFormatsLabel = stringResource(id = R.string.filter_format)
+    if (deselectedFormats.isNotEmpty()) {
+        deselectedFormatsLabel += ": "
+        deselectedFormats.forEach {
+            deselectedFormatsLabel += stringResource(id = it.labelResId)
+            deselectedFormatsLabel += ", "
+        }
+        deselectedFormatsLabel = deselectedFormatsLabel.removeSuffix(", ")
+    }
     FlowRow(
         modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp),
         mainAxisSpacing = 8.dp,
         crossAxisSpacing = 4.dp
     ) {
-        HeaderChip(
-            text = "${stringResource(id = R.string.sort_by)}: ${stringResource(id = selectedSortingOption.labelResId).lowercase()}"
-        ) {
+        HeaderChip(text = selectedSortingOptionLabel) {
             onSelectSortingOptionClicked.invoke()
+        }
+        HeaderChip(text = deselectedFormatsLabel) {
+            onFilterFormatsClicked.invoke()
         }
     }
 }
