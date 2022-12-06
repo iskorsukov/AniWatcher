@@ -122,7 +122,11 @@ class MainActivity : ComponentActivity() {
                         BottomNavigationBar(
                             navController = navController,
                             scheduleType = settingsState.scheduleType,
-                            onChangedDestination = mainActivityViewModel::resetTopBarState
+                            onChangedDestination = {
+                                mainActivityViewModel.resetTopBarState()
+                                mediaViewModel.resetState()
+                                followingViewModel.resetState()
+                            }
                         )
                     },
                     scaffoldState = scaffoldState,

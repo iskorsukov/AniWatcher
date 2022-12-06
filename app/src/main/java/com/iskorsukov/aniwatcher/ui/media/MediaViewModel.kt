@@ -45,7 +45,11 @@ class MediaViewModel @Inject constructor(
         )
 
     fun resetState() {
-        onDeselectedFormatsChanged(emptyList())
-        onSortingOptionChanged(SortingOption.AIRING_AT)
+        if (deselectedFormatsFlow.value.isNotEmpty()) {
+            onDeselectedFormatsChanged(emptyList())
+        }
+        if (sortingOptionFlow.value != SortingOption.AIRING_AT) {
+            onSortingOptionChanged(SortingOption.AIRING_AT)
+        }
     }
 }

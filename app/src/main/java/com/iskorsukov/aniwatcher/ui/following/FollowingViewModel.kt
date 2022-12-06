@@ -12,6 +12,7 @@ import com.iskorsukov.aniwatcher.ui.base.viewmodel.search.SearchableViewModel
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.search.SearchableViewModelDelegate
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.sort.SortableViewModel
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.sort.SortableViewModelDelegate
+import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -67,6 +68,15 @@ class FollowingViewModel @Inject constructor(
                 FirebaseCrashlytics.getInstance().recordException(throwable)
                 _errorItemFlow.value = ErrorItem.ofThrowable(throwable)
             }
+        }
+    }
+
+    fun resetState() {
+        if (deselectedFormatsFlow.value.isNotEmpty()) {
+            onDeselectedFormatsChanged(emptyList())
+        }
+        if (sortingOptionFlow.value != SortingOption.AIRING_AT) {
+            onSortingOptionChanged(SortingOption.AIRING_AT)
         }
     }
 }
