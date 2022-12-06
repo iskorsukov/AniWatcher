@@ -4,14 +4,14 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
+import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.follow.FollowableMediaViewModel
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.format.FormatFilterableViewModel
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.format.FormatFilterableViewModelDelegate
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.search.SearchableViewModel
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.search.SearchableViewModelDelegate
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.sort.SortableViewModel
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.sort.SortableViewModelDelegate
+import com.iskorsukov.aniwatcher.ui.media.MediaUiState
 import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -21,16 +21,16 @@ import javax.inject.Inject
 @HiltViewModel
 class FollowingViewModel @Inject constructor(
     private val airingRepository: AiringRepository,
-    private val searchableViewModelDelegate: SearchableViewModelDelegate = SearchableViewModelDelegate(),
-    private val sortableViewModelDelegate: SortableViewModelDelegate = SortableViewModelDelegate(),
-    private val formatFilterableViewModelDelegate: FormatFilterableViewModelDelegate = FormatFilterableViewModelDelegate()
+    private val searchableViewModelDelegate: SearchableViewModelDelegate = SearchableViewModelDelegate()
 ): FollowableMediaViewModel(airingRepository),
     SearchableViewModel by searchableViewModelDelegate,
-    SortableViewModel by sortableViewModelDelegate,
-    FormatFilterableViewModel by formatFilterableViewModelDelegate {
+    SortableViewModel,
+    FormatFilterableViewModel {
 
-    private val _errorItemFlow: MutableStateFlow<ErrorItem?> = MutableStateFlow(null)
-    override val errorItemFlow: StateFlow<ErrorItem?> = _errorItemFlow
+    private val _uiStateFlow: MutableStateFlow<FollowingUiState> = MutableStateFlow(
+        FollowingUiState.DEFAULT
+    )
+    val uiStateFlow: StateFlow<FollowingUiState> = _uiStateFlow
 
     val followingMediaFlow = airingRepository.mediaWithSchedulesFlow.map { map ->
         MediaItemMapper.groupMediaWithNextAiringSchedule(map.filterKeys { it.isFollowing })
@@ -40,14 +40,12 @@ class FollowingViewModel @Inject constructor(
             searchableViewModelDelegate.searchTextFlow,
             searchableViewModelDelegate::filterMediaFlow
         )
-        .combine(
-            formatFilterableViewModelDelegate.deselectedFormatsFlow,
-            formatFilterableViewModelDelegate::filterFormatMediaFlow
-        )
-        .combine(
-            sortableViewModelDelegate.sortingOptionFlow,
-            sortableViewModelDelegate::sortMediaFlow
-        )
+        .combine(uiStateFlow) { map, uiState ->
+            filterFormatMediaFlow(map, uiState.deselectedFormats)
+        }
+        .combine(uiStateFlow) { map, uiState ->
+            sortMediaFlow(map, uiState.sortingOption)
+        }
 
     val finishedFollowingShowsFlow = airingRepository.mediaWithSchedulesFlow.map { map ->
         val currentSeconds = System.currentTimeMillis() / 1000
@@ -59,6 +57,7 @@ class FollowingViewModel @Inject constructor(
     }
 
     fun unfollowFinishedShows() {
+        _uiStateFlow.value = _uiStateFlow.value.copy(errorItem = null)
         viewModelScope.launch {
             val finishedShows = finishedFollowingShowsFlow.first()
             try {
@@ -66,17 +65,20 @@ class FollowingViewModel @Inject constructor(
             } catch (throwable: Throwable) {
                 throwable.printStackTrace()
                 FirebaseCrashlytics.getInstance().recordException(throwable)
-                _errorItemFlow.value = ErrorItem.ofThrowable(throwable)
+                _uiStateFlow.value = _uiStateFlow.value.copy(errorItem = ErrorItem.ofThrowable(throwable))
             }
         }
     }
 
+    override fun onDeselectedFormatsChanged(deselectedFormats: List<MediaItem.LocalFormat>) {
+        _uiStateFlow.value = _uiStateFlow.value.copy(deselectedFormats = deselectedFormats)
+    }
+
+    override fun onSortingOptionChanged(sortingOption: SortingOption) {
+        _uiStateFlow.value = _uiStateFlow.value.copy(sortingOption = sortingOption)
+    }
+
     fun resetState() {
-        if (deselectedFormatsFlow.value.isNotEmpty()) {
-            onDeselectedFormatsChanged(emptyList())
-        }
-        if (sortingOptionFlow.value != SortingOption.AIRING_AT) {
-            onSortingOptionChanged(SortingOption.AIRING_AT)
-        }
+        _uiStateFlow.value = FollowingUiState.DEFAULT
     }
 }

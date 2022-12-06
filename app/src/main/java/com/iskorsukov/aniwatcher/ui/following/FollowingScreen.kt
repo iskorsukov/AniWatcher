@@ -43,16 +43,14 @@ fun FollowingScreen(
     val followingMediaMap by viewModel.followingMediaFlow
         .collectAsStateWithLifecycle(initialValue = emptyMap())
 
-    val sortingOption by viewModel.sortingOptionFlow
-        .collectAsStateWithLifecycle()
-    val deselectedFormats by viewModel.deselectedFormatsFlow
+    val followingUiState by viewModel.uiStateFlow
         .collectAsStateWithLifecycle()
 
     val finishedShowsList by viewModel.finishedFollowingShowsFlow
         .collectAsStateWithLifecycle(initialValue = emptyList())
 
     val listState = rememberLazyListState()
-    LaunchedEffect(uiState.searchText, sortingOption) {
+    LaunchedEffect(uiState.searchText, followingUiState.sortingOption) {
         viewModel.onSearchTextChanged(uiState.searchText)
         listState.scrollToItem(0)
     }
@@ -90,9 +88,9 @@ fun FollowingScreen(
             onMediaClicked = onMediaClicked,
             onGenreChipClicked = onGenreChipClicked,
             listState = listState,
-            selectedSortingOption = sortingOption,
+            selectedSortingOption = followingUiState.sortingOption,
             onSelectSortingOptionClicked = { shouldShowSortingOptionsDialog = true },
-            deselectedFormats = deselectedFormats,
+            deselectedFormats = followingUiState.deselectedFormats,
             onFilterFormatClicked = { shouldShowFilterFormatDialog = true }
         )
     }
@@ -101,12 +99,12 @@ fun FollowingScreen(
         SelectSortingOptionDialog(
             onSortingOptionSelected = viewModel::onSortingOptionChanged,
             onDismissRequest = { shouldShowSortingOptionsDialog = false },
-            selectedOption = sortingOption
+            selectedOption = followingUiState.sortingOption
         )
     }
     if (shouldShowFilterFormatDialog) {
         FilterFormatDialog(
-            deselectedFormats
+            followingUiState.deselectedFormats
         ) { formats ->
             shouldShowFilterFormatDialog = false
             viewModel.onDeselectedFormatsChanged(formats)

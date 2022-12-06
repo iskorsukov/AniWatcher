@@ -13,7 +13,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.SwipeRefreshState
@@ -24,7 +23,6 @@ import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
-import com.iskorsukov.aniwatcher.ui.Screen
 import com.iskorsukov.aniwatcher.ui.base.fab.ScrollToTopFab
 import com.iskorsukov.aniwatcher.ui.base.header.HeaderFlowRow
 import com.iskorsukov.aniwatcher.ui.format.FilterFormatDialog
@@ -48,9 +46,7 @@ fun MediaScreen(
     val mediaFlow by viewModel.mediaFlow
         .collectAsStateWithLifecycle(initialValue = emptyMap())
 
-    val sortingOption by viewModel.sortingOptionFlow
-        .collectAsStateWithLifecycle()
-    val deselectedFormats by viewModel.deselectedFormatsFlow
+    val mediaUiState by viewModel.uiStateFlow
         .collectAsStateWithLifecycle()
 
     val swipeRefreshState = rememberSwipeRefreshState(uiState.isRefreshing)
@@ -84,8 +80,8 @@ fun MediaScreen(
             onGenreChipClicked = onGenreChipClicked,
             onMediaClicked = onMediaClicked,
             onSelectSortingOptionClicked = { shouldShowSortingOptionsDialog = true },
-            selectedSortingOption = sortingOption,
-            deselectedFormats = deselectedFormats,
+            selectedSortingOption = mediaUiState.sortingOption,
+            deselectedFormats = mediaUiState.deselectedFormats,
             onFilterFormatClicked = { shouldShowFilterFormatDialog = true }
         )
         ScrollToTopFab(
@@ -101,13 +97,13 @@ fun MediaScreen(
         SelectSortingOptionDialog(
             onSortingOptionSelected = viewModel::onSortingOptionChanged,
             onDismissRequest = { shouldShowSortingOptionsDialog = false },
-            selectedOption = sortingOption
+            selectedOption = mediaUiState.sortingOption
         )
     }
 
     if (shouldShowFilterFormatDialog) {
         FilterFormatDialog(
-            deselectedFormats
+            mediaUiState.deselectedFormats
         ) { formats ->
             shouldShowFilterFormatDialog = false
             viewModel.onDeselectedFormatsChanged(formats)
