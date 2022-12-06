@@ -67,6 +67,8 @@ class MediaViewModel @Inject constructor(
     }
 
     fun resetState() {
-        _uiStateFlow.value = MediaUiState.DEFAULT
+        if (_uiStateFlow.value != MediaUiState.DEFAULT) {
+            _uiStateFlow.value = MediaUiState.DEFAULT
+        }
     }
 }

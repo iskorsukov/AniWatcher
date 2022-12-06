@@ -8,7 +8,7 @@ interface FormatFilterableViewModel {
 
     fun onDeselectedFormatsChanged(deselectedFormats: List<MediaItem.LocalFormat>)
 
-    fun filterFormatMediaFlow(map: Map<MediaItem, AiringScheduleItem?>, deselectedFormats: List<MediaItem.LocalFormat>): Map<MediaItem, AiringScheduleItem?> {
+    fun <T> filterFormatMediaFlow(map: Map<MediaItem, T>, deselectedFormats: List<MediaItem.LocalFormat>): Map<MediaItem, T> {
         return map.filterKeys { mediaItem -> !deselectedFormats.contains(mediaItem.format) }
     }
 }

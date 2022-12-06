@@ -94,6 +94,8 @@ class FollowingViewModel @Inject constructor(
     }
 
     fun resetState() {
-        _uiStateFlow.value = FollowingUiState.DEFAULT
+        if (_uiStateFlow.value != FollowingUiState.DEFAULT) {
+            _uiStateFlow.value = FollowingUiState.DEFAULT
+        }
     }
 }

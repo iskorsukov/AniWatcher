@@ -19,16 +19,20 @@ import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 
 @Composable
 fun HeaderFlowRow(
-    selectedSortingOption: SortingOption,
-    onSelectSortingOptionClicked: () -> Unit,
-    deselectedFormats: List<MediaItem.LocalFormat>,
-    onFilterFormatsClicked: () -> Unit,
+    selectedSortingOption: SortingOption? = null,
+    onSelectSortingOptionClicked: (() -> Unit)? = null,
+    deselectedFormats: List<MediaItem.LocalFormat>? = null,
+    onFilterFormatsClicked: (() -> Unit)? = null,
     showReset: Boolean,
     onResetClicked: () -> Unit
 ) {
-    val selectedSortingOptionLabel = "${stringResource(id = R.string.sort_by)}: ${stringResource(id = selectedSortingOption.labelResId).lowercase()}"
+    var selectedSortingOptionLabel = stringResource(id = R.string.sort_by)
+    if (selectedSortingOption != null) {
+        selectedSortingOptionLabel += ": ${stringResource(id = selectedSortingOption.labelResId).lowercase()}"
+    }
+
     var deselectedFormatsLabel = stringResource(id = R.string.filter_format)
-    if (deselectedFormats.isNotEmpty()) {
+    if (deselectedFormats != null && deselectedFormats.isNotEmpty()) {
         deselectedFormatsLabel += ": "
         deselectedFormats.forEach {
             deselectedFormatsLabel += stringResource(id = it.labelResId)
@@ -36,17 +40,23 @@ fun HeaderFlowRow(
         }
         deselectedFormatsLabel = deselectedFormatsLabel.removeSuffix(", ")
     }
+
     val resetLabel = stringResource(id = R.string.reset)
+
     FlowRow(
         modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp),
         mainAxisSpacing = 8.dp,
         crossAxisSpacing = 4.dp
     ) {
-        HeaderChip(text = selectedSortingOptionLabel) {
-            onSelectSortingOptionClicked.invoke()
+        if (selectedSortingOption != null && onSelectSortingOptionClicked != null) {
+            HeaderChip(text = selectedSortingOptionLabel) {
+                onSelectSortingOptionClicked.invoke()
+            }
         }
-        HeaderChip(text = deselectedFormatsLabel) {
-            onFilterFormatsClicked.invoke()
+        if (deselectedFormats != null && onFilterFormatsClicked != null) {
+            HeaderChip(text = deselectedFormatsLabel) {
+                onFilterFormatsClicked.invoke()
+            }
         }
         if (showReset) {
             HeaderChip(text = resetLabel) {

@@ -125,6 +125,7 @@ class MainActivity : ComponentActivity() {
                             onChangedDestination = {
                                 mainActivityViewModel.resetTopBarState()
                                 mediaViewModel.resetState()
+                                airingViewModel.resetState()
                                 followingViewModel.resetState()
                             }
                         )

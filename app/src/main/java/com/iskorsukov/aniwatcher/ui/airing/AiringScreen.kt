@@ -12,9 +12,8 @@ import androidx.compose.material.Text
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,6 +28,8 @@ import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.domain.util.DayOfWeekLocal
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.ui.base.fab.ScrollToTopFab
+import com.iskorsukov.aniwatcher.ui.base.header.HeaderFlowRow
+import com.iskorsukov.aniwatcher.ui.format.FilterFormatDialog
 import com.iskorsukov.aniwatcher.ui.main.MainActivityUiState
 import com.iskorsukov.aniwatcher.ui.media.MediaItemCardCollapsed
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
@@ -47,22 +48,34 @@ fun AiringScreen(
     val airingScheduleItemList by viewModel
         .airingSchedulesByDayOfWeekFlow.collectAsStateWithLifecycle(initialValue = emptyMap())
 
+    val airingUiState by viewModel.uiStateFlow
+        .collectAsStateWithLifecycle()
+
     val pullRefreshState = rememberPullRefreshState(uiState.isRefreshing, onRefresh)
 
     val coroutineScope = rememberCoroutineScope()
 
     val lazyListState = rememberLazyListState()
 
-    Box(modifier = Modifier.fillMaxSize().pullRefresh(pullRefreshState)) {
+    var shouldShowFilterFormatDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .pullRefresh(pullRefreshState)) {
         AiringScreenContent(
             lazyListState = lazyListState,
+            airingUiState = airingUiState,
             airingSchedulesByDayOfWeekMap = MediaItemMapper.filterExtraFollowedAiringSchedules(
                 airingScheduleItemList, settingsState, uiState.seasonYear
             ),
             timeInMinutes = timeInMinutes,
             onFollowClicked = viewModel::onFollowClicked,
             onMediaClicked = onMediaClicked,
-            preferredNamingScheme = settingsState.preferredNamingScheme
+            preferredNamingScheme = settingsState.preferredNamingScheme,
+            onResetClicked = { viewModel.resetState() },
+            onFilterFormatClicked = { shouldShowFilterFormatDialog = true }
         )
         ScrollToTopFab(
             lazyListState = lazyListState,
@@ -79,22 +92,42 @@ fun AiringScreen(
             contentColor = LocalColors.current.primary
         )
     }
+
+    if (shouldShowFilterFormatDialog) {
+        FilterFormatDialog(
+            airingUiState.deselectedFormats
+        ) { formats ->
+            shouldShowFilterFormatDialog = false
+            viewModel.onDeselectedFormatsChanged(formats)
+        }
+    }
 }
 
 @Composable
 private fun AiringScreenContent(
     lazyListState: LazyListState,
+    airingUiState: AiringUiState,
     airingSchedulesByDayOfWeekMap: Map<DayOfWeekLocal, List<AiringScheduleItem>>,
     timeInMinutes: Long,
     onFollowClicked: (MediaItem) -> Unit,
     onMediaClicked: (MediaItem) -> Unit,
-    preferredNamingScheme: NamingScheme
+    preferredNamingScheme: NamingScheme,
+    onFilterFormatClicked: () -> Unit,
+    onResetClicked: () -> Unit
 ) {
     LazyColumn(
         state = lazyListState,
         modifier = Modifier
             .fillMaxSize()
     ) {
+        item {
+            HeaderFlowRow(
+                deselectedFormats = airingUiState.deselectedFormats,
+                onFilterFormatsClicked = onFilterFormatClicked,
+                showReset = airingUiState.showReset,
+                onResetClicked = onResetClicked
+            )
+        }
         airingSchedulesByDayOfWeekMap.entries.map {
             item {
                 Text(
@@ -152,11 +185,14 @@ private fun AiringScreenPreviewContent(
     Box(modifier = Modifier.fillMaxSize()) {
         AiringScreenContent(
             lazyListState = lazyListState,
+            airingUiState = AiringUiState.DEFAULT,
             airingSchedulesByDayOfWeekMap = airingSchedulesByDayOfWeekMap,
             timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
             onFollowClicked = { },
             onMediaClicked = { },
-            preferredNamingScheme = NamingScheme.ENGLISH
+            preferredNamingScheme = NamingScheme.ENGLISH,
+            onFilterFormatClicked = { },
+            onResetClicked = { }
         )
     }
 }
