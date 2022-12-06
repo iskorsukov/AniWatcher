@@ -22,7 +22,9 @@ import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.test.isFollowing
+import com.iskorsukov.aniwatcher.ui.base.header.FilterFormatHeaderChip
 import com.iskorsukov.aniwatcher.ui.base.header.HeaderFlowRow
+import com.iskorsukov.aniwatcher.ui.base.header.SortingOptionHeaderChip
 import com.iskorsukov.aniwatcher.ui.base.placeholder.EmptyDataPlaceholder
 import com.iskorsukov.aniwatcher.ui.format.FilterFormatDialog
 import com.iskorsukov.aniwatcher.ui.main.MainActivityUiState
@@ -137,13 +139,16 @@ fun FollowingScreenContent(
         LazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
             item {
                 HeaderFlowRow(
-                    selectedSortingOption = followingUiState.sortingOption,
-                    onSelectSortingOptionClicked = onSelectSortingOptionClicked,
-                    deselectedFormats = followingUiState.deselectedFormats,
-                    onFilterFormatsClicked = onFilterFormatClicked,
                     showReset = followingUiState.showReset,
                     onResetClicked = onResetClicked
-                )
+                ) {
+                    SortingOptionHeaderChip(selectedSortingOption = followingUiState.sortingOption) {
+                        onSelectSortingOptionClicked.invoke()
+                    }
+                    FilterFormatHeaderChip(deselectedFormats = followingUiState.deselectedFormats) {
+                        onFilterFormatClicked.invoke()
+                    }
+                }
             }
             followingMediaMap.entries.forEach {
                 item {

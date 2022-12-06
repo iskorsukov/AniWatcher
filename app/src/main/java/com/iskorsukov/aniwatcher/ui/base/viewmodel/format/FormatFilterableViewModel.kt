@@ -1,8 +1,6 @@
 package com.iskorsukov.aniwatcher.ui.base.viewmodel.format
 
-import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
-import kotlinx.coroutines.flow.StateFlow
 
 interface FormatFilterableViewModel {
 

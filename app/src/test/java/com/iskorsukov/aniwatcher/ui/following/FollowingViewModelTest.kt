@@ -5,6 +5,7 @@ import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.test.*
+import com.iskorsukov.aniwatcher.ui.airing.AiringViewModel
 import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -127,5 +128,31 @@ class FollowingViewModelTest {
         result = viewModel.followingMediaFlow.first()
 
         assertThat(result.size).isEqualTo(0)
+    }
+
+    @Test
+    fun onFollowMediaClicked() = runTest {
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        viewModel = FollowingViewModel(airingRepository)
+
+        val mediaItem = ModelTestDataCreator.baseMediaItem()
+
+        viewModel.onFollowClicked(mediaItem)
+        advanceUntilIdle()
+
+        coVerify { airingRepository.followMedia(mediaItem) }
+    }
+
+    @Test
+    fun onFollowMediaClicked_unfollow() = runTest {
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        viewModel = FollowingViewModel(airingRepository)
+
+        val mediaItem = ModelTestDataCreator.baseMediaItem().isFollowing(true)
+
+        viewModel.onFollowClicked(mediaItem)
+        advanceUntilIdle()
+
+        coVerify { airingRepository.unfollowMedia(mediaItem) }
     }
 }

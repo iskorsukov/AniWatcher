@@ -30,14 +30,10 @@ class MainActivityViewModel @Inject constructor(
         MainActivityUiState(isRefreshing = false)
     )
     val uiState: StateFlow<MainActivityUiState> = _uiState
-    override val errorItemFlow: StateFlow<ErrorItem?> = uiState.map { it.errorItem }.stateIn(
-        viewModelScope,
-        SharingStarted.WhileSubscribed(),
-        null
-    )
 
     fun loadAiringData() {
         _uiState.value = _uiState.value.copy(isRefreshing = true)
+        onError(null)
         viewModelScope.launch {
             try {
                 if (settingsState.value.scheduleType == ScheduleType.ALL) {
@@ -51,12 +47,14 @@ class MainActivityViewModel @Inject constructor(
             } catch (throwable: Throwable) {
                 throwable.printStackTrace()
                 FirebaseCrashlytics.getInstance().recordException(throwable)
-                _uiState.value = _uiState.value.copy(
-                    isRefreshing = false,
-                    errorItem = ErrorItem.ofThrowable(throwable)
-                )
+                _uiState.value = _uiState.value.copy(isRefreshing = false)
+                onError(ErrorItem.ofThrowable(throwable))
             }
         }
+    }
+
+    override fun onError(errorItem: ErrorItem?) {
+        _uiState.value = _uiState.value.copy(errorItem = errorItem)
     }
 
     fun onSearchTextInput(searchText: String) {

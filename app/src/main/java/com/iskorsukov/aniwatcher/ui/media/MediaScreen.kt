@@ -25,7 +25,9 @@ import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.ui.base.fab.ScrollToTopFab
+import com.iskorsukov.aniwatcher.ui.base.header.FilterFormatHeaderChip
 import com.iskorsukov.aniwatcher.ui.base.header.HeaderFlowRow
+import com.iskorsukov.aniwatcher.ui.base.header.SortingOptionHeaderChip
 import com.iskorsukov.aniwatcher.ui.format.FilterFormatDialog
 import com.iskorsukov.aniwatcher.ui.main.MainActivityUiState
 import com.iskorsukov.aniwatcher.ui.sorting.SelectSortingOptionDialog
@@ -137,13 +139,16 @@ private fun MediaScreenContent(
     ) {
         item {
             HeaderFlowRow(
-                selectedSortingOption = mediaUiState.sortingOption,
-                onSelectSortingOptionClicked = onSelectSortingOptionClicked,
-                deselectedFormats = mediaUiState.deselectedFormats,
-                onFilterFormatsClicked = onFilterFormatClicked,
                 showReset = mediaUiState.showReset,
                 onResetClicked = onResetClicked
-            )
+            ) {
+                SortingOptionHeaderChip(selectedSortingOption = mediaUiState.sortingOption) {
+                    onSelectSortingOptionClicked.invoke()
+                }
+                FilterFormatHeaderChip(deselectedFormats = mediaUiState.deselectedFormats) {
+                    onFilterFormatClicked.invoke()
+                }
+            }
         }
         mediaItemWithNextAiringMap.entries.forEach {
             item {

@@ -241,15 +241,6 @@ private fun MediaItemOverlayTitle(
 
 @Composable
 @Preview
-private fun MediaItemOverlayTitlePreview() {
-    MediaItemOverlayTitle(
-        title = "Title",
-        modifier = Modifier.size(40.dp, 24.dp)
-    )
-}
-
-@Composable
-@Preview
 fun MediaItemCardExtendedPreview() {
     MediaItemCardExtended(
         mediaItem = ModelTestDataCreator.baseMediaItem().description("Word ".repeat(50)),

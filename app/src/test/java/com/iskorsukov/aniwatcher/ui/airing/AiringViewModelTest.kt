@@ -7,6 +7,7 @@ import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.domain.util.DayOfWeekLocal
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
+import com.iskorsukov.aniwatcher.test.isFollowing
 import io.mockk.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -121,5 +122,31 @@ class AiringViewModelTest {
         assertThat(viewModel.uiStateFlow.value).isEqualTo(AiringUiState.DEFAULT)
 
         unmockkObject(DateTimeHelper)
+    }
+
+    @Test
+    fun onFollowMediaClicked() = runTest {
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        viewModel = AiringViewModel(airingRepository)
+
+        val mediaItem = ModelTestDataCreator.baseMediaItem()
+
+        viewModel.onFollowClicked(mediaItem)
+        advanceUntilIdle()
+
+        coVerify { airingRepository.followMedia(mediaItem) }
+    }
+
+    @Test
+    fun onFollowMediaClicked_unfollow() = runTest {
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        viewModel = AiringViewModel(airingRepository)
+
+        val mediaItem = ModelTestDataCreator.baseMediaItem().isFollowing(true)
+
+        viewModel.onFollowClicked(mediaItem)
+        advanceUntilIdle()
+
+        coVerify { airingRepository.unfollowMedia(mediaItem) }
     }
 }

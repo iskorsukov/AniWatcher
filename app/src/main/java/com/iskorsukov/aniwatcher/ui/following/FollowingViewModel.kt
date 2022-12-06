@@ -56,7 +56,7 @@ class FollowingViewModel @Inject constructor(
     }
 
     fun unfollowFinishedShows() {
-        _uiStateFlow.value = _uiStateFlow.value.copy(errorItem = null)
+        onError(null)
         viewModelScope.launch {
             val finishedShows = finishedFollowingShowsFlow.first()
             try {
@@ -64,9 +64,13 @@ class FollowingViewModel @Inject constructor(
             } catch (throwable: Throwable) {
                 throwable.printStackTrace()
                 FirebaseCrashlytics.getInstance().recordException(throwable)
-                _uiStateFlow.value = _uiStateFlow.value.copy(errorItem = ErrorItem.ofThrowable(throwable))
+                onError(ErrorItem.ofThrowable(throwable))
             }
         }
+    }
+
+    override fun onError(errorItem: ErrorItem?) {
+        _uiStateFlow.value = _uiStateFlow.value.copy(errorItem = errorItem)
     }
 
     override fun onDeselectedFormatsChanged(deselectedFormats: List<MediaItem.LocalFormat>) {

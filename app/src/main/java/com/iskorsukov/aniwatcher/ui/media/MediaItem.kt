@@ -45,24 +45,6 @@ fun MediaItemImage(
 }
 
 @Composable
-@Preview
-private fun MediaItemImagePreview() {
-    MediaItemImage(
-        imageUrl = "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx142838-ECZSqfknAqAT.jpg",
-        modifier = Modifier.size(42.dp)
-    )
-}
-
-@Composable
-@Preview
-private fun MediaItemImageErrorPreview() {
-    MediaItemImage(
-        imageUrl = "https://s4.anilist.co/",
-        modifier = Modifier.size(42.dp)
-    )
-}
-
-@Composable
 fun MediaItemAiringInfoColumn(
     airingScheduleItem: AiringScheduleItem?,
     modifier: Modifier = Modifier,
@@ -97,16 +79,6 @@ fun MediaItemAiringInfoColumn(
 }
 
 @Composable
-@Preview
-private fun MediaItemAiringInfoColumnPreview() {
-    MediaItemAiringInfoColumn(
-        airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
-        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES
-    )
-}
-
-
-@Composable
 fun MediaItemFollowButton(
     isFollowing: Boolean,
     modifier: Modifier,
@@ -129,18 +101,6 @@ fun MediaItemFollowButton(
                 tint = LocalColors.current.text
             )
         }
-    }
-}
-
-@Composable
-@Preview
-private fun MediaItemFollowButtonPreview() {
-    val isFollowing = remember { mutableStateOf(false) }
-    MediaItemFollowButton(
-        isFollowing = isFollowing.value,
-        modifier = Modifier.size(24.dp)
-    ) {
-        isFollowing.value = !isFollowing.value
     }
 }
 
@@ -182,22 +142,6 @@ fun MediaItemGenresFooter(
 }
 
 @Composable
-@Preview
-private fun MediaItemGenresFooterPreview() {
-    MediaItemGenresFooter(
-        genres = listOf(
-            "Action",
-            "Comedy",
-            "Supernatural",
-            "Slice of life",
-            "Paranormal",
-            "Last"
-        ),
-        modifier = Modifier.width(200.dp)
-    )
-}
-
-@Composable
 private fun GenreChip(
     genre: String,
     colorStr: String?,
@@ -235,12 +179,6 @@ private fun GenreChip(
 }
 
 @Composable
-@Preview
-private fun GenreChipPreview() {
-    GenreChip(genre = "Genre", colorStr = "#b3d0ff")
-}
-
-@Composable
 fun MediaFormatText(
     text: String,
     modifier: Modifier = Modifier,
@@ -257,12 +195,6 @@ fun MediaFormatText(
             )
             .padding(horizontal = 8.dp)
     )
-}
-
-@Composable
-@Preview
-private fun MediaFormatTextPreview() {
-    MediaFormatText(text = "TV")
 }
 
 @Composable
@@ -288,15 +220,4 @@ fun MediaItemIndicatorWithText(
             style = LocalTextStyles.current.contentSmallLarger
         )
     }
-}
-
-
-@Composable
-@Preview
-private fun MediaItemIndicatorWithTextPreview() {
-    MediaItemIndicatorWithText(
-        iconResId = R.drawable.ic_baseline_thumb_up_off_alt_24,
-        iconTint = Color.Blue,
-        text = "45%"
-    )
 }

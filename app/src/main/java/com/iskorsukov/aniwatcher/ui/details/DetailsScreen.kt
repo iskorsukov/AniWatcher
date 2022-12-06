@@ -249,17 +249,6 @@ private fun DetailsContentHeader(
 }
 
 @Composable
-@Preview
-private fun DetailsContentHeaderPreview() {
-    DetailsContentHeader(
-        mediaItem = ModelTestDataCreator.baseMediaItem(),
-        preferredNamingScheme = NamingScheme.ENGLISH,
-        onBackButtonClicked = { },
-        onLearnMoreClicked = { }
-    )
-}
-
-@Composable
 private fun DetailsAiringScheduleCard(
     airingScheduleItem: AiringScheduleItem,
     timeInMinutes: Long,
@@ -278,15 +267,6 @@ private fun DetailsAiringScheduleCard(
             modifier = Modifier.padding(4.dp)
         )
     }
-}
-
-@Composable
-@Preview
-private fun DetailsAiringScheduleCardPreview() {
-    DetailsAiringScheduleCard(
-        airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
-        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES
-    )
 }
 
 @Composable
@@ -382,16 +362,6 @@ private fun DetailsMediaInfo(
 }
 
 @Composable
-@Preview
-private fun DetailsMediaInfoPreview() {
-    DetailsMediaInfo(
-        mediaItem = ModelTestDataCreator.baseMediaItem(),
-        preferredNamingScheme = NamingScheme.ENGLISH,
-        onLearnMoreClicked = { }
-    )
-}
-
-@Composable
 private fun DetailsMediaInfoCard(
     label: String,
     subLabel: String,
@@ -415,15 +385,6 @@ private fun DetailsMediaInfoCard(
             )
         }
     }
-}
-
-@Composable
-@Preview
-private fun DetailsMediaInfoCardPreview() {
-    DetailsMediaInfoCard(
-        label = "Label",
-        subLabel = "Sublabel"
-    )
 }
 
 @Composable

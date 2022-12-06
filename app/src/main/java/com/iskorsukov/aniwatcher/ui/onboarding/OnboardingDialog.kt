@@ -189,15 +189,6 @@ private fun SelectAppThemeSurface(
 }
 
 @Composable
-@Preview
-private fun SelectAppThemeSurfacePreview() {
-    SelectAppThemeSurface(
-        modifier = Modifier,
-        onDarkModeOptionSelected = { }
-    )
-}
-
-@Composable
 private fun SelectScheduleTypeSurface(
     modifier: Modifier,
     onScheduleTypeSelected: (ScheduleType) -> Unit
@@ -230,15 +221,6 @@ private fun SelectScheduleTypeSurface(
             )
         }
     }
-}
-
-@Composable
-@Preview
-private fun SelectScheduleTypeSurfacePreview() {
-    SelectScheduleTypeSurface(
-        modifier = Modifier,
-        onScheduleTypeSelected = { }
-    )
 }
 
 @Composable
@@ -284,15 +266,6 @@ private fun SelectNamingSchemeSurface(
     }
 }
 
-@Composable
-@Preview
-private fun SelectNamingSchemeSurfacePreview() {
-    SelectNamingSchemeSurface(
-        modifier = Modifier,
-        onNamingSchemeSelected = { }
-    )
-}
-
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun DarkModeOptionCard(
@@ -330,17 +303,6 @@ private fun DarkModeOptionCard(
             )
         }
     }
-}
-
-@Composable
-@Preview
-private fun DarkModeOptionCardPreview() {
-    DarkModeOptionCard(
-        modifier = Modifier,
-        label = stringResource(id = R.string.onboarding_dark_theme_light),
-        imageResId = R.mipmap.light_screenshot,
-        onClick = { }
-    )
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -383,18 +345,6 @@ private fun ScheduleTypeCard(
     }
 }
 
-@Composable
-@Preview
-private fun ScheduleTypeCardPreview() {
-    ScheduleTypeCard(
-        modifier = Modifier,
-        label = stringResource(id = R.string.onboarding_schedule_type_all),
-        text = stringResource(id = R.string.onboarding_schedule_type_all_desc),
-        caption = stringResource(id = R.string.onboarding_schedule_type_all_desc_secondary),
-        onClick = { }
-    )
-}
-
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun NamingSchemeCard(
@@ -425,17 +375,6 @@ private fun NamingSchemeCard(
             )
         }
     }
-}
-
-@Composable
-@Preview
-private fun NamingSchemeCardPreview() {
-    NamingSchemeCard(
-        modifier = Modifier,
-        label = stringResource(id = R.string.onboarding_naming_preference_english),
-        imageResId = R.mipmap.naming_scheme_english,
-        onClick = { }
-    )
 }
 
 @Composable

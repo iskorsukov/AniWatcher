@@ -4,6 +4,7 @@ import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
+import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.follow.FollowableMediaViewModel
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.format.FormatFilterableViewModel
 import com.iskorsukov.aniwatcher.ui.media.MediaUiState
@@ -41,6 +42,10 @@ class AiringViewModel @Inject constructor(
     override fun onDeselectedFormatsChanged(deselectedFormats: List<MediaItem.LocalFormat>) {
         _uiStateFlow.value = _uiStateFlow.value.copy(deselectedFormats = deselectedFormats)
         updateResetButton()
+    }
+
+    override fun onError(errorItem: ErrorItem?) {
+        _uiStateFlow.value = _uiStateFlow.value.copy(errorItem = errorItem)
     }
 
     private fun updateResetButton() {

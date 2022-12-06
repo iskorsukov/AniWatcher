@@ -11,15 +11,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-open class FollowableMediaViewModel(
+abstract class FollowableMediaViewModel(
     private val airingRepository: AiringRepository
 ) : ViewModel(), ErrorFlowViewModel {
 
-    private val _errorItemFlow: MutableStateFlow<ErrorItem?> = MutableStateFlow(null)
-    override val errorItemFlow: StateFlow<ErrorItem?> = _errorItemFlow
-
     fun onFollowClicked(mediaItem: MediaItem) {
-        _errorItemFlow.value = null
+        onError(null)
         viewModelScope.launch {
             try {
                 if (mediaItem.isFollowing) {
@@ -30,7 +27,7 @@ open class FollowableMediaViewModel(
             } catch (throwable: Throwable) {
                 throwable.printStackTrace()
                 FirebaseCrashlytics.getInstance().recordException(throwable)
-                _errorItemFlow.value = ErrorItem.ofThrowable(throwable)
+                onError(ErrorItem.ofThrowable(throwable))
             }
         }
     }
