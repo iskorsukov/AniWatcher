@@ -28,7 +28,6 @@ import com.iskorsukov.aniwatcher.ui.format.FilterFormatDialog
 import com.iskorsukov.aniwatcher.ui.main.MainActivityUiState
 import com.iskorsukov.aniwatcher.ui.media.MediaItemCardExtended
 import com.iskorsukov.aniwatcher.ui.sorting.SelectSortingOptionDialog
-import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 
 @OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
@@ -88,10 +87,10 @@ fun FollowingScreen(
             onMediaClicked = onMediaClicked,
             onGenreChipClicked = onGenreChipClicked,
             listState = listState,
-            selectedSortingOption = followingUiState.sortingOption,
+            followingUiState = followingUiState,
             onSelectSortingOptionClicked = { shouldShowSortingOptionsDialog = true },
-            deselectedFormats = followingUiState.deselectedFormats,
-            onFilterFormatClicked = { shouldShowFilterFormatDialog = true }
+            onFilterFormatClicked = { shouldShowFilterFormatDialog = true },
+            onResetClicked = { viewModel.resetState() }
         )
     }
 
@@ -122,10 +121,10 @@ fun FollowingScreenContent(
     onMediaClicked: (MediaItem) -> Unit,
     onGenreChipClicked: (String) -> Unit,
     listState: LazyListState,
-    selectedSortingOption: SortingOption,
+    followingUiState: FollowingUiState,
     onSelectSortingOptionClicked: () -> Unit,
-    deselectedFormats: List<MediaItem.LocalFormat>,
-    onFilterFormatClicked: () -> Unit
+    onFilterFormatClicked: () -> Unit,
+    onResetClicked: () -> Unit
 ) {
     if (followingMediaMap.isEmpty() && searchTextIsEmpty) {
         EmptyDataPlaceholder(
@@ -138,10 +137,12 @@ fun FollowingScreenContent(
         LazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
             item {
                 HeaderFlowRow(
-                    selectedSortingOption = selectedSortingOption,
+                    selectedSortingOption = followingUiState.sortingOption,
                     onSelectSortingOptionClicked = onSelectSortingOptionClicked,
-                    deselectedFormats = deselectedFormats,
-                    onFilterFormatsClicked = onFilterFormatClicked
+                    deselectedFormats = followingUiState.deselectedFormats,
+                    onFilterFormatsClicked = onFilterFormatClicked,
+                    showReset = followingUiState.showReset,
+                    onResetClicked = onResetClicked
                 )
             }
             followingMediaMap.entries.forEach {
@@ -173,10 +174,10 @@ private fun FollowingScreenEmptyPreview() {
         onMediaClicked = {},
         onGenreChipClicked = {},
         listState = rememberLazyListState(),
-        selectedSortingOption = SortingOption.AIRING_AT,
+        followingUiState = FollowingUiState.DEFAULT,
         onSelectSortingOptionClicked = { },
-        deselectedFormats = emptyList(),
-        onFilterFormatClicked = { }
+        onFilterFormatClicked = { },
+        onResetClicked = { }
     )
 }
 
@@ -197,9 +198,9 @@ private fun FollowingScreenPreview() {
         onMediaClicked = {},
         onGenreChipClicked = {},
         listState = rememberLazyListState(),
-        selectedSortingOption = SortingOption.AIRING_AT,
+        followingUiState = FollowingUiState.DEFAULT,
         onSelectSortingOptionClicked = { },
-        deselectedFormats = emptyList(),
-        onFilterFormatClicked = { }
+        onFilterFormatClicked = { },
+        onResetClicked = { }
     )
 }

@@ -11,7 +11,6 @@ import com.iskorsukov.aniwatcher.ui.base.viewmodel.format.FormatFilterableViewMo
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.search.SearchableViewModel
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.search.SearchableViewModelDelegate
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.sort.SortableViewModel
-import com.iskorsukov.aniwatcher.ui.media.MediaUiState
 import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -72,10 +71,26 @@ class FollowingViewModel @Inject constructor(
 
     override fun onDeselectedFormatsChanged(deselectedFormats: List<MediaItem.LocalFormat>) {
         _uiStateFlow.value = _uiStateFlow.value.copy(deselectedFormats = deselectedFormats)
+        updateResetButton()
     }
 
     override fun onSortingOptionChanged(sortingOption: SortingOption) {
         _uiStateFlow.value = _uiStateFlow.value.copy(sortingOption = sortingOption)
+        updateResetButton()
+    }
+
+    private fun updateResetButton() {
+        val deselectedFormatsNotDefault = uiStateFlow.value.deselectedFormats != FollowingUiState.DEFAULT.deselectedFormats
+        val sortingOptionNotDefault = uiStateFlow.value.sortingOption != FollowingUiState.DEFAULT.sortingOption
+        if (deselectedFormatsNotDefault || sortingOptionNotDefault) {
+            if (!uiStateFlow.value.showReset) {
+                _uiStateFlow.value = _uiStateFlow.value.copy(showReset = true)
+            }
+        } else {
+            if (uiStateFlow.value.showReset) {
+                _uiStateFlow.value = _uiStateFlow.value.copy(showReset = false)
+            }
+        }
     }
 
     fun resetState() {

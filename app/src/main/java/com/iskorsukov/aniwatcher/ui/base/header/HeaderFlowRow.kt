@@ -22,7 +22,9 @@ fun HeaderFlowRow(
     selectedSortingOption: SortingOption,
     onSelectSortingOptionClicked: () -> Unit,
     deselectedFormats: List<MediaItem.LocalFormat>,
-    onFilterFormatsClicked: () -> Unit
+    onFilterFormatsClicked: () -> Unit,
+    showReset: Boolean,
+    onResetClicked: () -> Unit
 ) {
     val selectedSortingOptionLabel = "${stringResource(id = R.string.sort_by)}: ${stringResource(id = selectedSortingOption.labelResId).lowercase()}"
     var deselectedFormatsLabel = stringResource(id = R.string.filter_format)
@@ -34,6 +36,7 @@ fun HeaderFlowRow(
         }
         deselectedFormatsLabel = deselectedFormatsLabel.removeSuffix(", ")
     }
+    val resetLabel = stringResource(id = R.string.reset)
     FlowRow(
         modifier = Modifier.padding(top = 8.dp, start = 8.dp, end = 8.dp),
         mainAxisSpacing = 8.dp,
@@ -44,6 +47,11 @@ fun HeaderFlowRow(
         }
         HeaderChip(text = deselectedFormatsLabel) {
             onFilterFormatsClicked.invoke()
+        }
+        if (showReset) {
+            HeaderChip(text = resetLabel) {
+                onResetClicked.invoke()
+            }
         }
     }
 }

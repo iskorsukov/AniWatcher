@@ -28,7 +28,6 @@ import com.iskorsukov.aniwatcher.ui.base.header.HeaderFlowRow
 import com.iskorsukov.aniwatcher.ui.format.FilterFormatDialog
 import com.iskorsukov.aniwatcher.ui.main.MainActivityUiState
 import com.iskorsukov.aniwatcher.ui.sorting.SelectSortingOptionDialog
-import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 import kotlinx.coroutines.flow.*
 
@@ -80,9 +79,9 @@ fun MediaScreen(
             onGenreChipClicked = onGenreChipClicked,
             onMediaClicked = onMediaClicked,
             onSelectSortingOptionClicked = { shouldShowSortingOptionsDialog = true },
-            selectedSortingOption = mediaUiState.sortingOption,
-            deselectedFormats = mediaUiState.deselectedFormats,
-            onFilterFormatClicked = { shouldShowFilterFormatDialog = true }
+            mediaUiState = mediaUiState,
+            onFilterFormatClicked = { shouldShowFilterFormatDialog = true },
+            onResetClicked = { viewModel.resetState() }
         )
         ScrollToTopFab(
             lazyListState = listState,
@@ -118,14 +117,14 @@ private fun MediaScreenContent(
     listState: LazyListState,
     timeInMinutes: Long,
     preferredNamingScheme: NamingScheme,
-    selectedSortingOption: SortingOption,
+    mediaUiState: MediaUiState,
     onRefresh: () -> Unit,
     onFollowClicked: (MediaItem) -> Unit,
     onMediaClicked: (MediaItem) -> Unit,
     onGenreChipClicked: (String) -> Unit,
     onSelectSortingOptionClicked: () -> Unit,
-    deselectedFormats: List<MediaItem.LocalFormat>,
-    onFilterFormatClicked: () -> Unit
+    onFilterFormatClicked: () -> Unit,
+    onResetClicked: () -> Unit
 ) {
     SwipeRefresh(
         state = swipeRefreshState,
@@ -145,10 +144,12 @@ private fun MediaScreenContent(
         ) {
             item {
                 HeaderFlowRow(
-                    selectedSortingOption = selectedSortingOption,
+                    selectedSortingOption = mediaUiState.sortingOption,
                     onSelectSortingOptionClicked = onSelectSortingOptionClicked,
-                    deselectedFormats = deselectedFormats,
-                    onFilterFormatsClicked = onFilterFormatClicked
+                    deselectedFormats = mediaUiState.deselectedFormats,
+                    onFilterFormatsClicked = onFilterFormatClicked,
+                    showReset = mediaUiState.showReset,
+                    onResetClicked = onResetClicked
                 )
             }
             mediaItemWithNextAiringMap.entries.forEach {
@@ -187,8 +188,8 @@ fun MediaScreenPreview() {
         onMediaClicked = { },
         onGenreChipClicked = { },
         onSelectSortingOptionClicked = { },
-        selectedSortingOption = SortingOption.AIRING_AT,
-        deselectedFormats = emptyList(),
-        onFilterFormatClicked = { }
+        mediaUiState = MediaUiState.DEFAULT,
+        onFilterFormatClicked = { },
+        onResetClicked = { }
     )
 }

@@ -44,10 +44,26 @@ class MediaViewModel @Inject constructor(
 
     override fun onDeselectedFormatsChanged(deselectedFormats: List<MediaItem.LocalFormat>) {
         _uiStateFlow.value = _uiStateFlow.value.copy(deselectedFormats = deselectedFormats)
+        updateResetButton()
     }
 
     override fun onSortingOptionChanged(sortingOption: SortingOption) {
         _uiStateFlow.value = _uiStateFlow.value.copy(sortingOption = sortingOption)
+        updateResetButton()
+    }
+
+    private fun updateResetButton() {
+        val deselectedFormatsNotDefault = uiStateFlow.value.deselectedFormats != MediaUiState.DEFAULT.deselectedFormats
+        val sortingOptionNotDefault = uiStateFlow.value.sortingOption != MediaUiState.DEFAULT.sortingOption
+        if (deselectedFormatsNotDefault || sortingOptionNotDefault) {
+            if (!uiStateFlow.value.showReset) {
+                _uiStateFlow.value = _uiStateFlow.value.copy(showReset = true)
+            }
+        } else {
+            if (uiStateFlow.value.showReset) {
+                _uiStateFlow.value = _uiStateFlow.value.copy(showReset = false)
+            }
+        }
     }
 
     fun resetState() {
