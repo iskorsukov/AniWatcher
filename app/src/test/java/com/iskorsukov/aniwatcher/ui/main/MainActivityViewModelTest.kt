@@ -7,7 +7,6 @@ import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
 import com.iskorsukov.aniwatcher.domain.settings.*
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
-import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 import io.mockk.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -18,8 +17,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.Test
 import java.io.IOException
-import java.util.Calendar
-import java.util.GregorianCalendar
+import java.util.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainActivityViewModelTest {
@@ -155,20 +153,6 @@ class MainActivityViewModelTest {
 
         viewModel.onSearchTextInput(searchText)
         assertThat(viewModel.uiState.first().searchText).isEqualTo(searchText)
-    }
-
-    @Test
-    fun onSortingOptionSelected() = runTest {
-        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
-        viewModel = MainActivityViewModel(
-            airingRepository,
-            settingsRepository,
-            notificationsRepository
-        )
-
-        viewModel.onSortingOptionSelected(SortingOption.SCORE)
-
-        assertThat(viewModel.uiState.first().sortingOption).isEqualTo(SortingOption.SCORE)
     }
 
     @Test

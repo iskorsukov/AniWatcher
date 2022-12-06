@@ -1,10 +1,11 @@
 package com.iskorsukov.aniwatcher.ui.media
 
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.test.*
+import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -36,11 +37,11 @@ class MediaViewModelTest {
 
         val result: Map<MediaItem, AiringScheduleItem?> = viewModel.mediaFlow.first()
 
-        Truth.assertThat(result).isNotNull()
-        Truth.assertThat(result.size).isEqualTo(1)
-        Truth.assertThat(result.keys).containsExactly(
+        assertThat(result).isNotNull()
+        assertThat(result.size).isEqualTo(1)
+        assertThat(result.keys).containsExactly(
             ModelTestDataCreator.baseMediaItem())
-        Truth.assertThat(result.values).containsExactly(
+        assertThat(result.values).containsExactly(
             ModelTestDataCreator.baseAiringScheduleItem().id(4).episode(4).airingAt(1667029460))
     }
 
@@ -68,5 +69,52 @@ class MediaViewModelTest {
         advanceUntilIdle()
 
         coVerify { airingRepository.unfollowMedia(mediaItem) }
+    }
+
+    @Test
+    fun sortsMediaFlow() = runTest {
+        val firstItem = ModelTestDataCreator.baseMediaItem() to
+                listOf(ModelTestDataCreator.baseAiringScheduleItem().airingAt(1))
+        val secondItem = ModelTestDataCreator.baseMediaItem().meanScore(2) to
+                listOf(ModelTestDataCreator.baseAiringScheduleItem().airingAt(2))
+        val data = mapOf(firstItem, secondItem)
+        coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(data)
+
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        viewModel = MediaViewModel(airingRepository)
+
+        var result = viewModel.mediaFlow.first()
+
+        assertThat(result.size).isEqualTo(2)
+        assertThat(result.keys).containsExactly(firstItem.first, secondItem.first).inOrder()
+
+        viewModel.onSortingOptionChanged(SortingOption.SCORE)
+        result = viewModel.mediaFlow.first()
+
+        assertThat(result.size).isEqualTo(2)
+        assertThat(result.keys).containsExactly(secondItem.first, firstItem.first).inOrder()
+    }
+
+    @Test
+    fun filtersFormat() = runTest {
+        val firstItem = ModelTestDataCreator.baseMediaItem() to
+                listOf(ModelTestDataCreator.baseAiringScheduleItem().airingAt(1))
+        val secondItem = ModelTestDataCreator.baseMediaItem().meanScore(2) to
+                listOf(ModelTestDataCreator.baseAiringScheduleItem().airingAt(2))
+        val data = mapOf(firstItem, secondItem)
+        coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(data)
+
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        viewModel = MediaViewModel(airingRepository)
+
+        var result = viewModel.mediaFlow.first()
+
+        assertThat(result.size).isEqualTo(2)
+        assertThat(result.keys).containsExactly(firstItem.first, secondItem.first).inOrder()
+
+        viewModel.onDeselectedFormatsChanged(listOf(MediaItem.LocalFormat.TV))
+        result = viewModel.mediaFlow.first()
+
+        assertThat(result.size).isEqualTo(0)
     }
 }

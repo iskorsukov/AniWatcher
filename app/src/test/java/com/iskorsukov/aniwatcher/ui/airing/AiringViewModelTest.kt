@@ -3,6 +3,7 @@ package com.iskorsukov.aniwatcher.ui.airing
 import com.google.common.truth.Truth.assertThat
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
+import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.domain.util.DayOfWeekLocal
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
@@ -48,6 +49,76 @@ class AiringViewModelTest {
             list[0]
         )
         assertThat(result.values.flatten()).containsExactlyElementsIn(assertValues).inOrder()
+
+        unmockkObject(DateTimeHelper)
+    }
+
+    @Test
+    fun uiStateFlow() = runTest {
+        mockkObject(DateTimeHelper)
+        every { DateTimeHelper.currentDayOfWeek() } returns DayOfWeekLocal.WEDNESDAY
+
+        coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(
+            mapOf(
+                ModelTestDataCreator.baseMediaItem() to
+                        ModelTestDataCreator.baseAiringScheduleItemList()
+            )
+        )
+        viewModel = AiringViewModel(airingRepository)
+
+        assertThat(viewModel.uiStateFlow.value).isEqualTo(AiringUiState.DEFAULT)
+
+        unmockkObject(DateTimeHelper)
+    }
+
+    @Test
+    fun onDeselectedFormatsChanged() = runTest {
+        mockkObject(DateTimeHelper)
+        every { DateTimeHelper.currentDayOfWeek() } returns DayOfWeekLocal.WEDNESDAY
+
+        coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(
+            mapOf(
+                ModelTestDataCreator.baseMediaItem() to
+                        ModelTestDataCreator.baseAiringScheduleItemList()
+            )
+        )
+        viewModel = AiringViewModel(airingRepository)
+
+        val deselectedFormats = listOf(
+            MediaItem.LocalFormat.TV, MediaItem.LocalFormat.MOVIE
+        )
+        viewModel.onDeselectedFormatsChanged(deselectedFormats)
+
+        assertThat(viewModel.uiStateFlow.value.deselectedFormats).containsExactlyElementsIn(deselectedFormats)
+        assertThat(viewModel.uiStateFlow.value.showReset).isTrue()
+
+        viewModel.onDeselectedFormatsChanged(emptyList())
+        assertThat(viewModel.uiStateFlow.value.showReset).isFalse()
+
+        unmockkObject(DateTimeHelper)
+    }
+
+    @Test
+    fun resetState() = runTest {
+        mockkObject(DateTimeHelper)
+        every { DateTimeHelper.currentDayOfWeek() } returns DayOfWeekLocal.WEDNESDAY
+
+        coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(
+            mapOf(
+                ModelTestDataCreator.baseMediaItem() to
+                        ModelTestDataCreator.baseAiringScheduleItemList()
+            )
+        )
+        viewModel = AiringViewModel(airingRepository)
+
+        val deselectedFormats = listOf(
+            MediaItem.LocalFormat.TV, MediaItem.LocalFormat.MOVIE
+        )
+        viewModel.onDeselectedFormatsChanged(deselectedFormats)
+
+        viewModel.resetState()
+
+        assertThat(viewModel.uiStateFlow.value).isEqualTo(AiringUiState.DEFAULT)
 
         unmockkObject(DateTimeHelper)
     }
