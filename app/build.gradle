@@ -172,8 +172,6 @@ dependencies {
     // Coil
     implementation "io.coil-kt:coil-compose:2.2.2"
 
-    // SwipeRefresh
-    implementation "com.google.accompanist:accompanist-swiperefresh:0.28.0"
     // Flow layout
     implementation "com.google.accompanist:accompanist-flowlayout:0.28.0"
 
