@@ -1,8 +1,10 @@
 package com.iskorsukov.aniwatcher
 
 import android.app.AlarmManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.SystemClock
 import androidx.activity.ComponentActivity
@@ -23,6 +25,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.*
 import com.iskorsukov.aniwatcher.domain.notification.alarm.NotificationsAlarmBuilder
+import com.iskorsukov.aniwatcher.domain.notification.alarm.NotificationsBootReceiver
 import com.iskorsukov.aniwatcher.domain.settings.ScheduleType
 import com.iskorsukov.aniwatcher.ui.airing.AiringScreen
 import com.iskorsukov.aniwatcher.ui.airing.AiringViewModel
@@ -67,6 +70,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableBootReceiver()
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -232,6 +236,16 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun enableBootReceiver() {
+        val receiver = ComponentName(this, NotificationsBootReceiver::class.java)
+
+        packageManager.setComponentEnabledSetting(
+            receiver,
+            PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+            PackageManager.DONT_KILL_APP
+        )
     }
 
     private fun scheduleNotificationChecks() {
