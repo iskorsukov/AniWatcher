@@ -31,6 +31,8 @@
 
     <string name="episode_aired_at_time_text">Episode %1$d aired at %2$s</string>
 
+    <string name="details_description">Description</string>
+    <string name="details_schedule">Schedule</string>
     <string name="media_info_studio">Studio</string>
     <string name="media_info_mean_score">Mean score</string>
     <string name="media_info_rank_in_season">Popularity</string>

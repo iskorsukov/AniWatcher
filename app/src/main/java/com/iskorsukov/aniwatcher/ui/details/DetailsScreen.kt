@@ -7,14 +7,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -36,6 +32,7 @@ import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.test.bannerImage
 import com.iskorsukov.aniwatcher.test.coverImageUrl
+import com.iskorsukov.aniwatcher.test.description
 import com.iskorsukov.aniwatcher.ui.base.effects.verticalFadingEdge
 import com.iskorsukov.aniwatcher.ui.base.text.HtmlText
 import com.iskorsukov.aniwatcher.ui.media.MediaItemAiringInfoColumn
@@ -80,6 +77,8 @@ private fun DetailScreenContent(
     onLearnMoreClicked: (String) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
+    val hasTabs = mediaItem.description?.isNotBlank() == true && airingScheduleList?.isNotEmpty() == true
+    var tabIndex by remember { mutableStateOf(0) }
     LazyColumn(
         state = lazyListState,
         modifier = modifier
@@ -101,26 +100,41 @@ private fun DetailScreenContent(
                 modifier = Modifier.fillMaxWidth()
             )
         }
-        item {
-            HtmlText(
-                text = mediaItem.description.orEmpty(),
-                style = LocalTextStyles.current.contentMedium,
-                modifier = Modifier
-                    .padding(start = 8.dp, end = 8.dp, top = 8.dp)
-            )
-        }
-        if (airingScheduleList?.isNotEmpty() == true) {
+        if (hasTabs) {
             item {
-                Text(
-                    text = stringResource(id = R.string.media_info_airing_schedule),
-                    style = LocalTextStyles.current.headlineEmphasis,
-                    modifier = Modifier.padding(
-                        top = 4.dp,
-                        start = 8.dp,
-                        end = 8.dp
+                TabRow(
+                    selectedTabIndex = tabIndex,
+                    backgroundColor = LocalColors.current.primary,
+                    contentColor = LocalColors.current.onPrimary,
+                ) {
+                    Tab(
+                        selected = tabIndex == 0,
+                        onClick = { tabIndex = 0 },
+                        text = {
+                            Text(text = stringResource(id = R.string.details_description))
+                        }
                     )
+                    Tab(
+                        selected = tabIndex == 1,
+                        onClick = { tabIndex = 1 },
+                        text = {
+                            Text(text = stringResource(id = R.string.details_schedule))
+                        }
+                    )
+                }
+            }
+        }
+        if (mediaItem.description?.isNotBlank() == true && (!hasTabs || tabIndex == 0)) {
+            item {
+                HtmlText(
+                    text = mediaItem.description,
+                    style = LocalTextStyles.current.contentMedium,
+                    modifier = Modifier
+                        .padding(start = 8.dp, end = 8.dp, top = 8.dp)
                 )
             }
+        }
+        if (airingScheduleList?.isNotEmpty() == true && (!hasTabs || tabIndex == 1)) {
             airingScheduleList.map {
                 item {
                     DetailsAiringScheduleCard(
@@ -463,6 +477,19 @@ private fun DetailsScreenPreview_noAiringSchedule() {
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         mediaItem = ModelTestDataCreator.baseMediaItem(),
         airingScheduleList = emptyList(),
+        preferredNamingScheme = NamingScheme.ENGLISH,
+        onBackButtonClicked = { },
+        onLearnMoreClicked = { }
+    )
+}
+
+@Composable
+@Preview
+private fun DetailsScreenPreview_emptyDescription() {
+    DetailScreenContent(
+        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
+        mediaItem = ModelTestDataCreator.baseMediaItem().description(""),
+        airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
         preferredNamingScheme = NamingScheme.ENGLISH,
         onBackButtonClicked = { },
         onLearnMoreClicked = { }
