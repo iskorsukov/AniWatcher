@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,6 +28,7 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.constraintlayout.compose.Visibility
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.accompanist.flowlayout.FlowRow
 import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
@@ -36,7 +36,6 @@ import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.test.bannerImage
 import com.iskorsukov.aniwatcher.test.coverImageUrl
-import com.iskorsukov.aniwatcher.ui.base.effects.horizontalFadingEdge
 import com.iskorsukov.aniwatcher.ui.base.effects.verticalFadingEdge
 import com.iskorsukov.aniwatcher.ui.base.text.HtmlText
 import com.iskorsukov.aniwatcher.ui.media.MediaItemAiringInfoColumn
@@ -154,6 +153,7 @@ private fun DetailsContentHeader(
             bannerImage,
             backButton,
             coverImage,
+            learnMore,
             mediaInfo,
             mediaInfoBackground
         ) = createRefs()
@@ -198,14 +198,16 @@ private fun DetailsContentHeader(
             }
         }
 
+        val backgroundBarrier = createBottomBarrier(mediaInfo, learnMore, coverImage)
         Box(
             modifier = Modifier
                 .background(LocalColors.current.backgroundSecondary)
+                .padding(bottom = 8.dp)
                 .constrainAs(mediaInfoBackground) {
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                     top.linkTo(bannerImage.bottom)
-                    bottom.linkTo(mediaInfo.bottom)
+                    bottom.linkTo(backgroundBarrier)
 
                     width = Dimension.fillToConstraints
                     height = Dimension.fillToConstraints
@@ -216,13 +218,11 @@ private fun DetailsContentHeader(
             imageUrl = mediaItem.coverImageUrl,
             modifier = Modifier
                 .fillMaxWidth(0.35f)
+                .aspectRatio(0.7f)
                 .padding(start = 8.dp, top = 8.dp, bottom = 8.dp)
                 .constrainAs(coverImage) {
                     start.linkTo(parent.start)
                     top.linkTo(bannerImage.bottom, (-40).dp)
-                    bottom.linkTo(mediaInfo.bottom)
-
-                    height = Dimension.fillToConstraints
 
                     visibility = if (mediaItem.coverImageUrl == null)
                         Visibility.Gone
@@ -230,6 +230,38 @@ private fun DetailsContentHeader(
                         Visibility.Visible
                 }
         )
+
+        if (mediaItem.siteUrl != null) {
+            Text(
+                text = stringResource(id = R.string.media_info_learn_more).uppercase(),
+                fontWeight = FontWeight.Medium,
+                fontSize = 12.sp,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .constrainAs(learnMore) {
+                        top.linkTo(coverImage.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(coverImage.end)
+
+                        width = Dimension.fillToConstraints
+
+                        visibility = if (mediaItem.coverImageUrl == null)
+                            Visibility.Gone
+                        else
+                            Visibility.Visible
+                    }
+                    .padding(start = 8.dp)
+                    .background(
+                        LocalColors.current.primary,
+                        RoundedCornerShape(8.dp)
+                    )
+                    .clickable {
+                        onLearnMoreClicked.invoke(mediaItem.siteUrl)
+                    }
+                    .padding(8.dp)
+            )
+        }
 
         DetailsMediaInfo(
             mediaItem = mediaItem,
@@ -276,7 +308,6 @@ private fun DetailsMediaInfo(
     modifier: Modifier = Modifier,
     onLearnMoreClicked: (String) -> Unit
 ) {
-    val lazyListState = rememberLazyListState()
     Column(modifier = modifier) {
         Text(
             text = mediaItem.title.baseText(preferredNamingScheme),
@@ -288,7 +319,7 @@ private fun DetailsMediaInfo(
                 style = LocalTextStyles.current.headlineSmall
             )
         }
-        if (mediaItem.siteUrl != null) {
+        if (mediaItem.siteUrl != null && mediaItem.coverImageUrl == null) {
             Text(
                 text = stringResource(id = R.string.media_info_learn_more).uppercase(),
                 fontWeight = FontWeight.Medium,
@@ -297,7 +328,7 @@ private fun DetailsMediaInfo(
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 8.dp)
+                    .padding(top = 8.dp)
                     .background(
                         LocalColors.current.primary,
                         RoundedCornerShape(8.dp)
@@ -308,54 +339,40 @@ private fun DetailsMediaInfo(
                     .padding(8.dp)
             )
         }
-        LazyRow(
-            state = lazyListState,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.horizontalFadingEdge(
-                lazyListState,
-                36.dp,
-                LocalColors.current.backgroundSecondary
-            )
+        FlowRow(
+            modifier = Modifier.padding(top = 8.dp),
+            crossAxisSpacing = 4.dp,
+            mainAxisSpacing = 4.dp
         ) {
             if (mediaItem.format != null) {
-                item {
-                    DetailsMediaInfoCard(
-                        label = stringResource(id = R.string.media_info_format),
-                        subLabel = stringResource(id = mediaItem.format.labelResId)
-                    )
-                }
+                DetailsMediaInfoCard(
+                    label = stringResource(id = R.string.media_info_format),
+                    subLabel = stringResource(id = mediaItem.format.labelResId)
+                )
             }
             if (mediaItem.mainStudio != null) {
-                item {
-                    DetailsMediaInfoCard(
-                        label = stringResource(id = R.string.media_info_studio),
-                        subLabel = mediaItem.mainStudio
-                    )
-                }
+                DetailsMediaInfoCard(
+                    label = stringResource(id = R.string.media_info_studio),
+                    subLabel = mediaItem.mainStudio
+                )
             }
             if (mediaItem.meanScore != null) {
-                item {
-                    DetailsMediaInfoCard(
-                        label = stringResource(id = R.string.media_info_mean_score),
-                        subLabel = "${mediaItem.meanScore}%"
-                    )
-                }
-            }
-            if (mediaItem.genres.isNotEmpty()) {
-                item {
-                    DetailsMediaInfoCard(
-                        label = stringResource(id = R.string.media_info_genres),
-                        subLabel = mediaItem.genres.joinToString(separator = ", ")
-                    )
-                }
+                DetailsMediaInfoCard(
+                    label = stringResource(id = R.string.media_info_mean_score),
+                    subLabel = "${mediaItem.meanScore}%"
+                )
             }
             if (mediaItem.popularity != null) {
-                item {
-                    DetailsMediaInfoCard(
-                        label = stringResource(id = R.string.media_info_rank_in_season),
-                        subLabel = "${mediaItem.popularity}"
-                    )
-                }
+                DetailsMediaInfoCard(
+                    label = stringResource(id = R.string.media_info_rank_in_season),
+                    subLabel = "${mediaItem.popularity}"
+                )
+            }
+            if (mediaItem.genres.isNotEmpty()) {
+                DetailsMediaInfoCard(
+                    label = stringResource(id = R.string.media_info_genres),
+                    subLabel = mediaItem.genres.joinToString(separator = ", ")
+                )
             }
         }
     }
