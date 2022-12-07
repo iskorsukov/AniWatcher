@@ -1,15 +1,18 @@
 package com.iskorsukov.aniwatcher.ui.details
 
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.annotation.ColorInt
+import androidx.browser.customtabs.CustomTabColorSchemeParams
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iskorsukov.aniwatcher.ui.base.topbar.BackArrowTopAppBar
@@ -20,6 +23,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import java.util.concurrent.TimeUnit
+
 
 @OptIn(ExperimentalLifecycleComposeApi::class)
 @AndroidEntryPoint
@@ -61,6 +65,7 @@ class DetailsActivity: ComponentActivity() {
                     },
                     backgroundColor = LocalColors.current.background
                 ) { innerPadding ->
+                    val primaryColorInt = LocalColors.current.primary.toArgb()
                     if (mediaItemToAiringSchedules != null) {
                         DetailsScreen(
                             timeInMinutesFlow = timeInMinutesFlow,
@@ -70,7 +75,12 @@ class DetailsActivity: ComponentActivity() {
                             preferredNamingScheme = settingsState.preferredNamingScheme,
                             modifier = Modifier.padding(innerPadding),
                             onBackButtonClicked = { finish() },
-                            onLearnMoreClicked = { navigateToAniList(it) }
+                            onLearnMoreClicked = {
+                                navigateToAniList(
+                                    it,
+                                    primaryColorInt
+                                )
+                            }
                         )
                     }
                 }
@@ -78,9 +88,14 @@ class DetailsActivity: ComponentActivity() {
         }
     }
 
-    private fun navigateToAniList(url: String) {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-        startActivity(intent)
+    private fun navigateToAniList(url: String, @ColorInt toolbarColor: Int) {
+        val builder = CustomTabsIntent.Builder()
+        val defaultColors = CustomTabColorSchemeParams.Builder()
+            .setToolbarColor(toolbarColor)
+            .build()
+        builder.setDefaultColorSchemeParams(defaultColors)
+        val customTabsIntent = builder.build()
+        customTabsIntent.launchUrl(this, Uri.parse(url))
     }
 
     companion object {

@@ -3,6 +3,7 @@ package com.iskorsukov.aniwatcher.ui.util
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.graphics.toArgb
 
 @Composable
@@ -26,4 +27,8 @@ fun getContrastTextColorForChip(bgColor: Color): Color {
                 ) / 255
 
     return if (luminance < 0.5) Color.Black else Color.White
+}
+
+fun Color.toAGColor(): android.graphics.Color = toArgb().run {
+    android.graphics.Color.valueOf(this)
 }
