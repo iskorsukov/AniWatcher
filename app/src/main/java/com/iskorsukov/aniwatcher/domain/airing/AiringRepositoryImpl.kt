@@ -27,13 +27,25 @@ class AiringRepositoryImpl @Inject constructor(
     override val mediaWithSchedulesFlow: Flow<Map<MediaItem, List<AiringScheduleItem>>> =
         mediaDatabaseExecutor.mediaDataFlow
             .map { mediaMap ->
-                mediaMap.map {
-                    val mediaItem = MediaItem.fromEntity(it.key.mediaItemEntity, it.key.followingEntity)
-                    val airingSchedules = it.value.map {
-                        AiringScheduleItem.fromEntity(it, mediaItem)
+                mediaMap
+                    .mapNotNull {
+                        val mediaItem = try {
+                            MediaItem.fromEntity(it.key.mediaItemEntity, it.key.followingEntity)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            return@mapNotNull null
+                        }
+                        val airingSchedules = try {
+                            it.value.map {
+                                AiringScheduleItem.fromEntity(it, mediaItem)
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            return@mapNotNull null
+                        }
+                        mediaItem to airingSchedules
                     }
-                    mediaItem to airingSchedules
-                }.associate { it.first to it.second }
+                    .associate { it.first to it.second }
             }
 
     override fun getMediaWithAiringSchedules(mediaItemId: Int): Flow<Pair<MediaItem, List<AiringScheduleItem>>?> {
@@ -42,7 +54,8 @@ class AiringRepositoryImpl @Inject constructor(
             if (entry == null) {
                 null
             } else {
-                val mediaItem = MediaItem.fromEntity(entry.key.mediaItemEntity, entry.key.followingEntity)
+                val mediaItem =
+                    MediaItem.fromEntity(entry.key.mediaItemEntity, entry.key.followingEntity)
                 val airingSchedules = entry.value.map {
                     AiringScheduleItem.fromEntity(it, mediaItem)
                 }
