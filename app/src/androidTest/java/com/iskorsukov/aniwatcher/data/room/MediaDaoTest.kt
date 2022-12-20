@@ -5,8 +5,8 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
-import com.iskorsukov.aniwatcher.data.entity.AiringScheduleEntity
-import com.iskorsukov.aniwatcher.data.entity.MediaItemAndFollowingEntity
+import com.iskorsukov.aniwatcher.data.entity.base.AiringScheduleEntity
+import com.iskorsukov.aniwatcher.data.entity.combined.MediaItemAndFollowingEntity
 import com.iskorsukov.aniwatcher.test.*
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.runBlocking
@@ -314,8 +314,8 @@ class MediaDaoTest {
         mediaDao.followMedia(followingEntityList[0])
         mediaDao.followMedia(followingEntityList[1])
 
-        notificationsDao.clearNotificationsByMediaId(listOf(1, 2))
-        mediaDao.unfollowMedia(listOf(1, 2))
+        notificationsDao.clearNotificationsByMediaId(1, 2)
+        mediaDao.unfollowMedia(1, 2)
 
         val outEntity = mediaDao.getAllNotAired(0).first()
 

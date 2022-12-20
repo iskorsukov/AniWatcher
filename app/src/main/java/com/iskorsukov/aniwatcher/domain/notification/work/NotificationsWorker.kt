@@ -12,6 +12,17 @@ import com.iskorsukov.aniwatcher.domain.util.LocalClockSystem
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
+/**
+ * Worker that checks if there are pending notifications and fires them
+ *
+ * @property clock a clock for setting firedAt time on notification entities
+ * @property notificationsRepository repository for getting pending notifications and saving fired ones
+ * @property notificationsInteractor interactor for firing notifications
+ * @constructor
+ *
+ * @param appContext context
+ * @param workerParams worker params
+ */
 @HiltWorker
 class NotificationsWorker @AssistedInject constructor(
     @Assisted appContext: Context,

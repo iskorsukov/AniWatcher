@@ -12,6 +12,13 @@ object NotificationBuilderHelper {
 
     private const val GROUP_ID = "airing"
 
+    /**
+     * Builds a notification for aired episode
+     *
+     * @param context context
+     * @param airingScheduleItem aired airing schedule (episode)
+     * @return notification
+     */
     fun buildNotification(context: Context, airingScheduleItem: AiringScheduleItem): Notification {
         return NotificationCompat.Builder(
             context,
@@ -33,6 +40,13 @@ object NotificationBuilderHelper {
             .build()
     }
 
+    /**
+     * Builds a group notification with summary
+     *
+     * @param context context
+     * @param airingScheduleItemList aired airing schedules (episodes)
+     * @return notification or null if notification manager not available
+     */
     fun buildGroupSummaryNotification(
         context: Context,
         airingScheduleItemList: List<AiringScheduleItem>
@@ -66,8 +80,15 @@ object NotificationBuilderHelper {
         }
     }
 
+    /**
+     * Get currently displayed notification messages
+     *
+     * @param notificationManager notification manager
+     * @return map of notification id to message
+     */
     private fun getActiveNotificationsMessageMap(notificationManager: NotificationManager): Map<Int, String> {
-        return notificationManager.activeNotifications.associate { statusBarNotification ->
+        return notificationManager.activeNotifications
+            .associate { statusBarNotification ->
                 statusBarNotification.notification.let {
                     val id = statusBarNotification.id
                     val title = it.extras.getString("android.title")
@@ -78,10 +99,21 @@ object NotificationBuilderHelper {
                         id to "$title $text"
                     }
                 }
-            }.filterValues { it.isNotBlank() }
+            }
+            .filterValues { it.isNotBlank() }
     }
 
-    private fun getNotificationsMessageMap(context: Context, airingScheduleItemList: List<AiringScheduleItem>): Map<Int, String> {
+    /**
+     * Get summary messages for group notification summary
+     *
+     * @param context context
+     * @param airingScheduleItemList airing schedules
+     * @return map of notification id to message
+     */
+    private fun getNotificationsMessageMap(
+        context: Context,
+        airingScheduleItemList: List<AiringScheduleItem>
+    ): Map<Int, String> {
         return airingScheduleItemList.associate { airingScheduleItem ->
             val id = airingScheduleItem.id
             val title = airingScheduleItem.mediaItem.title.baseText()

@@ -24,6 +24,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.iskorsukov.aniwatcher.R
+import com.iskorsukov.aniwatcher.domain.settings.DarkModeOption
+import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
+import com.iskorsukov.aniwatcher.domain.settings.ScheduleType
+import com.iskorsukov.aniwatcher.domain.settings.SettingsState
+import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.ui.Screen
 import com.iskorsukov.aniwatcher.ui.base.topbar.SearchField
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
@@ -33,6 +38,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 @Composable
 fun TopBar(
     uiState: MainActivityUiState,
+    settingsState: SettingsState,
     navController: NavHostController,
     onSettingsClicked: () -> Unit,
     onNotificationsClicked: () -> Unit,
@@ -66,7 +72,7 @@ fun TopBar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "${uiState.seasonYear.season.name} ${uiState.seasonYear.year}",
+                    text = "${settingsState.selectedSeasonYear.season.name} ${settingsState.selectedSeasonYear.year}",
                     color = LocalColors.current.onPrimary,
                     fontSize = 18.sp
                 )
@@ -204,10 +210,19 @@ private fun TopBarPreview() {
     val navController = rememberNavController()
     val uiStateFlow = MutableStateFlow(MainActivityUiState(false))
     val uiState by uiStateFlow.collectAsState()
+    val settingsState = SettingsState(
+        DarkModeOption.DARK,
+        ScheduleType.SEASON,
+        NamingScheme.ENGLISH,
+        true,
+        true,
+        DateTimeHelper.SeasonYear(DateTimeHelper.Season.WINTER, 2023)
+    )
     Scaffold(
         topBar = {
             TopBar(
                 uiState = uiState,
+                settingsState = settingsState,
                 navController = navController,
                 onSettingsClicked = { },
                 onNotificationsClicked = { },
@@ -245,10 +260,19 @@ private fun TopBarPreview() {
 private fun TopBarNoSearchAndOptionsPreview() {
     val navController = rememberNavController()
     val uiState = MainActivityUiState(false)
+    val settingsState = SettingsState(
+        DarkModeOption.DARK,
+        ScheduleType.ALL,
+        NamingScheme.ENGLISH,
+        true,
+        true,
+        DateTimeHelper.SeasonYear(DateTimeHelper.Season.WINTER, 2023)
+    )
     Scaffold(
         topBar = {
             TopBar(
                 uiState = uiState,
+                settingsState = settingsState,
                 navController = navController,
                 onSettingsClicked = { },
                 onNotificationsClicked = { },
@@ -273,10 +297,19 @@ private fun TopBarNoSearchAndOptionsPreview() {
 private fun TopBarUnreadNotificationsPreview() {
     val navController = rememberNavController()
     val uiState = MainActivityUiState(false)
+    val settingsState = SettingsState(
+        DarkModeOption.DARK,
+        ScheduleType.SEASON,
+        NamingScheme.ENGLISH,
+        true,
+        true,
+        DateTimeHelper.SeasonYear(DateTimeHelper.Season.WINTER, 2023)
+    )
     Scaffold(
         topBar = {
             TopBar(
                 uiState = uiState,
+                settingsState = settingsState,
                 navController = navController,
                 onSettingsClicked = { },
                 onNotificationsClicked = { },

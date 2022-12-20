@@ -1,9 +1,9 @@
 package com.iskorsukov.aniwatcher.test
 
-import com.iskorsukov.aniwatcher.data.entity.AiringScheduleEntity
-import com.iskorsukov.aniwatcher.data.entity.FollowingEntity
-import com.iskorsukov.aniwatcher.data.entity.MediaItemEntity
-import com.iskorsukov.aniwatcher.data.entity.NotificationItemEntity
+import com.iskorsukov.aniwatcher.data.entity.base.AiringScheduleEntity
+import com.iskorsukov.aniwatcher.data.entity.base.FollowingEntity
+import com.iskorsukov.aniwatcher.data.entity.base.MediaItemEntity
+import com.iskorsukov.aniwatcher.data.entity.base.NotificationItemEntity
 
 object EntityTestDataCreator {
     fun baseMediaItemEntity(): MediaItemEntity {

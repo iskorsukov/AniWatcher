@@ -1,6 +1,7 @@
 package com.iskorsukov.aniwatcher.data.entity
 
 import com.google.common.truth.Truth.assertThat
+import com.iskorsukov.aniwatcher.data.entity.base.AiringScheduleEntity
 import com.iskorsukov.aniwatcher.test.EntityTestDataCreator
 import com.iskorsukov.aniwatcher.test.QueryTestDataCreator
 import org.junit.Test

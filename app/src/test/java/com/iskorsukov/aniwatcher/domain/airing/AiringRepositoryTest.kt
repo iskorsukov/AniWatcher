@@ -3,7 +3,7 @@ package com.iskorsukov.aniwatcher.domain.airing
 import com.google.common.truth.Truth.assertThat
 import com.iskorsukov.aniwatcher.RangeAiringDataQuery
 import com.iskorsukov.aniwatcher.SeasonAiringDataQuery
-import com.iskorsukov.aniwatcher.data.entity.MediaItemAndFollowingEntity
+import com.iskorsukov.aniwatcher.data.entity.combined.MediaItemAndFollowingEntity
 import com.iskorsukov.aniwatcher.data.executor.AniListQueryExecutor
 import com.iskorsukov.aniwatcher.data.executor.MediaDatabaseExecutor
 import com.iskorsukov.aniwatcher.data.mapper.QueryDataToEntityMapper
@@ -199,6 +199,6 @@ class AiringRepositoryTest {
 
         repository.unfollowMedia(listOf(mediaItem))
 
-        coVerify { mediaDatabaseExecutor.unfollowMedia(listOf(mediaItem.id)) }
+        coVerify { mediaDatabaseExecutor.unfollowMedia(mediaItem.id) }
     }
 }

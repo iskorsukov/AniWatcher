@@ -1,6 +1,7 @@
 package com.iskorsukov.aniwatcher.data.entity
 
 import com.google.common.truth.Truth.assertThat
+import com.iskorsukov.aniwatcher.data.entity.base.MediaItemEntity
 import com.iskorsukov.aniwatcher.test.*
 import org.junit.Test
 

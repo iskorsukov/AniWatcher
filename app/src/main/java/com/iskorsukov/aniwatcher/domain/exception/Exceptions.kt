@@ -1,7 +1,8 @@
 package com.iskorsukov.aniwatcher.domain.exception
 
 class RoomException(cause: Throwable): Exception(
-    "Something went wrong when storing data", cause
+    "Something went wrong when storing data",
+    cause
 )
 
 class ApolloException(cause: Throwable): Exception(

@@ -14,12 +14,14 @@ class NotificationsAlarmReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context != null) {
+            // Enqueue notifications check work
             val notificationsWorkRequest = OneTimeWorkRequestBuilder<NotificationsWorker>().build()
             WorkManager.getInstance(context).enqueueUniqueWork(
                 NOTIFICATIONS_WORK_TAG,
                 ExistingWorkPolicy.KEEP,
                 notificationsWorkRequest
             )
+            // Reschedule alarm
             (context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager)
                 ?.setAndAllowWhileIdle(
                     AlarmManager.ELAPSED_REALTIME_WAKEUP,

@@ -2,8 +2,8 @@ package com.iskorsukov.aniwatcher.domain.model
 
 import androidx.annotation.StringRes
 import com.iskorsukov.aniwatcher.R
-import com.iskorsukov.aniwatcher.data.entity.FollowingEntity
-import com.iskorsukov.aniwatcher.data.entity.MediaItemEntity
+import com.iskorsukov.aniwatcher.data.entity.base.FollowingEntity
+import com.iskorsukov.aniwatcher.data.entity.base.MediaItemEntity
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import java.io.Serializable
 

@@ -1,7 +1,7 @@
 package com.iskorsukov.aniwatcher.domain.model
 
-import com.iskorsukov.aniwatcher.data.entity.AiringScheduleAndNotificationEntity
-import com.iskorsukov.aniwatcher.data.entity.MediaItemEntity
+import com.iskorsukov.aniwatcher.data.entity.combined.AiringScheduleAndNotificationEntity
+import com.iskorsukov.aniwatcher.data.entity.base.MediaItemEntity
 
 data class NotificationItem(
     val id: Int? = null,

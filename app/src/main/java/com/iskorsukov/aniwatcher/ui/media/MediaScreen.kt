@@ -71,9 +71,7 @@ fun MediaScreen(
         .fillMaxSize()
         .pullRefresh(pullRefreshState)) {
         MediaScreenContent(
-            mediaItemWithNextAiringMap = MediaItemMapper.filterExtraFollowedMedia(
-                mediaFlow, settingsState, uiState.seasonYear
-            ),
+            mediaItemWithNextAiringMap = mediaFlow,
             listState = listState,
             timeInMinutes = timeInMinutes,
             preferredNamingScheme = settingsState.preferredNamingScheme,

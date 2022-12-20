@@ -113,6 +113,7 @@ class MainActivity : ComponentActivity() {
                     topBar = {
                         TopBar(
                             uiState = uiState,
+                            settingsState = settingsState,
                             navController = navController,
                             onSettingsClicked = this::startSettingsActivity,
                             onNotificationsClicked = this::startNotificationsActivity,
@@ -155,7 +156,7 @@ class MainActivity : ComponentActivity() {
                             SelectSeasonYearDialog(
                                 onSeasonYearSelected = mainActivityViewModel::onSeasonYearSelected,
                                 onDismissRequest = { shouldShowSeasonYearDialog = false },
-                                selectedSeasonYear = uiState.seasonYear
+                                selectedSeasonYear = settingsState.selectedSeasonYear
                             )
                         }
 
@@ -203,7 +204,7 @@ class MainActivity : ComponentActivity() {
                         }
 
                         if (settingsState.onboardingComplete) {
-                            LaunchedEffect(settingsState.scheduleType, uiState.seasonYear) {
+                            LaunchedEffect(settingsState.scheduleType, settingsState.selectedSeasonYear) {
                                 mainActivityViewModel.loadAiringData()
                             }
                         }

@@ -1,6 +1,6 @@
 package com.iskorsukov.aniwatcher.domain.model
 
-import com.iskorsukov.aniwatcher.data.entity.AiringScheduleEntity
+import com.iskorsukov.aniwatcher.data.entity.base.AiringScheduleEntity
 import java.io.Serializable
 import java.text.SimpleDateFormat
 import java.util.*

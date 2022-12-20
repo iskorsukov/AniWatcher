@@ -2,7 +2,7 @@ package com.iskorsukov.aniwatcher.domain.notification
 
 import android.content.SharedPreferences
 import com.google.common.truth.Truth.assertThat
-import com.iskorsukov.aniwatcher.data.entity.AiringScheduleAndNotificationEntity
+import com.iskorsukov.aniwatcher.data.entity.combined.AiringScheduleAndNotificationEntity
 import com.iskorsukov.aniwatcher.data.executor.MediaDatabaseExecutor
 import com.iskorsukov.aniwatcher.test.EntityTestDataCreator
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator

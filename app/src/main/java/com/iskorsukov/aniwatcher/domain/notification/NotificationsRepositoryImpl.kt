@@ -18,12 +18,15 @@ class NotificationsRepositoryImpl @Inject constructor(
 ) : NotificationsRepository {
 
     override val notificationsFlow: Flow<List<NotificationItem>> =
-        mediaDatabaseExecutor.notificationsFlow.map {
-            it.map { entry ->
-                entry.value.map {
-                    NotificationItem.fromEntity(entry.key, it)
+        mediaDatabaseExecutor.notificationsFlow.map { map ->
+            map
+                .map { entry ->
+                    entry.value.map { scheduleAndNotification ->
+                        NotificationItem.fromEntity(entry.key, scheduleAndNotification)
+                    }
                 }
-            }.flatten().sortedByDescending { it.firedAtMillis }
+                .flatten()
+                .sortedByDescending { it.firedAtMillis }
         }
 
     private val _unreadNotificationsCounterStateFlow = MutableStateFlow(
@@ -41,12 +44,14 @@ class NotificationsRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getPendingSchedulesToNotify(): List<AiringScheduleItem> {
-        return mediaDatabaseExecutor.getPendingNotifications().map { entityMapEntry ->
-            val mediaItem = MediaItem.fromEntity(entityMapEntry.key, null)
-            entityMapEntry.value.map {
-                AiringScheduleItem.fromEntity(it, mediaItem)
+        return mediaDatabaseExecutor.getPendingNotifications()
+            .map { entityMapEntry ->
+                val mediaItem = MediaItem.fromEntity(entityMapEntry.key, null)
+                entityMapEntry.value.map {
+                    AiringScheduleItem.fromEntity(it, mediaItem)
+                }
             }
-        }.flatten()
+            .flatten()
     }
 
     override suspend fun increaseUnreadNotificationsCounter() {

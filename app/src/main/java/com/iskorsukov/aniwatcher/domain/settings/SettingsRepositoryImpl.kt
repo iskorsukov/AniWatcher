@@ -3,9 +3,11 @@ package com.iskorsukov.aniwatcher.domain.settings
 import android.content.Context
 import android.content.SharedPreferences
 import com.iskorsukov.aniwatcher.R
+import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import java.util.*
 import javax.inject.Inject
 
 class SettingsRepositoryImpl @Inject constructor(
@@ -13,13 +15,16 @@ class SettingsRepositoryImpl @Inject constructor(
     private val sharedPreferences: SharedPreferences
 ): SettingsRepository {
 
+    private var selectedSeasonYear = DateTimeHelper.currentSeasonYear(Calendar.getInstance())
+
     private val _settingsStateFlow: MutableStateFlow<SettingsState> = MutableStateFlow(
         SettingsState(
             getDarkModeOption(),
             getScheduleType(),
             getPreferredNamingScheme(),
             getNotificationsEnabled(),
-            getOnboardingComplete()
+            getOnboardingComplete(),
+            selectedSeasonYear
         )
     )
     override val settingsStateFlow: StateFlow<SettingsState> = _settingsStateFlow
@@ -30,7 +35,8 @@ class SettingsRepositoryImpl @Inject constructor(
             getScheduleType(),
             getPreferredNamingScheme(),
             getNotificationsEnabled(),
-            getOnboardingComplete()
+            getOnboardingComplete(),
+            selectedSeasonYear
         )
     }
 
@@ -41,7 +47,7 @@ class SettingsRepositoryImpl @Inject constructor(
                 darkModeOption.name
             )
             .apply()
-        onPreferenceChanged()
+        _settingsStateFlow.value = _settingsStateFlow.value.copy(darkModeOption = darkModeOption)
     }
 
     override fun setScheduleType(scheduleType: ScheduleType) {
@@ -51,7 +57,7 @@ class SettingsRepositoryImpl @Inject constructor(
                 scheduleType.name
             )
             .apply()
-        onPreferenceChanged()
+        _settingsStateFlow.value = _settingsStateFlow.value.copy(scheduleType = scheduleType)
     }
 
     override fun setPreferredNamingScheme(preferredNamingScheme: NamingScheme) {
@@ -61,7 +67,7 @@ class SettingsRepositoryImpl @Inject constructor(
                 preferredNamingScheme.name
             )
             .apply()
-        onPreferenceChanged()
+        _settingsStateFlow.value = _settingsStateFlow.value.copy(preferredNamingScheme = preferredNamingScheme)
     }
 
     override fun setOnboardingComplete(onboardingComplete: Boolean) {
@@ -71,7 +77,12 @@ class SettingsRepositoryImpl @Inject constructor(
                 onboardingComplete
             )
             .apply()
-        onPreferenceChanged()
+        _settingsStateFlow.value = _settingsStateFlow.value.copy(onboardingComplete = onboardingComplete)
+    }
+
+    override fun setSelectedSeasonYear(seasonYear: DateTimeHelper.SeasonYear) {
+        selectedSeasonYear = seasonYear
+        _settingsStateFlow.value = _settingsStateFlow.value.copy(selectedSeasonYear = selectedSeasonYear)
     }
 
     private fun getDarkModeOption(): DarkModeOption {

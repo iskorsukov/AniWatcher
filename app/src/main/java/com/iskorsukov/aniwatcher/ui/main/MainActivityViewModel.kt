@@ -19,7 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
     private val airingRepository: AiringRepository,
-    settingsRepository: SettingsRepository,
+    private val settingsRepository: SettingsRepository,
     notificationsRepository: NotificationsRepository
 ): OnboardingViewModel(settingsRepository) {
 
@@ -40,7 +40,7 @@ class MainActivityViewModel @Inject constructor(
                     val weekStartEndSeconds = DateTimeHelper.currentWeekStartToEndSeconds(Calendar.getInstance())
                     airingRepository.loadRangeAiringData(weekStartEndSeconds.first, weekStartEndSeconds.second)
                 } else {
-                    val seasonYear = uiState.value.seasonYear
+                    val seasonYear = settingsState.value.selectedSeasonYear
                     airingRepository.loadSeasonAiringData(seasonYear.year, seasonYear.season.name)
                 }
                 _uiState.value = _uiState.value.copy(isRefreshing = false)
@@ -75,7 +75,7 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun onSeasonYearSelected(seasonYear: DateTimeHelper.SeasonYear) {
-        _uiState.value = _uiState.value.copy(seasonYear = seasonYear)
+        settingsRepository.setSelectedSeasonYear(seasonYear)
     }
 
     fun resetTopBarState() {

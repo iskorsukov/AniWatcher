@@ -68,9 +68,7 @@ fun AiringScreen(
         AiringScreenContent(
             lazyListState = lazyListState,
             airingUiState = airingUiState,
-            airingSchedulesByDayOfWeekMap = MediaItemMapper.filterExtraFollowedAiringSchedules(
-                airingScheduleItemList, settingsState, uiState.seasonYear
-            ),
+            airingSchedulesByDayOfWeekMap = airingScheduleItemList,
             timeInMinutes = timeInMinutes,
             onFollowClicked = viewModel::onFollowClicked,
             onMediaClicked = onMediaClicked,

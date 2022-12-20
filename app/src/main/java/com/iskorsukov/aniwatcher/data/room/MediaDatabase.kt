@@ -2,10 +2,10 @@ package com.iskorsukov.aniwatcher.data.room
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.iskorsukov.aniwatcher.data.entity.AiringScheduleEntity
-import com.iskorsukov.aniwatcher.data.entity.FollowingEntity
-import com.iskorsukov.aniwatcher.data.entity.MediaItemEntity
-import com.iskorsukov.aniwatcher.data.entity.NotificationItemEntity
+import com.iskorsukov.aniwatcher.data.entity.base.AiringScheduleEntity
+import com.iskorsukov.aniwatcher.data.entity.base.FollowingEntity
+import com.iskorsukov.aniwatcher.data.entity.base.MediaItemEntity
+import com.iskorsukov.aniwatcher.data.entity.base.NotificationItemEntity
 
 @Database(
     entities = [

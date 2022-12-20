@@ -1,4 +1,4 @@
-package com.iskorsukov.aniwatcher.data.entity
+package com.iskorsukov.aniwatcher.data.entity.base
 
 import androidx.room.Embedded
 import androidx.room.Entity

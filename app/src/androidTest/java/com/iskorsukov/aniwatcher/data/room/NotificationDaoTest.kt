@@ -5,8 +5,8 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
-import com.iskorsukov.aniwatcher.data.entity.AiringScheduleAndNotificationEntity
-import com.iskorsukov.aniwatcher.data.entity.MediaItemAndFollowingEntity
+import com.iskorsukov.aniwatcher.data.entity.combined.AiringScheduleAndNotificationEntity
+import com.iskorsukov.aniwatcher.data.entity.combined.MediaItemAndFollowingEntity
 import com.iskorsukov.aniwatcher.test.EntityTestDataCreator
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking

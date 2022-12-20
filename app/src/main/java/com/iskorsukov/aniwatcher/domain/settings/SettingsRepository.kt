@@ -1,5 +1,6 @@
 package com.iskorsukov.aniwatcher.domain.settings
 
+import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import kotlinx.coroutines.flow.StateFlow
 
 interface SettingsRepository {
@@ -15,4 +16,6 @@ interface SettingsRepository {
     fun setScheduleType(scheduleType: ScheduleType)
 
     fun setOnboardingComplete(onboardingComplete: Boolean)
+
+    fun setSelectedSeasonYear(seasonYear: DateTimeHelper.SeasonYear)
 }

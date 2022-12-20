@@ -2,9 +2,9 @@ package com.iskorsukov.aniwatcher.data.executor
 
 import androidx.room.withTransaction
 import com.google.common.truth.Truth.assertThat
-import com.iskorsukov.aniwatcher.data.entity.AiringScheduleAndNotificationEntity
-import com.iskorsukov.aniwatcher.data.entity.FollowingEntity
-import com.iskorsukov.aniwatcher.data.entity.MediaItemAndFollowingEntity
+import com.iskorsukov.aniwatcher.data.entity.combined.AiringScheduleAndNotificationEntity
+import com.iskorsukov.aniwatcher.data.entity.base.FollowingEntity
+import com.iskorsukov.aniwatcher.data.entity.combined.MediaItemAndFollowingEntity
 import com.iskorsukov.aniwatcher.data.room.MediaDao
 import com.iskorsukov.aniwatcher.data.room.MediaDatabase
 import com.iskorsukov.aniwatcher.data.room.NotificationsDao

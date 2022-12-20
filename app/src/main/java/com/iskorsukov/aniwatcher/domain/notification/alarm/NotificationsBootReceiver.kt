@@ -18,6 +18,7 @@ class NotificationsBootReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         if (intent?.action == "android.intent.action.BOOT_COMPLETED") {
             if (settingsRepository.settingsStateFlow.value.notificationsEnabled) {
+                // Schedule notifications check
                 (context?.getSystemService(Context.ALARM_SERVICE) as? AlarmManager)
                     ?.setAndAllowWhileIdle(
                         AlarmManager.ELAPSED_REALTIME_WAKEUP,

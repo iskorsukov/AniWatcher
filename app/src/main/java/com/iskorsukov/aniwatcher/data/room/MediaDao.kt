@@ -2,6 +2,10 @@ package com.iskorsukov.aniwatcher.data.room
 
 import androidx.room.*
 import com.iskorsukov.aniwatcher.data.entity.*
+import com.iskorsukov.aniwatcher.data.entity.base.AiringScheduleEntity
+import com.iskorsukov.aniwatcher.data.entity.base.FollowingEntity
+import com.iskorsukov.aniwatcher.data.entity.base.MediaItemEntity
+import com.iskorsukov.aniwatcher.data.entity.combined.MediaItemAndFollowingEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -23,11 +27,8 @@ interface MediaDao {
     @Insert
     suspend fun followMedia(followingEntity: FollowingEntity)
 
-    @Query("DELETE FROM following WHERE mediaItemRelationId = :mediaId")
-    suspend fun unfollowMedia(mediaId: Int)
-
-    @Query("DELETE FROM following WHERE mediaItemRelationId IN (:mediaIdList)")
-    suspend fun unfollowMedia(mediaIdList: List<Int>)
+    @Query("DELETE FROM following WHERE mediaItemRelationId IN (:mediaId)")
+    suspend fun unfollowMedia(vararg mediaId: Int)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMedia(mediaItemEntityList: List<MediaItemEntity>)
