@@ -1,23 +1,23 @@
 package com.iskorsukov.aniwatcher.ui.base.viewmodel.follow
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.error.ErrorFlowViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-abstract class FollowableMediaViewModel(
-    private val airingRepository: AiringRepository
-) : ViewModel(), ErrorFlowViewModel {
-
-    fun onFollowClicked(mediaItem: MediaItem) {
-        onError(null)
-        viewModelScope.launch {
+class FollowableViewModelDelegate @Inject constructor() {
+    fun onFollowClicked(
+        mediaItem: MediaItem,
+        scope: CoroutineScope,
+        airingRepository: AiringRepository,
+        errorFlowViewModel: ErrorFlowViewModel
+    ) {
+        errorFlowViewModel.onError(null)
+        scope.launch {
             try {
                 if (mediaItem.isFollowing) {
                     airingRepository.unfollowMedia(mediaItem)
@@ -27,7 +27,7 @@ abstract class FollowableMediaViewModel(
             } catch (throwable: Throwable) {
                 throwable.printStackTrace()
                 FirebaseCrashlytics.getInstance().recordException(throwable)
-                onError(ErrorItem.ofThrowable(throwable))
+                errorFlowViewModel.onError(ErrorItem.ofThrowable(throwable))
             }
         }
     }

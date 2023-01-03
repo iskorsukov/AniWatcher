@@ -18,7 +18,7 @@ class NotificationsAlarmReceiver : BroadcastReceiver() {
             val notificationsWorkRequest = OneTimeWorkRequestBuilder<NotificationsWorker>().build()
             WorkManager.getInstance(context).enqueueUniqueWork(
                 NOTIFICATIONS_WORK_TAG,
-                ExistingWorkPolicy.KEEP,
+                ExistingWorkPolicy.REPLACE,
                 notificationsWorkRequest
             )
             // Reschedule alarm

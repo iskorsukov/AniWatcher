@@ -1,5 +1,6 @@
 package com.iskorsukov.aniwatcher.domain.airing
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.iskorsukov.aniwatcher.RangeAiringDataQuery
 import com.iskorsukov.aniwatcher.SeasonAiringDataQuery
 import com.iskorsukov.aniwatcher.data.entity.base.AiringScheduleEntity
@@ -13,6 +14,7 @@ import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.yield
 import javax.inject.Inject
@@ -36,6 +38,7 @@ class AiringRepositoryImpl @Inject constructor(
                             )
                         } catch (e: Exception) {
                             e.printStackTrace()
+                            FirebaseCrashlytics.getInstance().recordException(e)
                             return@mapNotNull null
                         }
                         val airingSchedules = try {
@@ -44,6 +47,7 @@ class AiringRepositoryImpl @Inject constructor(
                             }
                         } catch (e: Exception) {
                             e.printStackTrace()
+                            FirebaseCrashlytics.getInstance().recordException(e)
                             return@mapNotNull null
                         }
                         mediaItem to airingSchedules
@@ -58,10 +62,24 @@ class AiringRepositoryImpl @Inject constructor(
                 if (entry == null) {
                     null
                 } else {
-                    val mediaItem =
-                        MediaItem.fromEntity(entry.key.mediaItemEntity, entry.key.followingEntity)
-                    val airingSchedules = entry.value.map { schedule ->
-                        AiringScheduleItem.fromEntity(schedule, mediaItem)
+                    val mediaItem = try {
+                        MediaItem.fromEntity(
+                            entry.key.mediaItemEntity,
+                            entry.key.followingEntity
+                        )
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        FirebaseCrashlytics.getInstance().recordException(e)
+                        return@map null
+                    }
+                    val airingSchedules = try {
+                        entry.value.map { schedule ->
+                            AiringScheduleItem.fromEntity(schedule, mediaItem)
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        FirebaseCrashlytics.getInstance().recordException(e)
+                        emptyList()
                     }
                     mediaItem to airingSchedules
                 }

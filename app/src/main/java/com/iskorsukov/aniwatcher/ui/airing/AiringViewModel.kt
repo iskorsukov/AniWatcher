@@ -1,11 +1,15 @@
 package com.iskorsukov.aniwatcher.ui.airing
 
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.follow.FollowableMediaViewModel
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.error.ErrorFlowViewModel
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.follow.FollowableViewModel
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.follow.FollowableViewModelDelegate
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.format.FormatFilterableViewModel
 import com.iskorsukov.aniwatcher.ui.media.MediaUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,8 +18,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AiringViewModel @Inject constructor(
-    airingRepository: AiringRepository
-) : FollowableMediaViewModel(airingRepository), FormatFilterableViewModel {
+    private val airingRepository: AiringRepository,
+    private val followableViewModelDelegate: FollowableViewModelDelegate
+) : ViewModel(),
+    FollowableViewModel,
+    ErrorFlowViewModel,
+    FormatFilterableViewModel {
 
     private val currentDayOfWeekLocal = DateTimeHelper.currentDayOfWeek()
 
@@ -46,6 +54,15 @@ class AiringViewModel @Inject constructor(
 
     override fun onError(errorItem: ErrorItem?) {
         _uiStateFlow.value = _uiStateFlow.value.copy(errorItem = errorItem)
+    }
+
+    override fun onFollowClicked(mediaItem: MediaItem) {
+        followableViewModelDelegate.onFollowClicked(
+            mediaItem,
+            viewModelScope,
+            airingRepository,
+            this
+        )
     }
 
     private fun updateResetButton() {

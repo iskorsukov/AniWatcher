@@ -1,12 +1,15 @@
 package com.iskorsukov.aniwatcher.ui.following
 
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.follow.FollowableMediaViewModel
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.error.ErrorFlowViewModel
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.follow.FollowableViewModel
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.follow.FollowableViewModelDelegate
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.format.FormatFilterableViewModel
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.search.SearchableViewModel
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.search.SearchableViewModelDelegate
@@ -20,8 +23,11 @@ import javax.inject.Inject
 @HiltViewModel
 class FollowingViewModel @Inject constructor(
     private val airingRepository: AiringRepository,
-    private val searchableViewModelDelegate: SearchableViewModelDelegate = SearchableViewModelDelegate()
-): FollowableMediaViewModel(airingRepository),
+    private val searchableViewModelDelegate: SearchableViewModelDelegate,
+    private val followableViewModelDelegate: FollowableViewModelDelegate
+): ViewModel(),
+    FollowableViewModel,
+    ErrorFlowViewModel,
     SearchableViewModel by searchableViewModelDelegate,
     SortableViewModel,
     FormatFilterableViewModel {
@@ -71,6 +77,15 @@ class FollowingViewModel @Inject constructor(
 
     override fun onError(errorItem: ErrorItem?) {
         _uiStateFlow.value = _uiStateFlow.value.copy(errorItem = errorItem)
+    }
+
+    override fun onFollowClicked(mediaItem: MediaItem) {
+        followableViewModelDelegate.onFollowClicked(
+            mediaItem,
+            viewModelScope,
+            airingRepository,
+            this
+        )
     }
 
     override fun onDeselectedFormatsChanged(deselectedFormats: List<MediaItem.LocalFormat>) {

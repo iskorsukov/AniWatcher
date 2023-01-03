@@ -43,7 +43,6 @@ class QueryDataToEntityMapper @Inject constructor() {
         }
         return data.Page.airingSchedules
             .filterNotNull()
-            .filter { it.media?.format == null || MediaItem.LocalFormat.values().map { it.name }.contains(it.media.format.name) }
             .filter { it.media?.isAdult != null && it.media.isAdult == false } // filter adult media
             .associate { outerSchedule ->
                 val queryMedia = outerSchedule.media!! // non-nullability enforced by earlier check

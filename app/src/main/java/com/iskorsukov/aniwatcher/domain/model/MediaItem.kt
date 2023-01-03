@@ -63,7 +63,18 @@ data class MediaItem(
         OVA(R.string.format_ova),
         ONA(R.string.format_ona),
         MOVIE(R.string.format_movie),
-        SPECIAL(R.string.format_special)
+        SPECIAL(R.string.format_special),
+        UNKNOWN(R.string.format_unknown);
+
+        companion object {
+            fun of(formatStr: String): LocalFormat {
+                return try {
+                    valueOf(formatStr)
+                } catch (e: Exception) {
+                    UNKNOWN
+                }
+            }
+        }
     }
 
     companion object {
@@ -87,7 +98,7 @@ data class MediaItem(
                         ?.filter { it.isNotEmpty() } ?: emptyList(),
                     siteUrl = siteUrl,
                     nextEpisodeAiringAt = nextEpisodeAiringAt,
-                    format = format?.let { LocalFormat.valueOf(it) },
+                    format = format?.let { LocalFormat.of(it) },
                     season = season,
                     year = year,
                     isFollowing = followingEntity != null
