@@ -42,15 +42,16 @@ class MainActivityViewModelTest {
         )
 
         mockkObject(DateTimeHelper)
-        every { DateTimeHelper.currentSeasonYear(any()) } returns DateTimeHelper.SeasonYear(DateTimeHelper.Season.WINTER, 2023)
+        every { DateTimeHelper.currentSeasonYear(any()) } returns DateTimeHelper.SeasonYear(DateTimeHelper.Season.FALL, 2022)
 
         coEvery { settingsRepository.settingsStateFlow.value } returns
                 SettingsState(
-                    DarkModeOption.SYSTEM,
-                    ScheduleType.SEASON,
-                    NamingScheme.ROMAJI,
-                    true,
-                    true
+                    darkModeOption = DarkModeOption.SYSTEM,
+                    scheduleType = ScheduleType.SEASON,
+                    preferredNamingScheme = NamingScheme.ROMAJI,
+                    notificationsEnabled = true,
+                    onboardingComplete = true,
+                    selectedSeasonYear = DateTimeHelper.SeasonYear(DateTimeHelper.Season.FALL, 2022)
                 )
 
         viewModel.loadAiringData()
@@ -59,7 +60,7 @@ class MainActivityViewModelTest {
         advanceUntilIdle()
         assertThat(viewModel.uiState.first().isRefreshing).isFalse()
 
-        coVerify { airingRepository.loadSeasonAiringData(2023, "WINTER") }
+        coVerify { airingRepository.loadSeasonAiringData(2022, "FALL") }
 
         unmockkAll()
     }
@@ -78,11 +79,12 @@ class MainActivityViewModelTest {
 
         coEvery { settingsRepository.settingsStateFlow.value } returns
                 SettingsState(
-                    DarkModeOption.SYSTEM,
-                    ScheduleType.ALL,
-                    NamingScheme.ROMAJI,
-                    true,
-                    true
+                    darkModeOption = DarkModeOption.SYSTEM,
+                    scheduleType = ScheduleType.ALL,
+                    preferredNamingScheme = NamingScheme.ROMAJI,
+                    notificationsEnabled = true,
+                    onboardingComplete = true,
+                    selectedSeasonYear = DateTimeHelper.SeasonYear(DateTimeHelper.Season.FALL, 2022)
                 )
 
         viewModel.loadAiringData()
@@ -112,15 +114,16 @@ class MainActivityViewModelTest {
         )
 
         mockkObject(DateTimeHelper)
-        every { DateTimeHelper.currentSeasonYear(any()) } returns DateTimeHelper.SeasonYear(DateTimeHelper.Season.WINTER, 2023)
+        every { DateTimeHelper.currentSeasonYear(any()) } returns DateTimeHelper.SeasonYear(DateTimeHelper.Season.FALL, 2022)
 
         coEvery { settingsRepository.settingsStateFlow.value } returns
                 SettingsState(
-                    DarkModeOption.SYSTEM,
-                    ScheduleType.SEASON,
-                    NamingScheme.ROMAJI,
-                    true,
-                    true
+                    darkModeOption = DarkModeOption.SYSTEM,
+                    scheduleType = ScheduleType.SEASON,
+                    preferredNamingScheme = NamingScheme.ROMAJI,
+                    notificationsEnabled = true,
+                    onboardingComplete = true,
+                    selectedSeasonYear = DateTimeHelper.SeasonYear(DateTimeHelper.Season.FALL, 2022)
                 )
 
         coEvery { airingRepository.loadSeasonAiringData(any(), any()) } throws IOException()
@@ -133,7 +136,7 @@ class MainActivityViewModelTest {
         assertThat(state.isRefreshing).isFalse()
         assertThat(state.errorItem).isInstanceOf(ErrorItem.Unknown::class.java)
 
-        coVerify { airingRepository.loadSeasonAiringData(2023, "WINTER") }
+        coVerify { airingRepository.loadSeasonAiringData(2022, "FALL") }
 
         unmockkAll()
     }

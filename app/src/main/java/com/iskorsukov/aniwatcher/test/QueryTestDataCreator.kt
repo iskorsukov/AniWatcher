@@ -29,16 +29,11 @@ object QueryTestDataCreator {
             genres = listOf("Action", "Comedy"),
             siteUrl = "AniListUrl",
             airingSchedule = SeasonAiringDataQuery.AiringSchedule(
-                airingScheduleNode = listOf(
-                    baseSeasonAiringDataNode(),
-                    baseSeasonAiringDataNode().id(2).episode(2).airingAt(1667385638),
-                    baseSeasonAiringDataNode().id(3).episode(3).airingAt(1667644838),
-                    baseSeasonAiringDataNode().id(4).episode(4).airingAt(1667029460)
-                )
+                baseSeasonAiringDataNodeList()
             ),
             season = MediaSeason.FALL,
             seasonYear = 2022,
-            nextAiringEpisode = SeasonAiringDataQuery.NextAiringEpisode(1667833200),
+            nextAiringEpisode = SeasonAiringDataQuery.NextAiringEpisode("7.10.2022/18:00".toSeconds()),
             format = MediaFormat.TV
         )
     }
@@ -46,9 +41,19 @@ object QueryTestDataCreator {
     fun baseSeasonAiringDataNode(): SeasonAiringDataQuery.AiringScheduleNode {
         return SeasonAiringDataQuery.AiringScheduleNode(
             1,
-            1667833200,
+            "7.10.2022/18:00".toSeconds(),
             1,
             1
+        )
+    }
+
+    fun baseSeasonAiringDataNodeList(): List<SeasonAiringDataQuery.AiringScheduleNode> {
+        val base = baseSeasonAiringDataNode()
+        return listOf(
+            base,
+            base.id(2).episode(2).airingAt("8.10.2022/13:40".toSeconds()),
+            base.id(3).episode(3).airingAt("12.10.2022/18:00".toSeconds()),
+            base.id(4).episode(4).airingAt("15.10.2022/18:00".toSeconds())
         )
     }
 
@@ -77,14 +82,9 @@ object QueryTestDataCreator {
             genres = listOf("Action", "Comedy"),
             siteUrl = "AniListUrl",
             airingSchedule = RangeAiringDataQuery.AiringSchedule1(
-                airingScheduleNode = listOf(
-                    baseRangeAiringDataNode(),
-                    baseRangeAiringDataNode().id(2).episode(2).airingAt(1667385638),
-                    baseRangeAiringDataNode().id(3).episode(3).airingAt(1667644838),
-                    baseRangeAiringDataNode().id(4).episode(4).airingAt(1667029460)
-                )
+                baseRangeAiringDataNodeList()
             ),
-            nextAiringEpisode = RangeAiringDataQuery.NextAiringEpisode(1667833200),
+            nextAiringEpisode = RangeAiringDataQuery.NextAiringEpisode("7.10.2022/18:00".toSeconds()),
             format = MediaFormat.TV
         )
     }
@@ -92,9 +92,19 @@ object QueryTestDataCreator {
     fun baseRangeAiringDataNode(): RangeAiringDataQuery.AiringScheduleNode {
         return RangeAiringDataQuery.AiringScheduleNode(
             1,
-            1667833200,
+            "7.10.2022/18:00".toSeconds(),
             1,
             1
+        )
+    }
+
+    fun baseRangeAiringDataNodeList(): List<RangeAiringDataQuery.AiringScheduleNode> {
+        val base = baseRangeAiringDataNode()
+        return listOf(
+            base,
+            base.id(2).episode(2).airingAt("8.10.2022/13:40".toSeconds()),
+            base.id(3).episode(3).airingAt("12.10.2022/18:00".toSeconds()),
+            base.id(4).episode(4).airingAt("15.10.2022/18:00".toSeconds())
         )
     }
 }

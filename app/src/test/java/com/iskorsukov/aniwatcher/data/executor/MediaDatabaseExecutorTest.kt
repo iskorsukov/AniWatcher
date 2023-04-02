@@ -8,10 +8,15 @@ import com.iskorsukov.aniwatcher.data.entity.combined.MediaItemAndFollowingEntit
 import com.iskorsukov.aniwatcher.data.room.MediaDao
 import com.iskorsukov.aniwatcher.data.room.MediaDatabase
 import com.iskorsukov.aniwatcher.data.room.NotificationsDao
+import com.iskorsukov.aniwatcher.domain.settings.ScheduleType
+import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
+import com.iskorsukov.aniwatcher.domain.settings.SettingsState
+import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.domain.util.DispatcherProvider
 import com.iskorsukov.aniwatcher.test.EntityTestDataCreator
 import io.mockk.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -26,6 +31,7 @@ class MediaDatabaseExecutorTest {
     private val mediaDao: MediaDao = mockk(relaxed = true)
     private val notificationsDao: NotificationsDao = mockk(relaxed = true)
     private val mediaDatabase: MediaDatabase = mockk(relaxed = true)
+    private val settingsRepository: SettingsRepository = mockk(relaxed = true)
 
     private lateinit var mediaDatabaseExecutor: MediaDatabaseExecutor
 
@@ -71,7 +77,19 @@ class MediaDatabaseExecutorTest {
             transactionLambda.captured.invoke()
         }
 
-        mediaDatabaseExecutor = MediaDatabaseExecutor(mediaDatabase, mockk(relaxed = true))
+        val settingsStateFlow = MutableStateFlow(
+            mockk<SettingsState>(relaxed = true).also {
+                every { it.scheduleType } returns ScheduleType.SEASON
+                every { it.selectedSeasonYear } returns DateTimeHelper.SeasonYear(DateTimeHelper.Season.FALL, 2022)
+            }
+        )
+        every { settingsRepository.settingsStateFlow } returns settingsStateFlow
+
+        mediaDatabaseExecutor = MediaDatabaseExecutor(
+            mediaDatabase,
+            mockk(relaxed = true),
+            settingsRepository
+        )
     }
 
     private fun cleanupMocks() {

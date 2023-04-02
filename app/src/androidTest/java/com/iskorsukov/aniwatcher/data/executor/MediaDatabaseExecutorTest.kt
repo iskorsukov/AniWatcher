@@ -11,9 +11,12 @@ import com.iskorsukov.aniwatcher.data.entity.combined.MediaItemAndFollowingEntit
 import com.iskorsukov.aniwatcher.data.room.MediaDao
 import com.iskorsukov.aniwatcher.data.room.MediaDatabase
 import com.iskorsukov.aniwatcher.data.room.NotificationsDao
+import com.iskorsukov.aniwatcher.domain.settings.*
+import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.domain.util.LocalClockSystem
 import com.iskorsukov.aniwatcher.test.EntityTestDataCreator
 import io.mockk.*
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -29,6 +32,8 @@ class MediaDatabaseExecutorTest {
     private lateinit var mediaDatabase: MediaDatabase
 
     private lateinit var clock: LocalClockSystem
+
+    private lateinit var settingsRepository: SettingsRepository
 
     private lateinit var mediaDatabaseExecutor: MediaDatabaseExecutor
 
@@ -49,9 +54,24 @@ class MediaDatabaseExecutorTest {
             coEvery { currentTimeSeconds() } returns 0
         }
 
+        settingsRepository = mockk<SettingsRepository>(relaxed = true).also {
+            val settingsStateFlow = MutableStateFlow(
+                SettingsState(
+                    darkModeOption = DarkModeOption.DARK,
+                    scheduleType = ScheduleType.SEASON,
+                    preferredNamingScheme = NamingScheme.ROMAJI,
+                    notificationsEnabled = true,
+                    onboardingComplete = true,
+                    selectedSeasonYear = DateTimeHelper.SeasonYear(DateTimeHelper.Season.FALL, 2022)
+                )
+            )
+            coEvery { it.settingsStateFlow } returns settingsStateFlow
+        }
+
         mediaDatabaseExecutor = MediaDatabaseExecutor(
             mediaDatabase,
-            clock
+            clock,
+            settingsRepository
         )
     }
 

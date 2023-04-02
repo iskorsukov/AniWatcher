@@ -423,7 +423,7 @@ private fun DetailsMediaInfoCard(
 private fun DetailsScreenPreview() {
     DetailScreenContent(
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
-        mediaItem = ModelTestDataCreator.baseMediaItem(),
+        mediaItem = ModelTestDataCreator.baseMediaItem,
         airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
         preferredNamingScheme = NamingScheme.ENGLISH,
         onBackButtonClicked = { },
@@ -434,10 +434,11 @@ private fun DetailsScreenPreview() {
 @Composable
 @Preview
 private fun DetailsScreenPreview_noBanner() {
+    val mediaItemWithoutBanner = ModelTestDataCreator.baseMediaItem.bannerImage(null)
     DetailScreenContent(
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
-        mediaItem = ModelTestDataCreator.baseMediaItem().bannerImage(null),
-        airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
+        mediaItem = mediaItemWithoutBanner,
+        airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(mediaItemWithoutBanner),
         preferredNamingScheme = NamingScheme.ENGLISH,
         onBackButtonClicked = { },
         onLearnMoreClicked = { }
@@ -447,10 +448,11 @@ private fun DetailsScreenPreview_noBanner() {
 @Composable
 @Preview
 private fun DetailsScreenPreview_noCoverImage() {
+    val mediaItemWithoutCover = ModelTestDataCreator.baseMediaItem.coverImageUrl(null)
     DetailScreenContent(
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
-        mediaItem = ModelTestDataCreator.baseMediaItem().coverImageUrl(null),
-        airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
+        mediaItem = mediaItemWithoutCover,
+        airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(mediaItemWithoutCover),
         preferredNamingScheme = NamingScheme.ENGLISH,
         onBackButtonClicked = { },
         onLearnMoreClicked = { }
@@ -460,10 +462,13 @@ private fun DetailsScreenPreview_noCoverImage() {
 @Composable
 @Preview
 private fun DetailsScreenPreview_noBannerOrImage() {
+    val mediaItemWithoutBannerAndCover = ModelTestDataCreator.baseMediaItem
+        .bannerImage(null)
+        .coverImageUrl(null)
     DetailScreenContent(
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
-        mediaItem = ModelTestDataCreator.baseMediaItem().bannerImage(null).coverImageUrl(null),
-        airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
+        mediaItem = mediaItemWithoutBannerAndCover,
+        airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(mediaItemWithoutBannerAndCover),
         preferredNamingScheme = NamingScheme.ENGLISH,
         onBackButtonClicked = { },
         onLearnMoreClicked = { }
@@ -475,7 +480,7 @@ private fun DetailsScreenPreview_noBannerOrImage() {
 private fun DetailsScreenPreview_noAiringSchedule() {
     DetailScreenContent(
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
-        mediaItem = ModelTestDataCreator.baseMediaItem(),
+        mediaItem = ModelTestDataCreator.baseMediaItem,
         airingScheduleList = emptyList(),
         preferredNamingScheme = NamingScheme.ENGLISH,
         onBackButtonClicked = { },
@@ -486,10 +491,11 @@ private fun DetailsScreenPreview_noAiringSchedule() {
 @Composable
 @Preview
 private fun DetailsScreenPreview_emptyDescription() {
+    val mediaItemWithEmptyDescription = ModelTestDataCreator.baseMediaItem.description("")
     DetailScreenContent(
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
-        mediaItem = ModelTestDataCreator.baseMediaItem().description(""),
-        airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
+        mediaItem = mediaItemWithEmptyDescription,
+        airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(mediaItemWithEmptyDescription),
         preferredNamingScheme = NamingScheme.ENGLISH,
         onBackButtonClicked = { },
         onLearnMoreClicked = { }

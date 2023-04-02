@@ -42,7 +42,7 @@ class DetailsViewModel @Inject constructor(
             mediaItem,
             viewModelScope,
             airingRepository,
-            this
+            this::onError
         )
     }
 }

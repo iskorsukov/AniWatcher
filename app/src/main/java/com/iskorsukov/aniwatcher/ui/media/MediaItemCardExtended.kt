@@ -242,9 +242,10 @@ private fun MediaItemOverlayTitle(
 @Composable
 @Preview
 fun MediaItemCardExtendedPreview() {
+    val mediaItemWithLongDescription = ModelTestDataCreator.baseMediaItem.description("Word ".repeat(50))
     MediaItemCardExtended(
-        mediaItem = ModelTestDataCreator.baseMediaItem().description("Word ".repeat(50)),
-        airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
+        mediaItem = mediaItemWithLongDescription,
+        airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(mediaItemWithLongDescription),
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         onFollowClicked = {},
         onMediaClicked = {}
@@ -254,8 +255,9 @@ fun MediaItemCardExtendedPreview() {
 @Composable
 @Preview
 fun MediaItemCardExtendedPreview_noAiringSchedule() {
+    val mediaItemWithLongDescription = ModelTestDataCreator.baseMediaItem.description("Word ".repeat(50))
     MediaItemCardExtended(
-        mediaItem = ModelTestDataCreator.baseMediaItem().description("Word ".repeat(50)),
+        mediaItem = mediaItemWithLongDescription,
         airingScheduleItem = null,
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         onFollowClicked = {},
@@ -266,10 +268,13 @@ fun MediaItemCardExtendedPreview_noAiringSchedule() {
 @Composable
 @Preview
 fun MediaItemCardExtendedPreview_noRankScore() {
+    val mediaItemLongDescriptionNoRankScore = ModelTestDataCreator.baseMediaItem
+        .description("Word ".repeat(50))
+        .popularity(null)
+        .meanScore(null)
     MediaItemCardExtended(
-        mediaItem = ModelTestDataCreator.baseMediaItem().description("Word ".repeat(50))
-            .popularity(null).meanScore(null),
-        airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
+        mediaItem = mediaItemLongDescriptionNoRankScore,
+        airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(mediaItemLongDescriptionNoRankScore),
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         onFollowClicked = {},
         onMediaClicked = {}
@@ -279,9 +284,12 @@ fun MediaItemCardExtendedPreview_noRankScore() {
 @Composable
 @Preview
 fun MediaItemCardExtendedPreview_noAiringSchedule_noRankScore() {
+    val mediaItemLongDescriptionNoRankScore = ModelTestDataCreator.baseMediaItem
+        .description("Word ".repeat(50))
+        .popularity(null)
+        .meanScore(null)
     MediaItemCardExtended(
-        mediaItem = ModelTestDataCreator.baseMediaItem().description("Word ".repeat(50))
-            .popularity(null).meanScore(null),
+        mediaItem = mediaItemLongDescriptionNoRankScore,
         airingScheduleItem = null,
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         onFollowClicked = {},

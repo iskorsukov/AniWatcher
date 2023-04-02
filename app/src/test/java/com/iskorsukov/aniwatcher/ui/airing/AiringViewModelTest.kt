@@ -8,6 +8,7 @@ import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.domain.util.DayOfWeekLocal
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.test.isFollowing
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.follow.FollowableViewModelDelegate
 import io.mockk.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -18,6 +19,7 @@ import org.junit.Test
 class AiringViewModelTest {
 
     private val airingRepository: AiringRepository = mockk(relaxed = true)
+    private val followableViewModelDelegate: FollowableViewModelDelegate = mockk(relaxed = true)
 
     private lateinit var viewModel: AiringViewModel
 
@@ -28,26 +30,26 @@ class AiringViewModelTest {
 
         coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(
             mapOf(
-                ModelTestDataCreator.baseMediaItem() to
+                ModelTestDataCreator.baseMediaItem to
                         ModelTestDataCreator.baseAiringScheduleItemList()
             )
         )
-        viewModel = AiringViewModel(airingRepository)
+        viewModel = AiringViewModel(airingRepository, followableViewModelDelegate)
 
         val result: Map<DayOfWeekLocal, List<AiringScheduleItem>> =
             viewModel.airingSchedulesByDayOfWeekFlow.first()
 
         assertThat(result).isNotNull()
         assertThat(result.keys).containsExactlyElementsIn(listOf(
-            DayOfWeekLocal.WEDNESDAY,
             DayOfWeekLocal.SATURDAY,
-            DayOfWeekLocal.MONDAY
+            DayOfWeekLocal.MONDAY,
+            DayOfWeekLocal.TUESDAY,
         )).inOrder()
         val list = ModelTestDataCreator.baseAiringScheduleItemList()
         val assertValues = listOf(
-            list[1],
-            list[3],
-            list[0]
+            list[2],
+            list[0],
+            list[1]
         )
         assertThat(result.values.flatten()).containsExactlyElementsIn(assertValues).inOrder()
 
@@ -61,11 +63,11 @@ class AiringViewModelTest {
 
         coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(
             mapOf(
-                ModelTestDataCreator.baseMediaItem() to
+                ModelTestDataCreator.baseMediaItem to
                         ModelTestDataCreator.baseAiringScheduleItemList()
             )
         )
-        viewModel = AiringViewModel(airingRepository)
+        viewModel = AiringViewModel(airingRepository, followableViewModelDelegate)
 
         assertThat(viewModel.uiStateFlow.value).isEqualTo(AiringUiState.DEFAULT)
 
@@ -79,11 +81,11 @@ class AiringViewModelTest {
 
         coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(
             mapOf(
-                ModelTestDataCreator.baseMediaItem() to
+                ModelTestDataCreator.baseMediaItem to
                         ModelTestDataCreator.baseAiringScheduleItemList()
             )
         )
-        viewModel = AiringViewModel(airingRepository)
+        viewModel = AiringViewModel(airingRepository, followableViewModelDelegate)
 
         val deselectedFormats = listOf(
             MediaItem.LocalFormat.TV, MediaItem.LocalFormat.MOVIE
@@ -106,11 +108,11 @@ class AiringViewModelTest {
 
         coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(
             mapOf(
-                ModelTestDataCreator.baseMediaItem() to
+                ModelTestDataCreator.baseMediaItem to
                         ModelTestDataCreator.baseAiringScheduleItemList()
             )
         )
-        viewModel = AiringViewModel(airingRepository)
+        viewModel = AiringViewModel(airingRepository, followableViewModelDelegate)
 
         val deselectedFormats = listOf(
             MediaItem.LocalFormat.TV, MediaItem.LocalFormat.MOVIE
@@ -127,26 +129,30 @@ class AiringViewModelTest {
     @Test
     fun onFollowMediaClicked() = runTest {
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
-        viewModel = AiringViewModel(airingRepository)
+        viewModel = AiringViewModel(airingRepository, followableViewModelDelegate)
 
-        val mediaItem = ModelTestDataCreator.baseMediaItem()
+        val mediaItem = ModelTestDataCreator.baseMediaItem
 
         viewModel.onFollowClicked(mediaItem)
         advanceUntilIdle()
 
-        coVerify { airingRepository.followMedia(mediaItem) }
+        coVerify {
+            followableViewModelDelegate.onFollowClicked(mediaItem, any(), airingRepository, any())
+        }
     }
 
     @Test
     fun onFollowMediaClicked_unfollow() = runTest {
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
-        viewModel = AiringViewModel(airingRepository)
+        viewModel = AiringViewModel(airingRepository, followableViewModelDelegate)
 
-        val mediaItem = ModelTestDataCreator.baseMediaItem().isFollowing(true)
+        val mediaItem = ModelTestDataCreator.baseMediaItem.isFollowing(true)
 
         viewModel.onFollowClicked(mediaItem)
         advanceUntilIdle()
 
-        coVerify { airingRepository.unfollowMedia(mediaItem) }
+        coVerify {
+            followableViewModelDelegate.onFollowClicked(mediaItem, any(), airingRepository, any())
+        }
     }
 }

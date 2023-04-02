@@ -22,7 +22,7 @@ object EntityTestDataCreator {
             popularity = 1,
             meanScore = 1,
             genresCommaSeparated = "Action,Comedy",
-            nextEpisodeAiringAt = 1667833200,
+            nextEpisodeAiringAt = "7.10.2022/18:00".toSeconds(),
             siteUrl = "AniListUrl",
             format = "TV",
             season = "FALL",
@@ -40,25 +40,26 @@ object EntityTestDataCreator {
     fun baseAiringScheduleEntity(): AiringScheduleEntity {
         return AiringScheduleEntity(
             airingScheduleItemId = 1,
-            airingAt = 1667833200,
+            airingAt = "7.10.2022/18:00".toSeconds(),
             episode = 1,
             mediaItemRelationId = 1
         )
     }
 
     fun baseAiringScheduleEntityList(): List<AiringScheduleEntity> {
+        val base = baseAiringScheduleEntity()
         return listOf(
-            baseAiringScheduleEntity(),
-            baseAiringScheduleEntity().id(2).episode(2).airingAt(1667385638),
-            baseAiringScheduleEntity().id(3).episode(3).airingAt(1667644838),
-            baseAiringScheduleEntity().id(4).episode(4).airingAt(1667029460)
+            base,
+            base.id(2).episode(2).airingAt("8.10.2022/13:40".toSeconds()),
+            base.id(3).episode(3).airingAt("12.10.2022/18:00".toSeconds()),
+            base.id(4).episode(4).airingAt("15.10.2022/18:00".toSeconds())
         )
     }
 
     fun baseNotificationEntity(): NotificationItemEntity {
         return NotificationItemEntity(
             1,
-            1667833200000L,
+            "7.10.2022/18:00".toSeconds() * 1000L,
             1
         )
     }

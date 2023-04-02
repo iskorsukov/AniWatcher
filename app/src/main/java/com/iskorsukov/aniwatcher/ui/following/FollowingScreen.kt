@@ -189,11 +189,12 @@ private fun FollowingScreenEmptyPreview() {
 @Composable
 @Preview
 private fun FollowingScreenPreview() {
+    val followedMediaItem = ModelTestDataCreator.baseMediaItem.isFollowing(true)
     FollowingScreenContent(
         followingMediaMap = MediaItemMapper.groupMediaWithNextAiringSchedule(
             mapOf(
-                ModelTestDataCreator.baseMediaItem().isFollowing(true) to
-                        ModelTestDataCreator.baseAiringScheduleItemList()
+                 followedMediaItem to
+                        ModelTestDataCreator.baseAiringScheduleItemList(followedMediaItem)
             )
         ).filterKeys { it.isFollowing },
         searchTextIsEmpty = true,

@@ -1,7 +1,6 @@
 package com.iskorsukov.aniwatcher.domain.notification.work
 
 import android.content.Context
-import androidx.core.app.NotificationManagerCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.work.ListenableWorker
@@ -13,6 +12,7 @@ import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
 import com.iskorsukov.aniwatcher.domain.notification.work.util.NotificationBuilderHelper
 import com.iskorsukov.aniwatcher.domain.util.LocalClockSystem
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
+import com.iskorsukov.aniwatcher.test.episode
 import com.iskorsukov.aniwatcher.test.id
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
@@ -40,10 +40,12 @@ class NotificationsWorkerTest {
         every { NotificationBuilderHelper.buildNotification(any(), any()) } returns mockk()
 
         notificationsRepository = mockk(relaxed = true)
-        coEvery { notificationsRepository.getPendingSchedulesToNotify() } returns listOf(
-            ModelTestDataCreator.baseAiringScheduleItem(),
-            ModelTestDataCreator.baseAiringScheduleItem().id(2)
+        val baseScheduleItem = ModelTestDataCreator.baseAiringScheduleItem()
+        val pendingSchedulesList = listOf(
+            baseScheduleItem,
+            baseScheduleItem.id(2)
         )
+        coEvery { notificationsRepository.getPendingSchedulesToNotify() } returns pendingSchedulesList
 
         notificationsWorker = TestListenableWorkerBuilder<NotificationsWorker>(context)
             .setWorkerFactory(object : WorkerFactory() {

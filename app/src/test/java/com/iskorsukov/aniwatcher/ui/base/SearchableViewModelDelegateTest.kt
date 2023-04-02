@@ -18,11 +18,13 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class SearchableViewModelDelegateTest {
 
-    private val firstItem = ModelTestDataCreator.baseMediaItem() to
+    private val firstItem = ModelTestDataCreator.baseMediaItem to
             ModelTestDataCreator.baseAiringScheduleItemList()
-    private val secondItem = ModelTestDataCreator.baseMediaItem().id(2)
-        .title(MediaItem.Title(null, "SearchText", "Title")) to
-            ModelTestDataCreator.baseAiringScheduleItemList()
+    private val baseMediaItemWithModifiedTitle = ModelTestDataCreator.baseMediaItem
+            .id(2)
+            .title(MediaItem.Title(null, "SearchText", "Title"))
+    private val secondItem = baseMediaItemWithModifiedTitle to
+            ModelTestDataCreator.baseAiringScheduleItemList(baseMediaItemWithModifiedTitle)
     private val data = mapOf(firstItem, secondItem)
 
     private val airingRepository: AiringRepository = mockk<AiringRepository>(relaxed = true).apply {

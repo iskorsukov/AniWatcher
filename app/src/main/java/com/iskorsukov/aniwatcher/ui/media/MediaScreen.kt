@@ -170,7 +170,7 @@ fun MediaScreenPreview() {
     MediaScreenContent(
         mediaItemWithNextAiringMap = MediaItemMapper.groupMediaWithNextAiringSchedule(
             mapOf(
-                ModelTestDataCreator.baseMediaItem() to
+                ModelTestDataCreator.baseMediaItem to
                         ModelTestDataCreator.baseAiringScheduleItemList()
             )
         ),

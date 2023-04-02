@@ -8,54 +8,54 @@ object ModelTestDataCreator {
 
     const val TIME_IN_MINUTES = 27785711L
 
-    fun baseMediaItem(): MediaItem {
-        return MediaItem(
-            id = 1,
-            title = MediaItem.Title(
-                "TitleRomaji",
-                "TitleEnglish",
-                "TitleNative"
-            ),
-            description = "Description",
-            coverImageUrl = "https://img1.goodfon.ru/original/1024x768/9/d6/kotionok-malysh-vzgliad-trava-boke.jpg",
-            colorStr = "#43aee4",
-            bannerImageUrl = "https://s4.anilist.co/file/anilistcdn/media/anime/banner/139587-XFbotQOPcLC4.jpg",
-            mainStudio = "Studio",
-            popularity = 1,
-            meanScore = 1,
-            genres = listOf("Action", "Comedy"),
-            siteUrl = "AniListUrl",
-            nextEpisodeAiringAt = 1667833200,
-            format = MediaItem.LocalFormat.TV,
-            isFollowing = false,
-            season = "FALL",
-            year = 2022
-        )
-    }
+    val baseMediaItem: MediaItem = MediaItem(
+        id = 1,
+        title = MediaItem.Title(
+            "TitleRomaji",
+            "TitleEnglish",
+            "TitleNative"
+        ),
+        description = "Description",
+        coverImageUrl = "https://img1.goodfon.ru/original/1024x768/9/d6/kotionok-malysh-vzgliad-trava-boke.jpg",
+        colorStr = "#43aee4",
+        bannerImageUrl = "https://s4.anilist.co/file/anilistcdn/media/anime/banner/139587-XFbotQOPcLC4.jpg",
+        mainStudio = "Studio",
+        popularity = 1,
+        meanScore = 1,
+        genres = listOf("Action", "Comedy"),
+        siteUrl = "AniListUrl",
+        nextEpisodeAiringAt = "7.10.2022/18:00".toSeconds(),
+        format = MediaItem.LocalFormat.TV,
+        isFollowing = false,
+        season = "FALL",
+        year = 2022
+    )
 
-    fun baseAiringScheduleItem(isFollowing: Boolean = false): AiringScheduleItem {
+    fun baseAiringScheduleItem(baseMediaItem: MediaItem? = null): AiringScheduleItem {
+        val base = baseMediaItem ?: this.baseMediaItem
         return AiringScheduleItem(
             1,
-            1667833200,
+            "7.10.2022/18:00".toSeconds(),
             1,
-            baseMediaItem().isFollowing(isFollowing)
+            base
         )
     }
 
-    fun baseAiringScheduleItemList(isFollowing: Boolean = false): List<AiringScheduleItem> {
+    fun baseAiringScheduleItemList(baseMediaItem: MediaItem? = null): List<AiringScheduleItem> {
+        val base = baseAiringScheduleItem(baseMediaItem)
         return listOf(
-            baseAiringScheduleItem(isFollowing),
-            baseAiringScheduleItem(isFollowing).id(2).episode(2).airingAt(1667385638),
-            baseAiringScheduleItem(isFollowing).id(3).episode(3).airingAt(1667644838),
-            baseAiringScheduleItem(isFollowing).id(4).episode(4).airingAt(1667029460)
+            base,
+            base.id(2).episode(2).airingAt("8.10.2022/13:40".toSeconds()),
+            base.id(3).episode(3).airingAt("12.10.2022/18:00".toSeconds()),
+            base.id(4).episode(4).airingAt("15.10.2022/18:00".toSeconds())
         )
     }
 
-    fun baseNotificationItem(): NotificationItem {
+    fun baseNotificationItem(baseMediaItem: MediaItem? = null): NotificationItem {
         return NotificationItem(
             1,
-            1667833200000L,
-            baseAiringScheduleItem()
+            "7.10.2022/18:00".toSeconds() * 1000L,
+            baseAiringScheduleItem(baseMediaItem = baseMediaItem)
         )
     }
 }

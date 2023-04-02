@@ -14,9 +14,8 @@ class FollowableViewModelDelegate @Inject constructor() {
         mediaItem: MediaItem,
         scope: CoroutineScope,
         airingRepository: AiringRepository,
-        errorFlowViewModel: ErrorFlowViewModel
+        onError: (ErrorItem?) -> Unit
     ) {
-        errorFlowViewModel.onError(null)
         scope.launch {
             try {
                 if (mediaItem.isFollowing) {
@@ -27,7 +26,7 @@ class FollowableViewModelDelegate @Inject constructor() {
             } catch (throwable: Throwable) {
                 throwable.printStackTrace()
                 FirebaseCrashlytics.getInstance().recordException(throwable)
-                errorFlowViewModel.onError(ErrorItem.ofThrowable(throwable))
+                onError(ErrorItem.ofThrowable(throwable))
             }
         }
     }

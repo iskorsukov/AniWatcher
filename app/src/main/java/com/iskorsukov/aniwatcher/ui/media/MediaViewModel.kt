@@ -59,7 +59,7 @@ class MediaViewModel @Inject constructor(
             mediaItem,
             viewModelScope,
             airingRepository,
-            this
+            this::onError
         )
     }
 

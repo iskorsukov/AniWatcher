@@ -84,7 +84,7 @@ class FollowingViewModel @Inject constructor(
             mediaItem,
             viewModelScope,
             airingRepository,
-            this
+            this::onError
         )
     }
 

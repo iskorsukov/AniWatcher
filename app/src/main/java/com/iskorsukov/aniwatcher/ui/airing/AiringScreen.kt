@@ -160,7 +160,7 @@ private fun AiringScreenPreview() {
     AiringScreenPreviewContent(
         airingSchedulesByDayOfWeekMap = MediaItemMapper.groupAiringSchedulesByDayOfWeek(
             mapOf(
-                ModelTestDataCreator.baseMediaItem() to
+                ModelTestDataCreator.baseMediaItem to
                         ModelTestDataCreator.baseAiringScheduleItemList()
             )
         ).toSortedMap()

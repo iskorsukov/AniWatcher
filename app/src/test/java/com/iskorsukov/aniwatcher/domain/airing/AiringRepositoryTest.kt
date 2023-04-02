@@ -50,7 +50,7 @@ class AiringRepositoryTest {
         val model = repository.mediaWithSchedulesFlow.first()
 
         assertThat(model).isNotNull()
-        assertThat(model.keys).containsExactly(ModelTestDataCreator.baseMediaItem())
+        assertThat(model.keys).containsExactly(ModelTestDataCreator.baseMediaItem)
         assertThat(model.values.flatten()).containsExactlyElementsIn(ModelTestDataCreator.baseAiringScheduleItemList())
 
         coVerify { mediaDatabaseExecutor.mediaDataFlow }
@@ -64,7 +64,7 @@ class AiringRepositoryTest {
         val model = repository.getMediaWithAiringSchedules(1).first()
 
         assertThat(model).isNotNull()
-        assertThat(model!!.first).isEqualTo(ModelTestDataCreator.baseMediaItem())
+        assertThat(model!!.first).isEqualTo(ModelTestDataCreator.baseMediaItem)
         assertThat(model.second).isEqualTo(ModelTestDataCreator.baseAiringScheduleItemList())
 
         coVerify {
@@ -173,7 +173,7 @@ class AiringRepositoryTest {
     fun followMedia() = runTest {
         repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor)
 
-        val mediaItem = ModelTestDataCreator.baseMediaItem()
+        val mediaItem = ModelTestDataCreator.baseMediaItem
 
         repository.followMedia(mediaItem)
 
@@ -184,7 +184,7 @@ class AiringRepositoryTest {
     fun unfollowMedia() = runTest {
         repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor)
 
-        val mediaItem = ModelTestDataCreator.baseMediaItem()
+        val mediaItem = ModelTestDataCreator.baseMediaItem
 
         repository.unfollowMedia(mediaItem)
 
@@ -195,7 +195,7 @@ class AiringRepositoryTest {
     fun unfollowMedia_list() = runTest {
         repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor)
 
-        val mediaItem = ModelTestDataCreator.baseMediaItem()
+        val mediaItem = ModelTestDataCreator.baseMediaItem
 
         repository.unfollowMedia(listOf(mediaItem))
 

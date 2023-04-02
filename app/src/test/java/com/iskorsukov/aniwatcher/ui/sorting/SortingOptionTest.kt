@@ -9,10 +9,10 @@ class SortingOptionTest {
     @Test
     fun airingAt_smaller() {
         val first =
-            ModelTestDataCreator.baseMediaItem() to ModelTestDataCreator.baseAiringScheduleItem()
+            ModelTestDataCreator.baseMediaItem to ModelTestDataCreator.baseAiringScheduleItem()
                 .airingAt(1)
         val second =
-            ModelTestDataCreator.baseMediaItem() to ModelTestDataCreator.baseAiringScheduleItem()
+            ModelTestDataCreator.baseMediaItem to ModelTestDataCreator.baseAiringScheduleItem()
                 .airingAt(4)
 
         val comparator = SortingOption.AIRING_AT.comparator
@@ -23,10 +23,10 @@ class SortingOptionTest {
     @Test
     fun airingAt_equal() {
         val first =
-            ModelTestDataCreator.baseMediaItem() to ModelTestDataCreator.baseAiringScheduleItem()
+            ModelTestDataCreator.baseMediaItem to ModelTestDataCreator.baseAiringScheduleItem()
                 .airingAt(1)
         val second =
-            ModelTestDataCreator.baseMediaItem() to ModelTestDataCreator.baseAiringScheduleItem()
+            ModelTestDataCreator.baseMediaItem to ModelTestDataCreator.baseAiringScheduleItem()
                 .airingAt(1)
 
         val comparator = SortingOption.AIRING_AT.comparator
@@ -37,10 +37,10 @@ class SortingOptionTest {
     @Test
     fun airingAt_bigger() {
         val first =
-            ModelTestDataCreator.baseMediaItem() to ModelTestDataCreator.baseAiringScheduleItem()
+            ModelTestDataCreator.baseMediaItem to ModelTestDataCreator.baseAiringScheduleItem()
                 .airingAt(4)
         val second =
-            ModelTestDataCreator.baseMediaItem() to ModelTestDataCreator.baseAiringScheduleItem()
+            ModelTestDataCreator.baseMediaItem to ModelTestDataCreator.baseAiringScheduleItem()
                 .airingAt(1)
 
         val comparator = SortingOption.AIRING_AT.comparator
@@ -50,9 +50,9 @@ class SortingOptionTest {
 
     @Test
     fun popularity_smaller() {
-        val first = ModelTestDataCreator.baseMediaItem()
+        val first = ModelTestDataCreator.baseMediaItem
             .popularity(1) to ModelTestDataCreator.baseAiringScheduleItem()
-        val second = ModelTestDataCreator.baseMediaItem()
+        val second = ModelTestDataCreator.baseMediaItem
             .popularity(4) to ModelTestDataCreator.baseAiringScheduleItem()
 
         val comparator = SortingOption.POPULARITY.comparator
@@ -62,9 +62,9 @@ class SortingOptionTest {
 
     @Test
     fun popularity_equal() {
-        val first = ModelTestDataCreator.baseMediaItem()
+        val first = ModelTestDataCreator.baseMediaItem
             .popularity(1) to ModelTestDataCreator.baseAiringScheduleItem()
-        val second = ModelTestDataCreator.baseMediaItem()
+        val second = ModelTestDataCreator.baseMediaItem
             .popularity(1) to ModelTestDataCreator.baseAiringScheduleItem()
 
         val comparator = SortingOption.POPULARITY.comparator
@@ -74,9 +74,9 @@ class SortingOptionTest {
 
     @Test
     fun popularity_bigger() {
-        val first = ModelTestDataCreator.baseMediaItem()
+        val first = ModelTestDataCreator.baseMediaItem
             .popularity(4) to ModelTestDataCreator.baseAiringScheduleItem()
-        val second = ModelTestDataCreator.baseMediaItem()
+        val second = ModelTestDataCreator.baseMediaItem
             .popularity(1) to ModelTestDataCreator.baseAiringScheduleItem()
 
         val comparator = SortingOption.POPULARITY.comparator
@@ -86,9 +86,9 @@ class SortingOptionTest {
 
     @Test
     fun meanScore_smaller() {
-        val first = ModelTestDataCreator.baseMediaItem()
+        val first = ModelTestDataCreator.baseMediaItem
             .meanScore(1) to ModelTestDataCreator.baseAiringScheduleItem()
-        val second = ModelTestDataCreator.baseMediaItem()
+        val second = ModelTestDataCreator.baseMediaItem
             .meanScore(4) to ModelTestDataCreator.baseAiringScheduleItem()
 
         val comparator = SortingOption.SCORE.comparator
@@ -98,9 +98,9 @@ class SortingOptionTest {
 
     @Test
     fun meanScore_equal() {
-        val first = ModelTestDataCreator.baseMediaItem()
+        val first = ModelTestDataCreator.baseMediaItem
             .meanScore(1) to ModelTestDataCreator.baseAiringScheduleItem()
-        val second = ModelTestDataCreator.baseMediaItem()
+        val second = ModelTestDataCreator.baseMediaItem
             .meanScore(1) to ModelTestDataCreator.baseAiringScheduleItem()
 
         val comparator = SortingOption.SCORE.comparator
@@ -110,9 +110,9 @@ class SortingOptionTest {
 
     @Test
     fun meanScore_bigger() {
-        val first = ModelTestDataCreator.baseMediaItem()
+        val first = ModelTestDataCreator.baseMediaItem
             .meanScore(4) to ModelTestDataCreator.baseAiringScheduleItem()
-        val second = ModelTestDataCreator.baseMediaItem()
+        val second = ModelTestDataCreator.baseMediaItem
             .meanScore(1) to ModelTestDataCreator.baseAiringScheduleItem()
 
         val comparator = SortingOption.SCORE.comparator
