@@ -17,6 +17,4 @@ interface AiringRepository {
     suspend fun followMedia(mediaItem: MediaItem)
 
     suspend fun unfollowMedia(mediaItem: MediaItem)
-
-    suspend fun unfollowMedia(mediaItemList: List<MediaItem>)
 }

@@ -2,7 +2,6 @@ package com.iskorsukov.aniwatcher.ui.following
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
@@ -17,7 +16,6 @@ import com.iskorsukov.aniwatcher.ui.base.viewmodel.sort.SortableViewModel
 import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -51,29 +49,6 @@ class FollowingViewModel @Inject constructor(
         .combine(uiStateFlow) { map, uiState ->
             sortMediaFlow(map, uiState.sortingOption)
         }
-
-    val finishedFollowingShowsFlow = airingRepository.mediaWithSchedulesFlow.map { map ->
-        val currentSeconds = System.currentTimeMillis() / 1000
-        map
-            .filterKeys { it.isFollowing }
-            .filterValues { it.all { item -> item.airingAt < currentSeconds } }
-            .keys
-            .toList()
-    }
-
-    fun unfollowFinishedShows() {
-        onError(null)
-        viewModelScope.launch {
-            val finishedShows = finishedFollowingShowsFlow.first()
-            try {
-                airingRepository.unfollowMedia(finishedShows)
-            } catch (throwable: Throwable) {
-                throwable.printStackTrace()
-                FirebaseCrashlytics.getInstance().recordException(throwable)
-                onError(ErrorItem.ofThrowable(throwable))
-            }
-        }
-    }
 
     override fun onError(errorItem: ErrorItem?) {
         _uiStateFlow.value = _uiStateFlow.value.copy(errorItem = errorItem)

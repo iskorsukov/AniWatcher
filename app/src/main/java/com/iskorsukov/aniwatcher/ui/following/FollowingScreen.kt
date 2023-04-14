@@ -2,16 +2,13 @@ package com.iskorsukov.aniwatcher.ui.following
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iskorsukov.aniwatcher.R
@@ -47,21 +44,11 @@ fun FollowingScreen(
     val followingUiState by viewModel.uiStateFlow
         .collectAsStateWithLifecycle()
 
-    val finishedShowsList by viewModel.finishedFollowingShowsFlow
-        .collectAsStateWithLifecycle(initialValue = emptyList())
-
     val listState = rememberLazyListState()
     LaunchedEffect(uiState.searchText, followingUiState.sortingOption) {
         viewModel.onSearchTextChanged(uiState.searchText)
         listState.scrollToItem(0)
     }
-
-    /* TODO: Re-enable after finished shows detection is finished
-    var shouldShowFinishedShowsDialog by remember(finishedShowsList.size) {
-        mutableStateOf(finishedShowsList.isNotEmpty())
-    }
-     */
-    var shouldShowFinishedShowsDialog = false
 
     var shouldShowSortingOptionsDialog by rememberSaveable {
         mutableStateOf(false)
@@ -71,15 +58,6 @@ fun FollowingScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        if (shouldShowFinishedShowsDialog) {
-            FinishedFollowingSurface(
-                onActionClicked = { viewModel.unfollowFinishedShows() },
-                onDismissRequest = { shouldShowFinishedShowsDialog = false },
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(8.dp)
-            )
-        }
         FollowingScreenContent(
             followingMediaMap = followingMediaMap,
             searchTextIsEmpty = uiState.searchText.trim().length < 4,

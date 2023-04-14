@@ -23,8 +23,7 @@ interface NotificationsDao {
     @Transaction
     @Query(
         "SELECT * FROM media INNER JOIN airing ON mediaId = airing.mediaItemRelationId " +
-                "WHERE mediaId IN (SELECT following.mediaItemRelationId FROM following) " +
-                "AND airingAt < :currentTimeInSeconds " +
+                "WHERE airingAt < :currentTimeInSeconds " +
                 "AND airingScheduleItemId NOT IN (SELECT airingScheduleItemRelationId FROM notifications) "
     )
     suspend fun getPending(currentTimeInSeconds: Int): Map<MediaItemEntity, List<AiringScheduleEntity>>

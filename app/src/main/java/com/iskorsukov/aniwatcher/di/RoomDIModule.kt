@@ -3,6 +3,7 @@ package com.iskorsukov.aniwatcher.di
 import android.content.Context
 import androidx.room.Room
 import com.iskorsukov.aniwatcher.data.room.MediaDatabase
+import com.iskorsukov.aniwatcher.data.room.PersistentMediaDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,6 +20,14 @@ class RoomDIModule {
     fun providesMediaDatabase(@ApplicationContext context: Context): MediaDatabase {
         return Room.databaseBuilder(
             context, MediaDatabase::class.java, "MediaDatabase"
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun providesPersistentMediaDatabase(@ApplicationContext context: Context): PersistentMediaDatabase {
+        return Room.databaseBuilder(
+            context, PersistentMediaDatabase::class.java, "PersistentMediaDatabase"
         ).build()
     }
 }

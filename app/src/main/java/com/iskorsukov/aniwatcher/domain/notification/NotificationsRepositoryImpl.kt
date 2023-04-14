@@ -1,7 +1,7 @@
 package com.iskorsukov.aniwatcher.domain.notification
 
 import android.content.SharedPreferences
-import com.iskorsukov.aniwatcher.data.executor.MediaDatabaseExecutor
+import com.iskorsukov.aniwatcher.data.executor.PersistentMediaDatabaseExecutor
 import com.iskorsukov.aniwatcher.domain.exception.RoomException
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
@@ -13,12 +13,12 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class NotificationsRepositoryImpl @Inject constructor(
-    private val mediaDatabaseExecutor: MediaDatabaseExecutor,
+    private val persistentMediaDatabaseExecutor: PersistentMediaDatabaseExecutor,
     private val sharedPreferences: SharedPreferences
 ) : NotificationsRepository {
 
     override val notificationsFlow: Flow<List<NotificationItem>> =
-        mediaDatabaseExecutor.notificationsFlow.map { map ->
+        persistentMediaDatabaseExecutor.notificationsFlow.map { map ->
             map
                 .map { entry ->
                     entry.value.map { scheduleAndNotification ->
@@ -37,14 +37,14 @@ class NotificationsRepositoryImpl @Inject constructor(
 
     override suspend fun saveNotification(notificationItem: NotificationItem) {
         try {
-            mediaDatabaseExecutor.saveNotification(notificationItem)
+            persistentMediaDatabaseExecutor.saveNotification(notificationItem)
         } catch (e: Exception) {
             throw RoomException(e)
         }
     }
 
     override suspend fun getPendingSchedulesToNotify(): List<AiringScheduleItem> {
-        return mediaDatabaseExecutor.getPendingNotifications()
+        return persistentMediaDatabaseExecutor.getPendingNotifications()
             .map { entityMapEntry ->
                 val mediaItem = MediaItem.fromEntity(entityMapEntry.key, null)
                 entityMapEntry.value.map {

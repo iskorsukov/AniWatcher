@@ -1,9 +1,12 @@
 package com.iskorsukov.aniwatcher.domain.notification
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
@@ -35,7 +38,13 @@ class NotificationsInteractorImpl @Inject constructor(
             val notification = NotificationBuilderHelper.buildNotification(
                 context, airingScheduleItem
             )
-            notificationManagerCompat.notify(airingScheduleItem.id, notification)
+            if (ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                notificationManagerCompat.notify(airingScheduleItem.id, notification)
+            }
         }
         fireUpdatedGroupNotification(airingScheduleItemList)
     }
@@ -46,7 +55,13 @@ class NotificationsInteractorImpl @Inject constructor(
             airingScheduleItemList
         )
         if (notification != null) {
-            notificationManagerCompat.notify(GROUP_NOTIFICATION_ID, notification)
+            if (ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                notificationManagerCompat.notify(GROUP_NOTIFICATION_ID, notification)
+            }
         } else {
             notificationManagerCompat.cancel(GROUP_NOTIFICATION_ID)
         }
