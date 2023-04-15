@@ -15,7 +15,7 @@ import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.yield
@@ -58,11 +58,20 @@ class AiringRepositoryImpl @Inject constructor(
                     .associate { it.first to it.second }
             }
             .combine(persistentMediaDatabaseExecutor.followedMediaFlow) { mediaMap, followedEntityMap ->
-                mediaMap.mapKeys { entry ->
-                    val isFollowing =
-                        followedEntityMap.keys.any { followedEntity -> followedEntity.mediaId == entry.key.id }
-                    entry.key.copy(isFollowing = isFollowing)
-                }
+                mediaMap
+                    .map { entry ->
+                        val isFollowing =
+                            followedEntityMap.keys.any { followedEntity -> followedEntity.mediaId == entry.key.id }
+                        if (isFollowing == entry.key.isFollowing) {
+                            return@map entry.key to entry.value
+                        }
+                        val updatedMediaItem = entry.key.copy(isFollowing = isFollowing)
+                        val updatedSchedules = entry.value.map { airingScheduleItem ->
+                            airingScheduleItem.copy(mediaItem = updatedMediaItem)
+                        }
+                        updatedMediaItem to updatedSchedules
+                    }
+                    .toMap()
             }
 
     val followedMediaWithSchedulesFlow: Flow<Map<MediaItem, List<AiringScheduleItem>>> =
@@ -128,7 +137,14 @@ class AiringRepositoryImpl @Inject constructor(
                 } else {
                     val isFollowing =
                         followedEntityMap.keys.any { followedEntity -> followedEntity.mediaId == mediaPair.first.id }
-                    mediaPair.copy(first = mediaPair.first.copy(isFollowing = isFollowing))
+                    if (isFollowing == mediaPair.first.isFollowing) {
+                        return@combine mediaPair
+                    }
+                    val updatedMediaItem = mediaPair.first.copy(isFollowing = isFollowing)
+                    val updatedSchedules = mediaPair.second.map { airingScheduleItem ->
+                        airingScheduleItem.copy(mediaItem = updatedMediaItem)
+                    }
+                    updatedMediaItem to updatedSchedules
                 }
             }
     }
@@ -180,7 +196,7 @@ class AiringRepositoryImpl @Inject constructor(
     override suspend fun followMedia(mediaItem: MediaItem) {
         try {
             val mediaItemWithSchedules =
-                mediaDatabaseExecutor.getMediaWithAiringSchedules(mediaItem.id).first()
+                mediaDatabaseExecutor.getMediaWithAiringSchedules(mediaItem.id).firstOrNull()
             if (mediaItemWithSchedules != null) {
                 persistentMediaDatabaseExecutor.saveMediaWithSchedules(mediaItemWithSchedules)
             }

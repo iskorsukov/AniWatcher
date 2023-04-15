@@ -46,11 +46,11 @@ class PersistentMediaDatabaseExecutor @Inject constructor(
         }
     }
 
-    suspend fun saveMediaWithSchedules(mediaToAiringSchedulesMap: Pair<MediaItemEntity, List<AiringScheduleEntity>>) {
+    suspend fun saveMediaWithSchedules(mediaToAiringSchedules: Pair<MediaItemEntity, List<AiringScheduleEntity>>) {
         withContext(DispatcherProvider.io()) {
             persistentMediaDatabase.withTransaction {
-                persistentMediaDao.insertMedia(mediaToAiringSchedulesMap.first)
-                persistentMediaDao.insertSchedules(mediaToAiringSchedulesMap.second)
+                persistentMediaDao.insertMedia(mediaToAiringSchedules.first)
+                persistentMediaDao.insertSchedules(mediaToAiringSchedules.second)
             }
         }
     }

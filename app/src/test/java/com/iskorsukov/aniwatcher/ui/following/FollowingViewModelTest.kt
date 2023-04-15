@@ -76,34 +76,6 @@ class FollowingViewModelTest {
     }
 
     @Test
-    fun unfollowFinishedShows() = runTest {
-        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
-
-        val followedBaseItem = ModelTestDataCreator.baseMediaItem.isFollowing(true)
-        val airingScheduleList = emptyList<AiringScheduleItem>()
-
-        coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(
-            mapOf(
-                followedBaseItem to airingScheduleList
-            )
-        )
-        viewModel = FollowingViewModel(
-            airingRepository,
-            searchableViewModelDelegate,
-            followableViewModelDelegate
-        )
-
-        viewModel.unfollowFinishedShows()
-        advanceUntilIdle()
-
-        coVerify {
-            airingRepository.unfollowMedia(
-                listOf(followedBaseItem)
-            )
-        }
-    }
-
-    @Test
     fun sortsMediaFlow() = runTest {
         val followedBaseItem = ModelTestDataCreator.baseMediaItem.isFollowing(true)
         val followedBaseItemWithBiggerMeanScore = followedBaseItem.meanScore(2)
@@ -126,7 +98,7 @@ class FollowingViewModelTest {
             followableViewModelDelegate
         )
 
-        var result = viewModel.followingMediaFlow.first()
+        var result: Map<MediaItem, AiringScheduleItem?> = viewModel.followingMediaFlow.first()
 
         assertThat(result.size).isEqualTo(2)
         assertThat(result.keys).containsExactly(firstItem.first, secondItem.first).inOrder()

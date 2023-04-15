@@ -3,7 +3,7 @@ package com.iskorsukov.aniwatcher.domain.notification
 import android.content.SharedPreferences
 import com.google.common.truth.Truth.assertThat
 import com.iskorsukov.aniwatcher.data.entity.combined.AiringScheduleAndNotificationEntity
-import com.iskorsukov.aniwatcher.data.executor.MediaDatabaseExecutor
+import com.iskorsukov.aniwatcher.data.executor.PersistentMediaDatabaseExecutor
 import com.iskorsukov.aniwatcher.test.EntityTestDataCreator
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import io.mockk.coEvery
@@ -18,8 +18,8 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class NotificationsRepositoryTest {
 
-    private val mediaDatabaseExecutor: MediaDatabaseExecutor =
-        mockk<MediaDatabaseExecutor>(relaxed = true).apply {
+    private val persistentMediaDatabaseExecutor: PersistentMediaDatabaseExecutor =
+        mockk<PersistentMediaDatabaseExecutor>(relaxed = true).apply {
             coEvery { notificationsFlow } returns flowOf(
                 mapOf(
                     EntityTestDataCreator.baseMediaItemEntity() to
@@ -39,7 +39,7 @@ class NotificationsRepositoryTest {
         coEvery { getInt(any(), any()) } returns 1
     }
     private val notificationsRepository = NotificationsRepositoryImpl(
-        mediaDatabaseExecutor,
+        persistentMediaDatabaseExecutor,
         sharedPreferences
     )
 
@@ -61,7 +61,7 @@ class NotificationsRepositoryTest {
 
         notificationsRepository.saveNotification(notificationItem)
 
-        coVerify { mediaDatabaseExecutor.saveNotification(notificationItem) }
+        coVerify { persistentMediaDatabaseExecutor.saveNotification(notificationItem) }
     }
 
     @Test

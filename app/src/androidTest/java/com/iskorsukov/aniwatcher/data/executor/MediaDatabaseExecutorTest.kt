@@ -5,18 +5,12 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
-import com.iskorsukov.aniwatcher.data.entity.combined.AiringScheduleAndNotificationEntity
 import com.iskorsukov.aniwatcher.data.entity.base.AiringScheduleEntity
-import com.iskorsukov.aniwatcher.data.entity.combined.MediaItemAndFollowingEntity
 import com.iskorsukov.aniwatcher.data.room.MediaDao
 import com.iskorsukov.aniwatcher.data.room.MediaDatabase
-import com.iskorsukov.aniwatcher.data.room.NotificationsDao
 import com.iskorsukov.aniwatcher.domain.settings.*
-import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
-import com.iskorsukov.aniwatcher.domain.util.LocalClockSystem
 import com.iskorsukov.aniwatcher.test.EntityTestDataCreator
 import io.mockk.*
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -28,12 +22,7 @@ import org.junit.runner.RunWith
 class MediaDatabaseExecutorTest {
 
     private lateinit var mediaDao: MediaDao
-    private lateinit var notificationsDao: NotificationsDao
     private lateinit var mediaDatabase: MediaDatabase
-
-    private lateinit var clock: LocalClockSystem
-
-    private lateinit var settingsRepository: SettingsRepository
 
     private lateinit var mediaDatabaseExecutor: MediaDatabaseExecutor
 
@@ -47,31 +36,9 @@ class MediaDatabaseExecutorTest {
         )
         mediaDao = mediaDatabase.mediaDao()
         every { mediaDatabase.mediaDao() } returns mediaDao
-        notificationsDao = mediaDatabase.notificationsDao()
-        every { mediaDatabase.notificationsDao() } returns notificationsDao
-
-        clock = mockk<LocalClockSystem>(relaxed = true).apply {
-            coEvery { currentTimeSeconds() } returns 0
-        }
-
-        settingsRepository = mockk<SettingsRepository>(relaxed = true).also {
-            val settingsStateFlow = MutableStateFlow(
-                SettingsState(
-                    darkModeOption = DarkModeOption.DARK,
-                    scheduleType = ScheduleType.SEASON,
-                    preferredNamingScheme = NamingScheme.ROMAJI,
-                    notificationsEnabled = true,
-                    onboardingComplete = true,
-                    selectedSeasonYear = DateTimeHelper.SeasonYear(DateTimeHelper.Season.FALL, 2022)
-                )
-            )
-            coEvery { it.settingsStateFlow } returns settingsStateFlow
-        }
 
         mediaDatabaseExecutor = MediaDatabaseExecutor(
-            mediaDatabase,
-            clock,
-            settingsRepository
+            mediaDatabase
         )
     }
 
@@ -90,12 +57,7 @@ class MediaDatabaseExecutorTest {
 
         val entity = mediaDatabaseExecutor.mediaDataFlow.first()
 
-        assertThat(entity.keys).containsExactly(
-            MediaItemAndFollowingEntity(
-                mediaItemEntity,
-                null
-            )
-        )
+        assertThat(entity.keys).containsExactly(mediaItemEntity)
         assertThat(entity.values.flatten()).containsExactlyElementsIn(
             airingScheduleEntityList
         )
@@ -109,135 +71,41 @@ class MediaDatabaseExecutorTest {
 
         val entity = mediaDatabaseExecutor.mediaDataFlow.first()
 
-        assertThat(entity.keys).containsExactly(
-            MediaItemAndFollowingEntity(
-                mediaItemEntity,
-                null
-            )
-        )
+        assertThat(entity.keys).containsExactly(mediaItemEntity)
         assertThat(entity.values).containsExactly(emptyList<AiringScheduleEntity>())
     }
 
     @Test
-    fun notificationsFlow(): Unit = runBlocking {
+    fun getMediaWithAiringSchedules(): Unit = runBlocking {
         val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
         val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
-        val notificationEntity = EntityTestDataCreator.baseNotificationEntity()
 
         mediaDao.insertMedia(listOf(mediaItemEntity))
         mediaDao.insertSchedules(airingScheduleEntityList)
-        notificationsDao.insertNotification(notificationEntity)
-
-        val entity = mediaDatabaseExecutor.notificationsFlow.first()
-
-        assertThat(entity).isEqualTo(
-            mapOf(
-                mediaItemEntity to listOf(
-                    AiringScheduleAndNotificationEntity(
-                        EntityTestDataCreator.baseAiringScheduleEntity(),
-                        notificationEntity
-                    )
-                )
-            )
-        )
-        assertThat(entity.keys).containsExactly(mediaItemEntity)
-        assertThat(entity.values.flatten()).containsExactly(
-            AiringScheduleAndNotificationEntity(
-                EntityTestDataCreator.baseAiringScheduleEntity(),
-                notificationEntity
-            )
-        )
-    }
-
-    @Test
-    fun getPendingNotifications(): Unit = runBlocking {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
-        val followingEntity = EntityTestDataCreator.baseFollowingEntity()
-        val airingScheduleEntity = EntityTestDataCreator.baseAiringScheduleEntity()
-
-        mediaDao.insertMedia(listOf(mediaItemEntity))
-        mediaDao.insertSchedules(listOf(airingScheduleEntity))
-        mediaDao.followMedia(followingEntity)
-
-        coEvery { clock.currentTimeSeconds() } returns Int.MAX_VALUE
-        val entity = mediaDatabaseExecutor.getPendingNotifications()
-
-        assertThat(entity.keys).containsExactly(mediaItemEntity)
-        assertThat(entity.values.flatten()).containsExactly(airingScheduleEntity)
-    }
-
-    @Test
-    fun getPendingNotifications_ignoresNotAired(): Unit = runBlocking {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
-        val followingEntity = EntityTestDataCreator.baseFollowingEntity()
-        val airingScheduleEntity = EntityTestDataCreator.baseAiringScheduleEntity()
-
-        mediaDao.insertMedia(listOf(mediaItemEntity))
-        mediaDao.insertSchedules(listOf(airingScheduleEntity))
-        mediaDao.followMedia(followingEntity)
-
-        coEvery { clock.currentTimeSeconds() } returns 0
-        val entity = mediaDatabaseExecutor.getPendingNotifications()
-
-        assertThat(entity).isEmpty()
-    }
-
-    @Test
-    fun getPendingNotifications_ignoresSaved(): Unit = runBlocking {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
-        val followingEntity = EntityTestDataCreator.baseFollowingEntity()
-        val airingScheduleEntity = EntityTestDataCreator.baseAiringScheduleEntity()
-        val notificationEntity = EntityTestDataCreator.baseNotificationEntity()
-
-        mediaDao.insertMedia(listOf(mediaItemEntity))
-        mediaDao.insertSchedules(listOf(airingScheduleEntity))
-        mediaDao.followMedia(followingEntity)
-        notificationsDao.insertNotification(notificationEntity)
-
-        coEvery { clock.currentTimeSeconds() } returns Int.MAX_VALUE
-        val entity = mediaDatabaseExecutor.getPendingNotifications()
-
-        assertThat(entity).isEmpty()
-    }
-
-    @Test
-    fun getMediaWithAiringSchedulesAndFollowing(): Unit = runBlocking {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
-        val followingEntity = EntityTestDataCreator.baseFollowingEntity()
-
-        mediaDao.insertMedia(listOf(mediaItemEntity))
-        mediaDao.followMedia(followingEntity)
 
         val entity = mediaDatabaseExecutor
-            .getMediaWithAiringSchedulesAndFollowing(1)
+            .getMediaWithAiringSchedules(mediaItemEntity.mediaId)
             .first()
 
-        assertThat(entity.keys).containsExactly(
-            MediaItemAndFollowingEntity(
-                mediaItemEntity,
-                followingEntity
-            )
-        )
-        assertThat(entity.values).containsExactly(emptyList<AiringScheduleEntity>())
+        assertThat(entity).isNotNull()
+        assertThat(entity!!.first).isEqualTo(mediaItemEntity)
+        assertThat(entity.second).containsExactlyElementsIn(airingScheduleEntityList)
     }
 
     @Test
-    fun getMediaWithAiringSchedulesAndFollowing_noFollowing(): Unit = runBlocking {
+    fun getMediaWithAiringSchedules_notFound(): Unit = runBlocking {
         val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
+        val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
+        val missingId = 1337
 
         mediaDao.insertMedia(listOf(mediaItemEntity))
+        mediaDao.insertSchedules(airingScheduleEntityList)
 
         val entity = mediaDatabaseExecutor
-            .getMediaWithAiringSchedulesAndFollowing(1)
+            .getMediaWithAiringSchedules(missingId)
             .first()
 
-        assertThat(entity.keys).containsExactly(
-            MediaItemAndFollowingEntity(
-                mediaItemEntity,
-                null
-            )
-        )
-        assertThat(entity.values).containsExactly(emptyList<AiringScheduleEntity>())
+        assertThat(entity).isNull()
     }
 
     @Test
@@ -251,87 +119,12 @@ class MediaDatabaseExecutorTest {
 
         mediaDatabaseExecutor.updateMedia(entityMap)
 
-        val outEntity = mediaDao.getAllNotAired(0).first()
+        val outEntity = mediaDao.getAll().first()
 
         assertThat(outEntity.size).isEqualTo(1)
-        assertThat(outEntity.keys).containsExactly(
-            MediaItemAndFollowingEntity(
-                mediaItemEntity,
-                null
-            )
-        )
+        assertThat(outEntity.keys).containsExactly(mediaItemEntity)
         assertThat(outEntity.values.flatten()).containsExactlyElementsIn(
             airingScheduleEntityList
         )
-    }
-
-    @Test
-    fun followMedia(): Unit = runBlocking {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
-        val followingEntity = EntityTestDataCreator.baseFollowingEntity()
-        val airingScheduleEntity = EntityTestDataCreator.baseAiringScheduleEntity()
-
-        mediaDao.insertMedia(listOf(mediaItemEntity))
-        mediaDao.insertSchedules(listOf(airingScheduleEntity))
-
-        mediaDatabaseExecutor.followMedia(1)
-
-        val outEntity = mediaDao.getAllNotAired(0).first()
-
-        assertThat(outEntity.size).isEqualTo(1)
-        assertThat(outEntity.keys).containsExactly(
-            MediaItemAndFollowingEntity(
-                mediaItemEntity,
-                followingEntity
-            )
-        )
-    }
-
-    @Test
-    fun unfollowMedia(): Unit = runBlocking {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
-        val followingEntity = EntityTestDataCreator.baseFollowingEntity()
-
-        mediaDao.insertMedia(listOf(mediaItemEntity))
-        mediaDao.followMedia(followingEntity)
-
-        mediaDatabaseExecutor.unfollowMedia(1)
-
-        val outEntity = mediaDao.getAllNotAired(0).first()
-
-        assertThat(outEntity.size).isEqualTo(1)
-        assertThat(outEntity.keys).containsExactly(
-            MediaItemAndFollowingEntity(
-                mediaItemEntity,
-                null
-            )
-        )
-    }
-
-    @Test
-    fun unfollowMedia_clearsNotifications(): Unit = runBlocking {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
-        val followingEntity = EntityTestDataCreator.baseFollowingEntity()
-        val airingScheduleEntity = EntityTestDataCreator.baseAiringScheduleEntity()
-        val notificationEntity = EntityTestDataCreator.baseNotificationEntity()
-
-        mediaDao.insertMedia(listOf(mediaItemEntity))
-        mediaDao.insertSchedules(listOf(airingScheduleEntity))
-        mediaDao.followMedia(followingEntity)
-        notificationsDao.insertNotification(notificationEntity)
-
-        mediaDatabaseExecutor.unfollowMedia(1)
-
-        val outEntity = mediaDao.getAllNotAired(0).first()
-        val notificationsCursor = mediaDatabase.query("SELECT * FROM notifications", null)
-
-        assertThat(outEntity.size).isEqualTo(1)
-        assertThat(outEntity.keys).containsExactly(
-            MediaItemAndFollowingEntity(
-                mediaItemEntity,
-                null
-            )
-        )
-        assertThat(notificationsCursor.count).isEqualTo(0)
     }
 }
