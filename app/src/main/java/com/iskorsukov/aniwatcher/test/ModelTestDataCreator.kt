@@ -24,7 +24,6 @@ object ModelTestDataCreator {
         meanScore = 1,
         genres = listOf("Action", "Comedy"),
         siteUrl = "AniListUrl",
-        nextEpisodeAiringAt = "7.10.2022/18:00".toSeconds(),
         format = MediaItem.LocalFormat.TV,
         isFollowing = false,
         season = "FALL",
@@ -70,10 +69,6 @@ fun MediaItem.title(title: MediaItem.Title): MediaItem {
 
 fun MediaItem.meanScore(meanScore: Int?): MediaItem {
     return this.copy(meanScore = meanScore)
-}
-
-fun MediaItem.nextEpisodeAiringAt(nextEpisodeAiringAt: Int): MediaItem {
-    return this.copy(nextEpisodeAiringAt = nextEpisodeAiringAt)
 }
 
 fun MediaItem.description(description: String): MediaItem {

@@ -19,7 +19,6 @@ data class MediaItem(
     val meanScore: Int?,
     val genres: List<String>,
     val siteUrl: String?,
-    val nextEpisodeAiringAt: Int?,
     val format: LocalFormat?,
     val season: String?,
     val year: Int?,
@@ -97,7 +96,6 @@ data class MediaItem(
                     genres = genresCommaSeparated?.split(",")
                         ?.filter { it.isNotEmpty() } ?: emptyList(),
                     siteUrl = siteUrl,
-                    nextEpisodeAiringAt = nextEpisodeAiringAt,
                     format = format?.let { LocalFormat.of(it) },
                     season = season,
                     year = year,
