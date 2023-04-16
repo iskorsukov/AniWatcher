@@ -85,6 +85,16 @@ class SettingsRepositoryImpl @Inject constructor(
         _settingsStateFlow.value = _settingsStateFlow.value.copy(selectedSeasonYear = selectedSeasonYear)
     }
 
+    override fun setNotificationsEnabled(enabled: Boolean) {
+        sharedPreferences.edit()
+            .putBoolean(
+                context.getString(R.string.settings_notifications_enabled_key),
+                enabled
+            )
+            .apply()
+        _settingsStateFlow.value = _settingsStateFlow.value.copy(notificationsEnabled = enabled)
+    }
+
     private fun getDarkModeOption(): DarkModeOption {
         return DarkModeOption.valueOf(
             sharedPreferences.getString(

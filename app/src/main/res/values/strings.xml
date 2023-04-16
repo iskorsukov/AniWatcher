@@ -79,4 +79,10 @@
     <string name="finished_following_sub_label">Do you wish to unfollow them?</string>
     <string name="finished_following_unfollow">Unfollow</string>
 
+    <string name="permission_grant">Grant permission</string>
+    <string name="permission_deny">Deny permission</string>
+
+    <string name="notifications_permission_title">Enable notifications</string>
+    <string name="notifications_permission_text">AniWatcher can notify you when the new episode of a show you follow airs. To do that it need you permission to post notifications.</string>
+    <string name="notifications_permission_disable">Disable notifications</string>
 </resources>

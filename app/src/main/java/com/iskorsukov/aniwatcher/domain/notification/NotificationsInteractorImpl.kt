@@ -42,7 +42,7 @@ class NotificationsInteractorImpl @Inject constructor(
             if (ActivityCompat.checkSelfPermission(
                     context,
                     Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
+                ) == PackageManager.PERMISSION_GRANTED
             ) {
                 notificationManagerCompat.notify(airingScheduleItem.first.id, notification)
             }
@@ -59,7 +59,7 @@ class NotificationsInteractorImpl @Inject constructor(
             if (ActivityCompat.checkSelfPermission(
                     context,
                     Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
+                ) == PackageManager.PERMISSION_GRANTED
             ) {
                 notificationManagerCompat.notify(GROUP_NOTIFICATION_ID, notification)
             }

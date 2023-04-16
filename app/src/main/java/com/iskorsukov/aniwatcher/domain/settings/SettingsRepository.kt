@@ -18,4 +18,6 @@ interface SettingsRepository {
     fun setOnboardingComplete(onboardingComplete: Boolean)
 
     fun setSelectedSeasonYear(seasonYear: DateTimeHelper.SeasonYear)
+
+    fun setNotificationsEnabled(enabled: Boolean)
 }

@@ -84,4 +84,41 @@ class MainActivityViewModel @Inject constructor(
             searchFieldOpen = false
         )
     }
+
+    fun onNotificationsPermissionMissing() {
+        settingsRepository.setNotificationsEnabled(false)
+        _uiState.value = _uiState.value.copy(
+            showNotificationsPermissionRationale = true
+        )
+    }
+
+    fun onNotificationsPermissionGrantClicked() {
+        _uiState.value = _uiState.value.copy(
+            showNotificationsPermissionRationale = false,
+            launchNotificationPermissionRequest = true
+        )
+    }
+
+    fun onNotificationsPermissionDisableClicked() {
+        _uiState.value = _uiState.value.copy(
+            showNotificationsPermissionRationale = false
+        )
+        settingsRepository.setNotificationsEnabled(false)
+    }
+
+    fun onNotificationsPermissionGranted() {
+        settingsRepository.setNotificationsEnabled(true)
+        _uiState.value = _uiState.value.copy(
+            notificationsPermissionGranted = true,
+            launchNotificationPermissionRequest = false
+        )
+    }
+
+    fun onNotificationsPermissionDenied() {
+        settingsRepository.setNotificationsEnabled(false)
+        _uiState.value = _uiState.value.copy(
+            notificationsPermissionGranted = false,
+            launchNotificationPermissionRequest = false
+        )
+    }
 }

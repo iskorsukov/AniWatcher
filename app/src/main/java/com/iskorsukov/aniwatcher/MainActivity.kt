@@ -1,14 +1,17 @@
 package com.iskorsukov.aniwatcher
 
+import android.Manifest
 import android.app.AlarmManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
@@ -18,6 +21,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -41,6 +45,7 @@ import com.iskorsukov.aniwatcher.ui.media.MediaScreen
 import com.iskorsukov.aniwatcher.ui.media.MediaViewModel
 import com.iskorsukov.aniwatcher.ui.notification.NotificationActivity
 import com.iskorsukov.aniwatcher.ui.onboarding.OnboardingDialog
+import com.iskorsukov.aniwatcher.ui.permission.NotificationsPermissionRationaleDialog
 import com.iskorsukov.aniwatcher.ui.season.SelectSeasonYearDialog
 import com.iskorsukov.aniwatcher.ui.settings.SettingsCompatActivity
 import com.iskorsukov.aniwatcher.ui.theme.*
@@ -68,6 +73,17 @@ class MainActivity : ComponentActivity() {
         }
     }.distinctUntilChanged()
 
+    private val requestNotificationsPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                mainActivityViewModel.onNotificationsPermissionGranted()
+            } else {
+                mainActivityViewModel.onNotificationsPermissionDenied()
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableBootReceiver()
@@ -76,7 +92,16 @@ class MainActivity : ComponentActivity() {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 mainActivityViewModel.settingsState.collect { state ->
                     if (state.notificationsEnabled) {
-                        scheduleNotificationChecks()
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                            ActivityCompat.checkSelfPermission(
+                                this@MainActivity,
+                                Manifest.permission.POST_NOTIFICATIONS
+                            ) != PackageManager.PERMISSION_GRANTED
+                        ) {
+                            mainActivityViewModel.onNotificationsPermissionMissing()
+                        } else {
+                            scheduleNotificationChecks()
+                        }
                     } else {
                         cancelNotificationChecks()
                     }
@@ -106,6 +131,12 @@ class MainActivity : ComponentActivity() {
             }
             var shouldShowErrorDialog by rememberSaveable(uiState.errorItem) {
                 mutableStateOf(uiState.errorItem != null)
+            }
+            var shouldShowNotificationsRationaleDialog by rememberSaveable(uiState.showNotificationsPermissionRationale) {
+                mutableStateOf(uiState.showNotificationsPermissionRationale)
+            }
+            val shouldLaunchNotificationsPermissionRequest by rememberSaveable(uiState.launchNotificationPermissionRequest) {
+                mutableStateOf(uiState.launchNotificationPermissionRequest)
             }
 
             AniWatcherTheme(settingsState.darkModeOption) {
@@ -159,6 +190,13 @@ class MainActivity : ComponentActivity() {
                                 selectedSeasonYear = settingsState.selectedSeasonYear
                             )
                         }
+                        if (shouldShowNotificationsRationaleDialog) {
+                            NotificationsPermissionRationaleDialog(
+                                onNotificationsPermissionGranted = mainActivityViewModel::onNotificationsPermissionGrantClicked,
+                                onNotificationsPermissionDenied = mainActivityViewModel::onNotificationsPermissionDisableClicked,
+                                onDismissRequest = { shouldShowNotificationsRationaleDialog = false }
+                            )
+                        }
 
                         NavHost(
                             navController = navController,
@@ -204,8 +242,17 @@ class MainActivity : ComponentActivity() {
                         }
 
                         if (settingsState.onboardingComplete) {
-                            LaunchedEffect(settingsState.scheduleType, settingsState.selectedSeasonYear) {
+                            LaunchedEffect(
+                                settingsState.scheduleType,
+                                settingsState.selectedSeasonYear
+                            ) {
                                 mainActivityViewModel.loadAiringData()
+                            }
+                        }
+
+                        if (shouldLaunchNotificationsPermissionRequest && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            LaunchedEffect(Unit) {
+                                requestNotificationsPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                             }
                         }
 
