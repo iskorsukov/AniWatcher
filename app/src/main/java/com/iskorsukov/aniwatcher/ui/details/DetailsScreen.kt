@@ -438,7 +438,7 @@ private fun DetailsScreenPreview_noBanner() {
     DetailScreenContent(
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         mediaItem = mediaItemWithoutBanner,
-        airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(mediaItemWithoutBanner),
+        airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
         preferredNamingScheme = NamingScheme.ENGLISH,
         onBackButtonClicked = { },
         onLearnMoreClicked = { }
@@ -452,7 +452,7 @@ private fun DetailsScreenPreview_noCoverImage() {
     DetailScreenContent(
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         mediaItem = mediaItemWithoutCover,
-        airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(mediaItemWithoutCover),
+        airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
         preferredNamingScheme = NamingScheme.ENGLISH,
         onBackButtonClicked = { },
         onLearnMoreClicked = { }
@@ -468,7 +468,7 @@ private fun DetailsScreenPreview_noBannerOrImage() {
     DetailScreenContent(
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         mediaItem = mediaItemWithoutBannerAndCover,
-        airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(mediaItemWithoutBannerAndCover),
+        airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
         preferredNamingScheme = NamingScheme.ENGLISH,
         onBackButtonClicked = { },
         onLearnMoreClicked = { }
@@ -495,7 +495,7 @@ private fun DetailsScreenPreview_emptyDescription() {
     DetailScreenContent(
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         mediaItem = mediaItemWithEmptyDescription,
-        airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(mediaItemWithEmptyDescription),
+        airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
         preferredNamingScheme = NamingScheme.ENGLISH,
         onBackButtonClicked = { },
         onLearnMoreClicked = { }

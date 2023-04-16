@@ -46,7 +46,7 @@ fun AiringScreen(
     onMediaClicked: (MediaItem) -> Unit,
     onRefresh: () -> Unit
 ) {
-    val airingScheduleItemList by viewModel
+    val airingScheduleItemList: Map<DayOfWeekLocal, List<Pair<AiringScheduleItem, MediaItem>>> by viewModel
         .airingSchedulesByDayOfWeekFlow.collectAsStateWithLifecycle(initialValue = emptyMap())
 
     val airingUiState by viewModel.uiStateFlow
@@ -106,7 +106,7 @@ fun AiringScreen(
 private fun AiringScreenContent(
     lazyListState: LazyListState,
     airingUiState: AiringUiState,
-    airingSchedulesByDayOfWeekMap: Map<DayOfWeekLocal, List<AiringScheduleItem>>,
+    airingSchedulesByDayOfWeekMap: Map<DayOfWeekLocal, List<Pair<AiringScheduleItem, MediaItem>>>,
     timeInMinutes: Long,
     onFollowClicked: (MediaItem) -> Unit,
     onMediaClicked: (MediaItem) -> Unit,
@@ -142,7 +142,8 @@ private fun AiringScreenContent(
             it.value.map {
                 item {
                     MediaItemCardCollapsed(
-                        airingScheduleItem = it,
+                        airingScheduleItem = it.first,
+                        mediaItem = it.second,
                         timeInMinutes = timeInMinutes,
                         onFollowClicked = onFollowClicked,
                         onMediaClicked = onMediaClicked,
@@ -172,14 +173,15 @@ private fun AiringScreenPreview() {
 private fun AiringScreenMultipleInOneDayPreview() {
     AiringScreenPreviewContent(
         airingSchedulesByDayOfWeekMap = mapOf(
-            DayOfWeekLocal.MONDAY to ModelTestDataCreator.baseAiringScheduleItemList()
+            DayOfWeekLocal.MONDAY to
+                    listOf(ModelTestDataCreator.baseAiringScheduleItem() to ModelTestDataCreator.baseMediaItem)
         )
     )
 }
 
 @Composable
 private fun AiringScreenPreviewContent(
-    airingSchedulesByDayOfWeekMap: Map<DayOfWeekLocal, List<AiringScheduleItem>>
+    airingSchedulesByDayOfWeekMap: Map<DayOfWeekLocal, List<Pair<AiringScheduleItem, MediaItem>>>
 ) {
     val lazyListState = rememberLazyListState()
 

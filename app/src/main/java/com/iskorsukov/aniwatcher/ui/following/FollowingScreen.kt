@@ -172,7 +172,7 @@ private fun FollowingScreenPreview() {
         followingMediaMap = MediaItemMapper.groupMediaWithNextAiringSchedule(
             mapOf(
                  followedMediaItem to
-                        ModelTestDataCreator.baseAiringScheduleItemList(followedMediaItem)
+                        ModelTestDataCreator.baseAiringScheduleItemList()
             )
         ).filterKeys { it.isFollowing },
         searchTextIsEmpty = true,

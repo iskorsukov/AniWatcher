@@ -34,7 +34,7 @@ class FollowingViewModelTest {
     @Test
     fun followingMediaFlow() = runTest {
         val followedBaseItem = ModelTestDataCreator.baseMediaItem.isFollowing(true)
-        val airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(followedBaseItem)
+        val airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList()
 
         coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(
             mapOf(followedBaseItem to airingScheduleList)
@@ -81,12 +81,10 @@ class FollowingViewModelTest {
         val followedBaseItemWithBiggerMeanScore = followedBaseItem.meanScore(2)
 
         val firstItem = followedBaseItem to
-                listOf(ModelTestDataCreator.baseAiringScheduleItem(followedBaseItem).airingAt(1))
+                listOf(ModelTestDataCreator.baseAiringScheduleItem().airingAt(1))
         val secondItem = followedBaseItemWithBiggerMeanScore to
                 listOf(
-                    ModelTestDataCreator.baseAiringScheduleItem(
-                        followedBaseItemWithBiggerMeanScore
-                    ).airingAt(2)
+                    ModelTestDataCreator.baseAiringScheduleItem().airingAt(2)
                 )
         val data = mapOf(firstItem, secondItem)
 
@@ -117,13 +115,9 @@ class FollowingViewModelTest {
         val followedBaseItemWithBiggerMeanScore = followedBaseItem.meanScore(2)
 
         val firstItem = followedBaseItem to
-                listOf(ModelTestDataCreator.baseAiringScheduleItem(followedBaseItem).airingAt(1))
+                listOf(ModelTestDataCreator.baseAiringScheduleItem().airingAt(1))
         val secondItem = followedBaseItemWithBiggerMeanScore to
-                listOf(
-                    ModelTestDataCreator.baseAiringScheduleItem(
-                        followedBaseItemWithBiggerMeanScore
-                    ).airingAt(2)
-                )
+                listOf(ModelTestDataCreator.baseAiringScheduleItem().airingAt(2))
         val data = mapOf(firstItem, secondItem)
 
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))

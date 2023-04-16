@@ -30,13 +30,6 @@ object EntityTestDataCreator {
         )
     }
 
-    fun baseFollowingEntity(): FollowingEntity {
-        return FollowingEntity(
-            1,
-            1
-        )
-    }
-
     fun baseAiringScheduleEntity(): AiringScheduleEntity {
         return AiringScheduleEntity(
             airingScheduleItemId = 1,

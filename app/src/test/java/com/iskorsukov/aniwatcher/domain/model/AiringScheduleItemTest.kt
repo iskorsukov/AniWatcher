@@ -13,25 +13,11 @@ class AiringScheduleItemTest {
     @Test
     fun fromEntity() {
         val airingScheduleItem = AiringScheduleItem.fromEntity(
-            EntityTestDataCreator.baseAiringScheduleEntity(),
-            ModelTestDataCreator.baseMediaItem
+            EntityTestDataCreator.baseAiringScheduleEntity()
         )
 
         assertThat(airingScheduleItem).isEqualTo(
             ModelTestDataCreator.baseAiringScheduleItem()
-        )
-    }
-
-    @Test
-    fun fromEntity_withFollowing() {
-        val airingScheduleItem = AiringScheduleItem.fromEntity(
-            EntityTestDataCreator.baseAiringScheduleEntity(),
-            ModelTestDataCreator.baseMediaItem.isFollowing(true)
-        )
-
-        val followedMediaItem = ModelTestDataCreator.baseMediaItem.isFollowing(true)
-        assertThat(airingScheduleItem).isEqualTo(
-            ModelTestDataCreator.baseAiringScheduleItem(followedMediaItem)
         )
     }
 

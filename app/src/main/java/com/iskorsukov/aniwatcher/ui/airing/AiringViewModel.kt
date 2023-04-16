@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
+import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
+import com.iskorsukov.aniwatcher.domain.util.DayOfWeekLocal
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.error.ErrorFlowViewModel
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.follow.FollowableViewModel
@@ -32,7 +34,7 @@ class AiringViewModel @Inject constructor(
     )
     val uiStateFlow: StateFlow<AiringUiState> = _uiStateFlow
 
-    val airingSchedulesByDayOfWeekFlow = airingRepository.mediaWithSchedulesFlow
+    val airingSchedulesByDayOfWeekFlow: Flow<Map<DayOfWeekLocal, List<Pair<AiringScheduleItem, MediaItem>>>> = airingRepository.mediaWithSchedulesFlow
         .distinctUntilChanged()
         .combine(uiStateFlow) { map, uiState ->
             filterFormatMediaFlow(map, uiState.deselectedFormats)

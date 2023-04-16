@@ -9,8 +9,7 @@ import java.util.concurrent.TimeUnit
 data class AiringScheduleItem(
     val id: Int,
     val airingAt: Int,
-    val episode: Int,
-    val mediaItem: MediaItem
+    val episode: Int
 ): Serializable {
 
     fun getAiringAtDateTimeFormatted(): String {
@@ -49,13 +48,12 @@ data class AiringScheduleItem(
     }
 
     companion object {
-        fun fromEntity(airingScheduleEntity: AiringScheduleEntity, mediaItem: MediaItem):AiringScheduleItem {
+        fun fromEntity(airingScheduleEntity: AiringScheduleEntity): AiringScheduleItem {
             return with(airingScheduleEntity) {
                 AiringScheduleItem(
                     id = airingScheduleItemId,
                     airingAt = airingAt,
-                    episode = episode,
-                    mediaItem = mediaItem
+                    episode = episode
                 )
             }
         }

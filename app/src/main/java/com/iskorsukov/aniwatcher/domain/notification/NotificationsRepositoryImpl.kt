@@ -43,12 +43,12 @@ class NotificationsRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getPendingSchedulesToNotify(): List<AiringScheduleItem> {
+    override suspend fun getPendingSchedulesToNotify(): List<Pair<AiringScheduleItem, MediaItem>> {
         return persistentMediaDatabaseExecutor.getPendingNotifications()
             .map { entityMapEntry ->
-                val mediaItem = MediaItem.fromEntity(entityMapEntry.key, null)
+                val mediaItem = MediaItem.fromEntity(entityMapEntry.key)
                 entityMapEntry.value.map {
-                    AiringScheduleItem.fromEntity(it, mediaItem)
+                    AiringScheduleItem.fromEntity(it)  to mediaItem
                 }
             }
             .flatten()

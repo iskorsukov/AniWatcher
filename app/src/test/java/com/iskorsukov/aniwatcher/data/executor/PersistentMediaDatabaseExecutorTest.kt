@@ -141,9 +141,7 @@ class PersistentMediaDatabaseExecutorTest {
     fun saveNotification() = runTest {
         initMocks(testScheduler)
 
-        val notificationItem = ModelTestDataCreator.baseNotificationItem(
-            ModelTestDataCreator.baseMediaItem
-        )
+        val notificationItem = ModelTestDataCreator.baseNotificationItem()
 
         persistentMediaDatabaseExecutor.saveNotification(notificationItem)
 

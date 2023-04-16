@@ -30,18 +30,16 @@ object ModelTestDataCreator {
         year = 2022
     )
 
-    fun baseAiringScheduleItem(baseMediaItem: MediaItem? = null): AiringScheduleItem {
-        val base = baseMediaItem ?: this.baseMediaItem
+    fun baseAiringScheduleItem(): AiringScheduleItem {
         return AiringScheduleItem(
             1,
             "7.10.2022/18:00".toSeconds(),
-            1,
-            base
+            1
         )
     }
 
-    fun baseAiringScheduleItemList(baseMediaItem: MediaItem? = null): List<AiringScheduleItem> {
-        val base = baseAiringScheduleItem(baseMediaItem)
+    fun baseAiringScheduleItemList(): List<AiringScheduleItem> {
+        val base = baseAiringScheduleItem()
         return listOf(
             base,
             base.id(2).episode(2).airingAt("8.10.2022/13:40".toSeconds()),
@@ -50,11 +48,22 @@ object ModelTestDataCreator {
         )
     }
 
-    fun baseNotificationItem(baseMediaItem: MediaItem? = null): NotificationItem {
+    fun baseAiringScheduleToMediaPairList(): List<Pair<AiringScheduleItem, MediaItem>> {
+        val base = baseAiringScheduleItem()
+        return listOf(
+            base to baseMediaItem,
+            base.id(2).episode(2).airingAt("8.10.2022/13:40".toSeconds()) to baseMediaItem,
+            base.id(3).episode(3).airingAt("12.10.2022/18:00".toSeconds()) to baseMediaItem,
+            base.id(4).episode(4).airingAt("15.10.2022/18:00".toSeconds()) to baseMediaItem
+        )
+    }
+
+    fun baseNotificationItem(): NotificationItem {
         return NotificationItem(
             1,
             "7.10.2022/18:00".toSeconds() * 1000L,
-            baseAiringScheduleItem(baseMediaItem = baseMediaItem)
+            baseAiringScheduleItem(),
+            baseMediaItem.isFollowing(true)
         )
     }
 }

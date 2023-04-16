@@ -31,13 +31,13 @@ class AiringRepositoryImpl @Inject constructor(
 
     override val mediaWithSchedulesFlow: Flow<Map<MediaItem, List<AiringScheduleItem>>> =
         mediaDatabaseExecutor.mediaDataFlow
-            .map { mediaMap ->
+            .combine(persistentMediaDatabaseExecutor.followedMediaFlow) { mediaMap, followedEntityMap ->
                 mediaMap
                     .mapNotNull { entry ->
                         val mediaItem = try {
                             MediaItem.fromEntity(
                                 entry.key,
-                                null
+                                followedEntityMap.containsKey(entry.key)
                             )
                         } catch (e: Exception) {
                             e.printStackTrace()
@@ -46,7 +46,7 @@ class AiringRepositoryImpl @Inject constructor(
                         }
                         val airingSchedules = try {
                             entry.value.map { schedule ->
-                                AiringScheduleItem.fromEntity(schedule, mediaItem)
+                                AiringScheduleItem.fromEntity(schedule)
                             }
                         } catch (e: Exception) {
                             e.printStackTrace()
@@ -57,22 +57,6 @@ class AiringRepositoryImpl @Inject constructor(
                     }
                     .associate { it.first to it.second }
             }
-            .combine(persistentMediaDatabaseExecutor.followedMediaFlow) { mediaMap, followedEntityMap ->
-                mediaMap
-                    .map { entry ->
-                        val isFollowing =
-                            followedEntityMap.keys.any { followedEntity -> followedEntity.mediaId == entry.key.id }
-                        if (isFollowing == entry.key.isFollowing) {
-                            return@map entry.key to entry.value
-                        }
-                        val updatedMediaItem = entry.key.copy(isFollowing = isFollowing)
-                        val updatedSchedules = entry.value.map { airingScheduleItem ->
-                            airingScheduleItem.copy(mediaItem = updatedMediaItem)
-                        }
-                        updatedMediaItem to updatedSchedules
-                    }
-                    .toMap()
-            }
 
     val followedMediaWithSchedulesFlow: Flow<Map<MediaItem, List<AiringScheduleItem>>> =
         persistentMediaDatabaseExecutor.followedMediaFlow
@@ -82,8 +66,8 @@ class AiringRepositoryImpl @Inject constructor(
                         val mediaItem = try {
                             MediaItem.fromEntity(
                                 entry.key,
-                                null
-                            ).copy(isFollowing = true)
+                                true
+                            )
                         } catch (e: Exception) {
                             e.printStackTrace()
                             FirebaseCrashlytics.getInstance().recordException(e)
@@ -91,7 +75,7 @@ class AiringRepositoryImpl @Inject constructor(
                         }
                         val airingSchedules = try {
                             entry.value.map { schedule ->
-                                AiringScheduleItem.fromEntity(schedule, mediaItem)
+                                AiringScheduleItem.fromEntity(schedule)
                             }
                         } catch (e: Exception) {
                             e.printStackTrace()
@@ -105,24 +89,24 @@ class AiringRepositoryImpl @Inject constructor(
 
     override fun getMediaWithAiringSchedules(mediaItemId: Int): Flow<Pair<MediaItem, List<AiringScheduleItem>>?> {
         return mediaDatabaseExecutor.getMediaWithAiringSchedules(mediaItemId)
-            .map { mediaToAiringSchedules ->
+            .combine(persistentMediaDatabaseExecutor.followedMediaFlow) { mediaToAiringSchedules, followedEntityMap ->
                 if (mediaToAiringSchedules == null)
-                    return@map null
+                    return@combine null
                 val mediaItemEntity = mediaToAiringSchedules.first
                 val scheduleEntitiesList = mediaToAiringSchedules.second
                 val mediaItem = try {
                     MediaItem.fromEntity(
                         mediaItemEntity,
-                        null
+                        followedEntityMap.containsKey(mediaItemEntity)
                     )
                 } catch (e: Exception) {
                     e.printStackTrace()
                     FirebaseCrashlytics.getInstance().recordException(e)
-                    return@map null
+                    return@combine null
                 }
                 val airingSchedules = try {
                     scheduleEntitiesList.map { schedule ->
-                        AiringScheduleItem.fromEntity(schedule, mediaItem)
+                        AiringScheduleItem.fromEntity(schedule)
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -130,22 +114,6 @@ class AiringRepositoryImpl @Inject constructor(
                     emptyList()
                 }
                 mediaItem to airingSchedules
-            }
-            .combine(persistentMediaDatabaseExecutor.followedMediaFlow) { mediaPair, followedEntityMap ->
-                if (mediaPair == null) {
-                    null
-                } else {
-                    val isFollowing =
-                        followedEntityMap.keys.any { followedEntity -> followedEntity.mediaId == mediaPair.first.id }
-                    if (isFollowing == mediaPair.first.isFollowing) {
-                        return@combine mediaPair
-                    }
-                    val updatedMediaItem = mediaPair.first.copy(isFollowing = isFollowing)
-                    val updatedSchedules = mediaPair.second.map { airingScheduleItem ->
-                        airingScheduleItem.copy(mediaItem = updatedMediaItem)
-                    }
-                    updatedMediaItem to updatedSchedules
-                }
             }
     }
 

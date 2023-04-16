@@ -148,9 +148,7 @@ class PersistentMediaDatabaseExecutorTest {
         persistentMediaDao.insertSchedules(airingScheduleEntityList)
 
         persistentMediaDatabaseExecutor.saveNotification(
-            ModelTestDataCreator.baseNotificationItem(
-                ModelTestDataCreator.baseMediaItem
-            )
+            ModelTestDataCreator.baseNotificationItem()
         )
 
         val entity = persistentMediaDatabaseExecutor.notificationsFlow.first()

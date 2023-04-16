@@ -10,9 +10,8 @@ class MediaItemTest {
     @Test
     fun fromEntity() {
         val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
-        val followingEntity = EntityTestDataCreator.baseFollowingEntity()
 
-        val mediaItem = MediaItem.fromEntity(mediaItemEntity, followingEntity)
+        val mediaItem = MediaItem.fromEntity(mediaItemEntity, true)
 
         assertThat(mediaItem).isEqualTo(ModelTestDataCreator.baseMediaItem.isFollowing(true))
     }
@@ -21,7 +20,7 @@ class MediaItemTest {
     fun fromEntity_noFollowingEntity() {
         val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
 
-        val mediaItem = MediaItem.fromEntity(mediaItemEntity, null)
+        val mediaItem = MediaItem.fromEntity(mediaItemEntity, false)
 
         assertThat(mediaItem).isEqualTo(ModelTestDataCreator.baseMediaItem)
     }

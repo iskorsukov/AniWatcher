@@ -12,7 +12,6 @@ import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
 import com.iskorsukov.aniwatcher.domain.notification.work.util.NotificationBuilderHelper
 import com.iskorsukov.aniwatcher.domain.util.LocalClockSystem
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
-import com.iskorsukov.aniwatcher.test.episode
 import com.iskorsukov.aniwatcher.test.id
 import io.mockk.*
 import kotlinx.coroutines.runBlocking
@@ -37,13 +36,14 @@ class NotificationsWorkerTest {
         context = ApplicationProvider.getApplicationContext()
 
         mockkObject(NotificationBuilderHelper)
-        every { NotificationBuilderHelper.buildNotification(any(), any()) } returns mockk()
+        every { NotificationBuilderHelper.buildNotification(any(), any(), any()) } returns mockk()
 
         notificationsRepository = mockk(relaxed = true)
-        val baseScheduleItem = ModelTestDataCreator.baseAiringScheduleItem()
+        val firstPendingPair = ModelTestDataCreator.baseAiringScheduleItem() to ModelTestDataCreator.baseMediaItem
+        val secondPendingPair = ModelTestDataCreator.baseAiringScheduleItem().id(2) to ModelTestDataCreator.baseMediaItem
         val pendingSchedulesList = listOf(
-            baseScheduleItem,
-            baseScheduleItem.id(2)
+            firstPendingPair,
+            secondPendingPair
         )
         coEvery { notificationsRepository.getPendingSchedulesToNotify() } returns pendingSchedulesList
 

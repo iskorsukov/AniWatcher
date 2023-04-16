@@ -245,7 +245,7 @@ fun MediaItemCardExtendedPreview() {
     val mediaItemWithLongDescription = ModelTestDataCreator.baseMediaItem.description("Word ".repeat(50))
     MediaItemCardExtended(
         mediaItem = mediaItemWithLongDescription,
-        airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(mediaItemWithLongDescription),
+        airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         onFollowClicked = {},
         onMediaClicked = {}
@@ -274,7 +274,7 @@ fun MediaItemCardExtendedPreview_noRankScore() {
         .meanScore(null)
     MediaItemCardExtended(
         mediaItem = mediaItemLongDescriptionNoRankScore,
-        airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(mediaItemLongDescriptionNoRankScore),
+        airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         onFollowClicked = {},
         onMediaClicked = {}

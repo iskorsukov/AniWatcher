@@ -1,6 +1,7 @@
 package com.iskorsukov.aniwatcher.domain.notification
 
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
+import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.model.NotificationItem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,7 +12,7 @@ interface NotificationsRepository {
 
     val unreadNotificationsCounterStateFlow: StateFlow<Int>
 
-    suspend fun getPendingSchedulesToNotify(): List<AiringScheduleItem>
+    suspend fun getPendingSchedulesToNotify(): List<Pair<AiringScheduleItem, MediaItem>>
 
     suspend fun saveNotification(notificationItem: NotificationItem)
 

@@ -77,7 +77,7 @@ data class MediaItem(
     }
 
     companion object {
-        fun fromEntity(mediaItemEntity: MediaItemEntity, followingEntity: FollowingEntity?): MediaItem {
+        fun fromEntity(mediaItemEntity: MediaItemEntity, isFollowing: Boolean = false): MediaItem {
             return mediaItemEntity.run {
                 MediaItem(
                     id = mediaId,
@@ -99,7 +99,7 @@ data class MediaItem(
                     format = format?.let { LocalFormat.of(it) },
                     season = season,
                     year = year,
-                    isFollowing = followingEntity != null
+                    isFollowing = isFollowing
                 )
             }
         }

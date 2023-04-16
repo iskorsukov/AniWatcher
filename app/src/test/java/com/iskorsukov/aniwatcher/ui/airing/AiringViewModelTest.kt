@@ -36,7 +36,7 @@ class AiringViewModelTest {
         )
         viewModel = AiringViewModel(airingRepository, followableViewModelDelegate)
 
-        val result: Map<DayOfWeekLocal, List<AiringScheduleItem>> =
+        val result: Map<DayOfWeekLocal, List<Pair<AiringScheduleItem, MediaItem>>> =
             viewModel.airingSchedulesByDayOfWeekFlow.first()
 
         assertThat(result).isNotNull()
@@ -45,7 +45,7 @@ class AiringViewModelTest {
             DayOfWeekLocal.MONDAY,
             DayOfWeekLocal.TUESDAY,
         )).inOrder()
-        val list = ModelTestDataCreator.baseAiringScheduleItemList()
+        val list = ModelTestDataCreator.baseAiringScheduleToMediaPairList()
         val assertValues = listOf(
             list[2],
             list[0],

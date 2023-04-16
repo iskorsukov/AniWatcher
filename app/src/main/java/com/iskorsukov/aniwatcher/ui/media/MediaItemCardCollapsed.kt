@@ -23,12 +23,12 @@ import com.iskorsukov.aniwatcher.ui.theme.LocalTextStyles
 @Composable
 fun MediaItemCardCollapsed(
     airingScheduleItem: AiringScheduleItem,
+    mediaItem: MediaItem,
     timeInMinutes: Long,
     onFollowClicked: (MediaItem) -> Unit,
     onMediaClicked: (MediaItem) -> Unit,
     preferredNamingScheme: NamingScheme
 ) {
-    val mediaItem = airingScheduleItem.mediaItem
     Card(
         modifier = Modifier
             .padding(top = 8.dp, start = 8.dp, end = 8.dp)
@@ -153,6 +153,7 @@ fun MediaItemCardCollapsed(
 private fun MediaItemCardCollapsedPreview() {
     MediaItemCardCollapsed(
         airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
+        mediaItem = ModelTestDataCreator.baseMediaItem,
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         onFollowClicked = { },
         onMediaClicked = { },

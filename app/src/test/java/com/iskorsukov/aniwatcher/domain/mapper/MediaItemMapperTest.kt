@@ -26,7 +26,7 @@ class MediaItemMapperTest {
             DayOfWeekLocal.SATURDAY
         ))
 
-        val list = ModelTestDataCreator.baseAiringScheduleItemList()
+        val list = ModelTestDataCreator.baseAiringScheduleToMediaPairList()
         val assertValues = listOf(
             list[0],
             list[1],

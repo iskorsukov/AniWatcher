@@ -24,7 +24,7 @@ class SearchableViewModelDelegateTest {
             .id(2)
             .title(MediaItem.Title(null, "SearchText", "Title"))
     private val secondItem = baseMediaItemWithModifiedTitle to
-            ModelTestDataCreator.baseAiringScheduleItemList(baseMediaItemWithModifiedTitle)
+            ModelTestDataCreator.baseAiringScheduleItemList()
     private val data = mapOf(firstItem, secondItem)
 
     private val airingRepository: AiringRepository = mockk<AiringRepository>(relaxed = true).apply {

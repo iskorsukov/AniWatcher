@@ -65,7 +65,7 @@ class AiringRepositoryTest {
 
         assertThat(model).isNotNull()
         assertThat(model.keys).containsExactly(ModelTestDataCreator.baseMediaItem.isFollowing(true))
-        assertThat(model.values.flatten()).containsExactlyElementsIn(ModelTestDataCreator.baseAiringScheduleItemList(ModelTestDataCreator.baseMediaItem.isFollowing(true)))
+        assertThat(model.values.flatten()).containsExactlyElementsIn(ModelTestDataCreator.baseAiringScheduleItemList())
 
         coVerify { mediaDatabaseExecutor.mediaDataFlow }
     }

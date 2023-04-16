@@ -1,7 +1,10 @@
 package com.iskorsukov.aniwatcher.ui.notification
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -28,7 +31,7 @@ fun NotificationCard(
     preferredNamingScheme: NamingScheme
 ) {
     val airingScheduleItem = notificationItem.airingScheduleItem
-    val mediaItem = notificationItem.airingScheduleItem.mediaItem
+    val mediaItem = notificationItem.mediaItem
     Card(
         modifier = Modifier
             .heightIn(min = 100.dp)

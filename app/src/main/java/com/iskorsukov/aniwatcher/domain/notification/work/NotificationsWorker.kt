@@ -5,6 +5,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
+import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.model.NotificationItem
 import com.iskorsukov.aniwatcher.domain.notification.NotificationsInteractor
 import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
@@ -40,11 +41,12 @@ class NotificationsWorker @AssistedInject constructor(
         return Result.success()
     }
 
-    private suspend fun saveNotifications(airingScheduleItemList: List<AiringScheduleItem>) {
-        airingScheduleItemList.forEach { airingScheduleItem ->
+    private suspend fun saveNotifications(airingScheduleItemList: List<Pair<AiringScheduleItem, MediaItem>>) {
+        airingScheduleItemList.forEach { airingScheduleToMediaPair ->
             notificationsRepository.saveNotification(
                 NotificationItem(
-                    airingScheduleItem = airingScheduleItem,
+                    airingScheduleItem = airingScheduleToMediaPair.first,
+                    mediaItem = airingScheduleToMediaPair.second,
                     firedAtMillis = clock.currentTimeMillis()
                 )
             )

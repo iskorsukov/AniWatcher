@@ -10,6 +10,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
+import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.notification.work.util.NotificationBuilderHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
@@ -32,27 +33,27 @@ class NotificationsInteractorImpl @Inject constructor(
         }
     }
 
-    override fun fireAiredNotifications(airingScheduleItemList: List<AiringScheduleItem>) {
-        if (airingScheduleItemList.isEmpty()) return
-        airingScheduleItemList.forEach { airingScheduleItem ->
+    override fun fireAiredNotifications(airingSchedulePairList: List<Pair<AiringScheduleItem, MediaItem>>) {
+        if (airingSchedulePairList.isEmpty()) return
+        airingSchedulePairList.forEach { airingScheduleItem ->
             val notification = NotificationBuilderHelper.buildNotification(
-                context, airingScheduleItem
+                context, airingScheduleItem.first, airingScheduleItem.second
             )
             if (ActivityCompat.checkSelfPermission(
                     context,
                     Manifest.permission.POST_NOTIFICATIONS
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
-                notificationManagerCompat.notify(airingScheduleItem.id, notification)
+                notificationManagerCompat.notify(airingScheduleItem.first.id, notification)
             }
         }
-        fireUpdatedGroupNotification(airingScheduleItemList)
+        fireUpdatedGroupNotification(airingSchedulePairList)
     }
 
-    private fun fireUpdatedGroupNotification(airingScheduleItemList: List<AiringScheduleItem>) {
+    private fun fireUpdatedGroupNotification(airingSchedulePairList: List<Pair<AiringScheduleItem, MediaItem>>) {
         val notification = NotificationBuilderHelper.buildGroupSummaryNotification(
             context,
-            airingScheduleItemList
+            airingSchedulePairList
         )
         if (notification != null) {
             if (ActivityCompat.checkSelfPermission(

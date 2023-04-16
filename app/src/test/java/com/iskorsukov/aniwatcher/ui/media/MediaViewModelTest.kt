@@ -95,7 +95,7 @@ class MediaViewModelTest {
                 listOf(ModelTestDataCreator.baseAiringScheduleItem().airingAt(1))
         val baseMediaItemWithBiggerMeanScore = ModelTestDataCreator.baseMediaItem.meanScore(2)
         val secondItem = baseMediaItemWithBiggerMeanScore to
-                listOf(ModelTestDataCreator.baseAiringScheduleItem(baseMediaItemWithBiggerMeanScore).airingAt(2))
+                listOf(ModelTestDataCreator.baseAiringScheduleItem().airingAt(2))
         val data = mapOf(firstItem, secondItem)
         coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(data)
 
@@ -124,7 +124,7 @@ class MediaViewModelTest {
                 listOf(ModelTestDataCreator.baseAiringScheduleItem().airingAt(1))
         val baseMediaItemWithBiggerMeanScore = ModelTestDataCreator.baseMediaItem.meanScore(2)
         val secondItem = baseMediaItemWithBiggerMeanScore to
-                listOf(ModelTestDataCreator.baseAiringScheduleItem(baseMediaItemWithBiggerMeanScore).airingAt(2))
+                listOf(ModelTestDataCreator.baseAiringScheduleItem().airingAt(2))
         val data = mapOf(firstItem, secondItem)
         coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(data)
 
