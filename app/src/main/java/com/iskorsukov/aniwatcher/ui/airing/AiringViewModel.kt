@@ -2,6 +2,7 @@ package com.iskorsukov.aniwatcher.ui.airing
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
@@ -9,10 +10,8 @@ import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.domain.util.DayOfWeekLocal
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.error.ErrorFlowViewModel
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.follow.FollowableViewModel
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.follow.FollowableViewModelDelegate
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.format.FormatFilterableViewModel
+import com.iskorsukov.aniwatcher.ui.base.util.filterFormatMediaFlow
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.*
 import com.iskorsukov.aniwatcher.ui.media.MediaUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -21,11 +20,10 @@ import javax.inject.Inject
 @HiltViewModel
 class AiringViewModel @Inject constructor(
     private val airingRepository: AiringRepository,
-    private val followableViewModelDelegate: FollowableViewModelDelegate
-) : ViewModel(),
-    FollowableViewModel,
-    ErrorFlowViewModel,
-    FormatFilterableViewModel {
+    private val formatsFilterEventHandler: FormatsFilterEventHandler<AiringUiState>,
+    private val followEventHandler: FollowEventHandler<AiringUiState>,
+    private val resetStateEventHandler: ResetStateEventHandler<AiringUiState>
+) : ViewModel() {
 
     private val currentDayOfWeekLocal = DateTimeHelper.currentDayOfWeek()
 
@@ -49,22 +47,33 @@ class AiringViewModel @Inject constructor(
             }
         }
 
-    override fun onDeselectedFormatsChanged(deselectedFormats: List<MediaItem.LocalFormat>) {
-        _uiStateFlow.value = _uiStateFlow.value.copy(deselectedFormats = deselectedFormats)
-        updateResetButton()
-    }
-
-    override fun onError(errorItem: ErrorItem?) {
-        _uiStateFlow.value = _uiStateFlow.value.copy(errorItem = errorItem)
-    }
-
-    override fun onFollowClicked(mediaItem: MediaItem) {
-        followableViewModelDelegate.onFollowClicked(
-            mediaItem,
-            viewModelScope,
-            airingRepository,
-            this::onError
-        )
+    fun handleInputEvent(inputEvent: AiringInputEvent) {
+        try {
+            _uiStateFlow.value = when (inputEvent) {
+                is FormatsFilterInputEvent -> formatsFilterEventHandler.handleEvent(
+                    inputEvent,
+                    _uiStateFlow.value
+                )
+                is FollowInputEvent -> followEventHandler.handleEvent(
+                    inputEvent,
+                    _uiStateFlow.value,
+                    viewModelScope,
+                    airingRepository
+                )
+                is ResetStateTriggeredInputEvent -> resetStateEventHandler.handleEvent(
+                    inputEvent,
+                    _uiStateFlow.value
+                )
+                else -> throw IllegalArgumentException("Unsupported input event of type ${inputEvent::class.simpleName}")
+            }
+            updateResetButton()
+        } catch (e: IllegalArgumentException) {
+            FirebaseCrashlytics.getInstance().recordException(e)
+            e.printStackTrace()
+        } catch (e: Exception) {
+            FirebaseCrashlytics.getInstance().recordException(e)
+            onError(ErrorItem.ofThrowable(e))
+        }
     }
 
     private fun updateResetButton() {
@@ -81,9 +90,7 @@ class AiringViewModel @Inject constructor(
         }
     }
 
-    fun resetState() {
-        if (_uiStateFlow.value != AiringUiState.DEFAULT) {
-            _uiStateFlow.value = AiringUiState.DEFAULT
-        }
+    private fun onError(errorItem: ErrorItem?) {
+        _uiStateFlow.value = _uiStateFlow.value.copy(errorItem = errorItem)
     }
 }

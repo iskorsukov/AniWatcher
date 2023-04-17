@@ -1,4 +1,4 @@
-package com.iskorsukov.aniwatcher
+package com.iskorsukov.aniwatcher.ui.main
 
 import android.Manifest
 import android.app.AlarmManager
@@ -35,12 +35,11 @@ import com.iskorsukov.aniwatcher.ui.airing.AiringScreen
 import com.iskorsukov.aniwatcher.ui.airing.AiringViewModel
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorPopupDialogSurface
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.*
 import com.iskorsukov.aniwatcher.ui.details.DetailsActivity
 import com.iskorsukov.aniwatcher.ui.following.FollowingScreen
 import com.iskorsukov.aniwatcher.ui.following.FollowingViewModel
-import com.iskorsukov.aniwatcher.ui.main.BottomNavigationBar
-import com.iskorsukov.aniwatcher.ui.main.MainActivityViewModel
-import com.iskorsukov.aniwatcher.ui.main.TopBar
+import com.iskorsukov.aniwatcher.ui.main.*
 import com.iskorsukov.aniwatcher.ui.media.MediaScreen
 import com.iskorsukov.aniwatcher.ui.media.MediaViewModel
 import com.iskorsukov.aniwatcher.ui.notification.NotificationActivity
@@ -78,9 +77,9 @@ class MainActivity : ComponentActivity() {
             ActivityResultContracts.RequestPermission()
         ) { isGranted: Boolean ->
             if (isGranted) {
-                mainActivityViewModel.onNotificationsPermissionGranted()
+                mainActivityViewModel.handleInputEvent(NotificationsPermissionGranted)
             } else {
-                mainActivityViewModel.onNotificationsPermissionDenied()
+                mainActivityViewModel.handleInputEvent(NotificationsPermissionDenied)
             }
         }
 
@@ -98,7 +97,7 @@ class MainActivity : ComponentActivity() {
                                 Manifest.permission.POST_NOTIFICATIONS
                             ) != PackageManager.PERMISSION_GRANTED
                         ) {
-                            mainActivityViewModel.onNotificationsPermissionMissing()
+                            mainActivityViewModel.handleInputEvent(NotificationsPermissionMissing)
                         } else {
                             scheduleNotificationChecks()
                         }
@@ -148,8 +147,14 @@ class MainActivity : ComponentActivity() {
                             navController = navController,
                             onSettingsClicked = this::startSettingsActivity,
                             onNotificationsClicked = this::startNotificationsActivity,
-                            onSearchTextInput = mainActivityViewModel::onSearchTextInput,
-                            onSearchFieldOpenChange = mainActivityViewModel::onSearchFieldOpenChange,
+                            onSearchTextInput = {
+                                mainActivityViewModel.handleInputEvent(SearchTextChangedInputEvent(it))
+                            },
+                            onSearchFieldOpenChange = {
+                                mainActivityViewModel.handleInputEvent(
+                                    SearchFieldVisibilityChangedInputEvent(it)
+                                )
+                            },
                             onSelectSeasonYearClicked = { shouldShowSeasonYearDialog = true },
                             unreadNotifications = unreadNotifications
                         )
@@ -159,10 +164,10 @@ class MainActivity : ComponentActivity() {
                             navController = navController,
                             scheduleType = settingsState.scheduleType,
                             onChangedDestination = {
-                                mainActivityViewModel.resetTopBarState()
-                                mediaViewModel.resetState()
-                                airingViewModel.resetState()
-                                followingViewModel.resetState()
+                                mainActivityViewModel.handleInputEvent(ResetSearchTextInputEvent)
+                                mediaViewModel.handleInputEvent(ResetStateTriggeredInputEvent)
+                                airingViewModel.handleInputEvent(ResetStateTriggeredInputEvent)
+                                followingViewModel.handleInputEvent(ResetStateTriggeredInputEvent)
                             }
                         )
                     },
@@ -185,15 +190,21 @@ class MainActivity : ComponentActivity() {
                         }
                         if (shouldShowSeasonYearDialog) {
                             SelectSeasonYearDialog(
-                                onSeasonYearSelected = mainActivityViewModel::onSeasonYearSelected,
+                                onSeasonYearSelected = {
+                                    mainActivityViewModel.handleInputEvent(SeasonYearSelectedEvent(it))
+                                },
                                 onDismissRequest = { shouldShowSeasonYearDialog = false },
                                 selectedSeasonYear = settingsState.selectedSeasonYear
                             )
                         }
                         if (shouldShowNotificationsRationaleDialog) {
                             NotificationsPermissionRationaleDialog(
-                                onNotificationsPermissionGranted = mainActivityViewModel::onNotificationsPermissionGrantClicked,
-                                onNotificationsPermissionDenied = mainActivityViewModel::onNotificationsPermissionDisableClicked,
+                                onNotificationsPermissionGranted = {
+                                    mainActivityViewModel.handleInputEvent(NotificationsPermissionGrantClicked)
+                                },
+                                onNotificationsPermissionDenied = {
+                                    mainActivityViewModel.handleInputEvent(NotificationsPermissionDisableClicked)
+                                },
                                 onDismissRequest = { shouldShowNotificationsRationaleDialog = false }
                             )
                         }
@@ -211,8 +222,12 @@ class MainActivity : ComponentActivity() {
                                     onMediaClicked = { startDetailsActivity(it.id) },
                                     onRefresh = mainActivityViewModel::loadAiringData,
                                     onGenreChipClicked = {
-                                        mainActivityViewModel.onSearchFieldOpenChange(true)
-                                        mainActivityViewModel.appendSearchText(it)
+                                        mainActivityViewModel.handleInputEvent(
+                                            SearchFieldVisibilityChangedInputEvent(true)
+                                        )
+                                        mainActivityViewModel.handleInputEvent(
+                                            AppendSearchTextInputEvent(it)
+                                        )
                                     }
                                 )
                             }
@@ -234,8 +249,12 @@ class MainActivity : ComponentActivity() {
                                     timeInMinutes = timeInMinutes,
                                     onMediaClicked = { startDetailsActivity(it.id) },
                                     onGenreChipClicked = {
-                                        mainActivityViewModel.onSearchFieldOpenChange(true)
-                                        mainActivityViewModel.appendSearchText(it)
+                                        mainActivityViewModel.handleInputEvent(
+                                            SearchFieldVisibilityChangedInputEvent(true)
+                                        )
+                                        mainActivityViewModel.handleInputEvent(
+                                            AppendSearchTextInputEvent(it)
+                                        )
                                     }
                                 )
                             }

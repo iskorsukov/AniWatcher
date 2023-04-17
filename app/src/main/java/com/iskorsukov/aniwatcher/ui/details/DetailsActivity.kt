@@ -10,7 +10,9 @@ import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
@@ -45,14 +47,19 @@ class DetailsActivity: ComponentActivity() {
         val mediaItemId = intent.getIntExtra(MEDIA_ITEM_ID_EXTRA, -1)
         if (mediaItemId == -1) finish()
 
+        viewModel.loadMediaWithAiringSchedules(mediaItemId)
+
         setContent {
+            val uiState by viewModel.uiStateFlow.collectAsStateWithLifecycle()
+            val mediaItemWithSchedules by remember {
+                derivedStateOf { uiState.mediaItemWithSchedules }
+            }
+            val mediaItemHasBanner by remember {
+                derivedStateOf { uiState.mediaItemWithSchedules?.first?.bannerImageUrl != null }
+            }
+
             val settingsState by viewModel.settingsState
                 .collectAsStateWithLifecycle()
-
-            val mediaItemToAiringSchedules by viewModel.getMediaWithAiringSchedules(mediaItemId)
-                .collectAsStateWithLifecycle(null)
-
-            val mediaItemHasBanner = mediaItemToAiringSchedules?.first?.bannerImageUrl != null
 
             AniWatcherTheme(settingsState.darkModeOption) {
                 Scaffold(
@@ -66,23 +73,21 @@ class DetailsActivity: ComponentActivity() {
                     backgroundColor = LocalColors.current.background
                 ) { innerPadding ->
                     val primaryColorInt = LocalColors.current.primary.toArgb()
-                    if (mediaItemToAiringSchedules != null) {
-                        DetailsScreen(
-                            timeInMinutesFlow = timeInMinutesFlow,
-                            mediaItem = mediaItemToAiringSchedules!!.first,
-                            airingScheduleList = mediaItemToAiringSchedules!!.second
-                                .sortedBy { it.airingAt },
-                            preferredNamingScheme = settingsState.preferredNamingScheme,
-                            modifier = Modifier.padding(innerPadding),
-                            onBackButtonClicked = { finish() },
-                            onLearnMoreClicked = {
-                                navigateToAniList(
-                                    it,
-                                    primaryColorInt
-                                )
-                            }
-                        )
-                    }
+                    DetailsScreen(
+                        timeInMinutesFlow = timeInMinutesFlow,
+                        mediaItem = mediaItemWithSchedules?.first,
+                        airingScheduleList = mediaItemWithSchedules?.second
+                            ?.sortedBy { it.airingAt },
+                        preferredNamingScheme = settingsState.preferredNamingScheme,
+                        modifier = Modifier.padding(innerPadding),
+                        onBackButtonClicked = { finish() },
+                        onLearnMoreClicked = {
+                            navigateToAniList(
+                                it,
+                                primaryColorInt
+                            )
+                        }
+                    )
                 }
             }
         }

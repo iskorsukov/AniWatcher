@@ -28,6 +28,7 @@ import com.iskorsukov.aniwatcher.ui.base.fab.ScrollToTopFab
 import com.iskorsukov.aniwatcher.ui.base.header.FilterFormatHeaderChip
 import com.iskorsukov.aniwatcher.ui.base.header.HeaderFlowRow
 import com.iskorsukov.aniwatcher.ui.base.header.SortingOptionHeaderChip
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.*
 import com.iskorsukov.aniwatcher.ui.format.FilterFormatDialog
 import com.iskorsukov.aniwatcher.ui.main.MainActivityUiState
 import com.iskorsukov.aniwatcher.ui.sorting.SelectSortingOptionDialog
@@ -63,7 +64,7 @@ fun MediaScreen(
     }
 
     LaunchedEffect(uiState.searchText) {
-        viewModel.onSearchTextChanged(uiState.searchText)
+        viewModel.handleInputEvent(SearchTextChangedInputEvent(uiState.searchText))
         listState.scrollToItem(0)
     }
 
@@ -75,13 +76,13 @@ fun MediaScreen(
             listState = listState,
             timeInMinutes = timeInMinutes,
             preferredNamingScheme = settingsState.preferredNamingScheme,
-            onFollowClicked = viewModel::onFollowClicked,
+            onFollowClicked = { viewModel.handleInputEvent(FollowClickedInputEvent(it)) },
             onGenreChipClicked = onGenreChipClicked,
             onMediaClicked = onMediaClicked,
             onSelectSortingOptionClicked = { shouldShowSortingOptionsDialog = true },
             mediaUiState = mediaUiState,
             onFilterFormatClicked = { shouldShowFilterFormatDialog = true },
-            onResetClicked = { viewModel.resetState() }
+            onResetClicked = { viewModel.handleInputEvent(ResetStateTriggeredInputEvent) }
         )
         ScrollToTopFab(
             lazyListState = listState,
@@ -101,7 +102,7 @@ fun MediaScreen(
 
     if (shouldShowSortingOptionsDialog) {
         SelectSortingOptionDialog(
-            onSortingOptionSelected = viewModel::onSortingOptionChanged,
+            onSortingOptionSelected = { viewModel.handleInputEvent(SortingOptionChangedInputEvent(it)) },
             onDismissRequest = { shouldShowSortingOptionsDialog = false },
             selectedOption = mediaUiState.sortingOption
         )
@@ -112,7 +113,7 @@ fun MediaScreen(
             mediaUiState.deselectedFormats
         ) { formats ->
             shouldShowFilterFormatDialog = false
-            viewModel.onDeselectedFormatsChanged(formats)
+            viewModel.handleInputEvent(FormatsFilterSelectionUpdatedInputEvent(formats))
         }
     }
 }

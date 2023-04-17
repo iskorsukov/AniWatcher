@@ -22,7 +22,7 @@
         android:theme="@style/Theme.AniWatcher"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.main.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.AniWatcher">
             <intent-filter>

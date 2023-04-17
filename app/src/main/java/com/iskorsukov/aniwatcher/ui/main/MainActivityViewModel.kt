@@ -9,9 +9,13 @@ import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
 import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.MainActivityInputEvent
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.SearchTextEventHandler
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.SearchTextInputEvent
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.onboarding.OnboardingViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
@@ -20,14 +24,18 @@ import javax.inject.Inject
 class MainActivityViewModel @Inject constructor(
     private val airingRepository: AiringRepository,
     private val settingsRepository: SettingsRepository,
-    notificationsRepository: NotificationsRepository
-): OnboardingViewModel(settingsRepository) {
+    notificationsRepository: NotificationsRepository,
+    private val searchTextEventHandler: SearchTextEventHandler<MainActivityUiState>,
+    private val seasonYearEventHandler: SeasonYearEventHandler,
+    private val notificationsPermissionEventHandler: NotificationsPermissionEventHandler
+) : OnboardingViewModel(settingsRepository) {
 
     val settingsState: StateFlow<SettingsState> = settingsRepository.settingsStateFlow
-    val unreadNotificationsState: StateFlow<Int> = notificationsRepository.unreadNotificationsCounterStateFlow
+    val unreadNotificationsState: StateFlow<Int> =
+        notificationsRepository.unreadNotificationsCounterStateFlow
 
     private val _uiState: MutableStateFlow<MainActivityUiState> = MutableStateFlow(
-        MainActivityUiState(isRefreshing = false)
+        MainActivityUiState.DEFAULT
     )
     val uiState: StateFlow<MainActivityUiState> = _uiState
 
@@ -37,8 +45,12 @@ class MainActivityViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 if (settingsState.value.scheduleType == ScheduleType.ALL) {
-                    val weekStartEndSeconds = DateTimeHelper.currentWeekStartToEndSeconds(Calendar.getInstance())
-                    airingRepository.loadRangeAiringData(weekStartEndSeconds.first, weekStartEndSeconds.second)
+                    val weekStartEndSeconds =
+                        DateTimeHelper.currentWeekStartToEndSeconds(Calendar.getInstance())
+                    airingRepository.loadRangeAiringData(
+                        weekStartEndSeconds.first,
+                        weekStartEndSeconds.second
+                    )
                 } else {
                     val seasonYear = settingsState.value.selectedSeasonYear
                     airingRepository.loadSeasonAiringData(seasonYear.year, seasonYear.season.name)
@@ -53,72 +65,35 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    override fun onError(errorItem: ErrorItem?) {
-        _uiState.value = _uiState.value.copy(errorItem = errorItem)
-    }
-
-    fun onSearchTextInput(searchText: String) {
-        _uiState.value = _uiState.value.copy(searchText = searchText)
-    }
-
-    fun appendSearchText(searchText: String) {
-        val currentSearchText = _uiState.value.searchText
-        if (currentSearchText.isBlank()) {
-            onSearchTextInput(searchText)
-        } else {
-            onSearchTextInput("$currentSearchText $searchText")
+    fun handleInputEvent(inputEvent: MainActivityInputEvent) {
+        try {
+            _uiState.value = when (inputEvent) {
+                is SearchTextInputEvent -> searchTextEventHandler.handleEvent(
+                    inputEvent,
+                    _uiState.value
+                )
+                is SeasonYearInputEvent -> seasonYearEventHandler.handleEvent(
+                    inputEvent,
+                    _uiState.value,
+                    settingsRepository
+                )
+                is NotificationsPermissionEvent -> notificationsPermissionEventHandler.handleEvent(
+                    inputEvent,
+                    _uiState.value,
+                    settingsRepository
+                )
+                else -> throw IllegalArgumentException("Unsupported input event of type ${inputEvent::class.simpleName}")
+            }
+        } catch (e: IllegalArgumentException) {
+            FirebaseCrashlytics.getInstance().recordException(e)
+            e.printStackTrace()
+        } catch (e: Exception) {
+            FirebaseCrashlytics.getInstance().recordException(e)
+            onError(ErrorItem.ofThrowable(e))
         }
     }
 
-    fun onSearchFieldOpenChange(isSearchFieldOpen: Boolean) {
-        _uiState.value = _uiState.value.copy(searchFieldOpen = isSearchFieldOpen)
-    }
-
-    fun onSeasonYearSelected(seasonYear: DateTimeHelper.SeasonYear) {
-        settingsRepository.setSelectedSeasonYear(seasonYear)
-    }
-
-    fun resetTopBarState() {
-        _uiState.value = _uiState.value.copy(
-            searchText = "",
-            searchFieldOpen = false
-        )
-    }
-
-    fun onNotificationsPermissionMissing() {
-        settingsRepository.setNotificationsEnabled(false)
-        _uiState.value = _uiState.value.copy(
-            showNotificationsPermissionRationale = true
-        )
-    }
-
-    fun onNotificationsPermissionGrantClicked() {
-        _uiState.value = _uiState.value.copy(
-            showNotificationsPermissionRationale = false,
-            launchNotificationPermissionRequest = true
-        )
-    }
-
-    fun onNotificationsPermissionDisableClicked() {
-        _uiState.value = _uiState.value.copy(
-            showNotificationsPermissionRationale = false
-        )
-        settingsRepository.setNotificationsEnabled(false)
-    }
-
-    fun onNotificationsPermissionGranted() {
-        settingsRepository.setNotificationsEnabled(true)
-        _uiState.value = _uiState.value.copy(
-            notificationsPermissionGranted = true,
-            launchNotificationPermissionRequest = false
-        )
-    }
-
-    fun onNotificationsPermissionDenied() {
-        settingsRepository.setNotificationsEnabled(false)
-        _uiState.value = _uiState.value.copy(
-            notificationsPermissionGranted = false,
-            launchNotificationPermissionRequest = false
-        )
+    private fun onError(errorItem: ErrorItem?) {
+        _uiState.value = _uiState.value.copy(errorItem = errorItem)
     }
 }

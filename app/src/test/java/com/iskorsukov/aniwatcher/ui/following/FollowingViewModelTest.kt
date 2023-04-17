@@ -5,45 +5,58 @@ import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.test.*
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.follow.FollowableViewModelDelegate
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.search.SearchableViewModelDelegate
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.*
 import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
-import io.mockk.coEvery
-import io.mockk.coVerify
-import io.mockk.mockk
+import io.mockk.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.test.*
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class FollowingViewModelTest {
     private val airingRepository: AiringRepository = mockk(relaxed = true)
-    private val searchableViewModelDelegate: SearchableViewModelDelegate =
-        SearchableViewModelDelegate()
-    private val followableViewModelDelegate: FollowableViewModelDelegate =
-        FollowableViewModelDelegate()
+    private val searchTextEventHandler: SearchTextEventHandler<FollowingUiState> = spyk(
+        SearchTextEventHandler()
+    )
+    private val followEventHandler: FollowEventHandler<FollowingUiState> =
+        spyk(FollowEventHandler())
+    private val sortingOptionEventHandler: SortingOptionEventHandler<FollowingUiState> = spyk(
+        SortingOptionEventHandler()
+    )
+    private val formatsFilterEventHandler: FormatsFilterEventHandler<FollowingUiState> = spyk(
+        FormatsFilterEventHandler()
+    )
+    private val resetStateEventHandler: ResetStateEventHandler<FollowingUiState> = spyk(
+        ResetStateEventHandler()
+    )
 
     private lateinit var viewModel: FollowingViewModel
 
-    @Test
-    fun followingMediaFlow() = runTest {
-        val followedBaseItem = ModelTestDataCreator.baseMediaItem.isFollowing(true)
-        val airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList()
+    private val followedBaseItem = ModelTestDataCreator.baseMediaItem.isFollowing(true)
+    private val airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList()
+
+    private fun initViewModel(testScheduler: TestCoroutineScheduler) {
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
 
         coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(
             mapOf(followedBaseItem to airingScheduleList)
         )
         viewModel = FollowingViewModel(
             airingRepository,
-            searchableViewModelDelegate,
-            followableViewModelDelegate
+            searchTextEventHandler,
+            followEventHandler,
+            sortingOptionEventHandler,
+            formatsFilterEventHandler,
+            resetStateEventHandler
         )
+    }
+
+    @Test
+    fun followingMediaFlow() = runTest {
+        initViewModel(testScheduler)
 
         val result: Map<MediaItem, AiringScheduleItem?> = viewModel.followingMediaFlow.first()
 
@@ -57,26 +70,97 @@ class FollowingViewModelTest {
     }
 
     @Test
-    fun followingMediaFlow_empty() = runTest {
-        coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(
-            mapOf(
-                ModelTestDataCreator.baseMediaItem to
-                        ModelTestDataCreator.baseAiringScheduleItemList()
+    fun formatsFilterEvent_formatsFilterSelectionUpdated() = runTest {
+        initViewModel(testScheduler)
+
+        val deselectedFormats = listOf(
+            MediaItem.LocalFormat.TV, MediaItem.LocalFormat.MOVIE
+        )
+
+        viewModel.handleInputEvent(FormatsFilterSelectionUpdatedInputEvent(deselectedFormats))
+
+        val uiState = viewModel.uiStateFlow.value
+
+        assertThat(uiState.deselectedFormats).containsExactlyElementsIn(
+            deselectedFormats
+        )
+        assertThat(uiState.showReset).isTrue()
+        verify {
+            formatsFilterEventHandler.handleEvent(
+                FormatsFilterSelectionUpdatedInputEvent(deselectedFormats),
+                FollowingUiState.DEFAULT
             )
-        )
-        viewModel = FollowingViewModel(
-            airingRepository,
-            searchableViewModelDelegate,
-            followableViewModelDelegate
-        )
-
-        val result: Map<MediaItem, AiringScheduleItem?> = viewModel.followingMediaFlow.first()
-
-        assertThat(result.size).isEqualTo(0)
+        }
     }
 
     @Test
-    fun sortsMediaFlow() = runTest {
+    fun followEvent_follow() = runTest {
+        initViewModel(testScheduler)
+
+        viewModel.handleInputEvent(FollowClickedInputEvent(ModelTestDataCreator.baseMediaItem))
+        advanceUntilIdle()
+
+        verify {
+            followEventHandler.handleEvent(
+                FollowClickedInputEvent(ModelTestDataCreator.baseMediaItem),
+                FollowingUiState.DEFAULT,
+                any(),
+                airingRepository
+            )
+        }
+        coVerify {
+            airingRepository.followMedia(ModelTestDataCreator.baseMediaItem)
+        }
+    }
+
+    @Test
+    fun followEvent_unfollow() = runTest {
+        initViewModel(testScheduler)
+
+        viewModel.handleInputEvent(
+            FollowClickedInputEvent(ModelTestDataCreator.baseMediaItem.isFollowing(true))
+        )
+        advanceUntilIdle()
+
+        verify {
+            followEventHandler.handleEvent(
+                FollowClickedInputEvent(ModelTestDataCreator.baseMediaItem.isFollowing(true)),
+                FollowingUiState.DEFAULT,
+                any(),
+                airingRepository
+            )
+        }
+        coVerify {
+            airingRepository.unfollowMedia(
+                ModelTestDataCreator.baseMediaItem.isFollowing(true)
+            )
+        }
+    }
+
+    @Test
+    fun resetStateEvent() = runTest {
+        initViewModel(testScheduler)
+
+        val deselectedFormats = listOf(
+            MediaItem.LocalFormat.TV, MediaItem.LocalFormat.MOVIE
+        )
+        viewModel.handleInputEvent(FormatsFilterSelectionUpdatedInputEvent(deselectedFormats))
+
+        viewModel.handleInputEvent(ResetStateTriggeredInputEvent)
+
+        val uiState = viewModel.uiStateFlow.value
+
+        assertThat(uiState).isEqualTo(FollowingUiState.DEFAULT)
+        verify {
+            resetStateEventHandler.handleEvent(
+                ResetStateTriggeredInputEvent,
+                FollowingUiState.DEFAULT.copy(deselectedFormats = deselectedFormats, showReset = true)
+            )
+        }
+    }
+
+    @Test
+    fun sortingOptionEvent() = runTest {
         val followedBaseItem = ModelTestDataCreator.baseMediaItem.isFollowing(true)
         val followedBaseItemWithBiggerMeanScore = followedBaseItem.meanScore(2)
 
@@ -88,88 +172,50 @@ class FollowingViewModelTest {
                 )
         val data = mapOf(firstItem, secondItem)
 
-        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
         coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(data)
         viewModel = FollowingViewModel(
             airingRepository,
-            searchableViewModelDelegate,
-            followableViewModelDelegate
+            searchTextEventHandler,
+            followEventHandler,
+            sortingOptionEventHandler,
+            formatsFilterEventHandler,
+            resetStateEventHandler
         )
 
-        var result: Map<MediaItem, AiringScheduleItem?> = viewModel.followingMediaFlow.first()
+        viewModel.handleInputEvent(SortingOptionChangedInputEvent(SortingOption.SCORE))
 
-        assertThat(result.size).isEqualTo(2)
-        assertThat(result.keys).containsExactly(firstItem.first, secondItem.first).inOrder()
-
-        viewModel.onSortingOptionChanged(SortingOption.SCORE)
-        result = viewModel.followingMediaFlow.first()
+        val result = viewModel.followingMediaFlow.first()
 
         assertThat(result.size).isEqualTo(2)
         assertThat(result.keys).containsExactly(secondItem.first, firstItem.first).inOrder()
-    }
 
+        val uiState = viewModel.uiStateFlow.value
 
-    @Test
-    fun filtersFormat() = runTest {
-        val followedBaseItem = ModelTestDataCreator.baseMediaItem.isFollowing(true)
-        val followedBaseItemWithBiggerMeanScore = followedBaseItem.meanScore(2)
-
-        val firstItem = followedBaseItem to
-                listOf(ModelTestDataCreator.baseAiringScheduleItem().airingAt(1))
-        val secondItem = followedBaseItemWithBiggerMeanScore to
-                listOf(ModelTestDataCreator.baseAiringScheduleItem().airingAt(2))
-        val data = mapOf(firstItem, secondItem)
-
-        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
-        coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(data)
-        viewModel = FollowingViewModel(
-            airingRepository,
-            searchableViewModelDelegate,
-            followableViewModelDelegate
-        )
-
-        var result = viewModel.followingMediaFlow.first()
-
-        assertThat(result.size).isEqualTo(2)
-        assertThat(result.keys).containsExactly(firstItem.first, secondItem.first).inOrder()
-
-        viewModel.onDeselectedFormatsChanged(listOf(MediaItem.LocalFormat.TV))
-        result = viewModel.followingMediaFlow.first()
-
-        assertThat(result.size).isEqualTo(0)
+        assertThat(uiState.sortingOption).isEqualTo(SortingOption.SCORE)
+        verify {
+            sortingOptionEventHandler.handleEvent(
+                SortingOptionChangedInputEvent(SortingOption.SCORE),
+                FollowingUiState.DEFAULT
+            )
+        }
     }
 
     @Test
-    fun onFollowMediaClicked() = runTest {
-        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
-        viewModel = FollowingViewModel(
-            airingRepository,
-            searchableViewModelDelegate,
-            followableViewModelDelegate
-        )
+    fun searchTextEvent_searchTextChanged() = runTest {
+        initViewModel(testScheduler)
 
-        val mediaItem = ModelTestDataCreator.baseMediaItem
+        val searchText = "search"
 
-        viewModel.onFollowClicked(mediaItem)
-        advanceUntilIdle()
+        viewModel.handleInputEvent(SearchTextChangedInputEvent(searchText))
 
-        coVerify { airingRepository.followMedia(mediaItem) }
-    }
+        val uiState = viewModel.uiStateFlow.value
 
-    @Test
-    fun onFollowMediaClicked_unfollow() = runTest {
-        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
-        viewModel = FollowingViewModel(
-            airingRepository,
-            searchableViewModelDelegate,
-            followableViewModelDelegate
-        )
-
-        val mediaItem = ModelTestDataCreator.baseMediaItem.isFollowing(true)
-
-        viewModel.onFollowClicked(mediaItem)
-        advanceUntilIdle()
-
-        coVerify { airingRepository.unfollowMedia(mediaItem) }
+        assertThat(uiState.searchText).isEqualTo(searchText)
+        verify {
+            searchTextEventHandler.handleEvent(
+                SearchTextChangedInputEvent(searchText),
+                FollowingUiState.DEFAULT
+            )
+        }
     }
 }

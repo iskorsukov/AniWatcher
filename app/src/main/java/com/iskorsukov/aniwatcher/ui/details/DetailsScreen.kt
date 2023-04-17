@@ -44,7 +44,7 @@ import kotlinx.coroutines.flow.Flow
 @Composable
 fun DetailsScreen(
     timeInMinutesFlow: Flow<Long>,
-    mediaItem: MediaItem,
+    mediaItem: MediaItem?,
     airingScheduleList: List<AiringScheduleItem>?,
     modifier: Modifier = Modifier,
     onBackButtonClicked: () -> Unit = { },
@@ -55,15 +55,17 @@ fun DetailsScreen(
     val timeInMinutes by timeInMinutesFlow
         .collectAsStateWithLifecycle(initialValue = 0)
 
-    DetailScreenContent(
-        mediaItem = mediaItem,
-        airingScheduleList = airingScheduleList,
-        timeInMinutes = timeInMinutes,
-        modifier = modifier,
-        preferredNamingScheme = preferredNamingScheme,
-        onBackButtonClicked = onBackButtonClicked,
-        onLearnMoreClicked = onLearnMoreClicked
-    )
+    if (mediaItem != null) {
+        DetailScreenContent(
+            mediaItem = mediaItem,
+            airingScheduleList = airingScheduleList,
+            timeInMinutes = timeInMinutes,
+            modifier = modifier,
+            preferredNamingScheme = preferredNamingScheme,
+            onBackButtonClicked = onBackButtonClicked,
+            onLearnMoreClicked = onLearnMoreClicked
+        )
+    }
 }
 
 @Composable

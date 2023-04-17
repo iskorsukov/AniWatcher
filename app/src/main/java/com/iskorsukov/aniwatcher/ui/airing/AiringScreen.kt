@@ -27,6 +27,9 @@ import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.domain.util.DayOfWeekLocal
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.FollowClickedInputEvent
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.FormatsFilterSelectionUpdatedInputEvent
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.ResetStateTriggeredInputEvent
 import com.iskorsukov.aniwatcher.ui.base.fab.ScrollToTopFab
 import com.iskorsukov.aniwatcher.ui.base.header.FilterFormatHeaderChip
 import com.iskorsukov.aniwatcher.ui.base.header.HeaderFlowRow
@@ -70,10 +73,12 @@ fun AiringScreen(
             airingUiState = airingUiState,
             airingSchedulesByDayOfWeekMap = airingScheduleItemList,
             timeInMinutes = timeInMinutes,
-            onFollowClicked = viewModel::onFollowClicked,
+            onFollowClicked = {
+                viewModel.handleInputEvent(FollowClickedInputEvent(it))
+            },
             onMediaClicked = onMediaClicked,
             preferredNamingScheme = settingsState.preferredNamingScheme,
-            onResetClicked = { viewModel.resetState() },
+            onResetClicked = { viewModel.handleInputEvent(ResetStateTriggeredInputEvent) },
             onFilterFormatClicked = { shouldShowFilterFormatDialog = true }
         )
         ScrollToTopFab(
@@ -97,7 +102,7 @@ fun AiringScreen(
             airingUiState.deselectedFormats
         ) { formats ->
             shouldShowFilterFormatDialog = false
-            viewModel.onDeselectedFormatsChanged(formats)
+            viewModel.handleInputEvent(FormatsFilterSelectionUpdatedInputEvent(formats))
         }
     }
 }

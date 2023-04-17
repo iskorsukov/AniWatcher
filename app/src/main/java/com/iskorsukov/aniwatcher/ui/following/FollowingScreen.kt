@@ -19,10 +19,12 @@ import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.test.isFollowing
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.*
 import com.iskorsukov.aniwatcher.ui.base.header.FilterFormatHeaderChip
 import com.iskorsukov.aniwatcher.ui.base.header.HeaderFlowRow
 import com.iskorsukov.aniwatcher.ui.base.header.SortingOptionHeaderChip
 import com.iskorsukov.aniwatcher.ui.base.placeholder.EmptyDataPlaceholder
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.*
 import com.iskorsukov.aniwatcher.ui.format.FilterFormatDialog
 import com.iskorsukov.aniwatcher.ui.main.MainActivityUiState
 import com.iskorsukov.aniwatcher.ui.media.MediaItemCardExtended
@@ -46,7 +48,7 @@ fun FollowingScreen(
 
     val listState = rememberLazyListState()
     LaunchedEffect(uiState.searchText, followingUiState.sortingOption) {
-        viewModel.onSearchTextChanged(uiState.searchText)
+        viewModel.handleInputEvent(SearchTextChangedInputEvent(uiState.searchText))
         listState.scrollToItem(0)
     }
 
@@ -62,7 +64,7 @@ fun FollowingScreen(
             followingMediaMap = followingMediaMap,
             searchTextIsEmpty = uiState.searchText.trim().length < 4,
             timeInMinutes = timeInMinutes,
-            onFollowClicked = viewModel::onFollowClicked,
+            onFollowClicked = { viewModel.handleInputEvent(FollowClickedInputEvent(it)) },
             preferredNamingScheme = settingsState.preferredNamingScheme,
             onMediaClicked = onMediaClicked,
             onGenreChipClicked = onGenreChipClicked,
@@ -70,13 +72,13 @@ fun FollowingScreen(
             followingUiState = followingUiState,
             onSelectSortingOptionClicked = { shouldShowSortingOptionsDialog = true },
             onFilterFormatClicked = { shouldShowFilterFormatDialog = true },
-            onResetClicked = { viewModel.resetState() }
+            onResetClicked = { viewModel.handleInputEvent(ResetStateTriggeredInputEvent) }
         )
     }
 
     if (shouldShowSortingOptionsDialog) {
         SelectSortingOptionDialog(
-            onSortingOptionSelected = viewModel::onSortingOptionChanged,
+            onSortingOptionSelected = { viewModel.handleInputEvent(SortingOptionChangedInputEvent(it)) },
             onDismissRequest = { shouldShowSortingOptionsDialog = false },
             selectedOption = followingUiState.sortingOption
         )
@@ -86,7 +88,7 @@ fun FollowingScreen(
             followingUiState.deselectedFormats
         ) { formats ->
             shouldShowFilterFormatDialog = false
-            viewModel.onDeselectedFormatsChanged(formats)
+            viewModel.handleInputEvent(FormatsFilterSelectionUpdatedInputEvent(formats))
         }
     }
 }

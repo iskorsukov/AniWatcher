@@ -5,11 +5,10 @@ import com.iskorsukov.aniwatcher.domain.settings.DarkModeOption
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.domain.settings.ScheduleType
 import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.error.ErrorFlowViewModel
 
 abstract class OnboardingViewModel(
     private val settingsRepository: SettingsRepository
-) : ViewModel(), ErrorFlowViewModel {
+) : ViewModel() {
 
     fun onDarkModeOptionSelected(darkModeOption: DarkModeOption) {
         settingsRepository.setDarkModeOption(darkModeOption)
