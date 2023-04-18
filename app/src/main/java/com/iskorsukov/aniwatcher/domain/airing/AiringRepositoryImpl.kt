@@ -109,14 +109,24 @@ class AiringRepositoryImpl @Inject constructor(
     override fun getMediaWithAiringSchedules(mediaItemId: Int): Flow<Pair<MediaItem, List<AiringScheduleItem>>?> {
         return mediaDatabaseExecutor.getMediaWithAiringSchedules(mediaItemId)
             .combine(persistentMediaDatabaseExecutor.followedMediaFlow) { mediaToAiringSchedules, followedEntityMap ->
-                if (mediaToAiringSchedules == null)
+                val persistedMedia: MediaItemEntity? = followedEntityMap.keys.find { entity -> entity.mediaId == mediaItemId }
+
+                val mediaItemEntity: MediaItemEntity
+                val scheduleEntitiesList: List<AiringScheduleEntity>
+                if (mediaToAiringSchedules != null) {
+                    mediaItemEntity = mediaToAiringSchedules.first
+                    scheduleEntitiesList = mediaToAiringSchedules.second
+                } else if (persistedMedia != null) {
+                    mediaItemEntity = persistedMedia
+                    scheduleEntitiesList = followedEntityMap.getOrDefault(persistedMedia, emptyList())
+                } else {
                     return@combine null
-                val mediaItemEntity = mediaToAiringSchedules.first
-                val scheduleEntitiesList = mediaToAiringSchedules.second
+                }
+
                 val mediaItem = try {
                     MediaItem.fromEntity(
                         mediaItemEntity,
-                        followedEntityMap.containsKey(mediaItemEntity)
+                        persistedMedia != null
                     )
                 } catch (e: Exception) {
                     e.printStackTrace()
