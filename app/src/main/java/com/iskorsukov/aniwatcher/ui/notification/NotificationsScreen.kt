@@ -1,23 +1,22 @@
 package com.iskorsukov.aniwatcher.ui.notification
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.model.NotificationItem
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.ui.base.placeholder.EmptyDataPlaceholder
-import com.iskorsukov.aniwatcher.ui.theme.*
 import kotlinx.coroutines.flow.Flow
 
-@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun NotificationsScreen(
     notificationsViewModel: NotificationsViewModel,

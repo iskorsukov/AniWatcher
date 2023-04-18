@@ -5,11 +5,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
@@ -19,18 +22,20 @@ import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.test.isFollowing
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.*
 import com.iskorsukov.aniwatcher.ui.base.header.FilterFormatHeaderChip
 import com.iskorsukov.aniwatcher.ui.base.header.HeaderFlowRow
 import com.iskorsukov.aniwatcher.ui.base.header.SortingOptionHeaderChip
 import com.iskorsukov.aniwatcher.ui.base.placeholder.EmptyDataPlaceholder
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.*
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.FollowClickedInputEvent
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.FormatsFilterSelectionUpdatedInputEvent
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.ResetStateTriggeredInputEvent
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.SearchTextChangedInputEvent
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.SortingOptionChangedInputEvent
 import com.iskorsukov.aniwatcher.ui.format.FilterFormatDialog
 import com.iskorsukov.aniwatcher.ui.main.MainActivityUiState
 import com.iskorsukov.aniwatcher.ui.media.MediaItemCardExtended
 import com.iskorsukov.aniwatcher.ui.sorting.SelectSortingOptionDialog
 
-@OptIn(ExperimentalLifecycleComposeApi::class)
 @Composable
 fun FollowingScreen(
     viewModel: FollowingViewModel,

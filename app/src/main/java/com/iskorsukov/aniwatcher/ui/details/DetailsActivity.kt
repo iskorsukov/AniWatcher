@@ -15,7 +15,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iskorsukov.aniwatcher.ui.base.topbar.BackArrowTopAppBar
 import com.iskorsukov.aniwatcher.ui.theme.AniWatcherTheme
@@ -26,8 +25,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import java.util.concurrent.TimeUnit
 
-
-@OptIn(ExperimentalLifecycleComposeApi::class)
 @AndroidEntryPoint
 class DetailsActivity: ComponentActivity() {
 

@@ -13,7 +13,7 @@ import com.iskorsukov.aniwatcher.data.entity.base.NotificationItemEntity
         AiringScheduleEntity::class
     ],
     version = 1,
-    exportSchema = true
+    exportSchema = false
 )
 abstract class MediaDatabase: RoomDatabase() {
 

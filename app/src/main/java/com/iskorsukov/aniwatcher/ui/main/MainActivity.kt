@@ -13,21 +13,30 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.animation.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Scaffold
+import androidx.compose.material.rememberScaffoldState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.ExperimentalLifecycleComposeApi
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.compose.*
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.iskorsukov.aniwatcher.domain.notification.alarm.NotificationsAlarmBuilder
 import com.iskorsukov.aniwatcher.domain.notification.alarm.NotificationsBootReceiver
 import com.iskorsukov.aniwatcher.domain.settings.ScheduleType
@@ -35,11 +44,14 @@ import com.iskorsukov.aniwatcher.ui.airing.AiringScreen
 import com.iskorsukov.aniwatcher.ui.airing.AiringViewModel
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorPopupDialogSurface
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.*
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.AppendSearchTextInputEvent
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.ResetSearchTextInputEvent
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.ResetStateTriggeredInputEvent
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.SearchFieldVisibilityChangedInputEvent
+import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.SearchTextChangedInputEvent
 import com.iskorsukov.aniwatcher.ui.details.DetailsActivity
 import com.iskorsukov.aniwatcher.ui.following.FollowingScreen
 import com.iskorsukov.aniwatcher.ui.following.FollowingViewModel
-import com.iskorsukov.aniwatcher.ui.main.*
 import com.iskorsukov.aniwatcher.ui.media.MediaScreen
 import com.iskorsukov.aniwatcher.ui.media.MediaViewModel
 import com.iskorsukov.aniwatcher.ui.notification.NotificationActivity
@@ -47,7 +59,8 @@ import com.iskorsukov.aniwatcher.ui.onboarding.OnboardingDialog
 import com.iskorsukov.aniwatcher.ui.permission.NotificationsPermissionRationaleDialog
 import com.iskorsukov.aniwatcher.ui.season.SelectSeasonYearDialog
 import com.iskorsukov.aniwatcher.ui.settings.SettingsCompatActivity
-import com.iskorsukov.aniwatcher.ui.theme.*
+import com.iskorsukov.aniwatcher.ui.theme.AniWatcherTheme
+import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -55,7 +68,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
-@OptIn(ExperimentalLifecycleComposeApi::class)
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
