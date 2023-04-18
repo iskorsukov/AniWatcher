@@ -163,6 +163,7 @@ class AiringRepositoryImpl @Inject constructor(
         } while (data.Page?.pageInfo?.hasNextPage == true)
         try {
             mediaDatabaseExecutor.updateMedia(entities)
+            persistentMediaDatabaseExecutor.updateMedia(entities.keys.toList())
         } catch (e: Exception) {
             throw RoomException(e)
         }
@@ -185,6 +186,7 @@ class AiringRepositoryImpl @Inject constructor(
         } while (data.Page?.pageInfo?.hasNextPage == true)
         try {
             mediaDatabaseExecutor.updateMedia(entities)
+            persistentMediaDatabaseExecutor.updateMedia(entities.keys.toList())
         } catch (e: Exception) {
             throw RoomException(e)
         }

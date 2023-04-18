@@ -20,6 +20,10 @@ interface PersistentMediaDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMedia(mediaItemEntity: MediaItemEntity)
 
+    @Transaction
+    @Update
+    suspend fun updateMedia(mediaItemEntityList: List<MediaItemEntity>)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSchedules(airingScheduleEntityList: List<AiringScheduleEntity>)
 

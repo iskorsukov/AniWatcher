@@ -55,6 +55,12 @@ class PersistentMediaDatabaseExecutor @Inject constructor(
         }
     }
 
+    suspend fun updateMedia(mediaItemEntityList: List<MediaItemEntity>) {
+        withContext(DispatcherProvider.io()) {
+            persistentMediaDao.updateMedia(mediaItemEntityList)
+        }
+    }
+
     suspend fun deleteMedia(mediaItemId: Int) {
         withContext(DispatcherProvider.io()) {
             persistentMediaDao.deleteMedia(mediaItemId)
