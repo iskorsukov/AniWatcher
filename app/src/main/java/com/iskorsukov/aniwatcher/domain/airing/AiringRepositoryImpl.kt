@@ -53,26 +53,7 @@ class AiringRepositoryImpl @Inject constructor(
             .combine(persistentMediaDatabaseExecutor.followedMediaFlow) { mediaMap, followedEntityMap ->
                 mediaMap
                     .mapNotNull { entry ->
-                        val mediaItem = try {
-                            MediaItem.fromEntity(
-                                entry.key,
-                                followedEntityMap.containsKey(entry.key)
-                            )
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                            FirebaseCrashlytics.getInstance().recordException(e)
-                            return@mapNotNull null
-                        }
-                        val airingSchedules = try {
-                            entry.value.map { schedule ->
-                                AiringScheduleItem.fromEntity(schedule)
-                            }
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                            FirebaseCrashlytics.getInstance().recordException(e)
-                            return@mapNotNull null
-                        }
-                        mediaItem to airingSchedules
+                        mapToItems(entry.key, entry.value, followedEntityMap.containsKey(entry.key))
                     }
                     .associate { it.first to it.second }
             }
@@ -82,26 +63,7 @@ class AiringRepositoryImpl @Inject constructor(
             .map { mediaMap ->
                 mediaMap
                     .mapNotNull { entry ->
-                        val mediaItem = try {
-                            MediaItem.fromEntity(
-                                entry.key,
-                                true
-                            )
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                            FirebaseCrashlytics.getInstance().recordException(e)
-                            return@mapNotNull null
-                        }
-                        val airingSchedules = try {
-                            entry.value.map { schedule ->
-                                AiringScheduleItem.fromEntity(schedule)
-                            }
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                            FirebaseCrashlytics.getInstance().recordException(e)
-                            return@mapNotNull null
-                        }
-                        mediaItem to airingSchedules
+                        mapToItems(entry.key, entry.value, true)
                     }
                     .associate { it.first to it.second }
             }
@@ -123,27 +85,29 @@ class AiringRepositoryImpl @Inject constructor(
                     return@combine null
                 }
 
-                val mediaItem = try {
-                    MediaItem.fromEntity(
-                        mediaItemEntity,
-                        persistedMedia != null
-                    )
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    FirebaseCrashlytics.getInstance().recordException(e)
-                    return@combine null
-                }
-                val airingSchedules = try {
-                    scheduleEntitiesList.map { schedule ->
-                        AiringScheduleItem.fromEntity(schedule)
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    FirebaseCrashlytics.getInstance().recordException(e)
-                    emptyList()
-                }
-                mediaItem to airingSchedules
+                mapToItems(mediaItemEntity, scheduleEntitiesList, persistedMedia != null)
             }
+    }
+
+    private fun mapToItems(
+        mediaItemEntity: MediaItemEntity,
+        airingScheduleEntityList: List<AiringScheduleEntity>,
+        isFollowing: Boolean
+    ): Pair<MediaItem, List<AiringScheduleItem>>? {
+        return try {
+            val mediaItem = MediaItem.fromEntity(
+                mediaItemEntity,
+                isFollowing
+            )
+            val airingSchedules = airingScheduleEntityList.map { schedule ->
+                AiringScheduleItem.fromEntity(schedule)
+            }
+            mediaItem to airingSchedules
+        } catch (e: Exception) {
+            e.printStackTrace()
+            FirebaseCrashlytics.getInstance().recordException(e)
+            return null
+        }
     }
 
     override suspend fun loadSeasonAiringData(year: Int, season: String) {
