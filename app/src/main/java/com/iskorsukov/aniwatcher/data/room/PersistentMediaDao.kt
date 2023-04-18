@@ -3,7 +3,6 @@ package com.iskorsukov.aniwatcher.data.room
 import androidx.room.*
 import com.iskorsukov.aniwatcher.data.entity.base.AiringScheduleEntity
 import com.iskorsukov.aniwatcher.data.entity.base.MediaItemEntity
-import com.iskorsukov.aniwatcher.data.entity.combined.MediaItemAndFollowingEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao

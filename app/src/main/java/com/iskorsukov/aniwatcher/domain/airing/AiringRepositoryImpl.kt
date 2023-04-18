@@ -185,7 +185,13 @@ class AiringRepositoryImpl @Inject constructor(
             val mediaItemWithSchedules =
                 mediaDatabaseExecutor.getMediaWithAiringSchedules(mediaItem.id).firstOrNull()
             if (mediaItemWithSchedules != null) {
-                persistentMediaDatabaseExecutor.saveMediaWithSchedules(mediaItemWithSchedules)
+                val mediaItemWithUpcomingSchedules = mediaItemWithSchedules.copy(
+                    mediaItemWithSchedules.first,
+                    mediaItemWithSchedules.second.filter { scheduleEntity ->
+                        scheduleEntity.airingAt > TimeUnit.MINUTES.toSeconds(timeInMinutesFlow.value)
+                    }
+                )
+                persistentMediaDatabaseExecutor.saveMediaWithSchedules(mediaItemWithUpcomingSchedules)
             }
         } catch (e: Exception) {
             throw RoomException(e)
