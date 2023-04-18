@@ -1,18 +1,29 @@
 package com.iskorsukov.aniwatcher.ui.airing
 
+import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
+import com.iskorsukov.aniwatcher.domain.util.DayOfWeekLocal
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.FormatsFilterUiState
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.ResetStateUiState
+import java.util.concurrent.TimeUnit
 
 data class AiringUiState(
+    val schedulesByDayOfWeek: Map<DayOfWeekLocal, List<Pair<AiringScheduleItem, MediaItem>>>,
+    val timeInMinutes: Long,
     val deselectedFormats: List<MediaItem.LocalFormat>,
     val errorItem: ErrorItem?,
     val showReset: Boolean,
 ): FormatsFilterUiState, ResetStateUiState {
 
     companion object {
-        val DEFAULT = AiringUiState(emptyList(), null, false)
+        val DEFAULT = AiringUiState(
+            schedulesByDayOfWeek = emptyMap(),
+            timeInMinutes = TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis()),
+            deselectedFormats = emptyList(),
+            errorItem = null,
+            showReset = false
+        )
     }
 
     override fun copyWithDeselectedFormats(deselectedFormats: List<MediaItem.LocalFormat>): FormatsFilterUiState {

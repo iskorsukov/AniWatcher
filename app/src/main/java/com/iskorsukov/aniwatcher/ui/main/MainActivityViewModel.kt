@@ -15,9 +15,12 @@ import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.SearchTextInputEvent
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.onboarding.OnboardingViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.util.*
+import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,13 +34,17 @@ class MainActivityViewModel @Inject constructor(
 ) : OnboardingViewModel(settingsRepository) {
 
     val settingsState: StateFlow<SettingsState> = settingsRepository.settingsStateFlow
-    val unreadNotificationsState: StateFlow<Int> =
-        notificationsRepository.unreadNotificationsCounterStateFlow
 
     private val _uiState: MutableStateFlow<MainActivityUiState> = MutableStateFlow(
         MainActivityUiState.DEFAULT
     )
     val uiState: StateFlow<MainActivityUiState> = _uiState
+        .combine(notificationsRepository.unreadNotificationsCounterStateFlow) { uiState, unreadNotificationsCount ->
+            uiState.copy(
+                unreadNotificationsCount = unreadNotificationsCount
+            )
+        }
+        .stateIn(viewModelScope, SharingStarted.Lazily, MainActivityUiState.DEFAULT)
 
     fun loadAiringData() {
         _uiState.value = _uiState.value.copy(isRefreshing = true)

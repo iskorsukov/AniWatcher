@@ -62,11 +62,7 @@ import com.iskorsukov.aniwatcher.ui.settings.SettingsCompatActivity
 import com.iskorsukov.aniwatcher.ui.theme.AniWatcherTheme
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -75,14 +71,6 @@ class MainActivity : ComponentActivity() {
     private val airingViewModel: AiringViewModel by viewModels()
     private val followingViewModel: FollowingViewModel by viewModels()
     private val mediaViewModel: MediaViewModel by viewModels()
-
-    private val timeInMinutesFlow = flow {
-        while (true) {
-            val timeInMillis = System.currentTimeMillis()
-            emit(TimeUnit.MILLISECONDS.toMinutes(timeInMillis))
-            delay(TimeUnit.SECONDS.toMillis(10))
-        }
-    }.distinctUntilChanged()
 
     private val requestNotificationsPermissionLauncher =
         registerForActivityResult(
@@ -128,11 +116,6 @@ class MainActivity : ComponentActivity() {
                 .collectAsStateWithLifecycle()
             val settingsState by mainActivityViewModel.settingsState
                 .collectAsStateWithLifecycle()
-            val unreadNotifications by mainActivityViewModel.unreadNotificationsState
-                .collectAsStateWithLifecycle()
-
-            val timeInMinutes by timeInMinutesFlow
-                .collectAsStateWithLifecycle(initialValue = 0)
 
             val shouldShowOnboardingDialog by rememberSaveable(settingsState.onboardingComplete) {
                 mutableStateOf(!settingsState.onboardingComplete)
@@ -168,7 +151,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             },
                             onSelectSeasonYearClicked = { shouldShowSeasonYearDialog = true },
-                            unreadNotifications = unreadNotifications
+                            unreadNotifications = uiState.unreadNotificationsCount
                         )
                     },
                     bottomBar = {
@@ -230,7 +213,6 @@ class MainActivity : ComponentActivity() {
                                     viewModel = mediaViewModel,
                                     uiState = uiState,
                                     settingsState = settingsState,
-                                    timeInMinutes = timeInMinutes,
                                     onMediaClicked = { startDetailsActivity(it.id) },
                                     onRefresh = mainActivityViewModel::loadAiringData,
                                     onGenreChipClicked = {
@@ -248,7 +230,6 @@ class MainActivity : ComponentActivity() {
                                     viewModel = airingViewModel,
                                     uiState = uiState,
                                     settingsState = settingsState,
-                                    timeInMinutes = timeInMinutes,
                                     onMediaClicked = { startDetailsActivity(it.id) },
                                     onRefresh = mainActivityViewModel::loadAiringData
                                 )
@@ -258,7 +239,6 @@ class MainActivity : ComponentActivity() {
                                     viewModel = followingViewModel,
                                     uiState = uiState,
                                     settingsState = settingsState,
-                                    timeInMinutes = timeInMinutes,
                                     onMediaClicked = { startDetailsActivity(it.id) },
                                     onGenreChipClicked = {
                                         mainActivityViewModel.handleInputEvent(

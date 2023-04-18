@@ -48,20 +48,15 @@ fun MediaScreen(
     viewModel: MediaViewModel,
     uiState: MainActivityUiState,
     settingsState: SettingsState,
-    timeInMinutes: Long,
     onMediaClicked: (MediaItem) -> Unit,
     onRefresh: () -> Unit,
     onGenreChipClicked: (String) -> Unit
 ) {
-    val mediaFlow by viewModel.mediaFlow
-        .collectAsStateWithLifecycle(initialValue = emptyMap())
-
     val mediaUiState by viewModel.uiStateFlow
         .collectAsStateWithLifecycle()
 
     val pullRefreshState = rememberPullRefreshState(uiState.isRefreshing, onRefresh)
 
-    val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
 
     var shouldShowSortingOptionsDialog by rememberSaveable {
@@ -71,6 +66,7 @@ fun MediaScreen(
         mutableStateOf(false)
     }
 
+    val listState = rememberLazyListState()
     LaunchedEffect(uiState.searchText) {
         viewModel.handleInputEvent(SearchTextChangedInputEvent(uiState.searchText))
         listState.scrollToItem(0)
@@ -80,9 +76,9 @@ fun MediaScreen(
         .fillMaxSize()
         .pullRefresh(pullRefreshState)) {
         MediaScreenContent(
-            mediaItemWithNextAiringMap = mediaFlow,
+            mediaItemWithNextAiringMap = mediaUiState.mediaWithNextAiringMap,
             listState = listState,
-            timeInMinutes = timeInMinutes,
+            timeInMinutes = mediaUiState.timeInMinutes,
             preferredNamingScheme = settingsState.preferredNamingScheme,
             onFollowClicked = { viewModel.handleInputEvent(FollowClickedInputEvent(it)) },
             onGenreChipClicked = onGenreChipClicked,
@@ -181,7 +177,8 @@ fun MediaScreenPreview() {
             mapOf(
                 ModelTestDataCreator.baseMediaItem to
                         ModelTestDataCreator.baseAiringScheduleItemList()
-            )
+            ),
+            ModelTestDataCreator.TIME_IN_MINUTES
         ),
         listState = rememberLazyListState(),
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,

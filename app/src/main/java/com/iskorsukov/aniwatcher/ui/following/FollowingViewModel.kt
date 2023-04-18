@@ -22,26 +22,31 @@ class FollowingViewModel @Inject constructor(
     private val sortingOptionEventHandler: SortingOptionEventHandler<FollowingUiState>,
     private val formatsFilterEventHandler: FormatsFilterEventHandler<FollowingUiState>,
     private val resetStateEventHandler: ResetStateEventHandler<FollowingUiState>
-): ViewModel() {
+) : ViewModel() {
 
     private val _uiStateFlow: MutableStateFlow<FollowingUiState> = MutableStateFlow(
         FollowingUiState.DEFAULT
     )
     val uiStateFlow: StateFlow<FollowingUiState> = _uiStateFlow
-
-    val followingMediaFlow = airingRepository.mediaWithSchedulesFlow.map { map ->
-        MediaItemMapper.groupMediaWithNextAiringSchedule(map.filterKeys { it.isFollowing })
-    }
-        .distinctUntilChanged()
-        .combine(uiStateFlow) { map, uiState ->
-            filterSearchMediaFlow(map, uiState.searchText)
+        .combine(airingRepository.timeInMinutesFlow) { uiState, timeInMinutes ->
+            uiState.copy(
+                timeInMinutes = timeInMinutes
+            )
         }
-        .combine(uiStateFlow) { map, uiState ->
-            filterFormatMediaFlow(map, uiState.deselectedFormats)
+        .combine(airingRepository.followedMediaFlow) { uiState, mediaToSchedulesMap ->
+            val groupedMediaMap = MediaItemMapper.groupMediaWithNextAiringSchedule(
+                mediaToSchedulesMap,
+                uiState.timeInMinutes
+            )
+            val filteredBySearchMap = filterSearchMediaFlow(groupedMediaMap, uiState.searchText)
+            val filteredByFormatMap =
+                filterFormatMediaFlow(filteredBySearchMap, uiState.deselectedFormats)
+            val sortedMediaMap = sortMediaFlow(filteredByFormatMap, uiState.sortingOption)
+            uiState.copy(
+                mediaWithNextAiringMap = sortedMediaMap
+            )
         }
-        .combine(uiStateFlow) { map, uiState ->
-            sortMediaFlow(map, uiState.sortingOption)
-        }
+        .stateIn(viewModelScope, SharingStarted.Lazily, FollowingUiState.DEFAULT)
 
     fun handleInputEvent(inputEvent: FollowingInputEvent) {
         try {
@@ -50,24 +55,29 @@ class FollowingViewModel @Inject constructor(
                     inputEvent,
                     _uiStateFlow.value
                 )
+
                 is FollowInputEvent -> followEventHandler.handleEvent(
                     inputEvent,
                     _uiStateFlow.value,
                     viewModelScope,
                     airingRepository
                 )
+
                 is SortingOptionInputEvent -> sortingOptionEventHandler.handleEvent(
                     inputEvent,
                     _uiStateFlow.value
                 )
+
                 is FormatsFilterInputEvent -> formatsFilterEventHandler.handleEvent(
                     inputEvent,
                     _uiStateFlow.value
                 )
+
                 is ResetStateTriggeredInputEvent -> resetStateEventHandler.handleEvent(
                     inputEvent,
                     _uiStateFlow.value
                 )
+
                 else -> throw IllegalArgumentException("Unsupported input event of type ${inputEvent::class.simpleName}")
             }
             updateResetButton()
@@ -81,8 +91,10 @@ class FollowingViewModel @Inject constructor(
     }
 
     private fun updateResetButton() {
-        val deselectedFormatsNotDefault = uiStateFlow.value.deselectedFormats != FollowingUiState.DEFAULT.deselectedFormats
-        val sortingOptionNotDefault = uiStateFlow.value.sortingOption != FollowingUiState.DEFAULT.sortingOption
+        val deselectedFormatsNotDefault =
+            uiStateFlow.value.deselectedFormats != FollowingUiState.DEFAULT.deselectedFormats
+        val sortingOptionNotDefault =
+            uiStateFlow.value.sortingOption != FollowingUiState.DEFAULT.sortingOption
         if (deselectedFormatsNotDefault || sortingOptionNotDefault) {
             if (!uiStateFlow.value.showReset) {
                 _uiStateFlow.value = _uiStateFlow.value.copy(showReset = true)

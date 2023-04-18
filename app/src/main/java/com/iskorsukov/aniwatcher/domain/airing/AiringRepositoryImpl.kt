@@ -13,12 +13,19 @@ import com.iskorsukov.aniwatcher.domain.exception.ApolloException
 import com.iskorsukov.aniwatcher.domain.exception.RoomException
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.yield
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.coroutines.coroutineContext
 
@@ -28,6 +35,18 @@ class AiringRepositoryImpl @Inject constructor(
     private val mediaDatabaseExecutor: MediaDatabaseExecutor,
     private val persistentMediaDatabaseExecutor: PersistentMediaDatabaseExecutor
 ) : AiringRepository {
+
+    override val timeInMinutesFlow = flow {
+        while (true) {
+            val timeInMillis = System.currentTimeMillis()
+            emit(TimeUnit.MILLISECONDS.toMinutes(timeInMillis))
+            delay(TimeUnit.SECONDS.toMillis(10))
+        }
+    }.stateIn(
+        CoroutineScope(Dispatchers.Main),
+        SharingStarted.Lazily,
+        TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis())
+    )
 
     override val mediaWithSchedulesFlow: Flow<Map<MediaItem, List<AiringScheduleItem>>> =
         mediaDatabaseExecutor.mediaDataFlow
@@ -58,7 +77,7 @@ class AiringRepositoryImpl @Inject constructor(
                     .associate { it.first to it.second }
             }
 
-    val followedMediaWithSchedulesFlow: Flow<Map<MediaItem, List<AiringScheduleItem>>> =
+    override val followedMediaFlow: Flow<Map<MediaItem, List<AiringScheduleItem>>> =
         persistentMediaDatabaseExecutor.followedMediaFlow
             .map { mediaMap ->
                 mediaMap

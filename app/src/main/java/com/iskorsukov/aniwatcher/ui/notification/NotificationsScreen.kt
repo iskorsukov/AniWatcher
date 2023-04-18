@@ -15,27 +15,22 @@ import com.iskorsukov.aniwatcher.domain.model.NotificationItem
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.ui.base.placeholder.EmptyDataPlaceholder
-import kotlinx.coroutines.flow.Flow
 
 @Composable
 fun NotificationsScreen(
     notificationsViewModel: NotificationsViewModel,
-    timeInMinutesFlow: Flow<Long>,
     modifier: Modifier,
     onNotificationClicked: (Int) -> Unit
 ) {
     val settingsState by notificationsViewModel.settingsState
         .collectAsStateWithLifecycle()
 
-    val timeInMinutes by timeInMinutesFlow
-        .collectAsStateWithLifecycle(initialValue = 0)
-
-    val notificationsList by notificationsViewModel.notificationsFlow
-        .collectAsStateWithLifecycle(initialValue = emptyList())
+    val notificationsUiState by notificationsViewModel.uiState
+        .collectAsStateWithLifecycle()
 
     NotificationsScreenContent(
-        notificationsList = notificationsList,
-        timeInMinutes = timeInMinutes,
+        notificationsList = notificationsUiState.notifications,
+        timeInMinutes = notificationsUiState.timeInMinutes,
         preferredNamingScheme = settingsState.preferredNamingScheme,
         onNotificationClicked = onNotificationClicked,
         modifier = modifier.fillMaxSize()

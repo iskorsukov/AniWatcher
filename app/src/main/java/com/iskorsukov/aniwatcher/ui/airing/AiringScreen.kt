@@ -44,13 +44,9 @@ fun AiringScreen(
     viewModel: AiringViewModel,
     uiState: MainActivityUiState,
     settingsState: SettingsState,
-    timeInMinutes: Long,
     onMediaClicked: (MediaItem) -> Unit,
     onRefresh: () -> Unit
 ) {
-    val airingScheduleItemList: Map<DayOfWeekLocal, List<Pair<AiringScheduleItem, MediaItem>>> by viewModel
-        .airingSchedulesByDayOfWeekFlow.collectAsStateWithLifecycle(initialValue = emptyMap())
-
     val airingUiState by viewModel.uiStateFlow
         .collectAsStateWithLifecycle()
 
@@ -70,8 +66,8 @@ fun AiringScreen(
         AiringScreenContent(
             lazyListState = lazyListState,
             airingUiState = airingUiState,
-            airingSchedulesByDayOfWeekMap = airingScheduleItemList,
-            timeInMinutes = timeInMinutes,
+            airingSchedulesByDayOfWeekMap = airingUiState.schedulesByDayOfWeek,
+            timeInMinutes = airingUiState.timeInMinutes,
             onFollowClicked = {
                 viewModel.handleInputEvent(FollowClickedInputEvent(it))
             },
@@ -167,7 +163,8 @@ private fun AiringScreenPreview() {
             mapOf(
                 ModelTestDataCreator.baseMediaItem to
                         ModelTestDataCreator.baseAiringScheduleItemList()
-            )
+            ),
+            ModelTestDataCreator.TIME_IN_MINUTES
         ).toSortedMap()
     )
 }

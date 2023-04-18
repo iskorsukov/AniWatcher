@@ -41,18 +41,14 @@ fun FollowingScreen(
     viewModel: FollowingViewModel,
     uiState: MainActivityUiState,
     settingsState: SettingsState,
-    timeInMinutes: Long,
     onMediaClicked: (MediaItem) -> Unit,
     onGenreChipClicked: (String) -> Unit
 ) {
-    val followingMediaMap by viewModel.followingMediaFlow
-        .collectAsStateWithLifecycle(initialValue = emptyMap())
-
     val followingUiState by viewModel.uiStateFlow
         .collectAsStateWithLifecycle()
 
     val listState = rememberLazyListState()
-    LaunchedEffect(uiState.searchText, followingUiState.sortingOption) {
+    LaunchedEffect(uiState.searchText) {
         viewModel.handleInputEvent(SearchTextChangedInputEvent(uiState.searchText))
         listState.scrollToItem(0)
     }
@@ -66,9 +62,9 @@ fun FollowingScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         FollowingScreenContent(
-            followingMediaMap = followingMediaMap,
+            followingMediaMap = followingUiState.mediaWithNextAiringMap,
             searchTextIsEmpty = uiState.searchText.trim().length < 4,
-            timeInMinutes = timeInMinutes,
+            timeInMinutes = followingUiState.timeInMinutes,
             onFollowClicked = { viewModel.handleInputEvent(FollowClickedInputEvent(it)) },
             preferredNamingScheme = settingsState.preferredNamingScheme,
             onMediaClicked = onMediaClicked,
@@ -180,7 +176,8 @@ private fun FollowingScreenPreview() {
             mapOf(
                  followedMediaItem to
                         ModelTestDataCreator.baseAiringScheduleItemList()
-            )
+            ),
+            ModelTestDataCreator.TIME_IN_MINUTES
         ).filterKeys { it.isFollowing },
         searchTextIsEmpty = true,
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
