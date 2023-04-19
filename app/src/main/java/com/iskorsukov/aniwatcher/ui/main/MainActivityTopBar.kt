@@ -5,16 +5,32 @@ import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.*
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -26,7 +42,6 @@ import androidx.navigation.compose.rememberNavController
 import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.settings.DarkModeOption
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
-import com.iskorsukov.aniwatcher.domain.settings.ScheduleType
 import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.ui.Screen
@@ -72,7 +87,10 @@ fun TopBar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "${settingsState.selectedSeasonYear.season.name} ${settingsState.selectedSeasonYear.year}",
+                    text = if (settingsState.selectedSeasonYear == DateTimeHelper.SeasonYear.THIS_WEEK)
+                            stringResource(id = R.string.schedule_this_week).uppercase()
+                        else
+                            "${settingsState.selectedSeasonYear.season.name} ${settingsState.selectedSeasonYear.year}",
                     color = LocalColors.current.onPrimary,
                     fontSize = 18.sp
                 )
@@ -212,9 +230,7 @@ private fun TopBarPreview() {
     val uiState by uiStateFlow.collectAsState()
     val settingsState = SettingsState(
         DarkModeOption.DARK,
-        ScheduleType.SEASON,
         NamingScheme.ENGLISH,
-        true,
         true,
         DateTimeHelper.SeasonYear(DateTimeHelper.Season.WINTER, 2023)
     )
@@ -262,11 +278,9 @@ private fun TopBarNoSearchAndOptionsPreview() {
     val uiState = MainActivityUiState(false)
     val settingsState = SettingsState(
         DarkModeOption.DARK,
-        ScheduleType.ALL,
         NamingScheme.ENGLISH,
         true,
-        true,
-        DateTimeHelper.SeasonYear(DateTimeHelper.Season.WINTER, 2023)
+        DateTimeHelper.SeasonYear.THIS_WEEK
     )
     Scaffold(
         topBar = {
@@ -299,9 +313,7 @@ private fun TopBarUnreadNotificationsPreview() {
     val uiState = MainActivityUiState(false)
     val settingsState = SettingsState(
         DarkModeOption.DARK,
-        ScheduleType.SEASON,
         NamingScheme.ENGLISH,
-        true,
         true,
         DateTimeHelper.SeasonYear(DateTimeHelper.Season.WINTER, 2023)
     )
@@ -322,10 +334,10 @@ private fun TopBarUnreadNotificationsPreview() {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = "airing_season",
+            startDestination = "airing",
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable("airing_season") { }
+            composable("airing") { }
         }
     }
 }

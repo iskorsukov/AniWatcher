@@ -33,6 +33,7 @@ fun SelectSeasonYearDialog(
     val currentSeasonYear = DateTimeHelper.currentSeasonYear(calendar)
     var season = currentSeasonYear.season
     val items = mutableListOf<DateTimeHelper.SeasonYear>()
+    items.add(DateTimeHelper.SeasonYear.THIS_WEEK)
     items.add(currentSeasonYear)
     for (i in 1..3) {
         season = DateTimeHelper.Season.values()[
@@ -73,7 +74,10 @@ fun SelectSeasonYearDialog(
                                 }
                             ) {
                                 Text(
-                                    text = "${seasonYear.season.name} ${seasonYear.year}",
+                                    text = if (seasonYear == DateTimeHelper.SeasonYear.THIS_WEEK)
+                                        stringResource(id = R.string.schedule_this_week).uppercase()
+                                    else
+                                        "${seasonYear.season.name} ${seasonYear.year}",
                                     style = if (seasonYear == selectedSeasonYear)
                                         LocalTextStyles.current.contentMediumEmphasis
                                     else

@@ -39,7 +39,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.iskorsukov.aniwatcher.domain.notification.alarm.NotificationsAlarmBuilder
 import com.iskorsukov.aniwatcher.domain.notification.alarm.NotificationsBootReceiver
-import com.iskorsukov.aniwatcher.domain.settings.ScheduleType
+import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.ui.airing.AiringScreen
 import com.iskorsukov.aniwatcher.ui.airing.AiringViewModel
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
@@ -55,7 +55,6 @@ import com.iskorsukov.aniwatcher.ui.following.FollowingViewModel
 import com.iskorsukov.aniwatcher.ui.media.MediaScreen
 import com.iskorsukov.aniwatcher.ui.media.MediaViewModel
 import com.iskorsukov.aniwatcher.ui.notification.NotificationActivity
-import com.iskorsukov.aniwatcher.ui.onboarding.OnboardingDialog
 import com.iskorsukov.aniwatcher.ui.permission.NotificationsPermissionRationaleDialog
 import com.iskorsukov.aniwatcher.ui.season.SelectSeasonYearDialog
 import com.iskorsukov.aniwatcher.ui.settings.SettingsCompatActivity
@@ -85,6 +84,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         enableBootReceiver()
 
         lifecycleScope.launch {
@@ -117,9 +117,6 @@ class MainActivity : ComponentActivity() {
             val settingsState by mainActivityViewModel.settingsState
                 .collectAsStateWithLifecycle()
 
-            val shouldShowOnboardingDialog by rememberSaveable(settingsState.onboardingComplete) {
-                mutableStateOf(!settingsState.onboardingComplete)
-            }
             var shouldShowSeasonYearDialog by rememberSaveable {
                 mutableStateOf(false)
             }
@@ -157,7 +154,7 @@ class MainActivity : ComponentActivity() {
                     bottomBar = {
                         BottomNavigationBar(
                             navController = navController,
-                            scheduleType = settingsState.scheduleType,
+                            isThisWeekSelected = settingsState.selectedSeasonYear == DateTimeHelper.SeasonYear.THIS_WEEK,
                             onChangedDestination = {
                                 mainActivityViewModel.handleInputEvent(ResetSearchTextInputEvent)
                                 mediaViewModel.handleInputEvent(ResetStateTriggeredInputEvent)
@@ -174,15 +171,6 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding)
                             .fillMaxSize()
                     ) {
-                        if (shouldShowOnboardingDialog) {
-                            OnboardingDialog(
-                                onDarkModeOptionSelected = mainActivityViewModel::onDarkModeOptionSelected,
-                                onScheduleTypeSelected = mainActivityViewModel::onScheduleTypeSelected,
-                                onNamingSchemeSelected = mainActivityViewModel::onPreferredNamingSchemeSelected
-                            ) {
-                                mainActivityViewModel.onOnboardingComplete()
-                            }
-                        }
                         if (shouldShowSeasonYearDialog) {
                             SelectSeasonYearDialog(
                                 onSeasonYearSelected = {
@@ -206,9 +194,9 @@ class MainActivity : ComponentActivity() {
 
                         NavHost(
                             navController = navController,
-                            startDestination = if (settingsState.scheduleType == ScheduleType.ALL) "airing" else "airing_season"
+                            startDestination = "airing"
                         ) {
-                            composable(if (settingsState.scheduleType == ScheduleType.ALL) "media" else "media_season") {
+                            composable("media") {
                                 MediaScreen(
                                     viewModel = mediaViewModel,
                                     uiState = uiState,
@@ -225,7 +213,7 @@ class MainActivity : ComponentActivity() {
                                     }
                                 )
                             }
-                            composable(if (settingsState.scheduleType == ScheduleType.ALL) "airing" else "airing_season") {
+                            composable("airing") {
                                 AiringScreen(
                                     viewModel = airingViewModel,
                                     uiState = uiState,
@@ -252,13 +240,10 @@ class MainActivity : ComponentActivity() {
                             }
                         }
 
-                        if (settingsState.onboardingComplete) {
-                            LaunchedEffect(
-                                settingsState.scheduleType,
-                                settingsState.selectedSeasonYear
-                            ) {
-                                mainActivityViewModel.loadAiringData()
-                            }
+                        LaunchedEffect(
+                            settingsState.selectedSeasonYear
+                        ) {
+                            mainActivityViewModel.loadAiringData()
                         }
 
                         if (shouldLaunchNotificationsPermissionRequest && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

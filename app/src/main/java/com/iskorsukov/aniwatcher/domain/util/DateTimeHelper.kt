@@ -71,5 +71,9 @@ object DateTimeHelper {
     data class SeasonYear(
         val season: Season,
         val year: Int
-    )
+    ) {
+        companion object {
+            val THIS_WEEK = SeasonYear(Season.WINTER, 0)
+        }
+    }
 }

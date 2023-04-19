@@ -7,45 +7,31 @@ import com.iskorsukov.aniwatcher.R
 sealed class Screen(
     val route: String,
     @StringRes val labelStringId: Int,
+    @StringRes val thisWeekLabelStringId: Int? = null,
     @DrawableRes val iconDrawableId: Int,
     val hasSearchBar: Boolean = true,
-    val hasSortingOptions: Boolean = true,
     val hasSeasonYear: Boolean = false
 ) {
     object MediaScreen : Screen(
-        "media",
-        R.string.media_screen_label,
-        R.drawable.ic_outline_video_library_24_white
-    )
-
-    object MediaScreenSeason : Screen(
-        "media_season",
-        R.string.media_screen_season_label,
-        R.drawable.ic_outline_video_library_24_white,
+        route = "media",
+        labelStringId = R.string.media_screen_season_label,
+        thisWeekLabelStringId = R.string.media_screen_label,
+        iconDrawableId = R.drawable.ic_outline_video_library_24_white,
         hasSeasonYear = true
     )
 
     object AiringScreen : Screen(
-        "airing",
-        R.string.airing_screen_label,
-        R.drawable.ic_outline_calendar_today_24_white,
-        false,
-        false
-    )
-
-    object AiringScreenSeason : Screen(
-        "airing_season",
-        R.string.airing_screen_label,
-        R.drawable.ic_outline_calendar_today_24_white,
-        false,
-        false,
-        true
+        route = "airing",
+        labelStringId = R.string.airing_screen_label,
+        iconDrawableId = R.drawable.ic_outline_calendar_today_24_white,
+        hasSearchBar = false,
+        hasSeasonYear = true
     )
 
     object FollowingScreen : Screen(
-        "following",
-        R.string.following_screen_label,
-        R.drawable.ic_outline_favorite_border_24_white
+        route = "following",
+        labelStringId = R.string.following_screen_label,
+        iconDrawableId = R.drawable.ic_outline_favorite_border_24_white
     )
 
     companion object {
@@ -53,14 +39,8 @@ sealed class Screen(
             if (MediaScreen.route == route) {
                 return MediaScreen
             }
-            if (MediaScreenSeason.route == route) {
-                return MediaScreenSeason
-            }
             if (AiringScreen.route == route) {
                 return AiringScreen
-            }
-            if (AiringScreenSeason.route == route) {
-                return AiringScreenSeason
             }
             if (FollowingScreen.route == route) {
                 return FollowingScreen

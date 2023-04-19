@@ -13,10 +13,6 @@ interface SettingsRepository {
 
     fun setPreferredNamingScheme(preferredNamingScheme: NamingScheme)
 
-    fun setScheduleType(scheduleType: ScheduleType)
-
-    fun setOnboardingComplete(onboardingComplete: Boolean)
-
     fun setSelectedSeasonYear(seasonYear: DateTimeHelper.SeasonYear)
 
     fun setNotificationsEnabled(enabled: Boolean)

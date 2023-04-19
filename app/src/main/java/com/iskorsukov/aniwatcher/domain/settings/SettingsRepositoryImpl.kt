@@ -7,7 +7,6 @@ import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import java.util.Calendar
 import javax.inject.Inject
 
 class SettingsRepositoryImpl @Inject constructor(
@@ -15,15 +14,13 @@ class SettingsRepositoryImpl @Inject constructor(
     private val sharedPreferences: SharedPreferences
 ): SettingsRepository {
 
-    private var selectedSeasonYear = DateTimeHelper.currentSeasonYear(Calendar.getInstance())
+    private var selectedSeasonYear = DateTimeHelper.SeasonYear.THIS_WEEK
 
     private val _settingsStateFlow: MutableStateFlow<SettingsState> = MutableStateFlow(
         SettingsState(
             getDarkModeOption(),
-            getScheduleType(),
             getPreferredNamingScheme(),
             getNotificationsEnabled(),
-            getOnboardingComplete(),
             selectedSeasonYear
         )
     )
@@ -32,10 +29,8 @@ class SettingsRepositoryImpl @Inject constructor(
     override fun onPreferenceChanged() {
         _settingsStateFlow.value = SettingsState(
             getDarkModeOption(),
-            getScheduleType(),
             getPreferredNamingScheme(),
             getNotificationsEnabled(),
-            getOnboardingComplete(),
             selectedSeasonYear
         )
     }
@@ -50,16 +45,6 @@ class SettingsRepositoryImpl @Inject constructor(
         _settingsStateFlow.value = _settingsStateFlow.value.copy(darkModeOption = darkModeOption)
     }
 
-    override fun setScheduleType(scheduleType: ScheduleType) {
-        sharedPreferences.edit()
-            .putString(
-                context.getString(R.string.settings_schedule_type_key),
-                scheduleType.name
-            )
-            .apply()
-        _settingsStateFlow.value = _settingsStateFlow.value.copy(scheduleType = scheduleType)
-    }
-
     override fun setPreferredNamingScheme(preferredNamingScheme: NamingScheme) {
         sharedPreferences.edit()
             .putString(
@@ -69,17 +54,6 @@ class SettingsRepositoryImpl @Inject constructor(
             .apply()
         _settingsStateFlow.value = _settingsStateFlow.value.copy(preferredNamingScheme = preferredNamingScheme)
     }
-
-    override fun setOnboardingComplete(onboardingComplete: Boolean) {
-        sharedPreferences.edit()
-            .putBoolean(
-                context.getString(R.string.settings_onboarding_complete_key),
-                onboardingComplete
-            )
-            .apply()
-        _settingsStateFlow.value = _settingsStateFlow.value.copy(onboardingComplete = onboardingComplete)
-    }
-
     override fun setSelectedSeasonYear(seasonYear: DateTimeHelper.SeasonYear) {
         selectedSeasonYear = seasonYear
         _settingsStateFlow.value = _settingsStateFlow.value.copy(selectedSeasonYear = selectedSeasonYear)
@@ -104,15 +78,6 @@ class SettingsRepositoryImpl @Inject constructor(
         )
     }
 
-    private fun getScheduleType(): ScheduleType {
-        return ScheduleType.valueOf(
-            sharedPreferences.getString(
-                context.getString(R.string.settings_schedule_type_key),
-                context.getString(R.string.schedule_type_default_value)
-            )!!
-        )
-    }
-
     private fun getPreferredNamingScheme(): NamingScheme {
         return NamingScheme.valueOf(
             sharedPreferences.getString(
@@ -126,13 +91,6 @@ class SettingsRepositoryImpl @Inject constructor(
         return sharedPreferences.getBoolean(
             context.getString(R.string.settings_notifications_enabled_key),
             true
-        )
-    }
-
-    private fun getOnboardingComplete(): Boolean {
-        return sharedPreferences.getBoolean(
-            context.getString(R.string.settings_onboarding_complete_key),
-            false
         )
     }
 }

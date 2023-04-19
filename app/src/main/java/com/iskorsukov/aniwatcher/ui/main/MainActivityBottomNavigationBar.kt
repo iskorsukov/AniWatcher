@@ -1,7 +1,11 @@
 package com.iskorsukov.aniwatcher.ui.main
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.*
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.Icon
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -15,27 +19,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.iskorsukov.aniwatcher.domain.settings.ScheduleType
 import com.iskorsukov.aniwatcher.ui.Screen
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 
 @Composable
 fun BottomNavigationBar(
     navController: NavHostController,
-    scheduleType: ScheduleType,
+    isThisWeekSelected: Boolean,
     onChangedDestination: () -> Unit = { }
 ) {
     val items = mutableListOf<Screen>()
-    if (scheduleType == ScheduleType.SEASON) {
-        items.add(Screen.MediaScreenSeason)
-    } else {
-        items.add(Screen.MediaScreen)
-    }
-    if (scheduleType == ScheduleType.SEASON) {
-        items.add(Screen.AiringScreenSeason)
-    } else {
-        items.add(Screen.AiringScreen)
-    }
+    items.add(Screen.MediaScreen)
+    items.add(Screen.AiringScreen)
     items.add(Screen.FollowingScreen)
 
     BottomNavigation(backgroundColor = LocalColors.current.primary) {
@@ -51,7 +46,10 @@ fun BottomNavigationBar(
                 },
                 label = {
                     Text(
-                        text = stringResource(screen.labelStringId)
+                        text = if (isThisWeekSelected && screen.thisWeekLabelStringId != null)
+                            stringResource(screen.thisWeekLabelStringId)
+                        else
+                            stringResource(screen.labelStringId)
                     )
                 },
                 selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
@@ -88,7 +86,7 @@ private fun BottomNavigationBarPreview() {
         bottomBar = {
             BottomNavigationBar(
                 navController = navController,
-                scheduleType = ScheduleType.SEASON
+                isThisWeekSelected = false
             )
         }
     ) { innerPadding ->
@@ -106,13 +104,13 @@ private fun BottomNavigationBarPreview() {
 
 @Composable
 @Preview
-private fun BottomNavigationBarPreview_scheduleTypeAll() {
+private fun BottomNavigationBarPreview_thisWeekSelected() {
     val navController = rememberNavController()
     Scaffold(
         bottomBar = {
             BottomNavigationBar(
                 navController = navController,
-                scheduleType = ScheduleType.ALL
+                isThisWeekSelected = true
             )
         }
     ) { innerPadding ->

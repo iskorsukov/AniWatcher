@@ -24,7 +24,6 @@ class SettingsRepositoryTest {
         every { context.getString(R.string.settings_schedule_type_key) } returns "schedule_type"
         every { context.getString(R.string.settings_dark_mode_key) } returns "dark_mode"
         every { sharedPreferences.getString("naming_scheme", any()) } returns NamingScheme.ENGLISH.name
-        every { sharedPreferences.getString("schedule_type", any()) } returns ScheduleType.ALL.name
         every { sharedPreferences.getString("dark_mode", any()) } returns DarkModeOption.SYSTEM.name
 
         settingsRepository = SettingsRepositoryImpl(context, sharedPreferences)
@@ -35,14 +34,10 @@ class SettingsRepositoryTest {
         every { sharedPreferences.getString("naming_scheme", any()) } returns NamingScheme.ROMAJI.name
         settingsRepository.onPreferenceChanged()
 
-        every { sharedPreferences.getString("schedule_type", any()) } returns ScheduleType.SEASON.name
-        settingsRepository.onPreferenceChanged()
-
         every { sharedPreferences.getString("dark_mode", any()) } returns DarkModeOption.SYSTEM.name
         settingsRepository.onPreferenceChanged()
 
         state = settingsRepository.settingsStateFlow.value
         assertThat(state.preferredNamingScheme).isEqualTo(NamingScheme.ROMAJI)
-        assertThat(state.scheduleType).isEqualTo(ScheduleType.SEASON)
     }
 }

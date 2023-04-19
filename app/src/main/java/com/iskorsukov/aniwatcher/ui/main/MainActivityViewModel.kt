@@ -1,10 +1,10 @@
 package com.iskorsukov.aniwatcher.ui.main
 
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
-import com.iskorsukov.aniwatcher.domain.settings.ScheduleType
 import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
 import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
@@ -12,7 +12,6 @@ import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.MainActivityInputEvent
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.SearchTextEventHandler
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.SearchTextInputEvent
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.onboarding.OnboardingViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -31,7 +30,7 @@ class MainActivityViewModel @Inject constructor(
     private val searchTextEventHandler: SearchTextEventHandler<MainActivityUiState>,
     private val seasonYearEventHandler: SeasonYearEventHandler,
     private val notificationsPermissionEventHandler: NotificationsPermissionEventHandler
-) : OnboardingViewModel(settingsRepository) {
+) : ViewModel() {
 
     val settingsState: StateFlow<SettingsState> = settingsRepository.settingsStateFlow
 
@@ -51,7 +50,7 @@ class MainActivityViewModel @Inject constructor(
         onError(null)
         viewModelScope.launch {
             try {
-                if (settingsState.value.scheduleType == ScheduleType.ALL) {
+                if (settingsState.value.selectedSeasonYear == DateTimeHelper.SeasonYear.THIS_WEEK) {
                     val weekStartEndSeconds =
                         DateTimeHelper.currentWeekStartToEndSeconds(Calendar.getInstance())
                     airingRepository.loadRangeAiringData(

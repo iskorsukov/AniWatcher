@@ -62,10 +62,8 @@ class MainActivityViewModelTest {
         coEvery { settingsRepository.settingsStateFlow.value } returns
                 SettingsState(
                     darkModeOption = DarkModeOption.SYSTEM,
-                    scheduleType = ScheduleType.SEASON,
                     preferredNamingScheme = NamingScheme.ROMAJI,
                     notificationsEnabled = true,
-                    onboardingComplete = true,
                     selectedSeasonYear = DateTimeHelper.SeasonYear(DateTimeHelper.Season.FALL, 2022)
                 )
 
@@ -100,11 +98,9 @@ class MainActivityViewModelTest {
         coEvery { settingsRepository.settingsStateFlow.value } returns
                 SettingsState(
                     darkModeOption = DarkModeOption.SYSTEM,
-                    scheduleType = ScheduleType.ALL,
                     preferredNamingScheme = NamingScheme.ROMAJI,
                     notificationsEnabled = true,
-                    onboardingComplete = true,
-                    selectedSeasonYear = DateTimeHelper.SeasonYear(DateTimeHelper.Season.FALL, 2022)
+                    selectedSeasonYear = DateTimeHelper.SeasonYear.THIS_WEEK
                 )
         val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect {
@@ -143,10 +139,8 @@ class MainActivityViewModelTest {
         coEvery { settingsRepository.settingsStateFlow.value } returns
                 SettingsState(
                     darkModeOption = DarkModeOption.SYSTEM,
-                    scheduleType = ScheduleType.SEASON,
                     preferredNamingScheme = NamingScheme.ROMAJI,
                     notificationsEnabled = true,
-                    onboardingComplete = true,
                     selectedSeasonYear = DateTimeHelper.SeasonYear(DateTimeHelper.Season.FALL, 2022)
                 )
 
