@@ -29,9 +29,7 @@ query SeasonAiringData($year: Int!, $season: MediaSeason!, $page: Int!) {
                 }
             }
             siteUrl
-            nextAiringEpisode {
-                airingAt
-            }
+            status
             airingSchedule(notYetAired: true) {
                 airingScheduleNode: nodes {
                     id

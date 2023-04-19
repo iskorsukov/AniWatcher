@@ -2,7 +2,6 @@ package com.iskorsukov.aniwatcher.domain.model
 
 import androidx.annotation.StringRes
 import com.iskorsukov.aniwatcher.R
-import com.iskorsukov.aniwatcher.data.entity.base.FollowingEntity
 import com.iskorsukov.aniwatcher.data.entity.base.MediaItemEntity
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import java.io.Serializable
@@ -19,6 +18,7 @@ data class MediaItem(
     val meanScore: Int?,
     val genres: List<String>,
     val siteUrl: String?,
+    val status: LocalStatus?,
     val format: LocalFormat?,
     val season: String?,
     val year: Int?,
@@ -76,6 +76,24 @@ data class MediaItem(
         }
     }
 
+    enum class LocalStatus(@StringRes val labelResId: Int) {
+        FINISHED(R.string.status_finished),
+        RELEASING(R.string.status_releasing),
+        NOT_YET_RELEASED(R.string.status_not_yet_released),
+        CANCELLED(R.string.status_cancelled),
+        UNKNOWN(R.string.status_unknown);
+
+        companion object {
+            fun of(statusStr: String): LocalStatus {
+                return try {
+                    valueOf(statusStr)
+                } catch (e: Exception) {
+                    UNKNOWN
+                }
+            }
+        }
+    }
+
     companion object {
         fun fromEntity(mediaItemEntity: MediaItemEntity, isFollowing: Boolean = false): MediaItem {
             return mediaItemEntity.run {
@@ -96,6 +114,7 @@ data class MediaItem(
                     genres = genresCommaSeparated?.split(",")
                         ?.filter { it.isNotEmpty() } ?: emptyList(),
                     siteUrl = siteUrl,
+                    status = status?.let { LocalStatus.of(it) },
                     format = format?.let { LocalFormat.of(it) },
                     season = season,
                     year = year,

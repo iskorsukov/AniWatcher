@@ -19,7 +19,7 @@ data class MediaItemEntity(
     val meanScore: Int?,
     val genresCommaSeparated: String?,
     val siteUrl: String?,
-    val nextEpisodeAiringAt: Int?,
+    val status: String?,
     val format: String?,
     val season: String?,
     val year: Int?
@@ -49,7 +49,7 @@ data class MediaItemEntity(
                     meanScore = meanScore,
                     genresCommaSeparated = genres?.filterNotNull()?.joinToString(separator = ","),
                     siteUrl = siteUrl,
-                    nextEpisodeAiringAt = nextAiringEpisode?.airingAt,
+                    status = status?.name,
                     format = format?.name,
                     season = season?.name,
                     year = seasonYear
@@ -75,7 +75,7 @@ data class MediaItemEntity(
                     meanScore = meanScore,
                     genresCommaSeparated = genres?.filterNotNull()?.joinToString(separator = ","),
                     siteUrl = siteUrl,
-                    nextEpisodeAiringAt = nextAiringEpisode?.airingAt,
+                    status = status?.name,
                     format = format?.name,
                     season = season?.name,
                     year = seasonYear

@@ -24,6 +24,7 @@ object ModelTestDataCreator {
         meanScore = 1,
         genres = listOf("Action", "Comedy"),
         siteUrl = "AniListUrl",
+        status = MediaItem.LocalStatus.RELEASING,
         format = MediaItem.LocalFormat.TV,
         isFollowing = false,
         season = "FALL",

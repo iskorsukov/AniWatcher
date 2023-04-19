@@ -4,6 +4,7 @@ import com.iskorsukov.aniwatcher.RangeAiringDataQuery
 import com.iskorsukov.aniwatcher.SeasonAiringDataQuery
 import com.iskorsukov.aniwatcher.type.MediaFormat
 import com.iskorsukov.aniwatcher.type.MediaSeason
+import com.iskorsukov.aniwatcher.type.MediaStatus
 
 object QueryTestDataCreator {
 
@@ -33,8 +34,8 @@ object QueryTestDataCreator {
             ),
             season = MediaSeason.FALL,
             seasonYear = 2022,
-            nextAiringEpisode = SeasonAiringDataQuery.NextAiringEpisode("7.10.2022/18:00".toSeconds()),
-            format = MediaFormat.TV
+            format = MediaFormat.TV,
+            status = MediaStatus.RELEASING
         )
     }
 
@@ -84,8 +85,8 @@ object QueryTestDataCreator {
             airingSchedule = RangeAiringDataQuery.AiringSchedule1(
                 baseRangeAiringDataNodeList()
             ),
-            nextAiringEpisode = RangeAiringDataQuery.NextAiringEpisode("7.10.2022/18:00".toSeconds()),
-            format = MediaFormat.TV
+            format = MediaFormat.TV,
+            status = MediaStatus.RELEASING
         )
     }
 

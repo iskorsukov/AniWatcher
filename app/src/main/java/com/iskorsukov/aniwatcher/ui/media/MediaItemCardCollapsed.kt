@@ -127,10 +127,17 @@ fun MediaItemCardCollapsed(
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 2
                 )
-                MediaItemAiringInfoColumn(
-                    airingScheduleItem = airingScheduleItem,
-                    timeInMinutes = timeInMinutes
-                )
+                if (mediaItem.status == MediaItem.LocalStatus.FINISHED) {
+                    Text(
+                        text = stringResource(id = R.string.media_finished_airing),
+                        style = LocalTextStyles.current.contentSmallLargerEmphasis,
+                    )
+                } else {
+                    MediaItemAiringInfoColumn(
+                        airingScheduleItem = airingScheduleItem,
+                        timeInMinutes = timeInMinutes
+                    )
+                }
             }
 
             MediaItemFollowButton(
@@ -154,6 +161,19 @@ private fun MediaItemCardCollapsedPreview() {
     MediaItemCardCollapsed(
         airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
         mediaItem = ModelTestDataCreator.baseMediaItem,
+        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
+        onFollowClicked = { },
+        onMediaClicked = { },
+        preferredNamingScheme = NamingScheme.ENGLISH
+    )
+}
+
+@Composable
+@Preview
+private fun MediaItemCardCollapsedFinishedAiringPreview() {
+    MediaItemCardCollapsed(
+        airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
+        mediaItem = ModelTestDataCreator.baseMediaItem.copy(status = MediaItem.LocalStatus.FINISHED),
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         onFollowClicked = { },
         onMediaClicked = { },

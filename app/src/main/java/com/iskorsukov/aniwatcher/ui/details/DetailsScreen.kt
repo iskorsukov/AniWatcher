@@ -359,7 +359,7 @@ private fun DetailsMediaInfo(
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 8.dp)
+                    .padding(top = 8.dp, bottom = 8.dp)
                     .background(
                         LocalColors.current.primary,
                         RoundedCornerShape(8.dp)
@@ -405,6 +405,12 @@ private fun DetailsMediaInfo(
                     subLabel = mediaItem.genres.joinToString(separator = ", ")
                 )
             }
+            if (mediaItem.status != null) {
+                DetailsMediaInfoCard(
+                    label = stringResource(id = R.string.media_info_status),
+                    subLabel = stringResource(id = mediaItem.status.labelResId)
+                )
+            }
         }
     }
 }
@@ -442,6 +448,19 @@ private fun DetailsScreenPreview() {
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         mediaItem = ModelTestDataCreator.baseMediaItem,
         airingScheduleList = ModelTestDataCreator.baseAiringScheduleItemList(),
+        preferredNamingScheme = NamingScheme.ENGLISH,
+        onBackButtonClicked = { },
+        onLearnMoreClicked = { }
+    )
+}
+
+@Composable
+@Preview
+private fun DetailsScreenPreview_finished() {
+    DetailScreenContent(
+        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
+        mediaItem = ModelTestDataCreator.baseMediaItem.copy(status = MediaItem.LocalStatus.FINISHED),
+        airingScheduleList = emptyList(),
         preferredNamingScheme = NamingScheme.ENGLISH,
         onBackButtonClicked = { },
         onLearnMoreClicked = { }

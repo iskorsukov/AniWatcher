@@ -20,7 +20,9 @@ class RoomDIModule {
     fun providesMediaDatabase(@ApplicationContext context: Context): MediaDatabase {
         return Room.databaseBuilder(
             context, MediaDatabase::class.java, "MediaDatabase"
-        ).build()
+        )
+            .fallbackToDestructiveMigration()
+            .build()
     }
 
     @Provides
@@ -28,6 +30,8 @@ class RoomDIModule {
     fun providesPersistentMediaDatabase(@ApplicationContext context: Context): PersistentMediaDatabase {
         return Room.databaseBuilder(
             context, PersistentMediaDatabase::class.java, "PersistentMediaDatabase"
-        ).build()
+        )
+            .addMigrations(PersistentMediaDatabase.MIGRATION_1_2)
+            .build()
     }
 }

@@ -32,9 +32,7 @@ query RangeAiringData($page: Int!, $startSeconds: Int!, $endSeconds: Int!) {
                     }
                 }
                 siteUrl
-                nextAiringEpisode {
-                    airingAt
-                }
+                status
                 airingSchedule(notYetAired: true) {
                     airingScheduleNode: nodes {
                         id

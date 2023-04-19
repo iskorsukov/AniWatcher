@@ -22,8 +22,8 @@ object EntityTestDataCreator {
             popularity = 1,
             meanScore = 1,
             genresCommaSeparated = "Action,Comedy",
-            nextEpisodeAiringAt = "7.10.2022/18:00".toSeconds(),
             siteUrl = "AniListUrl",
+            status = "RELEASING",
             format = "TV",
             season = "FALL",
             year = 2022

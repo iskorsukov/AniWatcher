@@ -4,7 +4,6 @@ import com.iskorsukov.aniwatcher.RangeAiringDataQuery
 import com.iskorsukov.aniwatcher.SeasonAiringDataQuery
 import com.iskorsukov.aniwatcher.data.entity.base.AiringScheduleEntity
 import com.iskorsukov.aniwatcher.data.entity.base.MediaItemEntity
-import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import javax.inject.Inject
 
 class QueryDataToEntityMapper @Inject constructor() {

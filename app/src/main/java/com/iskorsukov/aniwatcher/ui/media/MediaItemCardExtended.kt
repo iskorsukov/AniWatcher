@@ -102,19 +102,35 @@ fun MediaItemCardExtended(
                     }
             )
 
-            MediaItemAiringInfoColumn(
-                airingScheduleItem = airingScheduleItem,
-                timeInMinutes = timeInMinutes,
-                modifier = Modifier
-                    .padding(start = 8.dp, top = 8.dp, end = 8.dp)
-                    .constrainAs(cardContent) {
-                        top.linkTo(parent.top)
-                        start.linkTo(imageEndGuideline)
-                        end.linkTo(rankScore.start)
+            if (mediaItem.status == MediaItem.LocalStatus.FINISHED) {
+                Text(
+                    text = stringResource(id = R.string.media_finished_airing),
+                    style = LocalTextStyles.current.contentSmallLargerEmphasis,
+                    modifier = Modifier
+                        .padding(start = 8.dp, top = 8.dp, end = 8.dp)
+                        .constrainAs(cardContent) {
+                            top.linkTo(parent.top)
+                            start.linkTo(imageEndGuideline)
+                            end.linkTo(rankScore.start)
 
-                        width = Dimension.fillToConstraints
-                    }
-            )
+                            width = Dimension.fillToConstraints
+                        }
+                )
+            } else {
+                MediaItemAiringInfoColumn(
+                    airingScheduleItem = airingScheduleItem,
+                    timeInMinutes = timeInMinutes,
+                    modifier = Modifier
+                        .padding(start = 8.dp, top = 8.dp, end = 8.dp)
+                        .constrainAs(cardContent) {
+                            top.linkTo(parent.top)
+                            start.linkTo(imageEndGuideline)
+                            end.linkTo(rankScore.start)
+
+                            width = Dimension.fillToConstraints
+                        }
+                )
+            }
 
             HtmlText(
                 text = mediaItem.description.orEmpty(),
@@ -245,6 +261,19 @@ fun MediaItemCardExtendedPreview() {
     val mediaItemWithLongDescription = ModelTestDataCreator.baseMediaItem.description("Word ".repeat(50))
     MediaItemCardExtended(
         mediaItem = mediaItemWithLongDescription,
+        airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
+        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
+        onFollowClicked = {},
+        onMediaClicked = {}
+    )
+}
+
+@Composable
+@Preview
+fun MediaItemCardExtendedFinishedAiringPreview() {
+    val mediaItemWithLongDescription = ModelTestDataCreator.baseMediaItem.description("Word ".repeat(50))
+    MediaItemCardExtended(
+        mediaItem = mediaItemWithLongDescription.copy(status = MediaItem.LocalStatus.FINISHED),
         airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         onFollowClicked = {},

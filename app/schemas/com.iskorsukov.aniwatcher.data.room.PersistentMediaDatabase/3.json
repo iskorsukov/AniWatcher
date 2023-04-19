@@ -1,0 +1,244 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 3,
+    "identityHash": "a5ea208c8b9b8ca331441566f6a8969f",
+    "entities": [
+      {
+        "tableName": "media",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`mediaId` INTEGER NOT NULL, `description` TEXT, `coverImageUrl` TEXT, `colorStr` TEXT, `bannerImageUrl` TEXT, `mainStudio` TEXT, `popularity` INTEGER, `meanScore` INTEGER, `genresCommaSeparated` TEXT, `siteUrl` TEXT, `status` TEXT, `format` TEXT, `season` TEXT, `year` INTEGER, `titleRomaji` TEXT, `titleEnglish` TEXT, `titleNative` TEXT, PRIMARY KEY(`mediaId`))",
+        "fields": [
+          {
+            "fieldPath": "mediaId",
+            "columnName": "mediaId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "coverImageUrl",
+            "columnName": "coverImageUrl",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "colorStr",
+            "columnName": "colorStr",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "bannerImageUrl",
+            "columnName": "bannerImageUrl",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mainStudio",
+            "columnName": "mainStudio",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "popularity",
+            "columnName": "popularity",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "meanScore",
+            "columnName": "meanScore",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "genresCommaSeparated",
+            "columnName": "genresCommaSeparated",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "siteUrl",
+            "columnName": "siteUrl",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "format",
+            "columnName": "format",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "season",
+            "columnName": "season",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "year",
+            "columnName": "year",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "title.titleRomaji",
+            "columnName": "titleRomaji",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "title.titleEnglish",
+            "columnName": "titleEnglish",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "title.titleNative",
+            "columnName": "titleNative",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "mediaId"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "airing",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`airingScheduleItemId` INTEGER NOT NULL, `airingAt` INTEGER NOT NULL, `episode` INTEGER NOT NULL, `mediaItemRelationId` INTEGER NOT NULL, PRIMARY KEY(`airingScheduleItemId`), FOREIGN KEY(`mediaItemRelationId`) REFERENCES `media`(`mediaId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "airingScheduleItemId",
+            "columnName": "airingScheduleItemId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "airingAt",
+            "columnName": "airingAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "episode",
+            "columnName": "episode",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "mediaItemRelationId",
+            "columnName": "mediaItemRelationId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "airingScheduleItemId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_airing_mediaItemRelationId",
+            "unique": false,
+            "columnNames": [
+              "mediaItemRelationId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_airing_mediaItemRelationId` ON `${TABLE_NAME}` (`mediaItemRelationId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "media",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "mediaItemRelationId"
+            ],
+            "referencedColumns": [
+              "mediaId"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "notifications",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`notificationItemId` INTEGER PRIMARY KEY AUTOINCREMENT, `firedAtMillis` INTEGER NOT NULL, `airingScheduleItemRelationId` INTEGER NOT NULL, FOREIGN KEY(`airingScheduleItemRelationId`) REFERENCES `airing`(`airingScheduleItemId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "fields": [
+          {
+            "fieldPath": "notificationItemId",
+            "columnName": "notificationItemId",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "firedAtMillis",
+            "columnName": "firedAtMillis",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "airingScheduleItemRelationId",
+            "columnName": "airingScheduleItemRelationId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "notificationItemId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_notifications_airingScheduleItemRelationId",
+            "unique": false,
+            "columnNames": [
+              "airingScheduleItemRelationId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_notifications_airingScheduleItemRelationId` ON `${TABLE_NAME}` (`airingScheduleItemRelationId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "airing",
+            "onDelete": "NO ACTION",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "airingScheduleItemRelationId"
+            ],
+            "referencedColumns": [
+              "airingScheduleItemId"
+            ]
+          }
+        ]
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a5ea208c8b9b8ca331441566f6a8969f')"
+    ]
+  }
+}
