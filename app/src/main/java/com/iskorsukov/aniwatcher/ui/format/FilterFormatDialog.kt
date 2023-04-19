@@ -1,5 +1,6 @@
 package com.iskorsukov.aniwatcher.ui.format
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -26,14 +28,15 @@ import com.iskorsukov.aniwatcher.ui.theme.LocalTextStyles
 @Composable
 fun FilterFormatDialog(
     deselectedFormatOptions: List<MediaItem.LocalFormat>,
-    onDismissRequest: (deselectedFormatOptions: List<MediaItem.LocalFormat>) -> Unit
+    onDeselectedFormatsUpdated: (deselectedFormatOptions: List<MediaItem.LocalFormat>) -> Unit,
+    onDismissRequest: () -> Unit
 ) {
     val deselectedFormats = remember {
         mutableStateListOf(
             *deselectedFormatOptions.toTypedArray()
         )
     }
-    Dialog(onDismissRequest = { onDismissRequest.invoke(deselectedFormats) }) {
+    Dialog(onDismissRequest = { onDismissRequest.invoke() }) {
         Surface(
             shape = RoundedCornerShape(8.dp),
             color = LocalColors.current.background
@@ -79,6 +82,19 @@ fun FilterFormatDialog(
                         }
                     }
                 }
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = stringResource(id = R.string.confirm).uppercase(),
+                    style = LocalTextStyles.current.contentMediumEmphasis,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .clickable {
+                            onDeselectedFormatsUpdated.invoke(deselectedFormats)
+                            onDismissRequest.invoke()
+                        }
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                )
             }
         }
     }
@@ -89,6 +105,7 @@ fun FilterFormatDialog(
 private fun FilterFormatDialogPreview() {
     FilterFormatDialog(
         deselectedFormatOptions = emptyList(),
+        onDeselectedFormatsUpdated = { },
         onDismissRequest = { }
     )
 }

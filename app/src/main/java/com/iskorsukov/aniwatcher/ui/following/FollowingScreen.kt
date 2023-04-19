@@ -86,11 +86,10 @@ fun FollowingScreen(
     }
     if (shouldShowFilterFormatDialog) {
         FilterFormatDialog(
-            followingUiStateWithData.uiState.deselectedFormats
-        ) { formats ->
-            shouldShowFilterFormatDialog = false
-            viewModel.handleInputEvent(FormatsFilterSelectionUpdatedInputEvent(formats))
-        }
+            deselectedFormatOptions = followingUiStateWithData.uiState.deselectedFormats,
+            onDeselectedFormatsUpdated = { viewModel.handleInputEvent(FormatsFilterSelectionUpdatedInputEvent(it)) },
+            onDismissRequest = { shouldShowFilterFormatDialog = false }
+        )
     }
 }
 

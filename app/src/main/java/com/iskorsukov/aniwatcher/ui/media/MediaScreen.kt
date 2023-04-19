@@ -114,11 +114,10 @@ fun MediaScreen(
 
     if (shouldShowFilterFormatDialog) {
         FilterFormatDialog(
-            mediaUiStateWithData.uiState.deselectedFormats
-        ) { formats ->
-            shouldShowFilterFormatDialog = false
-            viewModel.handleInputEvent(FormatsFilterSelectionUpdatedInputEvent(formats))
-        }
+            deselectedFormatOptions = mediaUiStateWithData.uiState.deselectedFormats,
+            onDeselectedFormatsUpdated = { viewModel.handleInputEvent(FormatsFilterSelectionUpdatedInputEvent(it)) },
+            onDismissRequest = { shouldShowFilterFormatDialog = false }
+        )
     }
 }
 

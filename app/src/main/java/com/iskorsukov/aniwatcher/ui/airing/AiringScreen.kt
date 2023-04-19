@@ -94,11 +94,10 @@ fun AiringScreen(
 
     if (shouldShowFilterFormatDialog) {
         FilterFormatDialog(
-            airingUiStateWithData.uiState.deselectedFormats
-        ) { formats ->
-            shouldShowFilterFormatDialog = false
-            viewModel.handleInputEvent(FormatsFilterSelectionUpdatedInputEvent(formats))
-        }
+            deselectedFormatOptions = airingUiStateWithData.uiState.deselectedFormats,
+            onDeselectedFormatsUpdated = { viewModel.handleInputEvent(FormatsFilterSelectionUpdatedInputEvent(it)) },
+            onDismissRequest = { shouldShowFilterFormatDialog = false }
+        )
     }
 }
 
