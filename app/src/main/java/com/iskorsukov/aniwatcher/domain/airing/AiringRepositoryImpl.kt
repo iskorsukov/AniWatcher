@@ -128,8 +128,9 @@ class AiringRepositoryImpl @Inject constructor(
             if (!coroutineContext.isActive) return
         } while (data.Page?.pageInfo?.hasNextPage == true)
         try {
-            mediaDatabaseExecutor.updateMedia(entities)
-            persistentMediaDatabaseExecutor.updateMedia(entities.keys.toList())
+            val updatedEntities = reassignPopularityToMedia(entities)
+            mediaDatabaseExecutor.updateMedia(updatedEntities)
+            persistentMediaDatabaseExecutor.updateMedia(updatedEntities.keys.toList())
         } catch (e: Exception) {
             throw RoomException(e)
         }
@@ -151,8 +152,9 @@ class AiringRepositoryImpl @Inject constructor(
             if (!coroutineContext.isActive) return
         } while (data.Page?.pageInfo?.hasNextPage == true)
         try {
-            mediaDatabaseExecutor.updateMedia(entities)
-            persistentMediaDatabaseExecutor.updateMedia(entities.keys.toList())
+            val updatedEntities = reassignPopularityToMedia(entities)
+            mediaDatabaseExecutor.updateMedia(updatedEntities)
+            persistentMediaDatabaseExecutor.updateMedia(updatedEntities.keys.toList())
         } catch (e: Exception) {
             throw RoomException(e)
         }
@@ -182,5 +184,36 @@ class AiringRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             throw RoomException(e)
         }
+    }
+
+
+
+    /**
+     * Reassigns base popularity value (number of interactions with media) to index in sorted by popularity list
+     *
+     * @param map media with following entity to airing schedules map
+     * @return updated map
+     */
+    private fun reassignPopularityToMedia(map: Map<MediaItemEntity, List<AiringScheduleEntity>>): Map<MediaItemEntity, List<AiringScheduleEntity>> {
+        // sort map by popularity value descending
+        val sortedMap = map.toSortedMap { first, second ->
+            val firstRank = first.popularity ?: 0
+            val secondRank = second.popularity ?: 0
+            val diff = secondRank - firstRank
+            if (diff == 0) {
+                -1
+            } else {
+                diff
+            }
+        }
+        // reassign popularity value to index from sorted map
+        val updatedMap = mutableMapOf<MediaItemEntity, List<AiringScheduleEntity>>()
+        sortedMap.onEachIndexed { index, entry ->
+            val updatedKey = entry.key.copy(
+                popularity = index + 1
+            )
+            updatedMap[updatedKey] = entry.value
+        }
+        return updatedMap
     }
 }

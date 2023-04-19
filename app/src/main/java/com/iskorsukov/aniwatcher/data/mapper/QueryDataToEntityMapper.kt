@@ -29,9 +29,6 @@ class QueryDataToEntityMapper @Inject constructor() {
                     }
                 )
             }
-            .let {
-                reassignPopularityToMedia(it)
-            }
     }
 
     /**
@@ -56,38 +53,5 @@ class QueryDataToEntityMapper @Inject constructor() {
                     }
                 )
             }
-            .let {
-                reassignPopularityToMedia(it)
-            }
-    }
-
-
-    /**
-     * Reassigns base popularity value (number of interactions with media) to index in sorted by popularity list
-     *
-     * @param map media with following entity to airing schedules map
-     * @return updated map
-     */
-    private fun reassignPopularityToMedia(map: Map<MediaItemEntity, List<AiringScheduleEntity>>): Map<MediaItemEntity, List<AiringScheduleEntity>> {
-        // sort map by popularity value descending
-        val sortedMap = map.toSortedMap { first, second ->
-            val firstRank = first.popularity ?: 0
-            val secondRank = second.popularity ?: 0
-            val diff = secondRank - firstRank
-            if (diff == 0) {
-                -1
-            } else {
-                diff
-            }
-        }
-        // reassign popularity value to index from sorted map
-        val updatedMap = mutableMapOf<MediaItemEntity, List<AiringScheduleEntity>>()
-        sortedMap.onEachIndexed { index, entry ->
-            val updatedKey = entry.key.copy(
-                popularity = index + 1
-            )
-            updatedMap[updatedKey] = entry.value
-        }
-        return updatedMap
     }
 }
