@@ -21,7 +21,7 @@ import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 import com.iskorsukov.aniwatcher.ui.theme.LocalTextStyles
-import java.util.*
+import java.util.Calendar
 
 @Composable
 fun SelectSeasonYearDialog(

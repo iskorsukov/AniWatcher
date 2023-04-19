@@ -11,10 +11,10 @@ fun String.toSeconds(): Int {
     val calendar = Calendar.getInstance()
     calendar.apply {
         set(Calendar.YEAR, dateTokens[2].toInt())
-        set(Calendar.MONTH, dateTokens[1].toInt())
+        set(Calendar.MONTH, dateTokens[1].toInt() - 1)
         set(Calendar.DAY_OF_MONTH, dateTokens[0].toInt())
     }
-    if (timeTokens != null && timeTokens.isNotEmpty()) {
+    if (!timeTokens.isNullOrEmpty()) {
         calendar.apply {
             set(Calendar.HOUR_OF_DAY, timeTokens[0].toInt())
             set(Calendar.MINUTE, timeTokens[1].toInt())

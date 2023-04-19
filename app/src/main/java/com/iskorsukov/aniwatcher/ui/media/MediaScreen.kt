@@ -52,7 +52,7 @@ fun MediaScreen(
     onRefresh: () -> Unit,
     onGenreChipClicked: (String) -> Unit
 ) {
-    val mediaUiState by viewModel.uiStateFlow
+    val mediaUiStateWithData by viewModel.uiStateWithDataFlow
         .collectAsStateWithLifecycle()
 
     val pullRefreshState = rememberPullRefreshState(uiState.isRefreshing, onRefresh)
@@ -76,15 +76,15 @@ fun MediaScreen(
         .fillMaxSize()
         .pullRefresh(pullRefreshState)) {
         MediaScreenContent(
-            mediaItemWithNextAiringMap = mediaUiState.mediaWithNextAiringMap,
+            mediaItemWithNextAiringMap = mediaUiStateWithData.mediaWithNextAiringMap,
             listState = listState,
-            timeInMinutes = mediaUiState.timeInMinutes,
+            timeInMinutes = mediaUiStateWithData.timeInMinutes,
             preferredNamingScheme = settingsState.preferredNamingScheme,
             onFollowClicked = { viewModel.handleInputEvent(FollowClickedInputEvent(it)) },
             onGenreChipClicked = onGenreChipClicked,
             onMediaClicked = onMediaClicked,
             onSelectSortingOptionClicked = { shouldShowSortingOptionsDialog = true },
-            mediaUiState = mediaUiState,
+            mediaUiState = mediaUiStateWithData.uiState,
             onFilterFormatClicked = { shouldShowFilterFormatDialog = true },
             onResetClicked = { viewModel.handleInputEvent(ResetStateTriggeredInputEvent) }
         )
@@ -108,13 +108,13 @@ fun MediaScreen(
         SelectSortingOptionDialog(
             onSortingOptionSelected = { viewModel.handleInputEvent(SortingOptionChangedInputEvent(it)) },
             onDismissRequest = { shouldShowSortingOptionsDialog = false },
-            selectedOption = mediaUiState.sortingOption
+            selectedOption = mediaUiStateWithData.uiState.sortingOption
         )
     }
 
     if (shouldShowFilterFormatDialog) {
         FilterFormatDialog(
-            mediaUiState.deselectedFormats
+            mediaUiStateWithData.uiState.deselectedFormats
         ) { formats ->
             shouldShowFilterFormatDialog = false
             viewModel.handleInputEvent(FormatsFilterSelectionUpdatedInputEvent(formats))
@@ -173,7 +173,7 @@ private fun MediaScreenContent(
 @Preview
 fun MediaScreenPreview() {
     MediaScreenContent(
-        mediaItemWithNextAiringMap = MediaItemMapper.groupMediaWithNextAiringSchedule(
+        mediaItemWithNextAiringMap = MediaItemMapper().groupMediaWithNextAiringSchedule(
             mapOf(
                 ModelTestDataCreator.baseMediaItem to
                         ModelTestDataCreator.baseAiringScheduleItemList()

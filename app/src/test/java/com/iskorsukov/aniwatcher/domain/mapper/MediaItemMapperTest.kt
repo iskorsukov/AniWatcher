@@ -16,14 +16,16 @@ class MediaItemMapperTest {
         ModelTestDataCreator.baseMediaItem to emptyList<AiringScheduleItem>()
     )
 
+    private val mapper = MediaItemMapper()
+
     @Test
     fun groupAiringSchedulesByDayOfWeek() {
-        val result = MediaItemMapper.groupAiringSchedulesByDayOfWeek(testData)
+        val result = mapper.groupAiringSchedulesByDayOfWeek(testData, ModelTestDataCreator.TIME_IN_MINUTES)
 
         assertThat(result.keys).containsExactlyElementsIn(listOf(
-            DayOfWeekLocal.MONDAY,
-            DayOfWeekLocal.TUESDAY,
-            DayOfWeekLocal.SATURDAY
+            DayOfWeekLocal.FRIDAY,
+            DayOfWeekLocal.SATURDAY,
+            DayOfWeekLocal.WEDNESDAY
         ))
 
         val list = ModelTestDataCreator.baseAiringScheduleToMediaPairList()
@@ -37,7 +39,7 @@ class MediaItemMapperTest {
 
     @Test
     fun groupMediaWithNextAiringSchedule() {
-        val result = MediaItemMapper.groupMediaWithNextAiringSchedule(testData)
+        val result = mapper.groupMediaWithNextAiringSchedule(testData, ModelTestDataCreator.TIME_IN_MINUTES)
 
         assertThat(result.keys).containsExactly(ModelTestDataCreator.baseMediaItem)
         assertThat(result.values).containsExactly(ModelTestDataCreator.baseAiringScheduleItemList().first())
@@ -45,7 +47,7 @@ class MediaItemMapperTest {
 
     @Test
     fun groupMediaWithNextAiringSchedule_null() {
-        val result = MediaItemMapper.groupMediaWithNextAiringSchedule(testDataEmptySchedules)
+        val result = mapper.groupMediaWithNextAiringSchedule(testDataEmptySchedules, ModelTestDataCreator.TIME_IN_MINUTES)
 
         assertThat(result.keys).containsExactly(ModelTestDataCreator.baseMediaItem)
         assertThat(result.values).containsExactly(null)

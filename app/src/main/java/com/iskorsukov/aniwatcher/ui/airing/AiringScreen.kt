@@ -47,7 +47,7 @@ fun AiringScreen(
     onMediaClicked: (MediaItem) -> Unit,
     onRefresh: () -> Unit
 ) {
-    val airingUiState by viewModel.uiStateFlow
+    val airingUiStateWithData by viewModel.uiStateWithDataFlow
         .collectAsStateWithLifecycle()
 
     val pullRefreshState = rememberPullRefreshState(uiState.isRefreshing, onRefresh)
@@ -65,9 +65,9 @@ fun AiringScreen(
         .pullRefresh(pullRefreshState)) {
         AiringScreenContent(
             lazyListState = lazyListState,
-            airingUiState = airingUiState,
-            airingSchedulesByDayOfWeekMap = airingUiState.schedulesByDayOfWeek,
-            timeInMinutes = airingUiState.timeInMinutes,
+            airingUiState = airingUiStateWithData.uiState,
+            airingSchedulesByDayOfWeekMap = airingUiStateWithData.schedulesByDayOfWeek,
+            timeInMinutes = airingUiStateWithData.timeInMinutes,
             onFollowClicked = {
                 viewModel.handleInputEvent(FollowClickedInputEvent(it))
             },
@@ -94,7 +94,7 @@ fun AiringScreen(
 
     if (shouldShowFilterFormatDialog) {
         FilterFormatDialog(
-            airingUiState.deselectedFormats
+            airingUiStateWithData.uiState.deselectedFormats
         ) { formats ->
             shouldShowFilterFormatDialog = false
             viewModel.handleInputEvent(FormatsFilterSelectionUpdatedInputEvent(formats))
@@ -159,7 +159,7 @@ private fun AiringScreenContent(
 @Preview
 private fun AiringScreenPreview() {
     AiringScreenPreviewContent(
-        airingSchedulesByDayOfWeekMap = MediaItemMapper.groupAiringSchedulesByDayOfWeek(
+        airingSchedulesByDayOfWeekMap = MediaItemMapper().groupAiringSchedulesByDayOfWeek(
             mapOf(
                 ModelTestDataCreator.baseMediaItem to
                         ModelTestDataCreator.baseAiringScheduleItemList()

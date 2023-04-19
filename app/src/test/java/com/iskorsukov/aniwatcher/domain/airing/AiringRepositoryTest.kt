@@ -9,6 +9,7 @@ import com.iskorsukov.aniwatcher.data.executor.PersistentMediaDatabaseExecutor
 import com.iskorsukov.aniwatcher.data.mapper.QueryDataToEntityMapper
 import com.iskorsukov.aniwatcher.domain.exception.ApolloException
 import com.iskorsukov.aniwatcher.domain.exception.RoomException
+import com.iskorsukov.aniwatcher.domain.util.LocalClockSystem
 import com.iskorsukov.aniwatcher.test.EntityTestDataCreator
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.test.isFollowing
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AiringRepositoryTest {
@@ -28,6 +30,9 @@ class AiringRepositoryTest {
     private val mapper: QueryDataToEntityMapper = mockk(relaxed = true)
     private val mediaDatabaseExecutor: MediaDatabaseExecutor = mockk(relaxed = true)
     private val persistentMediaDatabaseExecutor: PersistentMediaDatabaseExecutor = mockk(relaxed = true)
+    private val clock: LocalClockSystem = mockk<LocalClockSystem>(relaxed = true).also {
+        coEvery { it.currentTimeMillis() } returns TimeUnit.MINUTES.toMillis(ModelTestDataCreator.TIME_IN_MINUTES)
+    }
 
     private val season = "FALL"
     private val year = 2022
@@ -44,7 +49,7 @@ class AiringRepositoryTest {
     fun mediaWithSchedulesFlow() = runTest {
         coEvery { mediaDatabaseExecutor.mediaDataFlow } returns flowOf(mediaFlowMap)
         coEvery { persistentMediaDatabaseExecutor.followedMediaFlow } returns flowOf(emptyMap())
-        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor, persistentMediaDatabaseExecutor)
+        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor, persistentMediaDatabaseExecutor, clock)
 
         val model = repository.mediaWithSchedulesFlow.first()
 
@@ -59,7 +64,7 @@ class AiringRepositoryTest {
     fun mediaWithSchedulesFlow_mediaFollowed() = runTest {
         coEvery { mediaDatabaseExecutor.mediaDataFlow } returns flowOf(mediaFlowMap)
         coEvery { persistentMediaDatabaseExecutor.followedMediaFlow } returns flowOf(mediaFlowMap)
-        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor, persistentMediaDatabaseExecutor)
+        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor, persistentMediaDatabaseExecutor, clock)
 
         val model = repository.mediaWithSchedulesFlow.first()
 
@@ -74,7 +79,7 @@ class AiringRepositoryTest {
     fun getMediaWithAiringSchedules() = runTest {
         coEvery { mediaDatabaseExecutor.getMediaWithAiringSchedules(any()) } returns flowOf(mediaFlowPair)
         coEvery { persistentMediaDatabaseExecutor.followedMediaFlow } returns flowOf(emptyMap())
-        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor, persistentMediaDatabaseExecutor)
+        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor, persistentMediaDatabaseExecutor, clock)
 
         val model = repository.getMediaWithAiringSchedules(1).first()
 
@@ -89,7 +94,7 @@ class AiringRepositoryTest {
 
     @Test
     fun loadSeasonAiringData() = runTest {
-        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor, persistentMediaDatabaseExecutor)
+        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor, persistentMediaDatabaseExecutor, clock)
 
         repository.loadSeasonAiringData(year, season)
 
@@ -102,7 +107,7 @@ class AiringRepositoryTest {
 
     @Test(expected = ApolloException::class)
     fun loadSeasonAiringData_queryException() = runTest {
-        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor, persistentMediaDatabaseExecutor)
+        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor, persistentMediaDatabaseExecutor, clock)
 
         coEvery { aniListQueryExecutor.seasonAiringDataQuery(any(), any(), any()) } throws IOException()
 
@@ -115,7 +120,7 @@ class AiringRepositoryTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun loadSeasonAiringData_mapperException() = runTest {
-        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor, persistentMediaDatabaseExecutor)
+        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor, persistentMediaDatabaseExecutor, clock)
 
         coEvery { mapper.mapMediaWithSchedulesList(any<SeasonAiringDataQuery.Data>()) } throws IllegalArgumentException()
 
@@ -129,7 +134,7 @@ class AiringRepositoryTest {
 
     @Test(expected = RoomException::class)
     fun loadSeasonAiringData_databaseException() = runTest {
-        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor, persistentMediaDatabaseExecutor)
+        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor, persistentMediaDatabaseExecutor, clock)
 
         coEvery { mediaDatabaseExecutor.updateMedia(any()) } throws IOException()
 
@@ -144,7 +149,7 @@ class AiringRepositoryTest {
 
     @Test
     fun loadRangeAiringData() = runTest {
-        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor, persistentMediaDatabaseExecutor)
+        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor, persistentMediaDatabaseExecutor, clock)
 
         repository.loadRangeAiringData(start, end)
 
@@ -157,7 +162,7 @@ class AiringRepositoryTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun loadRangeAiringData_mapperException() = runTest {
-        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor, persistentMediaDatabaseExecutor)
+        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor, persistentMediaDatabaseExecutor, clock)
 
         coEvery { mapper.mapMediaWithSchedulesList(any<RangeAiringDataQuery.Data>()) } throws IllegalArgumentException()
 
@@ -171,7 +176,7 @@ class AiringRepositoryTest {
 
     @Test(expected = RoomException::class)
     fun loadRangeAiringData_databaseException() = runTest {
-        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor, persistentMediaDatabaseExecutor)
+        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor, persistentMediaDatabaseExecutor, clock)
 
         coEvery { mediaDatabaseExecutor.updateMedia(any()) } throws IOException()
 
@@ -188,7 +193,7 @@ class AiringRepositoryTest {
     fun followMedia() = runTest {
         coEvery { mediaDatabaseExecutor.getMediaWithAiringSchedules(any()) } returns flowOf(mediaFlowPair)
         coEvery { persistentMediaDatabaseExecutor.followedMediaFlow } returns flowOf(emptyMap())
-        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor, persistentMediaDatabaseExecutor)
+        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor, persistentMediaDatabaseExecutor, clock)
 
         val mediaItem = ModelTestDataCreator.baseMediaItem
 
@@ -201,7 +206,7 @@ class AiringRepositoryTest {
 
     @Test
     fun unfollowMedia() = runTest {
-        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor, persistentMediaDatabaseExecutor)
+        repository = AiringRepositoryImpl(aniListQueryExecutor, mapper, mediaDatabaseExecutor, persistentMediaDatabaseExecutor, clock)
 
         val mediaItem = ModelTestDataCreator.baseMediaItem
 

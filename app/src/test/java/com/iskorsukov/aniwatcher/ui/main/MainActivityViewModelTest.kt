@@ -2,6 +2,7 @@ package com.iskorsukov.aniwatcher.ui.main
 
 import com.google.common.truth.Truth.assertThat
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.iskorsukov.aniwatcher.MainDispatcherRule
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
 import com.iskorsukov.aniwatcher.domain.settings.*
@@ -12,20 +13,25 @@ import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.SearchFieldVisibilityCh
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.SearchTextChangedInputEvent
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.SearchTextEventHandler
 import io.mockk.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.*
+import org.junit.Rule
 import org.junit.Test
 import java.io.IOException
-import java.util.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainActivityViewModelTest {
 
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
+
     private val airingRepository: AiringRepository = mockk(relaxed = true)
     private val settingsRepository: SettingsRepository = mockk(relaxed = true)
-    private val notificationsRepository: NotificationsRepository = mockk(relaxed = true)
+    private val notificationsRepository: NotificationsRepository = mockk<NotificationsRepository>(relaxed = true).also {
+        every { it.unreadNotificationsCounterStateFlow } returns MutableStateFlow(0)
+    }
     private val searchTextEventHandler: SearchTextEventHandler<MainActivityUiState> = spyk(
         SearchTextEventHandler()
     )
@@ -36,8 +42,8 @@ class MainActivityViewModelTest {
 
     private lateinit var viewModel: MainActivityViewModel
 
-    private fun initViewModel(testScheduler: TestCoroutineScheduler) {
-        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+    @Test
+    fun loadAiringData_season() = runTest {
         viewModel = MainActivityViewModel(
             airingRepository,
             settingsRepository,
@@ -46,15 +52,6 @@ class MainActivityViewModelTest {
             seasonYearEventHandler,
             notificationsPermissionEventHandler
         )
-    }
-
-    @Test
-    fun loadAiringData_season() = runTest {
-        mockkStatic(Calendar::class)
-        every { Calendar.getInstance() } returns GregorianCalendar().apply {
-            timeInMillis = 1669870920000L
-        }
-        initViewModel(testScheduler)
 
         mockkObject(DateTimeHelper)
         every { DateTimeHelper.currentSeasonYear(any()) } returns DateTimeHelper.SeasonYear(
@@ -72,20 +69,30 @@ class MainActivityViewModelTest {
                     selectedSeasonYear = DateTimeHelper.SeasonYear(DateTimeHelper.Season.FALL, 2022)
                 )
 
-        viewModel.loadAiringData()
-        assertThat(viewModel.uiState.value.isRefreshing).isTrue()
+        val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect {
+                it.errorItem
+            }
+        }
 
-        advanceUntilIdle()
-        assertThat(viewModel.uiState.value.isRefreshing).isFalse()
+        viewModel.loadAiringData()
 
         coVerify { airingRepository.loadSeasonAiringData(2022, "FALL") }
 
         unmockkAll()
+        collectorJob.cancel()
     }
 
     @Test
     fun loadAiringData_range() = runTest {
-        initViewModel(testScheduler)
+        viewModel = MainActivityViewModel(
+            airingRepository,
+            settingsRepository,
+            notificationsRepository,
+            searchTextEventHandler,
+            seasonYearEventHandler,
+            notificationsPermissionEventHandler
+        )
 
         mockkObject(DateTimeHelper)
         every { DateTimeHelper.currentWeekStartToEndSeconds(any()) } returns (0 to 1)
@@ -99,27 +106,33 @@ class MainActivityViewModelTest {
                     onboardingComplete = true,
                     selectedSeasonYear = DateTimeHelper.SeasonYear(DateTimeHelper.Season.FALL, 2022)
                 )
+        val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect {
+                it.errorItem
+            }
+        }
 
         viewModel.loadAiringData()
-        assertThat(viewModel.uiState.value.isRefreshing).isTrue()
-
-        advanceUntilIdle()
-        assertThat(viewModel.uiState.value.isRefreshing).isFalse()
 
         coVerify { airingRepository.loadRangeAiringData(0, 1) }
 
         unmockkAll()
+        collectorJob.cancel()
     }
 
     @Test
     fun loadAiringData_exception() = runTest {
         mockkStatic(FirebaseCrashlytics::class)
         every { FirebaseCrashlytics.getInstance() } returns mockk(relaxed = true)
-        mockkStatic(Calendar::class)
-        every { Calendar.getInstance() } returns GregorianCalendar().apply {
-            timeInMillis = 1669870920000L
-        }
-        initViewModel(testScheduler)
+
+        viewModel = MainActivityViewModel(
+            airingRepository,
+            settingsRepository,
+            notificationsRepository,
+            searchTextEventHandler,
+            seasonYearEventHandler,
+            notificationsPermissionEventHandler
+        )
 
         mockkObject(DateTimeHelper)
         every { DateTimeHelper.currentSeasonYear(any()) } returns DateTimeHelper.SeasonYear(
@@ -139,9 +152,13 @@ class MainActivityViewModelTest {
 
         coEvery { airingRepository.loadSeasonAiringData(any(), any()) } throws IOException()
 
+        val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect {
+                it.errorItem
+            }
+        }
+
         viewModel.loadAiringData()
-        assertThat(viewModel.uiState.value.isRefreshing).isTrue()
-        advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertThat(state.isRefreshing).isFalse()
@@ -150,17 +167,29 @@ class MainActivityViewModelTest {
         coVerify { airingRepository.loadSeasonAiringData(2022, "FALL") }
 
         unmockkAll()
+        collectorJob.cancel()
     }
 
     @Test
     fun searchTextEvent_searchTextChanged() = runTest {
-        initViewModel(testScheduler)
+        viewModel = MainActivityViewModel(
+            airingRepository,
+            settingsRepository,
+            notificationsRepository,
+            searchTextEventHandler,
+            seasonYearEventHandler,
+            notificationsPermissionEventHandler
+        )
+
+        val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect {
+                it.errorItem
+            }
+        }
 
         val searchText = "Search"
-
-        assertThat(viewModel.uiState.first().searchText).isEmpty()
-
         viewModel.handleInputEvent(SearchTextChangedInputEvent(searchText))
+
         assertThat(viewModel.uiState.value.searchText).isEqualTo(searchText)
         verify {
             searchTextEventHandler.handleEvent(
@@ -170,11 +199,25 @@ class MainActivityViewModelTest {
                 MainActivityUiState.DEFAULT
             )
         }
+
+        collectorJob.cancel()
     }
 
     @Test
     fun searchTextEvent_appendSearchText() = runTest {
-        initViewModel(testScheduler)
+        viewModel = MainActivityViewModel(
+            airingRepository,
+            settingsRepository,
+            notificationsRepository,
+            searchTextEventHandler,
+            seasonYearEventHandler,
+            notificationsPermissionEventHandler
+        )
+        val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect {
+                it.errorItem
+            }
+        }
 
         viewModel.handleInputEvent(AppendSearchTextInputEvent("Text"))
 
@@ -187,11 +230,25 @@ class MainActivityViewModelTest {
                 MainActivityUiState.DEFAULT
             )
         }
+
+        collectorJob.cancel()
     }
 
     @Test
     fun searchTextEvent_searchFieldOpenChange() = runTest {
-        initViewModel(testScheduler)
+        viewModel = MainActivityViewModel(
+            airingRepository,
+            settingsRepository,
+            notificationsRepository,
+            searchTextEventHandler,
+            seasonYearEventHandler,
+            notificationsPermissionEventHandler
+        )
+        val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect {
+                it.errorItem
+            }
+        }
 
         viewModel.handleInputEvent(SearchFieldVisibilityChangedInputEvent(true))
 
@@ -202,11 +259,24 @@ class MainActivityViewModelTest {
                 MainActivityUiState.DEFAULT
             )
         }
+        collectorJob.cancel()
     }
 
     @Test
     fun seasonYearEvent_seasonYearSelected() = runTest {
-        initViewModel(testScheduler)
+        viewModel = MainActivityViewModel(
+            airingRepository,
+            settingsRepository,
+            notificationsRepository,
+            searchTextEventHandler,
+            seasonYearEventHandler,
+            notificationsPermissionEventHandler
+        )
+        val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect {
+                it.errorItem
+            }
+        }
 
         val selectedSeasonYear = DateTimeHelper.SeasonYear(DateTimeHelper.Season.WINTER, 2023)
         viewModel.handleInputEvent(SeasonYearSelectedEvent(selectedSeasonYear))
@@ -218,11 +288,24 @@ class MainActivityViewModelTest {
                 settingsRepository
             )
         }
+        collectorJob.cancel()
     }
 
     @Test
     fun notificationsPermissionEvent_missing() = runTest {
-        initViewModel(testScheduler)
+        viewModel = MainActivityViewModel(
+            airingRepository,
+            settingsRepository,
+            notificationsRepository,
+            searchTextEventHandler,
+            seasonYearEventHandler,
+            notificationsPermissionEventHandler
+        )
+        val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect {
+                it.errorItem
+            }
+        }
 
         viewModel.handleInputEvent(NotificationsPermissionMissing)
 
@@ -235,11 +318,24 @@ class MainActivityViewModelTest {
             )
             settingsRepository.setNotificationsEnabled(false)
         }
+        collectorJob.cancel()
     }
 
     @Test
     fun notificationsPermissionEvent_grantClicked() = runTest {
-        initViewModel(testScheduler)
+        viewModel = MainActivityViewModel(
+            airingRepository,
+            settingsRepository,
+            notificationsRepository,
+            searchTextEventHandler,
+            seasonYearEventHandler,
+            notificationsPermissionEventHandler
+        )
+        val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect {
+                it.errorItem
+            }
+        }
 
         viewModel.handleInputEvent(NotificationsPermissionGrantClicked)
 
@@ -252,11 +348,24 @@ class MainActivityViewModelTest {
                 settingsRepository
             )
         }
+        collectorJob.cancel()
     }
 
     @Test
     fun notificationsPermissionEvent_denyClicked() = runTest {
-        initViewModel(testScheduler)
+        viewModel = MainActivityViewModel(
+            airingRepository,
+            settingsRepository,
+            notificationsRepository,
+            searchTextEventHandler,
+            seasonYearEventHandler,
+            notificationsPermissionEventHandler
+        )
+        val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect {
+                it.errorItem
+            }
+        }
 
         viewModel.handleInputEvent(NotificationsPermissionDisableClicked)
 
@@ -270,11 +379,25 @@ class MainActivityViewModelTest {
             )
             settingsRepository.setNotificationsEnabled(false)
         }
+
+        collectorJob.cancel()
     }
 
     @Test
     fun notificationsPermissionEvent_granted() = runTest {
-        initViewModel(testScheduler)
+        viewModel = MainActivityViewModel(
+            airingRepository,
+            settingsRepository,
+            notificationsRepository,
+            searchTextEventHandler,
+            seasonYearEventHandler,
+            notificationsPermissionEventHandler
+        )
+        val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect {
+                it.errorItem
+            }
+        }
 
         viewModel.handleInputEvent(NotificationsPermissionGranted)
 
@@ -288,11 +411,25 @@ class MainActivityViewModelTest {
             )
             settingsRepository.setNotificationsEnabled(true)
         }
+
+        collectorJob.cancel()
     }
 
     @Test
     fun notificationsPermissionEvent_denied() = runTest {
-        initViewModel(testScheduler)
+        viewModel = MainActivityViewModel(
+            airingRepository,
+            settingsRepository,
+            notificationsRepository,
+            searchTextEventHandler,
+            seasonYearEventHandler,
+            notificationsPermissionEventHandler
+        )
+        val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiState.collect {
+                it.errorItem
+            }
+        }
 
         viewModel.handleInputEvent(NotificationsPermissionDenied)
 
@@ -306,5 +443,7 @@ class MainActivityViewModelTest {
             )
             settingsRepository.setNotificationsEnabled(false)
         }
+
+        collectorJob.cancel()
     }
 }

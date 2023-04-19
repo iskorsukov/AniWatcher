@@ -17,6 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class FollowingViewModel @Inject constructor(
     private val airingRepository: AiringRepository,
+    private val mediaItemMapper: MediaItemMapper,
     private val searchTextEventHandler: SearchTextEventHandler<FollowingUiState>,
     private val followEventHandler: FollowEventHandler<FollowingUiState>,
     private val sortingOptionEventHandler: SortingOptionEventHandler<FollowingUiState>,
@@ -27,26 +28,29 @@ class FollowingViewModel @Inject constructor(
     private val _uiStateFlow: MutableStateFlow<FollowingUiState> = MutableStateFlow(
         FollowingUiState.DEFAULT
     )
-    val uiStateFlow: StateFlow<FollowingUiState> = _uiStateFlow
-        .combine(airingRepository.timeInMinutesFlow) { uiState, timeInMinutes ->
-            uiState.copy(
+    val uiStateWithDataFlow: StateFlow<FollowingUiStateWithData> = _uiStateFlow
+        .map { uiState ->
+            FollowingUiStateWithData(uiState = uiState)
+        }
+        .combine(airingRepository.timeInMinutesFlow) { uiStateWithData, timeInMinutes ->
+            uiStateWithData.copy(
                 timeInMinutes = timeInMinutes
             )
         }
-        .combine(airingRepository.followedMediaFlow) { uiState, mediaToSchedulesMap ->
-            val groupedMediaMap = MediaItemMapper.groupMediaWithNextAiringSchedule(
+        .combine(airingRepository.followedMediaFlow) { uiStateWithData, mediaToSchedulesMap ->
+            val groupedMediaMap = mediaItemMapper.groupMediaWithNextAiringSchedule(
                 mediaToSchedulesMap,
-                uiState.timeInMinutes
+                uiStateWithData.timeInMinutes
             )
-            val filteredBySearchMap = filterSearchMediaFlow(groupedMediaMap, uiState.searchText)
+            val filteredBySearchMap = filterSearchMediaFlow(groupedMediaMap, uiStateWithData.uiState.searchText)
             val filteredByFormatMap =
-                filterFormatMediaFlow(filteredBySearchMap, uiState.deselectedFormats)
-            val sortedMediaMap = sortMediaFlow(filteredByFormatMap, uiState.sortingOption)
-            uiState.copy(
+                filterFormatMediaFlow(filteredBySearchMap, uiStateWithData.uiState.deselectedFormats)
+            val sortedMediaMap = sortMediaFlow(filteredByFormatMap, uiStateWithData.uiState.sortingOption)
+            uiStateWithData.copy(
                 mediaWithNextAiringMap = sortedMediaMap
             )
         }
-        .stateIn(viewModelScope, SharingStarted.Lazily, FollowingUiState.DEFAULT)
+        .stateIn(viewModelScope, SharingStarted.Lazily, FollowingUiStateWithData())
 
     fun handleInputEvent(inputEvent: FollowingInputEvent) {
         try {
@@ -92,15 +96,15 @@ class FollowingViewModel @Inject constructor(
 
     private fun updateResetButton() {
         val deselectedFormatsNotDefault =
-            uiStateFlow.value.deselectedFormats != FollowingUiState.DEFAULT.deselectedFormats
+            _uiStateFlow.value.deselectedFormats != FollowingUiState.DEFAULT.deselectedFormats
         val sortingOptionNotDefault =
-            uiStateFlow.value.sortingOption != FollowingUiState.DEFAULT.sortingOption
+            _uiStateFlow.value.sortingOption != FollowingUiState.DEFAULT.sortingOption
         if (deselectedFormatsNotDefault || sortingOptionNotDefault) {
-            if (!uiStateFlow.value.showReset) {
+            if (!_uiStateFlow.value.showReset) {
                 _uiStateFlow.value = _uiStateFlow.value.copy(showReset = true)
             }
         } else {
-            if (uiStateFlow.value.showReset) {
+            if (_uiStateFlow.value.showReset) {
                 _uiStateFlow.value = _uiStateFlow.value.copy(showReset = false)
             }
         }

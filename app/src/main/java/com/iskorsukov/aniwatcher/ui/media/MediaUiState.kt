@@ -10,6 +10,12 @@ import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.SortingOptionsUiState
 import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 import java.util.concurrent.TimeUnit
 
+data class MediaUiStateWithData(
+    val mediaWithNextAiringMap: Map<MediaItem, AiringScheduleItem?> = emptyMap(),
+    val timeInMinutes: Long = 0L,
+    val uiState: MediaUiState = MediaUiState.DEFAULT
+)
+
 data class MediaUiState(
     val mediaWithNextAiringMap: Map<MediaItem, AiringScheduleItem?>,
     val timeInMinutes: Long,

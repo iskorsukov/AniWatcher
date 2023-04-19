@@ -27,12 +27,12 @@ class AiringScheduleItemTest {
 
         val airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem()
 
-        assertThat(airingScheduleItem.getAiringAtDateTimeFormatted()).isEqualTo("November 07, 18:00")
+        assertThat(airingScheduleItem.getAiringAtDateTimeFormatted()).isEqualTo("October 07, 18:00")
     }
 
     @Test
     fun getAiringInFormatted() {
-        val testMinutes = TimeUnit.SECONDS.toMinutes(1667726120L)
+        val testMinutes = TimeUnit.SECONDS.toMinutes(1665047720L)
 
         val airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem()
 
@@ -41,7 +41,7 @@ class AiringScheduleItemTest {
 
     @Test
     fun getAiringInFormatted_noDays() {
-        val testMinutes = TimeUnit.SECONDS.toMinutes(1667812520L)
+        val testMinutes = TimeUnit.SECONDS.toMinutes(1665134120L)
 
         val airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem()
 
@@ -50,7 +50,7 @@ class AiringScheduleItemTest {
 
     @Test
     fun getAiringInFormatted_noHours() {
-        val testMinutes = TimeUnit.SECONDS.toMinutes(1667744120L)
+        val testMinutes = TimeUnit.SECONDS.toMinutes(1665065720L)
 
         val airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem()
 
@@ -59,7 +59,7 @@ class AiringScheduleItemTest {
 
     @Test
     fun getAiringInFormatted_noMinutes() {
-        val testMinutes = TimeUnit.SECONDS.toMinutes(1667725220L)
+        val testMinutes = TimeUnit.SECONDS.toMinutes(1665046800L)
 
         val airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem()
 

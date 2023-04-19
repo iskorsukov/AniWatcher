@@ -6,7 +6,7 @@ import com.iskorsukov.aniwatcher.domain.model.NotificationItem
 
 object ModelTestDataCreator {
 
-    const val TIME_IN_MINUTES = 27785711L
+    const val TIME_IN_MINUTES = 27749715L
 
     val baseMediaItem: MediaItem = MediaItem(
         id = 1,

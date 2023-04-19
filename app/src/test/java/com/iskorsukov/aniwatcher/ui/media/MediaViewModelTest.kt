@@ -1,23 +1,57 @@
 package com.iskorsukov.aniwatcher.ui.media
 
 import com.google.common.truth.Truth.assertThat
+import com.iskorsukov.aniwatcher.MainDispatcherRule
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
+import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
+import com.iskorsukov.aniwatcher.domain.util.DayOfWeekLocal
 import com.iskorsukov.aniwatcher.test.*
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.*
 import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 import io.mockk.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.*
+import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MediaViewModelTest {
-    private val airingRepository: AiringRepository = mockk(relaxed = true)
+    @get:Rule
+    val mainDispatcherRule: MainDispatcherRule = MainDispatcherRule()
+
+    private val testData = mapOf(
+        ModelTestDataCreator.baseMediaItem to
+                ModelTestDataCreator.baseAiringScheduleItemList()
+    )
+    private val uiStateWithData = MediaUiStateWithData(
+        mediaWithNextAiringMap = mapOf(
+            ModelTestDataCreator.baseMediaItem to
+                    ModelTestDataCreator.baseAiringScheduleItem()
+        ),
+        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES
+    )
+
+    private val airingRepository: AiringRepository = mockk<AiringRepository>(relaxed = true).also {
+        val timeStateFlow = MutableStateFlow(ModelTestDataCreator.TIME_IN_MINUTES)
+        coEvery { it.timeInMinutesFlow } returns timeStateFlow
+        coEvery { it.mediaWithSchedulesFlow } returns flowOf(testData)
+    }
+    private val mediaItemMapper: MediaItemMapper = mockk<MediaItemMapper>().also {
+        every { it.groupAiringSchedulesByDayOfWeek(any(), any()) } returns mapOf(
+            DayOfWeekLocal.SATURDAY to listOf(ModelTestDataCreator.baseAiringScheduleItemList()[2] to ModelTestDataCreator.baseMediaItem),
+            DayOfWeekLocal.MONDAY to listOf(ModelTestDataCreator.baseAiringScheduleItemList()[0] to ModelTestDataCreator.baseMediaItem),
+            DayOfWeekLocal.TUESDAY to listOf(ModelTestDataCreator.baseAiringScheduleItemList()[1] to ModelTestDataCreator.baseMediaItem)
+        )
+        every { it.groupMediaWithNextAiringSchedule(any(), any()) } returns mapOf(
+            ModelTestDataCreator.baseMediaItem to ModelTestDataCreator.baseAiringScheduleItem()
+        )
+    }
     private val followEventHandler: FollowEventHandler<MediaUiState> = spyk(FollowEventHandler())
     private val searchTextEventHandler: SearchTextEventHandler<MediaUiState> = spyk(
         SearchTextEventHandler()
@@ -34,29 +68,24 @@ class MediaViewModelTest {
 
     private lateinit var viewModel: MediaViewModel
 
-    private fun initViewModel(testScheduler: TestCoroutineScheduler) {
-        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+    @Test
+    fun mediaFlow() = runTest {
         viewModel = MediaViewModel(
             airingRepository,
+            mediaItemMapper,
             followEventHandler,
             searchTextEventHandler,
             formatsFilterEventHandler,
             sortingOptionEventHandler,
             resetStateEventHandler
         )
-    }
+        val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiStateWithDataFlow.collect {
+                it.mediaWithNextAiringMap
+            }
+        }
 
-    @Test
-    fun mediaFlow() = runTest {
-        coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(
-            mapOf(
-                ModelTestDataCreator.baseMediaItem to
-                        ModelTestDataCreator.baseAiringScheduleItemList()
-            )
-        )
-        initViewModel(testScheduler)
-
-        val result: Map<MediaItem, AiringScheduleItem?> = viewModel.mediaFlow.first()
+        val result: Map<MediaItem, AiringScheduleItem?> = viewModel.uiStateWithDataFlow.value.mediaWithNextAiringMap
 
         assertThat(result).isNotNull()
         assertThat(result.size).isEqualTo(1)
@@ -66,17 +95,26 @@ class MediaViewModelTest {
         assertThat(result.values).containsExactly(
             ModelTestDataCreator.baseAiringScheduleItemList().first()
         )
+
+        collectorJob.cancel()
     }
 
     @Test
     fun formatsFilterEvent_formatsFilterSelectionUpdated() = runTest {
-        coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(
-            mapOf(
-                ModelTestDataCreator.baseMediaItem to
-                        ModelTestDataCreator.baseAiringScheduleItemList()
-            )
+        viewModel = MediaViewModel(
+            airingRepository,
+            mediaItemMapper,
+            followEventHandler,
+            searchTextEventHandler,
+            formatsFilterEventHandler,
+            sortingOptionEventHandler,
+            resetStateEventHandler
         )
-        initViewModel(testScheduler)
+        val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiStateWithDataFlow.collect {
+                it.mediaWithNextAiringMap
+            }
+        }
 
         val deselectedFormats = listOf(
             MediaItem.LocalFormat.TV, MediaItem.LocalFormat.MOVIE
@@ -84,11 +122,11 @@ class MediaViewModelTest {
 
         viewModel.handleInputEvent(FormatsFilterSelectionUpdatedInputEvent(deselectedFormats))
 
-        val media = viewModel.mediaFlow.first()
+        val media = viewModel.uiStateWithDataFlow.first().mediaWithNextAiringMap
 
         assertThat(media).isEmpty()
 
-        val uiState = viewModel.uiStateFlow.value
+        val uiState = viewModel.uiStateWithDataFlow.value.uiState
 
         assertThat(uiState.deselectedFormats).containsExactlyElementsIn(
             deselectedFormats
@@ -100,20 +138,28 @@ class MediaViewModelTest {
                 MediaUiState.DEFAULT
             )
         }
+
+        collectorJob.cancel()
     }
 
     @Test
     fun followEvent_follow() = runTest {
-        coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(
-            mapOf(
-                ModelTestDataCreator.baseMediaItem to
-                        ModelTestDataCreator.baseAiringScheduleItemList()
-            )
+        viewModel = MediaViewModel(
+            airingRepository,
+            mediaItemMapper,
+            followEventHandler,
+            searchTextEventHandler,
+            formatsFilterEventHandler,
+            sortingOptionEventHandler,
+            resetStateEventHandler
         )
-        initViewModel(testScheduler)
+        val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiStateWithDataFlow.collect {
+                it.mediaWithNextAiringMap
+            }
+        }
 
         viewModel.handleInputEvent(FollowClickedInputEvent(ModelTestDataCreator.baseMediaItem))
-        advanceUntilIdle()
 
         verify {
             followEventHandler.handleEvent(
@@ -126,22 +172,30 @@ class MediaViewModelTest {
         coVerify {
             airingRepository.followMedia(ModelTestDataCreator.baseMediaItem)
         }
+
+        collectorJob.cancel()
     }
 
     @Test
     fun followEvent_unfollow() = runTest {
-        coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(
-            mapOf(
-                ModelTestDataCreator.baseMediaItem to
-                        ModelTestDataCreator.baseAiringScheduleItemList()
-            )
+        viewModel = MediaViewModel(
+            airingRepository,
+            mediaItemMapper,
+            followEventHandler,
+            searchTextEventHandler,
+            formatsFilterEventHandler,
+            sortingOptionEventHandler,
+            resetStateEventHandler
         )
-        initViewModel(testScheduler)
+        val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiStateWithDataFlow.collect {
+                it.mediaWithNextAiringMap
+            }
+        }
 
         viewModel.handleInputEvent(
             FollowClickedInputEvent(ModelTestDataCreator.baseMediaItem.isFollowing(true))
         )
-        advanceUntilIdle()
 
         verify {
             followEventHandler.handleEvent(
@@ -156,68 +210,85 @@ class MediaViewModelTest {
                 ModelTestDataCreator.baseMediaItem.isFollowing(true)
             )
         }
+
+        collectorJob.cancel()
     }
 
     @Test
     fun resetStateEvent() = runTest {
-        coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(
-            mapOf(
-                ModelTestDataCreator.baseMediaItem to
-                        ModelTestDataCreator.baseAiringScheduleItemList()
-            )
+        viewModel = MediaViewModel(
+            airingRepository,
+            mediaItemMapper,
+            followEventHandler,
+            searchTextEventHandler,
+            formatsFilterEventHandler,
+            sortingOptionEventHandler,
+            resetStateEventHandler
         )
-        initViewModel(testScheduler)
+        val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiStateWithDataFlow.collect {
+                it.mediaWithNextAiringMap
+            }
+        }
 
-        val deselectedFormats = listOf(
-            MediaItem.LocalFormat.TV, MediaItem.LocalFormat.MOVIE
-        )
-        viewModel.handleInputEvent(FormatsFilterSelectionUpdatedInputEvent(deselectedFormats))
+        viewModel.handleInputEvent(SearchTextChangedInputEvent("search"))
 
         viewModel.handleInputEvent(ResetStateTriggeredInputEvent)
 
-        val uiState = viewModel.uiStateFlow.value
+        val uiState = viewModel.uiStateWithDataFlow.value
 
-        assertThat(uiState).isEqualTo(MediaUiState.DEFAULT)
+        assertThat(uiState).isEqualTo(uiStateWithData)
         verify {
             resetStateEventHandler.handleEvent(
                 ResetStateTriggeredInputEvent,
-                MediaUiState.DEFAULT.copy(deselectedFormats = deselectedFormats, showReset = true)
+                MediaUiState.DEFAULT.copy(
+                    searchText = "search",
+                    showReset = true
+                )
             )
         }
+
+        collectorJob.cancel()
     }
 
     @Test
     fun sortingOptionEvent() = runTest {
-        coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(
-            mapOf(
-                ModelTestDataCreator.baseMediaItem to
-                        ModelTestDataCreator.baseAiringScheduleItemList()
-            )
+        val baseItem = ModelTestDataCreator.baseMediaItem
+        val baseItemWithBiggerMeanScore = baseItem.id(2).meanScore(2)
+
+        coEvery { mediaItemMapper.groupMediaWithNextAiringSchedule(any(), any()) } returns mapOf(
+            baseItem to ModelTestDataCreator.baseAiringScheduleItem().airingAt(1),
+            baseItemWithBiggerMeanScore to ModelTestDataCreator.baseAiringScheduleItem().id(2).airingAt(2)
         )
 
-        val baseItem = ModelTestDataCreator.baseMediaItem
-        val baseItemWithBiggerMeanScore = baseItem.meanScore(2)
+        viewModel = MediaViewModel(
+            airingRepository,
+            mediaItemMapper,
+            followEventHandler,
+            searchTextEventHandler,
+            formatsFilterEventHandler,
+            sortingOptionEventHandler,
+            resetStateEventHandler
+        )
+        val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiStateWithDataFlow.collect {
+                it.mediaWithNextAiringMap
+            }
+        }
 
-        val firstItem = baseItem to
-                listOf(ModelTestDataCreator.baseAiringScheduleItem().airingAt(1))
-        val secondItem = baseItemWithBiggerMeanScore to
-                listOf(
-                    ModelTestDataCreator.baseAiringScheduleItem().airingAt(2)
-                )
-        val data = mapOf(firstItem, secondItem)
+        var result = viewModel.uiStateWithDataFlow.first().mediaWithNextAiringMap
 
-        coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(data)
-
-        initViewModel(testScheduler)
+        assertThat(result.size).isEqualTo(2)
+        assertThat(result.keys).containsExactly(baseItem, baseItemWithBiggerMeanScore).inOrder()
 
         viewModel.handleInputEvent(SortingOptionChangedInputEvent(SortingOption.SCORE))
 
-        val result = viewModel.mediaFlow.first()
+        result = viewModel.uiStateWithDataFlow.first().mediaWithNextAiringMap
 
         assertThat(result.size).isEqualTo(2)
-        assertThat(result.keys).containsExactly(secondItem.first, firstItem.first).inOrder()
+        assertThat(result.keys).containsExactly(baseItemWithBiggerMeanScore, baseItem).inOrder()
 
-        val uiState = viewModel.uiStateFlow.value
+        val uiState = viewModel.uiStateWithDataFlow.value.uiState
 
         assertThat(uiState.sortingOption).isEqualTo(SortingOption.SCORE)
         verify {
@@ -226,22 +297,31 @@ class MediaViewModelTest {
                 MediaUiState.DEFAULT
             )
         }
+
+        collectorJob.cancel()
     }
 
     @Test
     fun searchTextEvent_searchTextChanged() = runTest {
-        coEvery { airingRepository.mediaWithSchedulesFlow } returns flowOf(
-            mapOf(
-                ModelTestDataCreator.baseMediaItem to
-                        ModelTestDataCreator.baseAiringScheduleItemList()
-            )
+        viewModel = MediaViewModel(
+            airingRepository,
+            mediaItemMapper,
+            followEventHandler,
+            searchTextEventHandler,
+            formatsFilterEventHandler,
+            sortingOptionEventHandler,
+            resetStateEventHandler
         )
-        initViewModel(testScheduler)
+        val collectorJob = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.uiStateWithDataFlow.collect {
+                it.mediaWithNextAiringMap
+            }
+        }
 
         val searchText = "search"
         viewModel.handleInputEvent(SearchTextChangedInputEvent(searchText))
 
-        val uiState = viewModel.uiStateFlow.value
+        val uiState = viewModel.uiStateWithDataFlow.value.uiState
 
         assertThat(uiState.searchText).isEqualTo(searchText)
         verify {
@@ -250,5 +330,7 @@ class MediaViewModelTest {
                 MediaUiState.DEFAULT
             )
         }
+
+        collectorJob.cancel()
     }
 }

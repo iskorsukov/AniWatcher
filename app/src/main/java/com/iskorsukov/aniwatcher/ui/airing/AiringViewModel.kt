@@ -21,12 +21,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
 class AiringViewModel @Inject constructor(
     private val airingRepository: AiringRepository,
+    private val mediaItemMapper: MediaItemMapper,
     private val formatsFilterEventHandler: FormatsFilterEventHandler<AiringUiState>,
     private val followEventHandler: FollowEventHandler<AiringUiState>,
     private val resetStateEventHandler: ResetStateEventHandler<AiringUiState>
@@ -37,18 +39,21 @@ class AiringViewModel @Inject constructor(
     private val _uiStateFlow: MutableStateFlow<AiringUiState> = MutableStateFlow(
         AiringUiState.DEFAULT
     )
-    val uiStateFlow: StateFlow<AiringUiState> = _uiStateFlow
-        .combine(airingRepository.timeInMinutesFlow) { uiState, timeInMinutes ->
-            uiState.copy(
+    val uiStateWithDataFlow: StateFlow<AiringUiStateWithData> = _uiStateFlow
+        .map { uiState ->
+            AiringUiStateWithData(uiState = uiState)
+        }
+        .combine(airingRepository.timeInMinutesFlow) { uiStateWithData, timeInMinutes ->
+            uiStateWithData.copy(
                 timeInMinutes = timeInMinutes
             )
         }
-        .combine(airingRepository.mediaWithSchedulesFlow) { uiState, mediaToSchedulesMap ->
+        .combine(airingRepository.mediaWithSchedulesFlow) { uiStateWithData, mediaToSchedulesMap ->
             val filteredMediaMap =
-                filterFormatMediaFlow(mediaToSchedulesMap, uiState.deselectedFormats)
-            val groupedMediaMap = MediaItemMapper.groupAiringSchedulesByDayOfWeek(
+                filterFormatMediaFlow(mediaToSchedulesMap, uiStateWithData.uiState.deselectedFormats)
+            val groupedMediaMap = mediaItemMapper.groupAiringSchedulesByDayOfWeek(
                 filteredMediaMap,
-                uiState.timeInMinutes
+                uiStateWithData.timeInMinutes
             ).toSortedMap { first, second ->
                 var firstDiff = first.ordinal - currentDayOfWeekLocal.ordinal
                 if (firstDiff < 0) firstDiff += 7
@@ -56,11 +61,11 @@ class AiringViewModel @Inject constructor(
                 if (secondDiff < 0) secondDiff += 7
                 firstDiff - secondDiff
             }
-            uiState.copy(
+            uiStateWithData.copy(
                 schedulesByDayOfWeek = groupedMediaMap
             )
         }
-        .stateIn(viewModelScope, SharingStarted.Lazily, AiringUiState.DEFAULT)
+        .stateIn(viewModelScope, SharingStarted.Lazily, AiringUiStateWithData())
 
     fun handleInputEvent(inputEvent: AiringInputEvent) {
         try {
@@ -96,13 +101,13 @@ class AiringViewModel @Inject constructor(
 
     private fun updateResetButton() {
         val deselectedFormatsNotDefault =
-            uiStateFlow.value.deselectedFormats != MediaUiState.DEFAULT.deselectedFormats
+            _uiStateFlow.value.deselectedFormats != MediaUiState.DEFAULT.deselectedFormats
         if (deselectedFormatsNotDefault) {
-            if (!uiStateFlow.value.showReset) {
+            if (!_uiStateFlow.value.showReset) {
                 _uiStateFlow.value = _uiStateFlow.value.copy(showReset = true)
             }
         } else {
-            if (uiStateFlow.value.showReset) {
+            if (_uiStateFlow.value.showReset) {
                 _uiStateFlow.value = _uiStateFlow.value.copy(showReset = false)
             }
         }

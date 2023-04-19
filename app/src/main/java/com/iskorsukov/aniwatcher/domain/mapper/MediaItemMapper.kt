@@ -4,10 +4,11 @@ import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.domain.util.DayOfWeekLocal
-import java.util.*
+import java.util.Calendar
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-object MediaItemMapper {
+class MediaItemMapper @Inject constructor() {
 
     fun groupAiringSchedulesByDayOfWeek(
         mediaItemToAiringSchedulesMap: Map<MediaItem, List<AiringScheduleItem>>,

@@ -44,7 +44,7 @@ fun FollowingScreen(
     onMediaClicked: (MediaItem) -> Unit,
     onGenreChipClicked: (String) -> Unit
 ) {
-    val followingUiState by viewModel.uiStateFlow
+    val followingUiStateWithData by viewModel.uiStateWithDataFlow
         .collectAsStateWithLifecycle()
 
     val listState = rememberLazyListState()
@@ -62,15 +62,15 @@ fun FollowingScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         FollowingScreenContent(
-            followingMediaMap = followingUiState.mediaWithNextAiringMap,
+            followingMediaMap = followingUiStateWithData.mediaWithNextAiringMap,
             searchTextIsEmpty = uiState.searchText.trim().length < 4,
-            timeInMinutes = followingUiState.timeInMinutes,
+            timeInMinutes = followingUiStateWithData.timeInMinutes,
             onFollowClicked = { viewModel.handleInputEvent(FollowClickedInputEvent(it)) },
             preferredNamingScheme = settingsState.preferredNamingScheme,
             onMediaClicked = onMediaClicked,
             onGenreChipClicked = onGenreChipClicked,
             listState = listState,
-            followingUiState = followingUiState,
+            followingUiState = followingUiStateWithData.uiState,
             onSelectSortingOptionClicked = { shouldShowSortingOptionsDialog = true },
             onFilterFormatClicked = { shouldShowFilterFormatDialog = true },
             onResetClicked = { viewModel.handleInputEvent(ResetStateTriggeredInputEvent) }
@@ -81,12 +81,12 @@ fun FollowingScreen(
         SelectSortingOptionDialog(
             onSortingOptionSelected = { viewModel.handleInputEvent(SortingOptionChangedInputEvent(it)) },
             onDismissRequest = { shouldShowSortingOptionsDialog = false },
-            selectedOption = followingUiState.sortingOption
+            selectedOption = followingUiStateWithData.uiState.sortingOption
         )
     }
     if (shouldShowFilterFormatDialog) {
         FilterFormatDialog(
-            followingUiState.deselectedFormats
+            followingUiStateWithData.uiState.deselectedFormats
         ) { formats ->
             shouldShowFilterFormatDialog = false
             viewModel.handleInputEvent(FormatsFilterSelectionUpdatedInputEvent(formats))
@@ -172,7 +172,7 @@ private fun FollowingScreenEmptyPreview() {
 private fun FollowingScreenPreview() {
     val followedMediaItem = ModelTestDataCreator.baseMediaItem.isFollowing(true)
     FollowingScreenContent(
-        followingMediaMap = MediaItemMapper.groupMediaWithNextAiringSchedule(
+        followingMediaMap = MediaItemMapper().groupMediaWithNextAiringSchedule(
             mapOf(
                  followedMediaItem to
                         ModelTestDataCreator.baseAiringScheduleItemList()

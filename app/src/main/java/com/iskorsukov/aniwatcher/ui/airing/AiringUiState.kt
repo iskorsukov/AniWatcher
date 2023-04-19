@@ -8,9 +8,13 @@ import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.FormatsFilterUiState
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.ResetStateUiState
 import java.util.concurrent.TimeUnit
 
+data class AiringUiStateWithData(
+    val schedulesByDayOfWeek: Map<DayOfWeekLocal, List<Pair<AiringScheduleItem, MediaItem>>> = emptyMap(),
+    val timeInMinutes: Long = 0L,
+    val uiState: AiringUiState = AiringUiState.DEFAULT
+)
+
 data class AiringUiState(
-    val schedulesByDayOfWeek: Map<DayOfWeekLocal, List<Pair<AiringScheduleItem, MediaItem>>>,
-    val timeInMinutes: Long,
     val deselectedFormats: List<MediaItem.LocalFormat>,
     val errorItem: ErrorItem?,
     val showReset: Boolean,
@@ -18,8 +22,6 @@ data class AiringUiState(
 
     companion object {
         val DEFAULT = AiringUiState(
-            schedulesByDayOfWeek = emptyMap(),
-            timeInMinutes = TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis()),
             deselectedFormats = emptyList(),
             errorItem = null,
             showReset = false

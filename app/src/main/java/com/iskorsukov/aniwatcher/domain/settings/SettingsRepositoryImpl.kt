@@ -7,7 +7,7 @@ import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import java.util.*
+import java.util.Calendar
 import javax.inject.Inject
 
 class SettingsRepositoryImpl @Inject constructor(

@@ -13,6 +13,7 @@ import com.iskorsukov.aniwatcher.domain.exception.ApolloException
 import com.iskorsukov.aniwatcher.domain.exception.RoomException
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
+import com.iskorsukov.aniwatcher.domain.util.LocalClockSystem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -33,19 +34,20 @@ class AiringRepositoryImpl @Inject constructor(
     private val aniListQueryExecutor: AniListQueryExecutor,
     private val mapper: QueryDataToEntityMapper,
     private val mediaDatabaseExecutor: MediaDatabaseExecutor,
-    private val persistentMediaDatabaseExecutor: PersistentMediaDatabaseExecutor
+    private val persistentMediaDatabaseExecutor: PersistentMediaDatabaseExecutor,
+    private val clock: LocalClockSystem
 ) : AiringRepository {
 
     override val timeInMinutesFlow = flow {
         while (true) {
-            val timeInMillis = System.currentTimeMillis()
+            val timeInMillis = clock.currentTimeMillis()
             emit(TimeUnit.MILLISECONDS.toMinutes(timeInMillis))
             delay(TimeUnit.SECONDS.toMillis(10))
         }
     }.stateIn(
-        CoroutineScope(Dispatchers.Main),
+        CoroutineScope(Dispatchers.Default),
         SharingStarted.Lazily,
-        TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis())
+        TimeUnit.MILLISECONDS.toMinutes(clock.currentTimeMillis())
     )
 
     override val mediaWithSchedulesFlow: Flow<Map<MediaItem, List<AiringScheduleItem>>> =

@@ -1,5 +1,6 @@
 package com.iskorsukov.aniwatcher.ui.notification
 
+import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.notification.NotificationsInteractor
 import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
 import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
@@ -16,12 +17,13 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class NotificationViewModelTest {
 
+    private val airingRepository: AiringRepository = mockk(relaxed = true)
     private val notificationsRepository: NotificationsRepository = mockk(relaxed = true)
     private val notificationsInteractor: NotificationsInteractor = mockk(relaxed = true)
     private val settingsRepository: SettingsRepository = mockk(relaxed = true)
 
     private val viewModel = NotificationsViewModel(
-        notificationsRepository, notificationsInteractor, settingsRepository
+        airingRepository, notificationsRepository, notificationsInteractor, settingsRepository
     )
 
     @Test
