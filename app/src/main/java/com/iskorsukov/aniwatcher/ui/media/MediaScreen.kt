@@ -38,7 +38,6 @@ import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.ResetStateTriggeredInpu
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.SearchTextChangedInputEvent
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.SortingOptionChangedInputEvent
 import com.iskorsukov.aniwatcher.ui.format.FilterFormatDialog
-import com.iskorsukov.aniwatcher.ui.main.MainActivityUiState
 import com.iskorsukov.aniwatcher.ui.sorting.SelectSortingOptionDialog
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 
@@ -46,7 +45,8 @@ import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 @Composable
 fun MediaScreen(
     viewModel: MediaViewModel,
-    uiState: MainActivityUiState,
+    isRefreshing: Boolean,
+    searchText: String,
     settingsState: SettingsState,
     onMediaClicked: (MediaItem) -> Unit,
     onRefresh: () -> Unit,
@@ -55,7 +55,7 @@ fun MediaScreen(
     val mediaUiStateWithData by viewModel.uiStateWithDataFlow
         .collectAsStateWithLifecycle()
 
-    val pullRefreshState = rememberPullRefreshState(uiState.isRefreshing, onRefresh)
+    val pullRefreshState = rememberPullRefreshState(isRefreshing, onRefresh)
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -67,8 +67,8 @@ fun MediaScreen(
     }
 
     val listState = rememberLazyListState()
-    LaunchedEffect(uiState.searchText) {
-        viewModel.handleInputEvent(SearchTextChangedInputEvent(uiState.searchText))
+    LaunchedEffect(searchText) {
+        viewModel.handleInputEvent(SearchTextChangedInputEvent(searchText))
         listState.scrollToItem(0)
     }
 
@@ -96,7 +96,7 @@ fun MediaScreen(
                 .padding(16.dp)
         )
         PullRefreshIndicator(
-            refreshing = uiState.isRefreshing,
+            refreshing = isRefreshing,
             state = pullRefreshState,
             modifier = Modifier.align(Alignment.TopCenter),
             backgroundColor = LocalColors.current.onPrimary,

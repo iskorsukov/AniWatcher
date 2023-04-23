@@ -10,47 +10,28 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
+import com.iskorsukov.aniwatcher.ui.main.SeasonYearDialogState
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 import com.iskorsukov.aniwatcher.ui.theme.LocalTextStyles
-import java.util.Calendar
 
 @Composable
 fun SelectSeasonYearDialog(
-    onSeasonYearSelected: (DateTimeHelper.SeasonYear) -> Unit,
-    onDismissRequest: () -> Unit,
-    selectedSeasonYear: DateTimeHelper.SeasonYear
+    seasonYearDialogState: SeasonYearDialogState
 ) {
-    val calendar = Calendar.getInstance()
-    val currentSeasonYear = DateTimeHelper.currentSeasonYear(calendar)
-    var season = currentSeasonYear.season
-    val items = mutableListOf<DateTimeHelper.SeasonYear>()
-    items.add(DateTimeHelper.SeasonYear.THIS_WEEK)
-    items.add(currentSeasonYear)
-    for (i in 1..3) {
-        season = DateTimeHelper.Season.values()[
-                if (season.ordinal - 1 >= 0) {
-                    season.ordinal - 1
-                } else {
-                    season.ordinal + 3
-                }
-        ]
-        val year = if (season.ordinal > currentSeasonYear.season.ordinal)
-            currentSeasonYear.year - 1
-        else
-            currentSeasonYear.year
-        items.add(DateTimeHelper.SeasonYear(season, year))
-    }
+    val selectedSeasonYear by seasonYearDialogState.selectedSeasonYear
+        .collectAsState()
 
-    Dialog(onDismissRequest = onDismissRequest) {
+    Dialog(onDismissRequest = { seasonYearDialogState.showSelectSeasonYearDialog = false }) {
         Surface(
             shape = RoundedCornerShape(8.dp),
             color = LocalColors.current.background
@@ -65,12 +46,12 @@ fun SelectSeasonYearDialog(
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 LazyColumn {
-                    items.forEach { seasonYear ->
+                    seasonYearDialogState.seasonYearOptions.forEach { seasonYear ->
                         item {
                             TextButton(
                                 onClick = {
-                                    onSeasonYearSelected.invoke(seasonYear)
-                                    onDismissRequest.invoke()
+                                    seasonYearDialogState.onSeasonYearSelected(seasonYear)
+                                    seasonYearDialogState.showSelectSeasonYearDialog = false
                                 }
                             ) {
                                 Text(
@@ -94,14 +75,4 @@ fun SelectSeasonYearDialog(
             }
         }
     }
-}
-
-@Composable
-@Preview
-fun SelectSortingOptionDialogPreview() {
-    SelectSeasonYearDialog(
-        onSeasonYearSelected = { },
-        onDismissRequest = { },
-        selectedSeasonYear = DateTimeHelper.currentSeasonYear(Calendar.getInstance())
-    )
 }

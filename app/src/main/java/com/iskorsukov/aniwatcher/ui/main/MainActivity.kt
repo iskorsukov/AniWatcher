@@ -13,272 +13,87 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Scaffold
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.iskorsukov.aniwatcher.domain.notification.alarm.NotificationsAlarmBuilder
 import com.iskorsukov.aniwatcher.domain.notification.alarm.NotificationsBootReceiver
-import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
-import com.iskorsukov.aniwatcher.ui.airing.AiringScreen
-import com.iskorsukov.aniwatcher.ui.airing.AiringViewModel
-import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
-import com.iskorsukov.aniwatcher.ui.base.error.ErrorPopupDialogSurface
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.AppendSearchTextInputEvent
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.ResetSearchTextInputEvent
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.ResetStateTriggeredInputEvent
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.SearchFieldVisibilityChangedInputEvent
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.SearchTextChangedInputEvent
+import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
 import com.iskorsukov.aniwatcher.ui.details.DetailsActivity
-import com.iskorsukov.aniwatcher.ui.following.FollowingScreen
-import com.iskorsukov.aniwatcher.ui.following.FollowingViewModel
-import com.iskorsukov.aniwatcher.ui.media.MediaScreen
-import com.iskorsukov.aniwatcher.ui.media.MediaViewModel
 import com.iskorsukov.aniwatcher.ui.notification.NotificationActivity
-import com.iskorsukov.aniwatcher.ui.permission.NotificationsPermissionRationaleDialog
-import com.iskorsukov.aniwatcher.ui.season.SelectSeasonYearDialog
 import com.iskorsukov.aniwatcher.ui.settings.SettingsCompatActivity
-import com.iskorsukov.aniwatcher.ui.theme.AniWatcherTheme
-import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val mainActivityViewModel: MainActivityViewModel by viewModels()
-    private val airingViewModel: AiringViewModel by viewModels()
-    private val followingViewModel: FollowingViewModel by viewModels()
-    private val mediaViewModel: MediaViewModel by viewModels()
+    @Inject
+    lateinit var settingsRepository: SettingsRepository
 
-    private val requestNotificationsPermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted: Boolean ->
-            if (isGranted) {
-                mainActivityViewModel.handleInputEvent(NotificationsPermissionGranted)
-            } else {
-                mainActivityViewModel.handleInputEvent(NotificationsPermissionDenied)
-            }
-        }
+    private val mainActivityViewModel: MainActivityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        enableBootReceiver()
+        var permissionRequestResultGranted: Boolean? by mutableStateOf(null)
 
-        lifecycleScope.launch {
-            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                mainActivityViewModel.settingsState.collect { state ->
-                    if (state.notificationsEnabled) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-                            ActivityCompat.checkSelfPermission(
-                                this@MainActivity,
-                                Manifest.permission.POST_NOTIFICATIONS
-                            ) != PackageManager.PERMISSION_GRANTED
-                        ) {
-                            mainActivityViewModel.handleInputEvent(NotificationsPermissionMissing)
-                        } else {
-                            scheduleNotificationChecks()
-                        }
-                    } else {
-                        cancelNotificationChecks()
-                    }
-                }
+        val requestNotificationsPermissionLauncher =
+            registerForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ) { isGranted: Boolean ->
+                permissionRequestResultGranted = isGranted
             }
-        }
 
         setContent {
-            val navController = rememberNavController()
-            val scaffoldState = rememberScaffoldState()
-
             val uiState by mainActivityViewModel.uiState
                 .collectAsStateWithLifecycle()
-            val settingsState by mainActivityViewModel.settingsState
+            val notificationsPermissionState = rememberNotificationsPermissionState(
+                context = this,
+                settingsRepository = settingsRepository,
+                permissionRequestResultGranted = permissionRequestResultGranted
+            )
+            val mainScreenState = rememberMainScreenState(
+                settingsRepository = settingsRepository,
+                notificationsPermissionState = notificationsPermissionState
+            )
+            val settingsState by mainScreenState
+                .settingsState
                 .collectAsStateWithLifecycle()
 
-            var shouldShowSeasonYearDialog by rememberSaveable {
-                mutableStateOf(false)
-            }
-            var shouldShowErrorDialog by rememberSaveable(uiState.errorItem) {
-                mutableStateOf(uiState.errorItem != null)
-            }
-            var shouldShowNotificationsRationaleDialog by rememberSaveable(uiState.showNotificationsPermissionRationale) {
-                mutableStateOf(uiState.showNotificationsPermissionRationale)
-            }
-            val shouldLaunchNotificationsPermissionRequest by rememberSaveable(uiState.launchNotificationPermissionRequest) {
-                mutableStateOf(uiState.launchNotificationPermissionRequest)
+            LaunchedEffect(
+                settingsState.selectedSeasonYear
+            ) {
+                mainActivityViewModel.loadAiringData()
             }
 
-            AniWatcherTheme(settingsState.darkModeOption) {
-                Scaffold(
-                    topBar = {
-                        TopBar(
-                            uiState = uiState,
-                            settingsState = settingsState,
-                            navController = navController,
-                            onSettingsClicked = this::startSettingsActivity,
-                            onNotificationsClicked = this::startNotificationsActivity,
-                            onSearchTextInput = {
-                                mainActivityViewModel.handleInputEvent(SearchTextChangedInputEvent(it))
-                            },
-                            onSearchFieldOpenChange = {
-                                mainActivityViewModel.handleInputEvent(
-                                    SearchFieldVisibilityChangedInputEvent(it)
-                                )
-                            },
-                            onSelectSeasonYearClicked = { shouldShowSeasonYearDialog = true },
-                            unreadNotifications = uiState.unreadNotificationsCount
-                        )
-                    },
-                    bottomBar = {
-                        BottomNavigationBar(
-                            navController = navController,
-                            isThisWeekSelected = settingsState.selectedSeasonYear == DateTimeHelper.SeasonYear.THIS_WEEK,
-                            onChangedDestination = {
-                                mainActivityViewModel.handleInputEvent(ResetSearchTextInputEvent)
-                                mediaViewModel.handleInputEvent(ResetStateTriggeredInputEvent)
-                                airingViewModel.handleInputEvent(ResetStateTriggeredInputEvent)
-                                followingViewModel.handleInputEvent(ResetStateTriggeredInputEvent)
-                            }
-                        )
-                    },
-                    scaffoldState = scaffoldState,
-                    backgroundColor = LocalColors.current.background
-                ) { innerPadding ->
-                    Box(
-                        modifier = Modifier
-                            .padding(innerPadding)
-                            .fillMaxSize()
-                    ) {
-                        if (shouldShowSeasonYearDialog) {
-                            SelectSeasonYearDialog(
-                                onSeasonYearSelected = {
-                                    mainActivityViewModel.handleInputEvent(SeasonYearSelectedEvent(it))
-                                },
-                                onDismissRequest = { shouldShowSeasonYearDialog = false },
-                                selectedSeasonYear = settingsState.selectedSeasonYear
-                            )
-                        }
-                        if (shouldShowNotificationsRationaleDialog) {
-                            NotificationsPermissionRationaleDialog(
-                                onNotificationsPermissionGranted = {
-                                    mainActivityViewModel.handleInputEvent(NotificationsPermissionGrantClicked)
-                                },
-                                onNotificationsPermissionDenied = {
-                                    mainActivityViewModel.handleInputEvent(NotificationsPermissionDisableClicked)
-                                },
-                                onDismissRequest = { shouldShowNotificationsRationaleDialog = false }
-                            )
-                        }
-
-                        NavHost(
-                            navController = navController,
-                            startDestination = "airing"
-                        ) {
-                            composable("media") {
-                                MediaScreen(
-                                    viewModel = mediaViewModel,
-                                    uiState = uiState,
-                                    settingsState = settingsState,
-                                    onMediaClicked = { startDetailsActivity(it.id) },
-                                    onRefresh = mainActivityViewModel::loadAiringData,
-                                    onGenreChipClicked = {
-                                        mainActivityViewModel.handleInputEvent(
-                                            SearchFieldVisibilityChangedInputEvent(true)
-                                        )
-                                        mainActivityViewModel.handleInputEvent(
-                                            AppendSearchTextInputEvent(it)
-                                        )
-                                    }
-                                )
-                            }
-                            composable("airing") {
-                                AiringScreen(
-                                    viewModel = airingViewModel,
-                                    uiState = uiState,
-                                    settingsState = settingsState,
-                                    onMediaClicked = { startDetailsActivity(it.id) },
-                                    onRefresh = mainActivityViewModel::loadAiringData
-                                )
-                            }
-                            composable("following") {
-                                FollowingScreen(
-                                    viewModel = followingViewModel,
-                                    uiState = uiState,
-                                    settingsState = settingsState,
-                                    onMediaClicked = { startDetailsActivity(it.id) },
-                                    onGenreChipClicked = {
-                                        mainActivityViewModel.handleInputEvent(
-                                            SearchFieldVisibilityChangedInputEvent(true)
-                                        )
-                                        mainActivityViewModel.handleInputEvent(
-                                            AppendSearchTextInputEvent(it)
-                                        )
-                                    }
-                                )
-                            }
-                        }
-
-                        LaunchedEffect(
-                            settingsState.selectedSeasonYear
-                        ) {
-                            mainActivityViewModel.loadAiringData()
-                        }
-
-                        if (shouldLaunchNotificationsPermissionRequest && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            LaunchedEffect(Unit) {
-                                requestNotificationsPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                            }
-                        }
-
-                        AnimatedVisibility(
-                            visible = shouldShowErrorDialog,
-                            enter = slideInVertically(initialOffsetY = { it * 2 }),
-                            exit = slideOutVertically(targetOffsetY = { it * 2 }),
-                            modifier = Modifier
-                                .align(Alignment.BottomCenter)
-                        ) {
-                            val errorItem = uiState.errorItem
-                            if (errorItem != null) {
-                                ErrorPopupDialogSurface(
-                                    errorItem = errorItem,
-                                    onActionClicked = {
-                                        when (errorItem.action) {
-                                            ErrorItem.Action.REFRESH -> {
-                                                mainActivityViewModel.loadAiringData()
-                                            }
-                                            ErrorItem.Action.DISMISS -> {}
-                                        }
-                                    },
-                                    onDismissRequest = { shouldShowErrorDialog = false },
-                                    modifier = Modifier.padding(8.dp)
-                                )
-                            }
-                        }
-                    }
+            LaunchedEffect(notificationsPermissionState.launchNotificationsPermissionRequest) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && notificationsPermissionState.launchNotificationsPermissionRequest) {
+                    requestNotificationsPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                 }
             }
+
+            LaunchedEffect(notificationsPermissionState.notificationsPermissionGranted) {
+                if (notificationsPermissionState.notificationsPermissionGranted) {
+                    enableBootReceiver()
+                    scheduleNotificationChecks()
+                } else {
+                    disableBootReceiver()
+                    cancelNotificationChecks()
+                }
+            }
+
+            MainScreen(
+                uiState = uiState,
+                mainScreenState = mainScreenState,
+                settingsState = settingsState,
+                onRefresh = { mainActivityViewModel.loadAiringData() },
+                onStartSettings = { startSettingsActivity() },
+                onStartNotifications = { startNotificationsActivity() },
+                onStartDetails = { mediaItem -> startDetailsActivity(mediaItem.id) }
+            )
         }
     }
 
@@ -288,6 +103,16 @@ class MainActivity : ComponentActivity() {
         packageManager.setComponentEnabledSetting(
             receiver,
             PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+            PackageManager.DONT_KILL_APP
+        )
+    }
+
+    private fun disableBootReceiver() {
+        val receiver = ComponentName(this, NotificationsBootReceiver::class.java)
+
+        packageManager.setComponentEnabledSetting(
+            receiver,
+            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
             PackageManager.DONT_KILL_APP
         )
     }

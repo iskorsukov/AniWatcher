@@ -63,7 +63,11 @@ class PersistentMediaDatabaseExecutor @Inject constructor(
 
     suspend fun deleteMedia(mediaItemId: Int) {
         withContext(DispatcherProvider.io()) {
-            persistentMediaDao.deleteMedia(mediaItemId)
+            persistentMediaDatabase.withTransaction {
+                persistentMediaDao.deleteNotifications(mediaItemId)
+                persistentMediaDao.deleteSchedules(mediaItemId)
+                persistentMediaDao.deleteMedia(mediaItemId)
+            }
         }
     }
 }

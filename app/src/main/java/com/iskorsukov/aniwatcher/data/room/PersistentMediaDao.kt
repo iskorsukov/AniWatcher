@@ -27,6 +27,12 @@ interface PersistentMediaDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSchedules(airingScheduleEntityList: List<AiringScheduleEntity>)
 
+    @Query("DELETE FROM notifications WHERE airingScheduleItemRelationId IN (SELECT airingScheduleItemId FROM airing WHERE airing.mediaItemRelationId = :mediaItemId)")
+    suspend fun deleteNotifications(mediaItemId: Int)
+
+    @Query("DELETE FROM airing WHERE mediaItemRelationId = :mediaItemId")
+    suspend fun deleteSchedules(mediaItemId: Int)
+
     @Query("DELETE FROM media WHERE mediaId = :mediaItemId")
     suspend fun deleteMedia(mediaItemId: Int)
 }

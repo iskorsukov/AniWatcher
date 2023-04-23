@@ -32,14 +32,13 @@ import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.ResetStateTriggeredInpu
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.SearchTextChangedInputEvent
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.SortingOptionChangedInputEvent
 import com.iskorsukov.aniwatcher.ui.format.FilterFormatDialog
-import com.iskorsukov.aniwatcher.ui.main.MainActivityUiState
 import com.iskorsukov.aniwatcher.ui.media.MediaItemCardExtended
 import com.iskorsukov.aniwatcher.ui.sorting.SelectSortingOptionDialog
 
 @Composable
 fun FollowingScreen(
     viewModel: FollowingViewModel,
-    uiState: MainActivityUiState,
+    searchText: String,
     settingsState: SettingsState,
     onMediaClicked: (MediaItem) -> Unit,
     onGenreChipClicked: (String) -> Unit
@@ -48,8 +47,8 @@ fun FollowingScreen(
         .collectAsStateWithLifecycle()
 
     val listState = rememberLazyListState()
-    LaunchedEffect(uiState.searchText) {
-        viewModel.handleInputEvent(SearchTextChangedInputEvent(uiState.searchText))
+    LaunchedEffect(searchText) {
+        viewModel.handleInputEvent(SearchTextChangedInputEvent(searchText))
         listState.scrollToItem(0)
     }
 
@@ -63,7 +62,7 @@ fun FollowingScreen(
     Box(modifier = Modifier.fillMaxSize()) {
         FollowingScreenContent(
             followingMediaMap = followingUiStateWithData.mediaWithNextAiringMap,
-            searchTextIsEmpty = uiState.searchText.trim().length < 4,
+            searchTextIsEmpty = searchText.trim().length < 4,
             timeInMinutes = followingUiStateWithData.timeInMinutes,
             onFollowClicked = { viewModel.handleInputEvent(FollowClickedInputEvent(it)) },
             preferredNamingScheme = settingsState.preferredNamingScheme,

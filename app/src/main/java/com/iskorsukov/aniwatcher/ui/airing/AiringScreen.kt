@@ -33,7 +33,6 @@ import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.FollowClickedInputEvent
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.FormatsFilterSelectionUpdatedInputEvent
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.ResetStateTriggeredInputEvent
 import com.iskorsukov.aniwatcher.ui.format.FilterFormatDialog
-import com.iskorsukov.aniwatcher.ui.main.MainActivityUiState
 import com.iskorsukov.aniwatcher.ui.media.MediaItemCardCollapsed
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 import com.iskorsukov.aniwatcher.ui.theme.LocalTextStyles
@@ -42,7 +41,7 @@ import com.iskorsukov.aniwatcher.ui.theme.LocalTextStyles
 @Composable
 fun AiringScreen(
     viewModel: AiringViewModel,
-    uiState: MainActivityUiState,
+    isRefreshing: Boolean,
     settingsState: SettingsState,
     onMediaClicked: (MediaItem) -> Unit,
     onRefresh: () -> Unit
@@ -50,7 +49,7 @@ fun AiringScreen(
     val airingUiStateWithData by viewModel.uiStateWithDataFlow
         .collectAsStateWithLifecycle()
 
-    val pullRefreshState = rememberPullRefreshState(uiState.isRefreshing, onRefresh)
+    val pullRefreshState = rememberPullRefreshState(isRefreshing, onRefresh)
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -84,7 +83,7 @@ fun AiringScreen(
                 .padding(16.dp)
         )
         PullRefreshIndicator(
-            refreshing = uiState.isRefreshing,
+            refreshing = isRefreshing,
             state = pullRefreshState,
             modifier = Modifier.align(Alignment.TopCenter),
             backgroundColor = LocalColors.current.onPrimary,

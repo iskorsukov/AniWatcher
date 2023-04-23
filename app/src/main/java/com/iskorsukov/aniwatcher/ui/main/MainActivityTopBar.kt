@@ -15,16 +15,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,50 +31,34 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iskorsukov.aniwatcher.R
-import com.iskorsukov.aniwatcher.domain.settings.DarkModeOption
-import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
-import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
-import com.iskorsukov.aniwatcher.ui.Screen
 import com.iskorsukov.aniwatcher.ui.base.topbar.SearchField
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 import com.iskorsukov.aniwatcher.ui.theme.LocalTextStyles
-import kotlinx.coroutines.flow.MutableStateFlow
 
 @Composable
 fun TopBar(
-    uiState: MainActivityUiState,
-    settingsState: SettingsState,
-    navController: NavHostController,
+    mainScreenState: MainScreenState,
+    mainActivityUiState: MainActivityUiState,
     onSettingsClicked: () -> Unit,
     onNotificationsClicked: () -> Unit,
-    onSearchTextInput: (String) -> Unit,
-    onSearchFieldOpenChange: (Boolean) -> Unit,
     onSelectSeasonYearClicked: () -> Unit,
-    unreadNotifications: Int = 0
 ) {
     val focusRequester = remember { FocusRequester() }
 
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination
-    val screen = Screen.ofRoute(currentDestination?.route.orEmpty())
+    val settingsState by mainScreenState.settingsState.collectAsStateWithLifecycle()
+    val unreadNotifications = mainActivityUiState.unreadNotificationsCount
 
     TopAppBar(backgroundColor = LocalColors.current.primary) {
-        if (screen?.hasSearchBar == true) {
+        if (mainScreenState.screen?.hasSearchBar == true) {
             AnimatedSearchField(
-                uiState = uiState,
-                onSearchTextInput = onSearchTextInput,
-                onSearchFieldOpenChange = onSearchFieldOpenChange,
+                searchFieldState = mainScreenState.searchFieldState,
                 focusRequester = focusRequester
             )
         }
-        if (screen?.hasSeasonYear == true) {
+        if (mainScreenState.screen?.hasSeasonYear == true) {
             Row(
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
@@ -140,21 +121,19 @@ fun TopBar(
 
 @Composable
 private fun AnimatedSearchField(
-    uiState: MainActivityUiState,
-    onSearchTextInput: (String) -> Unit,
-    onSearchFieldOpenChange: (Boolean) -> Unit,
+    searchFieldState: SearchFieldState,
     focusRequester: FocusRequester
 ) {
     AnimatedVisibility(
-        visible = uiState.searchFieldOpen,
+        visible = searchFieldState.searchFieldOpen,
         enter = expandHorizontally(expandFrom = Alignment.Start),
         exit = shrinkHorizontally(shrinkTowards = Alignment.Start)
     ) {
         SearchField(
-            searchText = uiState.searchText,
-            onSearchTextChanged = onSearchTextInput,
+            searchText = searchFieldState.searchText,
+            onSearchTextChanged = { searchFieldState.searchText = it },
             onSearchCancelled = {
-                onSearchFieldOpenChange.invoke(false)
+                searchFieldState.searchFieldOpen = false
             },
             focusRequester = focusRequester
         )
@@ -163,10 +142,10 @@ private fun AnimatedSearchField(
         }
     }
 
-    if (!uiState.searchFieldOpen) {
+    if (!searchFieldState.searchFieldOpen) {
         IconButton(
             onClick = {
-                onSearchFieldOpenChange.invoke(true)
+                searchFieldState.searchFieldOpen = true
             }
         ) {
             Icon(
@@ -181,35 +160,23 @@ private fun AnimatedSearchField(
 @Composable
 @Preview
 private fun AnimatedSearchFieldPreview() {
+    val searchFieldState = rememberSearchFieldState()
     val focusRequester = remember { FocusRequester() }
-    val uiStateFlow = remember {
-        mutableStateOf(MainActivityUiState(false))
-    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(48.dp)
             .background(LocalColors.current.primary)
     ) {
-        if (uiStateFlow.value.searchFieldOpen) {
+        if (searchFieldState.searchFieldOpen) {
             AnimatedSearchField(
-                uiState = uiStateFlow.value,
-                onSearchTextInput = {
-                    uiStateFlow.value = MainActivityUiState(
-                        false,
-                        searchText = it,
-                        searchFieldOpen = true
-                    )
-                },
-                onSearchFieldOpenChange = {
-                    uiStateFlow.value = MainActivityUiState(false, searchFieldOpen = it)
-                },
+                searchFieldState = searchFieldState,
                 focusRequester = focusRequester
             )
         } else {
             IconButton(
                 onClick = {
-                    uiStateFlow.value = MainActivityUiState(false, searchFieldOpen = true)
+                    searchFieldState.searchFieldOpen = true
                 }
             ) {
                 Icon(
@@ -218,126 +185,6 @@ private fun AnimatedSearchFieldPreview() {
                     tint = LocalColors.current.onPrimary
                 )
             }
-        }
-    }
-}
-
-@Composable
-@Preview
-private fun TopBarPreview() {
-    val navController = rememberNavController()
-    val uiStateFlow = MutableStateFlow(MainActivityUiState(false))
-    val uiState by uiStateFlow.collectAsState()
-    val settingsState = SettingsState(
-        DarkModeOption.DARK,
-        NamingScheme.ENGLISH,
-        true,
-        DateTimeHelper.SeasonYear(DateTimeHelper.Season.WINTER, 2023)
-    )
-    Scaffold(
-        topBar = {
-            TopBar(
-                uiState = uiState,
-                settingsState = settingsState,
-                navController = navController,
-                onSettingsClicked = { },
-                onNotificationsClicked = { },
-                onSearchFieldOpenChange = { open ->
-                    uiStateFlow.value =
-                        MainActivityUiState(
-                            false,
-                            searchFieldOpen = open
-                        )
-                },
-                onSearchTextInput = { input ->
-                    uiStateFlow.value =
-                        MainActivityUiState(
-                            false,
-                            searchFieldOpen = true,
-                            searchText = input
-                        )
-                },
-                onSelectSeasonYearClicked = { }
-            )
-        }
-    ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = "media_season",
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            composable("media_season") { }
-        }
-    }
-}
-
-@Composable
-@Preview
-private fun TopBarNoSearchAndOptionsPreview() {
-    val navController = rememberNavController()
-    val uiState = MainActivityUiState(false)
-    val settingsState = SettingsState(
-        DarkModeOption.DARK,
-        NamingScheme.ENGLISH,
-        true,
-        DateTimeHelper.SeasonYear.THIS_WEEK
-    )
-    Scaffold(
-        topBar = {
-            TopBar(
-                uiState = uiState,
-                settingsState = settingsState,
-                navController = navController,
-                onSettingsClicked = { },
-                onNotificationsClicked = { },
-                onSearchFieldOpenChange = { },
-                onSearchTextInput = { },
-                onSelectSeasonYearClicked = { }
-            )
-        }
-    ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = "airing",
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            composable("airing") { }
-        }
-    }
-}
-
-@Composable
-@Preview
-private fun TopBarUnreadNotificationsPreview() {
-    val navController = rememberNavController()
-    val uiState = MainActivityUiState(false)
-    val settingsState = SettingsState(
-        DarkModeOption.DARK,
-        NamingScheme.ENGLISH,
-        true,
-        DateTimeHelper.SeasonYear(DateTimeHelper.Season.WINTER, 2023)
-    )
-    Scaffold(
-        topBar = {
-            TopBar(
-                uiState = uiState,
-                settingsState = settingsState,
-                navController = navController,
-                onSettingsClicked = { },
-                onNotificationsClicked = { },
-                onSearchFieldOpenChange = { },
-                onSearchTextInput = { },
-                onSelectSeasonYearClicked = { },
-                unreadNotifications = 17
-            )
-        }
-    ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = "airing",
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            composable("airing") { }
         }
     }
 }

@@ -9,9 +9,6 @@ import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
 import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.MainActivityInputEvent
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.SearchTextEventHandler
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.SearchTextInputEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,17 +22,14 @@ import javax.inject.Inject
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
     private val airingRepository: AiringRepository,
-    private val settingsRepository: SettingsRepository,
-    notificationsRepository: NotificationsRepository,
-    private val searchTextEventHandler: SearchTextEventHandler<MainActivityUiState>,
-    private val seasonYearEventHandler: SeasonYearEventHandler,
-    private val notificationsPermissionEventHandler: NotificationsPermissionEventHandler
+    settingsRepository: SettingsRepository,
+    notificationsRepository: NotificationsRepository
 ) : ViewModel() {
 
     val settingsState: StateFlow<SettingsState> = settingsRepository.settingsStateFlow
 
     private val _uiState: MutableStateFlow<MainActivityUiState> = MutableStateFlow(
-        MainActivityUiState.DEFAULT
+        MainActivityUiState()
     )
     val uiState: StateFlow<MainActivityUiState> = _uiState
         .combine(notificationsRepository.unreadNotificationsCounterStateFlow) { uiState, unreadNotificationsCount ->
@@ -43,7 +37,7 @@ class MainActivityViewModel @Inject constructor(
                 unreadNotificationsCount = unreadNotificationsCount
             )
         }
-        .stateIn(viewModelScope, SharingStarted.Lazily, MainActivityUiState.DEFAULT)
+        .stateIn(viewModelScope, SharingStarted.Lazily, MainActivityUiState())
 
     fun loadAiringData() {
         _uiState.value = _uiState.value.copy(isRefreshing = true)
@@ -68,34 +62,6 @@ class MainActivityViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(isRefreshing = false)
                 onError(ErrorItem.ofThrowable(throwable))
             }
-        }
-    }
-
-    fun handleInputEvent(inputEvent: MainActivityInputEvent) {
-        try {
-            _uiState.value = when (inputEvent) {
-                is SearchTextInputEvent -> searchTextEventHandler.handleEvent(
-                    inputEvent,
-                    _uiState.value
-                )
-                is SeasonYearInputEvent -> seasonYearEventHandler.handleEvent(
-                    inputEvent,
-                    _uiState.value,
-                    settingsRepository
-                )
-                is NotificationsPermissionEvent -> notificationsPermissionEventHandler.handleEvent(
-                    inputEvent,
-                    _uiState.value,
-                    settingsRepository
-                )
-                else -> throw IllegalArgumentException("Unsupported input event of type ${inputEvent::class.simpleName}")
-            }
-        } catch (e: IllegalArgumentException) {
-            FirebaseCrashlytics.getInstance().recordException(e)
-            e.printStackTrace()
-        } catch (e: Exception) {
-            FirebaseCrashlytics.getInstance().recordException(e)
-            onError(ErrorItem.ofThrowable(e))
         }
     }
 
