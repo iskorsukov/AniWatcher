@@ -52,7 +52,9 @@ class MediaViewModel @Inject constructor(
                     airingRepository.followMedia(mediaItem)
                 }
             } catch (e: Exception) {
-                throw RoomException(e)
+                FirebaseCrashlytics.getInstance().recordException(e)
+                e.printStackTrace()
+                onError(ErrorItem.ofThrowable(e))
             }
         }
     }

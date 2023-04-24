@@ -13,7 +13,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
-import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.domain.settings.SettingsState
@@ -23,80 +22,68 @@ import com.iskorsukov.aniwatcher.ui.base.header.FilterFormatHeaderChip
 import com.iskorsukov.aniwatcher.ui.base.header.HeaderFlowRow
 import com.iskorsukov.aniwatcher.ui.base.header.SortingOptionHeaderChip
 import com.iskorsukov.aniwatcher.ui.base.placeholder.EmptyDataPlaceholder
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.FollowClickedInputEvent
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.ResetStateTriggeredInputEvent
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.SearchTextChangedInputEvent
 import com.iskorsukov.aniwatcher.ui.format.FilterFormatDialog
-import com.iskorsukov.aniwatcher.ui.format.rememberFilterFormatDialogState
+import com.iskorsukov.aniwatcher.ui.main.SearchFieldState
+import com.iskorsukov.aniwatcher.ui.main.rememberSearchFieldState
 import com.iskorsukov.aniwatcher.ui.media.MediaItemCardExtended
 import com.iskorsukov.aniwatcher.ui.sorting.SelectSortingOptionDialog
-import com.iskorsukov.aniwatcher.ui.sorting.rememberSortingOptionsDialogState
 
 @Composable
 fun FollowingScreen(
     viewModel: FollowingViewModel,
-    searchText: String,
+    mediaItemMapper: MediaItemMapper,
+    searchFieldState: SearchFieldState,
     settingsState: SettingsState,
-    onMediaClicked: (MediaItem) -> Unit,
-    onGenreChipClicked: (String) -> Unit
+    onMediaClicked: (MediaItem) -> Unit
 ) {
     val followingUiStateWithData by viewModel.uiStateWithDataFlow
         .collectAsStateWithLifecycle()
+    val followingScreenState = rememberFollowingScreenState(
+        uiStateWithData = followingUiStateWithData,
+        mediaItemMapper = mediaItemMapper,
+        searchFieldState = searchFieldState
+    )
 
     val listState = rememberLazyListState()
-    LaunchedEffect(searchText) {
-        viewModel.handleInputEvent(SearchTextChangedInputEvent(searchText))
+
+    LaunchedEffect(followingScreenState.searchFieldState.searchText) {
         listState.scrollToItem(0)
     }
 
-    val filterFormatDialogState = rememberFilterFormatDialogState()
-    val sortingOptionsDialogState = rememberSortingOptionsDialogState()
-
     Box(modifier = Modifier.fillMaxSize()) {
         FollowingScreenContent(
-            followingMediaMap = followingUiStateWithData.mediaWithNextAiringMap,
-            searchTextIsEmpty = searchText.trim().length < 4,
-            timeInMinutes = followingUiStateWithData.timeInMinutes,
-            onFollowClicked = { viewModel.handleInputEvent(FollowClickedInputEvent(it)) },
+            followingScreenState = followingScreenState,
+            onFollowClicked = { viewModel.onFollowMedia(it) },
             preferredNamingScheme = settingsState.preferredNamingScheme,
             onMediaClicked = onMediaClicked,
-            onGenreChipClicked = onGenreChipClicked,
             listState = listState,
-            followingUiState = followingUiStateWithData.uiState,
-            onSelectSortingOptionClicked = { sortingOptionsDialogState.show() },
-            onFilterFormatClicked = { filterFormatDialogState.show() },
-            onResetClicked = { viewModel.handleInputEvent(ResetStateTriggeredInputEvent) }
         )
     }
 
-    if (sortingOptionsDialogState.shouldShowSortingOptionsDialog) {
+    if (followingScreenState.sortingOptionsDialogState.shouldShowSortingOptionsDialog) {
         SelectSortingOptionDialog(
-            sortingOptionsDialogState = sortingOptionsDialogState
+            sortingOptionsDialogState = followingScreenState.sortingOptionsDialogState
         )
     }
-    if (filterFormatDialogState.shouldShowFilterFormatDialog) {
+    if (followingScreenState.filterFormatDialogState.shouldShowFilterFormatDialog) {
         FilterFormatDialog(
-            filterFormatDialogState = filterFormatDialogState
+            filterFormatDialogState = followingScreenState.filterFormatDialogState
         )
     }
 }
 
 @Composable
 fun FollowingScreenContent(
-    followingMediaMap: Map<MediaItem, AiringScheduleItem?>,
-    searchTextIsEmpty: Boolean,
-    timeInMinutes: Long,
+    followingScreenState: FollowingScreenState,
     onFollowClicked: ((MediaItem) -> Unit),
     preferredNamingScheme: NamingScheme,
     onMediaClicked: (MediaItem) -> Unit,
-    onGenreChipClicked: (String) -> Unit,
     listState: LazyListState,
-    followingUiState: FollowingUiState,
-    onSelectSortingOptionClicked: () -> Unit,
-    onFilterFormatClicked: () -> Unit,
-    onResetClicked: () -> Unit
 ) {
-    if (followingMediaMap.isEmpty() && searchTextIsEmpty) {
+    if (
+        followingScreenState.searchFieldState.searchText.isBlank() &&
+        followingScreenState.mediaWithNextAiringMap.isEmpty()
+    ) {
         EmptyDataPlaceholder(
             iconResId = R.drawable.ic_baseline_add_circle_outline_24_gray,
             labelResId = R.string.following_data_empty_label,
@@ -107,26 +94,30 @@ fun FollowingScreenContent(
         LazyColumn(modifier = Modifier.fillMaxSize(), state = listState) {
             item {
                 HeaderFlowRow(
-                    showReset = followingUiState.showReset,
-                    onResetClicked = onResetClicked
+                    showReset = followingScreenState.shouldShowResetButton,
+                    onResetClicked = followingScreenState::reset
                 ) {
-                    SortingOptionHeaderChip(selectedSortingOption = followingUiState.sortingOption) {
-                        onSelectSortingOptionClicked.invoke()
+                    SortingOptionHeaderChip(
+                        selectedSortingOption = followingScreenState.sortingOptionsDialogState.selectedOption
+                    ) {
+                        followingScreenState.sortingOptionsDialogState.show()
                     }
-                    FilterFormatHeaderChip(deselectedFormats = followingUiState.deselectedFormats) {
-                        onFilterFormatClicked.invoke()
+                    FilterFormatHeaderChip(
+                        deselectedFormats = followingScreenState.filterFormatDialogState.deselectedFormats
+                    ) {
+                        followingScreenState.filterFormatDialogState.show()
                     }
                 }
             }
-            followingMediaMap.entries.forEach {
+            followingScreenState.mediaWithNextAiringMap.entries.forEach {
                 item {
                     MediaItemCardExtended(
                         mediaItem = it.key,
                         airingScheduleItem = it.value,
-                        timeInMinutes = timeInMinutes,
+                        timeInMinutes = followingScreenState.uiStateWithData.timeInMinutes,
                         onFollowClicked = onFollowClicked,
                         onMediaClicked = onMediaClicked,
-                        onGenreChipClicked = onGenreChipClicked,
+                        onGenreChipClicked = followingScreenState.searchFieldState::appendText,
                         preferredNamingScheme = preferredNamingScheme
                     )
                 }
@@ -138,44 +129,42 @@ fun FollowingScreenContent(
 @Composable
 @Preview
 private fun FollowingScreenEmptyPreview() {
+    val followingScreenState = rememberFollowingScreenState(
+        uiStateWithData = FollowingUiStateWithData(
+            mediaWithSchedulesMap = emptyMap(),
+            timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES
+        ),
+        mediaItemMapper = MediaItemMapper(),
+        searchFieldState = rememberSearchFieldState()
+    )
     FollowingScreenContent(
-        followingMediaMap = emptyMap(),
-        searchTextIsEmpty = true,
-        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
+        followingScreenState = followingScreenState,
         onFollowClicked = {},
         preferredNamingScheme = NamingScheme.ENGLISH,
         onMediaClicked = {},
-        onGenreChipClicked = {},
         listState = rememberLazyListState(),
-        followingUiState = FollowingUiState.DEFAULT,
-        onSelectSortingOptionClicked = { },
-        onFilterFormatClicked = { },
-        onResetClicked = { }
     )
 }
 
 @Composable
 @Preview
 private fun FollowingScreenPreview() {
-    val followedMediaItem = ModelTestDataCreator.baseMediaItem.isFollowing(true)
-    FollowingScreenContent(
-        followingMediaMap = MediaItemMapper().groupMediaWithNextAiringSchedule(
-            mapOf(
-                 followedMediaItem to
+    val followingScreenState = rememberFollowingScreenState(
+        uiStateWithData = FollowingUiStateWithData(
+            mediaWithSchedulesMap = mapOf(
+                ModelTestDataCreator.baseMediaItem.isFollowing(true) to
                         ModelTestDataCreator.baseAiringScheduleItemList()
             ),
-            ModelTestDataCreator.TIME_IN_MINUTES
-        ).filterKeys { it.isFollowing },
-        searchTextIsEmpty = true,
-        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
+            timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES
+        ),
+        mediaItemMapper = MediaItemMapper(),
+        searchFieldState = rememberSearchFieldState()
+    )
+    FollowingScreenContent(
+        followingScreenState = followingScreenState,
         onFollowClicked = {},
         preferredNamingScheme = NamingScheme.ENGLISH,
         onMediaClicked = {},
-        onGenreChipClicked = {},
-        listState = rememberLazyListState(),
-        followingUiState = FollowingUiState.DEFAULT,
-        onSelectSortingOptionClicked = { },
-        onFilterFormatClicked = { },
-        onResetClicked = { }
+        listState = rememberLazyListState()
     )
 }

@@ -128,12 +128,10 @@ fun MainScreen(
                     composable("following") {
                         FollowingScreen(
                             viewModel = followingViewModel,
-                            searchText = mainScreenState.searchFieldState.searchText,
+                            mediaItemMapper = mediaItemMapper,
                             settingsState = settingsState,
                             onMediaClicked = onStartDetails,
-                            onGenreChipClicked = {
-                                mainScreenState.searchFieldState.appendText(it)
-                            }
+                            searchFieldState = mainScreenState.searchFieldState
                         )
                     }
                 }
