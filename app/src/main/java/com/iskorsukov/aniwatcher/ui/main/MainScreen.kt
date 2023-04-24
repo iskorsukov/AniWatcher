@@ -20,6 +20,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.ui.airing.AiringScreen
@@ -44,6 +45,7 @@ fun MainScreen(
     onStartSettings: () -> Unit,
     onStartNotifications: () -> Unit,
     onStartDetails: (MediaItem) -> Unit,
+    mediaItemMapper: MediaItemMapper,
     mediaViewModel: MediaViewModel = viewModel(),
     airingViewModel: AiringViewModel = viewModel(),
     followingViewModel: FollowingViewModel = viewModel()
@@ -106,13 +108,11 @@ fun MainScreen(
                         MediaScreen(
                             viewModel = mediaViewModel,
                             isRefreshing = uiState.isRefreshing,
-                            searchText = mainScreenState.searchFieldState.searchText,
-                            settingsState = settingsState,
                             onMediaClicked = onStartDetails,
                             onRefresh = onRefresh,
-                            onGenreChipClicked = {
-                                mainScreenState.searchFieldState.appendText(it)
-                            }
+                            mediaItemMapper = mediaItemMapper,
+                            searchFieldState = mainScreenState.searchFieldState,
+                            preferredNamingScheme = settingsState.preferredNamingScheme
                         )
                     }
                     composable("airing") {

@@ -34,6 +34,7 @@ import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.FormatsFilterSelectionU
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.ResetStateTriggeredInputEvent
 import com.iskorsukov.aniwatcher.ui.format.FilterFormatDialog
 import com.iskorsukov.aniwatcher.ui.media.MediaItemCardCollapsed
+import com.iskorsukov.aniwatcher.ui.media.rememberFilterFormatDialogState
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 import com.iskorsukov.aniwatcher.ui.theme.LocalTextStyles
 
@@ -55,9 +56,7 @@ fun AiringScreen(
 
     val lazyListState = rememberLazyListState()
 
-    var shouldShowFilterFormatDialog by rememberSaveable {
-        mutableStateOf(false)
-    }
+    val filterFormatDialogState = rememberFilterFormatDialogState()
 
     Box(modifier = Modifier
         .fillMaxSize()
@@ -73,7 +72,7 @@ fun AiringScreen(
             onMediaClicked = onMediaClicked,
             preferredNamingScheme = settingsState.preferredNamingScheme,
             onResetClicked = { viewModel.handleInputEvent(ResetStateTriggeredInputEvent) },
-            onFilterFormatClicked = { shouldShowFilterFormatDialog = true }
+            onFilterFormatClicked = { filterFormatDialogState.show() }
         )
         ScrollToTopFab(
             lazyListState = lazyListState,
@@ -91,11 +90,9 @@ fun AiringScreen(
         )
     }
 
-    if (shouldShowFilterFormatDialog) {
+    if (filterFormatDialogState.shouldShowFilterFormatDialog) {
         FilterFormatDialog(
-            deselectedFormatOptions = airingUiStateWithData.uiState.deselectedFormats,
-            onDeselectedFormatsUpdated = { viewModel.handleInputEvent(FormatsFilterSelectionUpdatedInputEvent(it)) },
-            onDismissRequest = { shouldShowFilterFormatDialog = false }
+            filterFormatDialogState = filterFormatDialogState
         )
     }
 }

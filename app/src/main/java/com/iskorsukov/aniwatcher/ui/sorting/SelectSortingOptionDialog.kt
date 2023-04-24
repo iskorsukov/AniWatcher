@@ -18,15 +18,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.iskorsukov.aniwatcher.R
-import com.iskorsukov.aniwatcher.ui.theme.*
+import com.iskorsukov.aniwatcher.ui.media.SortingOptionsDialogState
+import com.iskorsukov.aniwatcher.ui.media.rememberSortingOptionsDialogState
+import com.iskorsukov.aniwatcher.ui.theme.LocalColors
+import com.iskorsukov.aniwatcher.ui.theme.LocalTextStyles
 
 @Composable
 fun SelectSortingOptionDialog(
-    onSortingOptionSelected: (SortingOption) -> Unit,
-    onDismissRequest: () -> Unit,
-    selectedOption: SortingOption? = null
+    sortingOptionsDialogState: SortingOptionsDialogState
 ) {
-    Dialog(onDismissRequest = onDismissRequest) {
+    Dialog(
+        onDismissRequest = sortingOptionsDialogState::dismiss
+    ) {
         Surface(
             shape = RoundedCornerShape(8.dp),
             color = LocalColors.current.background
@@ -45,17 +48,17 @@ fun SelectSortingOptionDialog(
                         item {
                             TextButton(
                                 onClick = {
-                                    onSortingOptionSelected(it)
-                                    onDismissRequest.invoke()
+                                    sortingOptionsDialogState.selectedOption = it
+                                    sortingOptionsDialogState.dismiss()
                                 }
                             ) {
                                 Text(
                                     text = stringResource(id = it.labelResId).uppercase(),
-                                    style = if (it == selectedOption)
+                                    style = if (it == sortingOptionsDialogState.selectedOption)
                                         LocalTextStyles.current.contentMediumEmphasis
                                     else
                                         LocalTextStyles.current.contentMedium,
-                                    color = if (it == selectedOption)
+                                    color = if (it == sortingOptionsDialogState.selectedOption)
                                         LocalColors.current.secondary
                                     else
                                         Color.Unspecified
@@ -73,8 +76,6 @@ fun SelectSortingOptionDialog(
 @Preview
 fun SelectSortingOptionDialogPreview() {
     SelectSortingOptionDialog(
-        onSortingOptionSelected = {},
-        onDismissRequest = {},
-        selectedOption = SortingOption.POPULARITY
+        rememberSortingOptionsDialogState()
     )
 }

@@ -8,9 +8,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -27,12 +24,12 @@ import com.iskorsukov.aniwatcher.ui.base.header.HeaderFlowRow
 import com.iskorsukov.aniwatcher.ui.base.header.SortingOptionHeaderChip
 import com.iskorsukov.aniwatcher.ui.base.placeholder.EmptyDataPlaceholder
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.FollowClickedInputEvent
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.FormatsFilterSelectionUpdatedInputEvent
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.ResetStateTriggeredInputEvent
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.SearchTextChangedInputEvent
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.SortingOptionChangedInputEvent
 import com.iskorsukov.aniwatcher.ui.format.FilterFormatDialog
 import com.iskorsukov.aniwatcher.ui.media.MediaItemCardExtended
+import com.iskorsukov.aniwatcher.ui.media.rememberFilterFormatDialogState
+import com.iskorsukov.aniwatcher.ui.media.rememberSortingOptionsDialogState
 import com.iskorsukov.aniwatcher.ui.sorting.SelectSortingOptionDialog
 
 @Composable
@@ -52,12 +49,8 @@ fun FollowingScreen(
         listState.scrollToItem(0)
     }
 
-    var shouldShowSortingOptionsDialog by rememberSaveable {
-        mutableStateOf(false)
-    }
-    var shouldShowFilterFormatDialog by rememberSaveable {
-        mutableStateOf(false)
-    }
+    val filterFormatDialogState = rememberFilterFormatDialogState()
+    val sortingOptionsDialogState = rememberSortingOptionsDialogState()
 
     Box(modifier = Modifier.fillMaxSize()) {
         FollowingScreenContent(
@@ -70,24 +63,20 @@ fun FollowingScreen(
             onGenreChipClicked = onGenreChipClicked,
             listState = listState,
             followingUiState = followingUiStateWithData.uiState,
-            onSelectSortingOptionClicked = { shouldShowSortingOptionsDialog = true },
-            onFilterFormatClicked = { shouldShowFilterFormatDialog = true },
+            onSelectSortingOptionClicked = { sortingOptionsDialogState.show() },
+            onFilterFormatClicked = { filterFormatDialogState.show() },
             onResetClicked = { viewModel.handleInputEvent(ResetStateTriggeredInputEvent) }
         )
     }
 
-    if (shouldShowSortingOptionsDialog) {
+    if (sortingOptionsDialogState.shouldShowSortingOptionsDialog) {
         SelectSortingOptionDialog(
-            onSortingOptionSelected = { viewModel.handleInputEvent(SortingOptionChangedInputEvent(it)) },
-            onDismissRequest = { shouldShowSortingOptionsDialog = false },
-            selectedOption = followingUiStateWithData.uiState.sortingOption
+            sortingOptionsDialogState = sortingOptionsDialogState
         )
     }
-    if (shouldShowFilterFormatDialog) {
+    if (filterFormatDialogState.shouldShowFilterFormatDialog) {
         FilterFormatDialog(
-            deselectedFormatOptions = followingUiStateWithData.uiState.deselectedFormats,
-            onDeselectedFormatsUpdated = { viewModel.handleInputEvent(FormatsFilterSelectionUpdatedInputEvent(it)) },
-            onDismissRequest = { shouldShowFilterFormatDialog = false }
+            filterFormatDialogState = filterFormatDialogState
         )
     }
 }

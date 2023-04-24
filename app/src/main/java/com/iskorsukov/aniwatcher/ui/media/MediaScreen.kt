@@ -4,40 +4,28 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
-import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
-import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.ui.base.fab.ScrollToTopFab
 import com.iskorsukov.aniwatcher.ui.base.header.FilterFormatHeaderChip
 import com.iskorsukov.aniwatcher.ui.base.header.HeaderFlowRow
 import com.iskorsukov.aniwatcher.ui.base.header.SortingOptionHeaderChip
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.FollowClickedInputEvent
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.FormatsFilterSelectionUpdatedInputEvent
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.ResetStateTriggeredInputEvent
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.SearchTextChangedInputEvent
-import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.SortingOptionChangedInputEvent
 import com.iskorsukov.aniwatcher.ui.format.FilterFormatDialog
+import com.iskorsukov.aniwatcher.ui.main.SearchFieldState
+import com.iskorsukov.aniwatcher.ui.main.rememberSearchFieldState
 import com.iskorsukov.aniwatcher.ui.sorting.SelectSortingOptionDialog
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 
@@ -45,52 +33,44 @@ import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 @Composable
 fun MediaScreen(
     viewModel: MediaViewModel,
+    mediaItemMapper: MediaItemMapper,
     isRefreshing: Boolean,
-    searchText: String,
-    settingsState: SettingsState,
+    searchFieldState: SearchFieldState,
+    preferredNamingScheme: NamingScheme,
     onMediaClicked: (MediaItem) -> Unit,
-    onRefresh: () -> Unit,
-    onGenreChipClicked: (String) -> Unit
+    onRefresh: () -> Unit
 ) {
     val mediaUiStateWithData by viewModel.uiStateWithDataFlow
         .collectAsStateWithLifecycle()
+    val mediaScreenState = rememberMediaScreenState(
+        uiState = mediaUiStateWithData,
+        searchFieldState = searchFieldState,
+        mediaItemMapper = mediaItemMapper
+    )
 
     val pullRefreshState = rememberPullRefreshState(isRefreshing, onRefresh)
 
-    val coroutineScope = rememberCoroutineScope()
+    val shouldShowSortingOptionsDialog = mediaScreenState
+        .sortingOptionsDialogState
+        .shouldShowSortingOptionsDialog
+    val shouldShowFilterFormatDialog = mediaScreenState
+        .filterFormatDialogState
+        .shouldShowFilterFormatDialog
 
-    var shouldShowSortingOptionsDialog by rememberSaveable {
-        mutableStateOf(false)
-    }
-    var shouldShowFilterFormatDialog by rememberSaveable {
-        mutableStateOf(false)
-    }
-
-    val listState = rememberLazyListState()
-    LaunchedEffect(searchText) {
-        viewModel.handleInputEvent(SearchTextChangedInputEvent(searchText))
-        listState.scrollToItem(0)
-    }
-
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .pullRefresh(pullRefreshState)) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .pullRefresh(pullRefreshState)
+    ) {
         MediaScreenContent(
-            mediaItemWithNextAiringMap = mediaUiStateWithData.mediaWithNextAiringMap,
-            listState = listState,
-            timeInMinutes = mediaUiStateWithData.timeInMinutes,
-            preferredNamingScheme = settingsState.preferredNamingScheme,
-            onFollowClicked = { viewModel.handleInputEvent(FollowClickedInputEvent(it)) },
-            onGenreChipClicked = onGenreChipClicked,
+            mediaScreenState = mediaScreenState,
+            preferredNamingScheme = preferredNamingScheme,
+            onFollowClicked = { viewModel.onFollowMedia(it) },
             onMediaClicked = onMediaClicked,
-            onSelectSortingOptionClicked = { shouldShowSortingOptionsDialog = true },
-            mediaUiState = mediaUiStateWithData.uiState,
-            onFilterFormatClicked = { shouldShowFilterFormatDialog = true },
-            onResetClicked = { viewModel.handleInputEvent(ResetStateTriggeredInputEvent) }
         )
         ScrollToTopFab(
-            lazyListState = listState,
-            coroutineScope = coroutineScope,
+            lazyListState = mediaScreenState.listState,
+            coroutineScope = mediaScreenState.coroutineScope,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
@@ -106,61 +86,54 @@ fun MediaScreen(
 
     if (shouldShowSortingOptionsDialog) {
         SelectSortingOptionDialog(
-            onSortingOptionSelected = { viewModel.handleInputEvent(SortingOptionChangedInputEvent(it)) },
-            onDismissRequest = { shouldShowSortingOptionsDialog = false },
-            selectedOption = mediaUiStateWithData.uiState.sortingOption
+            mediaScreenState.sortingOptionsDialogState
         )
     }
 
     if (shouldShowFilterFormatDialog) {
         FilterFormatDialog(
-            deselectedFormatOptions = mediaUiStateWithData.uiState.deselectedFormats,
-            onDeselectedFormatsUpdated = { viewModel.handleInputEvent(FormatsFilterSelectionUpdatedInputEvent(it)) },
-            onDismissRequest = { shouldShowFilterFormatDialog = false }
+            mediaScreenState.filterFormatDialogState
         )
     }
 }
 
 @Composable
 private fun MediaScreenContent(
-    mediaItemWithNextAiringMap: Map<MediaItem, AiringScheduleItem?>,
-    listState: LazyListState,
-    timeInMinutes: Long,
+    mediaScreenState: MediaScreenState,
     preferredNamingScheme: NamingScheme,
-    mediaUiState: MediaUiState,
     onFollowClicked: (MediaItem) -> Unit,
     onMediaClicked: (MediaItem) -> Unit,
-    onGenreChipClicked: (String) -> Unit,
-    onSelectSortingOptionClicked: () -> Unit,
-    onFilterFormatClicked: () -> Unit,
-    onResetClicked: () -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        state = listState
+        state = mediaScreenState.listState
     ) {
         item {
             HeaderFlowRow(
-                showReset = mediaUiState.showReset,
-                onResetClicked = onResetClicked
+                showReset = mediaScreenState.shouldShowResetButton,
+                onResetClicked = mediaScreenState::reset
             ) {
-                SortingOptionHeaderChip(selectedSortingOption = mediaUiState.sortingOption) {
-                    onSelectSortingOptionClicked.invoke()
+                SortingOptionHeaderChip(
+                    selectedSortingOption = mediaScreenState.sortingOptionsDialogState.selectedOption
+                ) {
+                    mediaScreenState.sortingOptionsDialogState.show()
                 }
-                FilterFormatHeaderChip(deselectedFormats = mediaUiState.deselectedFormats) {
-                    onFilterFormatClicked.invoke()
+                FilterFormatHeaderChip(
+                    deselectedFormats = mediaScreenState.filterFormatDialogState.deselectedFormats
+                ) {
+                    mediaScreenState.filterFormatDialogState.show()
                 }
             }
         }
-        mediaItemWithNextAiringMap.entries.forEach {
+        mediaScreenState.mediaWithNextAiringMap.entries.forEach {
             item {
                 MediaItemCardExtended(
                     mediaItem = it.key,
                     airingScheduleItem = it.value,
-                    timeInMinutes = timeInMinutes,
+                    timeInMinutes = mediaScreenState.uiState.timeInMinutes,
                     onFollowClicked = onFollowClicked,
                     onMediaClicked = onMediaClicked,
-                    onGenreChipClicked = onGenreChipClicked,
+                    onGenreChipClicked = mediaScreenState.searchFieldState::appendText,
                     preferredNamingScheme = preferredNamingScheme
                 )
             }
@@ -172,22 +145,19 @@ private fun MediaScreenContent(
 @Preview
 fun MediaScreenPreview() {
     MediaScreenContent(
-        mediaItemWithNextAiringMap = MediaItemMapper().groupMediaWithNextAiringSchedule(
-            mapOf(
-                ModelTestDataCreator.baseMediaItem to
-                        ModelTestDataCreator.baseAiringScheduleItemList()
+        mediaScreenState = rememberMediaScreenState(
+            uiState = MediaUiStateWithData(
+                mapOf(
+                    ModelTestDataCreator.baseMediaItem to
+                            ModelTestDataCreator.baseAiringScheduleItemList()
+                ),
+                ModelTestDataCreator.TIME_IN_MINUTES
             ),
-            ModelTestDataCreator.TIME_IN_MINUTES
+            searchFieldState = rememberSearchFieldState(),
+            mediaItemMapper = MediaItemMapper()
         ),
-        listState = rememberLazyListState(),
-        timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         preferredNamingScheme = NamingScheme.ENGLISH,
         onFollowClicked = { },
-        onMediaClicked = { },
-        onGenreChipClicked = { },
-        onSelectSortingOptionClicked = { },
-        mediaUiState = MediaUiState.DEFAULT,
-        onFilterFormatClicked = { },
-        onResetClicked = { }
+        onMediaClicked = { }
     )
 }

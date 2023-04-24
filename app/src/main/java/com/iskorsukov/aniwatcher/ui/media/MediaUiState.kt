@@ -11,50 +11,7 @@ import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 import java.util.concurrent.TimeUnit
 
 data class MediaUiStateWithData(
-    val mediaWithNextAiringMap: Map<MediaItem, AiringScheduleItem?> = emptyMap(),
+    val mediaWithSchedulesMap: Map<MediaItem, List<AiringScheduleItem>> = emptyMap(),
     val timeInMinutes: Long = 0L,
-    val uiState: MediaUiState = MediaUiState.DEFAULT
+    val errorItem: ErrorItem? = null
 )
-
-data class MediaUiState(
-    val mediaWithNextAiringMap: Map<MediaItem, AiringScheduleItem?>,
-    val timeInMinutes: Long,
-    val sortingOption: SortingOption,
-    val deselectedFormats: List<MediaItem.LocalFormat>,
-    val errorItem: ErrorItem?,
-    val showReset: Boolean,
-    override val searchText: String
-): SearchTextUiState, SortingOptionsUiState, FormatsFilterUiState, ResetStateUiState {
-    companion object {
-        val DEFAULT = MediaUiState(
-            mediaWithNextAiringMap = emptyMap(),
-            timeInMinutes = TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis()),
-            sortingOption = SortingOption.AIRING_AT,
-            deselectedFormats = emptyList(),
-            errorItem = null,
-            showReset = false,
-            searchText = ""
-        )
-    }
-
-    override fun copyWithSearchTextStateUpdated(
-        searchText: String?,
-        isSearchFieldOpen: Boolean?
-    ): SearchTextUiState {
-        return this.copy(
-            searchText = searchText ?: this.searchText,
-        )
-    }
-
-    override fun copyWithSortingOption(sortingOption: SortingOption): SortingOptionsUiState {
-        return this.copy(sortingOption = sortingOption)
-    }
-
-    override fun copyWithDeselectedFormats(deselectedFormats: List<MediaItem.LocalFormat>): FormatsFilterUiState {
-        return this.copy(deselectedFormats = deselectedFormats)
-    }
-
-    override fun getDefault(): ResetStateUiState {
-        return DEFAULT
-    }
-}

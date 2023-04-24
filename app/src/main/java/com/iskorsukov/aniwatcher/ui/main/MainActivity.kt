@@ -18,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
 import com.iskorsukov.aniwatcher.domain.notification.alarm.NotificationsAlarmBuilder
 import com.iskorsukov.aniwatcher.domain.notification.alarm.NotificationsBootReceiver
 import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
@@ -32,6 +33,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var settingsRepository: SettingsRepository
+
+    @Inject
+    lateinit var mediaItemMapper: MediaItemMapper
 
     private val mainActivityViewModel: MainActivityViewModel by viewModels()
 
@@ -92,7 +96,8 @@ class MainActivity : ComponentActivity() {
                 onRefresh = { mainActivityViewModel.loadAiringData() },
                 onStartSettings = { startSettingsActivity() },
                 onStartNotifications = { startNotificationsActivity() },
-                onStartDetails = { mediaItem -> startDetailsActivity(mediaItem.id) }
+                onStartDetails = { mediaItem -> startDetailsActivity(mediaItem.id) },
+                mediaItemMapper = mediaItemMapper
             )
         }
     }

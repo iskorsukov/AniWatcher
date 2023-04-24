@@ -15,7 +15,6 @@ import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.FormatsFilterEventHandl
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.FormatsFilterInputEvent
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.ResetStateEventHandler
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.ResetStateTriggeredInputEvent
-import com.iskorsukov.aniwatcher.ui.media.MediaUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -101,7 +100,7 @@ class AiringViewModel @Inject constructor(
 
     private fun updateResetButton() {
         val deselectedFormatsNotDefault =
-            _uiStateFlow.value.deselectedFormats != MediaUiState.DEFAULT.deselectedFormats
+            _uiStateFlow.value.deselectedFormats != AiringUiState.DEFAULT.deselectedFormats
         if (deselectedFormatsNotDefault) {
             if (!_uiStateFlow.value.showReset) {
                 _uiStateFlow.value = _uiStateFlow.value.copy(showReset = true)
