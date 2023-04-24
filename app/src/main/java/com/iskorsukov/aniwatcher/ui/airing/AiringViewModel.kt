@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
+import com.iskorsukov.aniwatcher.domain.exception.RoomException
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
+import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
 import com.iskorsukov.aniwatcher.ui.base.util.filterFormatMediaFlow
@@ -22,92 +24,40 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AiringViewModel @Inject constructor(
     private val airingRepository: AiringRepository,
-    private val mediaItemMapper: MediaItemMapper,
-    private val formatsFilterEventHandler: FormatsFilterEventHandler<AiringUiState>,
-    private val followEventHandler: FollowEventHandler<AiringUiState>,
-    private val resetStateEventHandler: ResetStateEventHandler<AiringUiState>
 ) : ViewModel() {
 
-    private val currentDayOfWeekLocal = DateTimeHelper.currentDayOfWeek()
-
-    private val _uiStateFlow: MutableStateFlow<AiringUiState> = MutableStateFlow(
-        AiringUiState.DEFAULT
+    private val _uiStateFlow: MutableStateFlow<AiringUiStateWithData> = MutableStateFlow(
+        AiringUiStateWithData()
     )
     val uiStateWithDataFlow: StateFlow<AiringUiStateWithData> = _uiStateFlow
-        .map { uiState ->
-            AiringUiStateWithData(uiState = uiState)
-        }
-        .combine(airingRepository.timeInMinutesFlow) { uiStateWithData, timeInMinutes ->
-            uiStateWithData.copy(
+        .combine(airingRepository.timeInMinutesFlow) { uiState, timeInMinutes ->
+            uiState.copy(
                 timeInMinutes = timeInMinutes
             )
         }
-        .combine(airingRepository.mediaWithSchedulesFlow) { uiStateWithData, mediaToSchedulesMap ->
-            val filteredMediaMap =
-                filterFormatMediaFlow(mediaToSchedulesMap, uiStateWithData.uiState.deselectedFormats)
-            val groupedMediaMap = mediaItemMapper.groupAiringSchedulesByDayOfWeek(
-                filteredMediaMap,
-                uiStateWithData.timeInMinutes
-            ).toSortedMap { first, second ->
-                var firstDiff = first.ordinal - currentDayOfWeekLocal.ordinal
-                if (firstDiff < 0) firstDiff += 7
-                var secondDiff = second.ordinal - currentDayOfWeekLocal.ordinal
-                if (secondDiff < 0) secondDiff += 7
-                firstDiff - secondDiff
-            }
+        .combine(airingRepository.mediaWithSchedulesFlow) { uiStateWithData, mediaWithSchedulesMap ->
             uiStateWithData.copy(
-                schedulesByDayOfWeek = groupedMediaMap
+                mediaWithSchedulesMap = mediaWithSchedulesMap
             )
         }
         .stateIn(viewModelScope, SharingStarted.Lazily, AiringUiStateWithData())
 
-    fun handleInputEvent(inputEvent: AiringInputEvent) {
-        try {
-            _uiStateFlow.value = when (inputEvent) {
-                is FormatsFilterInputEvent -> formatsFilterEventHandler.handleEvent(
-                    inputEvent,
-                    _uiStateFlow.value
-                )
-
-                is FollowInputEvent -> followEventHandler.handleEvent(
-                    inputEvent,
-                    _uiStateFlow.value,
-                    viewModelScope,
-                    airingRepository
-                )
-
-                is ResetStateTriggeredInputEvent -> resetStateEventHandler.handleEvent(
-                    inputEvent,
-                    _uiStateFlow.value
-                )
-
-                else -> throw IllegalArgumentException("Unsupported input event of type ${inputEvent::class.simpleName}")
-            }
-            updateResetButton()
-        } catch (e: IllegalArgumentException) {
-            FirebaseCrashlytics.getInstance().recordException(e)
-            e.printStackTrace()
-        } catch (e: Exception) {
-            FirebaseCrashlytics.getInstance().recordException(e)
-            onError(ErrorItem.ofThrowable(e))
-        }
-    }
-
-    private fun updateResetButton() {
-        val deselectedFormatsNotDefault =
-            _uiStateFlow.value.deselectedFormats != AiringUiState.DEFAULT.deselectedFormats
-        if (deselectedFormatsNotDefault) {
-            if (!_uiStateFlow.value.showReset) {
-                _uiStateFlow.value = _uiStateFlow.value.copy(showReset = true)
-            }
-        } else {
-            if (_uiStateFlow.value.showReset) {
-                _uiStateFlow.value = _uiStateFlow.value.copy(showReset = false)
+    fun onFollowMedia(mediaItem: MediaItem) {
+        viewModelScope.launch {
+            try {
+                if (mediaItem.isFollowing) {
+                    airingRepository.unfollowMedia(mediaItem)
+                } else {
+                    airingRepository.followMedia(mediaItem)
+                }
+            } catch (e: Exception) {
+                throw RoomException(e)
             }
         }
     }

@@ -27,10 +27,10 @@ import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.FollowClickedInputEvent
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.ResetStateTriggeredInputEvent
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.SearchTextChangedInputEvent
 import com.iskorsukov.aniwatcher.ui.format.FilterFormatDialog
+import com.iskorsukov.aniwatcher.ui.format.rememberFilterFormatDialogState
 import com.iskorsukov.aniwatcher.ui.media.MediaItemCardExtended
-import com.iskorsukov.aniwatcher.ui.media.rememberFilterFormatDialogState
-import com.iskorsukov.aniwatcher.ui.media.rememberSortingOptionsDialogState
 import com.iskorsukov.aniwatcher.ui.sorting.SelectSortingOptionDialog
+import com.iskorsukov.aniwatcher.ui.sorting.rememberSortingOptionsDialogState
 
 @Composable
 fun FollowingScreen(

@@ -118,6 +118,7 @@ fun MainScreen(
                     composable("airing") {
                         AiringScreen(
                             viewModel = airingViewModel,
+                            mediaItemMapper = mediaItemMapper,
                             isRefreshing = uiState.isRefreshing,
                             settingsState = settingsState,
                             onMediaClicked = onStartDetails,

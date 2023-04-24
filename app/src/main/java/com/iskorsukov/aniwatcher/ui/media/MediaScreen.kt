@@ -4,11 +4,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,6 +52,7 @@ fun MediaScreen(
     )
 
     val pullRefreshState = rememberPullRefreshState(isRefreshing, onRefresh)
+    val listState = rememberLazyListState()
 
     val shouldShowSortingOptionsDialog = mediaScreenState
         .sortingOptionsDialogState
@@ -56,6 +60,10 @@ fun MediaScreen(
     val shouldShowFilterFormatDialog = mediaScreenState
         .filterFormatDialogState
         .shouldShowFilterFormatDialog
+
+    LaunchedEffect(searchFieldState.searchText) {
+        listState.scrollToItem(0)
+    }
 
     Box(
         modifier = Modifier
@@ -65,11 +73,12 @@ fun MediaScreen(
         MediaScreenContent(
             mediaScreenState = mediaScreenState,
             preferredNamingScheme = preferredNamingScheme,
+            listState = listState,
             onFollowClicked = { viewModel.onFollowMedia(it) },
             onMediaClicked = onMediaClicked,
         )
         ScrollToTopFab(
-            lazyListState = mediaScreenState.listState,
+            lazyListState = listState,
             coroutineScope = mediaScreenState.coroutineScope,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
@@ -101,12 +110,13 @@ fun MediaScreen(
 private fun MediaScreenContent(
     mediaScreenState: MediaScreenState,
     preferredNamingScheme: NamingScheme,
+    listState: LazyListState,
     onFollowClicked: (MediaItem) -> Unit,
     onMediaClicked: (MediaItem) -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        state = mediaScreenState.listState
+        state = listState
     ) {
         item {
             HeaderFlowRow(
@@ -157,6 +167,7 @@ fun MediaScreenPreview() {
             mediaItemMapper = MediaItemMapper()
         ),
         preferredNamingScheme = NamingScheme.ENGLISH,
+        listState = rememberLazyListState(),
         onFollowClicked = { },
         onMediaClicked = { }
     )

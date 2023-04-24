@@ -11,8 +11,12 @@ import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.ui.base.util.filterFormatMediaFlow
 import com.iskorsukov.aniwatcher.ui.base.util.filterSearchMediaFlow
 import com.iskorsukov.aniwatcher.ui.base.util.sortMediaFlow
+import com.iskorsukov.aniwatcher.ui.format.FilterFormatDialogState
+import com.iskorsukov.aniwatcher.ui.format.rememberFilterFormatDialogState
 import com.iskorsukov.aniwatcher.ui.main.SearchFieldState
 import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
+import com.iskorsukov.aniwatcher.ui.sorting.SortingOptionsDialogState
+import com.iskorsukov.aniwatcher.ui.sorting.rememberSortingOptionsDialogState
 import kotlinx.coroutines.CoroutineScope
 
 @Composable
@@ -21,7 +25,6 @@ fun rememberMediaScreenState(
     searchFieldState: SearchFieldState,
     mediaItemMapper: MediaItemMapper,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
-    listState: LazyListState = rememberLazyListState(),
     filterFormatDialogState: FilterFormatDialogState = rememberFilterFormatDialogState(),
     sortingOptionsDialogState: SortingOptionsDialogState = rememberSortingOptionsDialogState()
 ): MediaScreenState {
@@ -36,7 +39,6 @@ fun rememberMediaScreenState(
         MediaScreenState(
             coroutineScope = coroutineScope,
             uiState = uiState,
-            listState = listState,
             searchFieldState = searchFieldState,
             filterFormatDialogState = filterFormatDialogState,
             sortingOptionsDialogState = sortingOptionsDialogState,
@@ -48,7 +50,6 @@ fun rememberMediaScreenState(
 class MediaScreenState(
     val coroutineScope: CoroutineScope,
     val uiState: MediaUiStateWithData,
-    val listState: LazyListState,
     val searchFieldState: SearchFieldState,
     val filterFormatDialogState: FilterFormatDialogState,
     val sortingOptionsDialogState: SortingOptionsDialogState,

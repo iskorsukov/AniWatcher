@@ -18,8 +18,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.iskorsukov.aniwatcher.R
-import com.iskorsukov.aniwatcher.ui.media.SortingOptionsDialogState
-import com.iskorsukov.aniwatcher.ui.media.rememberSortingOptionsDialogState
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 import com.iskorsukov.aniwatcher.ui.theme.LocalTextStyles
 
