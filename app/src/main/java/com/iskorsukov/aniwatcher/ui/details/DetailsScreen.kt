@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.constraintlayout.compose.Visibility
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.flowlayout.FlowRow
 import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
@@ -54,27 +53,24 @@ import com.iskorsukov.aniwatcher.ui.media.MediaItemAiringInfoColumn
 import com.iskorsukov.aniwatcher.ui.media.MediaItemImage
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 import com.iskorsukov.aniwatcher.ui.theme.LocalTextStyles
-import kotlinx.coroutines.flow.Flow
 
 @Composable
 fun DetailsScreen(
-    timeInMinutesFlow: Flow<Long>,
-    mediaItem: MediaItem?,
-    airingScheduleList: List<AiringScheduleItem>?,
+    detailsScreenState: DetailsScreenState,
     modifier: Modifier = Modifier,
     onBackButtonClicked: () -> Unit = { },
     preferredNamingScheme: NamingScheme = NamingScheme.ENGLISH,
     onLearnMoreClicked: (String) -> Unit
 ) {
 
-    val timeInMinutes by timeInMinutesFlow
-        .collectAsStateWithLifecycle(initialValue = 0)
+    val mediaItem = detailsScreenState.detailsScreenData.mediaItemWithSchedules?.first
+    val schedules = detailsScreenState.detailsScreenData.mediaItemWithSchedules?.second
 
     if (mediaItem != null) {
         DetailScreenContent(
             mediaItem = mediaItem,
-            airingScheduleList = airingScheduleList,
-            timeInMinutes = timeInMinutes,
+            airingScheduleList = schedules?.sortedBy { it.airingAt },
+            timeInMinutes = detailsScreenState.detailsScreenData.timeInMinutes,
             modifier = modifier,
             preferredNamingScheme = preferredNamingScheme,
             onBackButtonClicked = onBackButtonClicked,

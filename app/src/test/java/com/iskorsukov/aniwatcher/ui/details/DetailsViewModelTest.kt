@@ -24,7 +24,7 @@ class DetailsViewModelTest {
 
     private val airingRepository: AiringRepository = mockk(relaxed = true)
     private val settingsRepository: SettingsRepository = mockk(relaxed = true)
-    private val followEventHandler: FollowEventHandler<DetailsUiState> = spyk(FollowEventHandler())
+    private val followEventHandler: FollowEventHandler<DetailsScreenData> = spyk(FollowEventHandler())
 
     private lateinit var viewModel: DetailsViewModel
 

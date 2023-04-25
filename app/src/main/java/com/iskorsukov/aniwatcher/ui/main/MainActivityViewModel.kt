@@ -49,7 +49,7 @@ class MainActivityViewModel @Inject constructor(
         onError(null)
         viewModelScope.launch {
             try {
-                if (settingsState.value.selectedSeasonYear == DateTimeHelper.SeasonYear.THIS_WEEK) {
+                if (settingsState.value.isThisWeekSelected()) {
                     val weekStartEndSeconds =
                         DateTimeHelper.currentWeekStartToEndSeconds(Calendar.getInstance())
                     airingRepository.loadRangeAiringData(
