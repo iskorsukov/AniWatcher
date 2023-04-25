@@ -2,7 +2,7 @@ package com.iskorsukov.aniwatcher.ui.base.viewmodel.event
 
 import com.google.common.truth.Truth.assertThat
 import com.iskorsukov.aniwatcher.ui.following.FollowingUiState
-import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
+import com.iskorsukov.aniwatcher.ui.base.sorting.SortingOption
 import org.junit.Test
 
 class SortingOptionEventHandlerTest {

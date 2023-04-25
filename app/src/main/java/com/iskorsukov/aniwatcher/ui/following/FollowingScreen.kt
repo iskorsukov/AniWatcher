@@ -22,11 +22,11 @@ import com.iskorsukov.aniwatcher.ui.base.header.FilterFormatHeaderChip
 import com.iskorsukov.aniwatcher.ui.base.header.HeaderFlowRow
 import com.iskorsukov.aniwatcher.ui.base.header.SortingOptionHeaderChip
 import com.iskorsukov.aniwatcher.ui.base.placeholder.EmptyDataPlaceholder
-import com.iskorsukov.aniwatcher.ui.format.FilterFormatDialog
-import com.iskorsukov.aniwatcher.ui.main.SearchFieldState
-import com.iskorsukov.aniwatcher.ui.main.rememberSearchFieldState
+import com.iskorsukov.aniwatcher.ui.base.format.FilterFormatDialog
+import com.iskorsukov.aniwatcher.ui.main.state.SearchFieldState
+import com.iskorsukov.aniwatcher.ui.main.state.rememberSearchFieldState
 import com.iskorsukov.aniwatcher.ui.media.MediaItemCardExtended
-import com.iskorsukov.aniwatcher.ui.sorting.SelectSortingOptionDialog
+import com.iskorsukov.aniwatcher.ui.base.sorting.SelectSortingOptionDialog
 
 @Composable
 fun FollowingScreen(
@@ -36,10 +36,10 @@ fun FollowingScreen(
     settingsState: SettingsState,
     onMediaClicked: (MediaItem) -> Unit
 ) {
-    val followingUiStateWithData by viewModel.uiStateWithDataFlow
+    val followingScreenData by viewModel.dataFlow
         .collectAsStateWithLifecycle()
     val followingScreenState = rememberFollowingScreenState(
-        uiStateWithData = followingUiStateWithData,
+        uiStateWithData = followingScreenData,
         mediaItemMapper = mediaItemMapper,
         searchFieldState = searchFieldState
     )
@@ -130,7 +130,7 @@ fun FollowingScreenContent(
 @Preview
 private fun FollowingScreenEmptyPreview() {
     val followingScreenState = rememberFollowingScreenState(
-        uiStateWithData = FollowingUiStateWithData(
+        uiStateWithData = FollowingScreenData(
             mediaWithSchedulesMap = emptyMap(),
             timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES
         ),
@@ -150,7 +150,7 @@ private fun FollowingScreenEmptyPreview() {
 @Preview
 private fun FollowingScreenPreview() {
     val followingScreenState = rememberFollowingScreenState(
-        uiStateWithData = FollowingUiStateWithData(
+        uiStateWithData = FollowingScreenData(
             mediaWithSchedulesMap = mapOf(
                 ModelTestDataCreator.baseMediaItem.isFollowing(true) to
                         ModelTestDataCreator.baseAiringScheduleItemList()

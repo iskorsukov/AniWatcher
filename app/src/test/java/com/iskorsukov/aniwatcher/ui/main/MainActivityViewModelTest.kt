@@ -32,7 +32,7 @@ class MainActivityViewModelTest {
     private val notificationsRepository: NotificationsRepository = mockk<NotificationsRepository>(relaxed = true).also {
         every { it.unreadNotificationsCounterStateFlow } returns MutableStateFlow(0)
     }
-    private val searchTextEventHandler: SearchTextEventHandler<MainActivityUiState> = spyk(
+    private val searchTextEventHandler: SearchTextEventHandler<MainScreenData> = spyk(
         SearchTextEventHandler()
     )
     private val seasonYearEventHandler: SeasonYearEventHandler = spyk(SeasonYearEventHandler())
@@ -190,7 +190,7 @@ class MainActivityViewModelTest {
                 SearchTextChangedInputEvent(
                     searchText
                 ),
-                MainActivityUiState.DEFAULT
+                MainScreenData.DEFAULT
             )
         }
 
@@ -221,7 +221,7 @@ class MainActivityViewModelTest {
                 AppendSearchTextInputEvent(
                     "Text"
                 ),
-                MainActivityUiState.DEFAULT
+                MainScreenData.DEFAULT
             )
         }
 
@@ -250,7 +250,7 @@ class MainActivityViewModelTest {
         verify {
             searchTextEventHandler.handleEvent(
                 SearchFieldVisibilityChangedInputEvent(true),
-                MainActivityUiState.DEFAULT
+                MainScreenData.DEFAULT
             )
         }
         collectorJob.cancel()
@@ -278,7 +278,7 @@ class MainActivityViewModelTest {
         verify {
             seasonYearEventHandler.handleEvent(
                 SeasonYearSelectedEvent(selectedSeasonYear),
-                MainActivityUiState.DEFAULT,
+                MainScreenData.DEFAULT,
                 settingsRepository
             )
         }
@@ -307,7 +307,7 @@ class MainActivityViewModelTest {
         verify {
             notificationsPermissionEventHandler.handleEvent(
                 NotificationsPermissionMissing,
-                MainActivityUiState.DEFAULT,
+                MainScreenData.DEFAULT,
                 settingsRepository
             )
             settingsRepository.setNotificationsEnabled(false)
@@ -338,7 +338,7 @@ class MainActivityViewModelTest {
         verify {
             notificationsPermissionEventHandler.handleEvent(
                 NotificationsPermissionGrantClicked,
-                MainActivityUiState.DEFAULT,
+                MainScreenData.DEFAULT,
                 settingsRepository
             )
         }
@@ -368,7 +368,7 @@ class MainActivityViewModelTest {
         verify {
             notificationsPermissionEventHandler.handleEvent(
                 NotificationsPermissionDisableClicked,
-                MainActivityUiState.DEFAULT,
+                MainScreenData.DEFAULT,
                 settingsRepository
             )
             settingsRepository.setNotificationsEnabled(false)
@@ -400,7 +400,7 @@ class MainActivityViewModelTest {
         verify {
             notificationsPermissionEventHandler.handleEvent(
                 NotificationsPermissionGranted,
-                MainActivityUiState.DEFAULT,
+                MainScreenData.DEFAULT,
                 settingsRepository
             )
             settingsRepository.setNotificationsEnabled(true)
@@ -432,7 +432,7 @@ class MainActivityViewModelTest {
         verify {
             notificationsPermissionEventHandler.handleEvent(
                 NotificationsPermissionDenied,
-                MainActivityUiState.DEFAULT,
+                MainScreenData.DEFAULT,
                 settingsRepository
             )
             settingsRepository.setNotificationsEnabled(false)

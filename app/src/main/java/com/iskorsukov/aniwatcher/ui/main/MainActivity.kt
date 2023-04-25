@@ -4,7 +4,6 @@ import android.Manifest
 import android.app.AlarmManager
 import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -22,9 +21,9 @@ import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
 import com.iskorsukov.aniwatcher.domain.notification.alarm.NotificationsAlarmBuilder
 import com.iskorsukov.aniwatcher.domain.notification.alarm.NotificationsBootReceiver
 import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
-import com.iskorsukov.aniwatcher.ui.details.DetailsActivity
-import com.iskorsukov.aniwatcher.ui.notification.NotificationActivity
-import com.iskorsukov.aniwatcher.ui.settings.SettingsCompatActivity
+import com.iskorsukov.aniwatcher.ui.main.screen.MainScreen
+import com.iskorsukov.aniwatcher.ui.main.state.rememberMainScreenState
+import com.iskorsukov.aniwatcher.ui.main.state.rememberNotificationsPermissionState
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -52,7 +51,7 @@ class MainActivity : ComponentActivity() {
             }
 
         setContent {
-            val uiState by mainActivityViewModel.uiState
+            val mainScreenData by mainActivityViewModel.dataFlow
                 .collectAsStateWithLifecycle()
             val notificationsPermissionState = rememberNotificationsPermissionState(
                 context = this,
@@ -61,7 +60,8 @@ class MainActivity : ComponentActivity() {
             )
             val mainScreenState = rememberMainScreenState(
                 settingsRepository = settingsRepository,
-                notificationsPermissionState = notificationsPermissionState
+                notificationsPermissionState = notificationsPermissionState,
+                mainScreenData = mainScreenData
             )
             val settingsState by mainScreenState
                 .settingsState
@@ -90,13 +90,8 @@ class MainActivity : ComponentActivity() {
             }
 
             MainScreen(
-                uiState = uiState,
                 mainScreenState = mainScreenState,
-                settingsState = settingsState,
                 onRefresh = { mainActivityViewModel.loadAiringData() },
-                onStartSettings = { startSettingsActivity() },
-                onStartNotifications = { startNotificationsActivity() },
-                onStartDetails = { mediaItem -> startDetailsActivity(mediaItem.id) },
                 mediaItemMapper = mediaItemMapper
             )
         }
@@ -138,26 +133,6 @@ class MainActivity : ComponentActivity() {
             (getSystemService(Context.ALARM_SERVICE) as? AlarmManager)
                 ?.cancel(cancellationCheckIntent)
         }
-    }
-
-    private fun startDetailsActivity(mediaItemId: Int) {
-        startActivity(
-            Intent(this, DetailsActivity::class.java).apply {
-                putExtra(DetailsActivity.MEDIA_ITEM_ID_EXTRA, mediaItemId)
-            }
-        )
-    }
-
-    private fun startSettingsActivity() {
-        startActivity(
-            Intent(this, SettingsCompatActivity::class.java)
-        )
-    }
-
-    private fun startNotificationsActivity() {
-        startActivity(
-            Intent(this, NotificationActivity::class.java)
-        )
     }
 }
 

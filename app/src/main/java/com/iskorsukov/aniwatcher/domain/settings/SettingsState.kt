@@ -7,4 +7,6 @@ data class SettingsState(
     val preferredNamingScheme: NamingScheme,
     val notificationsEnabled: Boolean,
     val selectedSeasonYear: DateTimeHelper.SeasonYear
-)
+) {
+    fun isThisWeekSelected(): Boolean = selectedSeasonYear == DateTimeHelper.SeasonYear.THIS_WEEK
+}

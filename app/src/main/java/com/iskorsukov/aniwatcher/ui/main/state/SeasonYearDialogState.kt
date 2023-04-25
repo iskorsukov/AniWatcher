@@ -1,4 +1,4 @@
-package com.iskorsukov.aniwatcher.ui.main
+package com.iskorsukov.aniwatcher.ui.main.state
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,6 +34,7 @@ class SeasonYearDialogState(
     coroutineScope: CoroutineScope
 ) {
     var showSelectSeasonYearDialog by mutableStateOf(false)
+        private set
 
     val selectedSeasonYear = settingsRepository.settingsStateFlow
         .map { it.selectedSeasonYear }
@@ -70,5 +71,13 @@ class SeasonYearDialogState(
 
     fun onSeasonYearSelected(selectedSeasonYear: DateTimeHelper.SeasonYear) {
         settingsRepository.setSelectedSeasonYear(selectedSeasonYear)
+    }
+
+    fun show() {
+        showSelectSeasonYearDialog = true
+    }
+
+    fun dismiss() {
+        showSelectSeasonYearDialog = false
     }
 }

@@ -1,4 +1,4 @@
-package com.iskorsukov.aniwatcher.ui.sorting
+package com.iskorsukov.aniwatcher.ui.base.sorting
 
 import androidx.annotation.StringRes
 import com.iskorsukov.aniwatcher.R

@@ -8,7 +8,7 @@ import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.test.*
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.*
-import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
+import com.iskorsukov.aniwatcher.ui.base.sorting.SortingOption
 import io.mockk.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow

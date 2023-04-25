@@ -2,7 +2,7 @@ package com.iskorsukov.aniwatcher.ui.base.util
 
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
-import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
+import com.iskorsukov.aniwatcher.ui.base.sorting.SortingOption
 
 fun <T> filterFormatMediaFlow(map: Map<MediaItem, T>, deselectedFormats: List<MediaItem.LocalFormat>): Map<MediaItem, T> {
     return map.filterKeys { mediaItem -> !deselectedFormats.contains(mediaItem.format) }

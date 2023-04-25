@@ -1,4 +1,4 @@
-package com.iskorsukov.aniwatcher.ui.main
+package com.iskorsukov.aniwatcher.ui.main.state
 
 import android.Manifest
 import android.content.Context

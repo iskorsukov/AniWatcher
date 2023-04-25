@@ -1,4 +1,4 @@
-package com.iskorsukov.aniwatcher.ui.format
+package com.iskorsukov.aniwatcher.ui.base.format
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column

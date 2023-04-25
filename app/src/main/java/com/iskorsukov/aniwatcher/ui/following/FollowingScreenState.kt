@@ -5,19 +5,20 @@ import androidx.compose.runtime.remember
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
+import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
 import com.iskorsukov.aniwatcher.ui.base.util.filterFormatMediaFlow
 import com.iskorsukov.aniwatcher.ui.base.util.filterSearchMediaFlow
 import com.iskorsukov.aniwatcher.ui.base.util.sortMediaFlow
-import com.iskorsukov.aniwatcher.ui.format.FilterFormatDialogState
-import com.iskorsukov.aniwatcher.ui.format.rememberFilterFormatDialogState
-import com.iskorsukov.aniwatcher.ui.main.SearchFieldState
-import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
-import com.iskorsukov.aniwatcher.ui.sorting.SortingOptionsDialogState
-import com.iskorsukov.aniwatcher.ui.sorting.rememberSortingOptionsDialogState
+import com.iskorsukov.aniwatcher.ui.base.format.FilterFormatDialogState
+import com.iskorsukov.aniwatcher.ui.base.format.rememberFilterFormatDialogState
+import com.iskorsukov.aniwatcher.ui.main.state.SearchFieldState
+import com.iskorsukov.aniwatcher.ui.base.sorting.SortingOption
+import com.iskorsukov.aniwatcher.ui.base.sorting.SortingOptionsDialogState
+import com.iskorsukov.aniwatcher.ui.base.sorting.rememberSortingOptionsDialogState
 
 @Composable
 fun rememberFollowingScreenState(
-    uiStateWithData: FollowingUiStateWithData,
+    uiStateWithData: FollowingScreenData,
     mediaItemMapper: MediaItemMapper,
     searchFieldState: SearchFieldState,
     sortingOptionsDialogState: SortingOptionsDialogState = rememberSortingOptionsDialogState(),
@@ -41,7 +42,7 @@ fun rememberFollowingScreenState(
 }
 
 class FollowingScreenState(
-    val uiStateWithData: FollowingUiStateWithData,
+    val uiStateWithData: FollowingScreenData,
     val sortingOptionsDialogState: SortingOptionsDialogState,
     val filterFormatDialogState: FilterFormatDialogState,
     val searchFieldState: SearchFieldState,
@@ -82,3 +83,9 @@ class FollowingScreenState(
         sortingOptionsDialogState.selectedOption = SortingOption.AIRING_AT
     }
 }
+
+data class FollowingScreenData(
+    val mediaWithSchedulesMap: Map<MediaItem, List<AiringScheduleItem>> = emptyMap(),
+    val timeInMinutes: Long = 0L,
+    val errorItem: ErrorItem? = null,
+)

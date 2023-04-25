@@ -26,7 +26,7 @@ import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
 import com.iskorsukov.aniwatcher.ui.base.fab.ScrollToTopFab
 import com.iskorsukov.aniwatcher.ui.base.header.FilterFormatHeaderChip
 import com.iskorsukov.aniwatcher.ui.base.header.HeaderFlowRow
-import com.iskorsukov.aniwatcher.ui.format.FilterFormatDialog
+import com.iskorsukov.aniwatcher.ui.base.format.FilterFormatDialog
 import com.iskorsukov.aniwatcher.ui.media.MediaItemCardCollapsed
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 import com.iskorsukov.aniwatcher.ui.theme.LocalTextStyles
@@ -41,10 +41,10 @@ fun AiringScreen(
     onMediaClicked: (MediaItem) -> Unit,
     onRefresh: () -> Unit
 ) {
-    val airingUiStateWithData by viewModel.uiStateWithDataFlow
+    val airingScreenData by viewModel.dataFlow
         .collectAsStateWithLifecycle()
     val airingScreenState = rememberAiringScreenState(
-        uiStateWithData = airingUiStateWithData,
+        uiStateWithData = airingScreenData,
         mediaItemMapper = mediaItemMapper
     )
 
@@ -145,7 +145,7 @@ private fun AiringScreenContent(
 fun AiringScreenPreview() {
     val lazyListState = rememberLazyListState()
     val airingScreenState = rememberAiringScreenState(
-        uiStateWithData = AiringUiStateWithData(
+        uiStateWithData = AiringScreenData(
             mediaWithSchedulesMap = mapOf(
                 ModelTestDataCreator.baseMediaItem to
                         ModelTestDataCreator.baseAiringScheduleItemList()

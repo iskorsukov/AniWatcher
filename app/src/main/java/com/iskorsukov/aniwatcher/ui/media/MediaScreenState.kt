@@ -1,27 +1,26 @@
 package com.iskorsukov.aniwatcher.ui.media
 
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
+import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
 import com.iskorsukov.aniwatcher.ui.base.util.filterFormatMediaFlow
 import com.iskorsukov.aniwatcher.ui.base.util.filterSearchMediaFlow
 import com.iskorsukov.aniwatcher.ui.base.util.sortMediaFlow
-import com.iskorsukov.aniwatcher.ui.format.FilterFormatDialogState
-import com.iskorsukov.aniwatcher.ui.format.rememberFilterFormatDialogState
-import com.iskorsukov.aniwatcher.ui.main.SearchFieldState
-import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
-import com.iskorsukov.aniwatcher.ui.sorting.SortingOptionsDialogState
-import com.iskorsukov.aniwatcher.ui.sorting.rememberSortingOptionsDialogState
+import com.iskorsukov.aniwatcher.ui.base.format.FilterFormatDialogState
+import com.iskorsukov.aniwatcher.ui.base.format.rememberFilterFormatDialogState
+import com.iskorsukov.aniwatcher.ui.main.state.SearchFieldState
+import com.iskorsukov.aniwatcher.ui.base.sorting.SortingOption
+import com.iskorsukov.aniwatcher.ui.base.sorting.SortingOptionsDialogState
+import com.iskorsukov.aniwatcher.ui.base.sorting.rememberSortingOptionsDialogState
 import kotlinx.coroutines.CoroutineScope
 
 @Composable
 fun rememberMediaScreenState(
-    uiState: MediaUiStateWithData,
+    uiState: MediaScreenData,
     searchFieldState: SearchFieldState,
     mediaItemMapper: MediaItemMapper,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
@@ -49,7 +48,7 @@ fun rememberMediaScreenState(
 
 class MediaScreenState(
     val coroutineScope: CoroutineScope,
-    val uiState: MediaUiStateWithData,
+    val uiState: MediaScreenData,
     val searchFieldState: SearchFieldState,
     val filterFormatDialogState: FilterFormatDialogState,
     val sortingOptionsDialogState: SortingOptionsDialogState,
@@ -90,3 +89,9 @@ class MediaScreenState(
         sortingOptionsDialogState.selectedOption = SortingOption.AIRING_AT
     }
 }
+
+data class MediaScreenData(
+    val mediaWithSchedulesMap: Map<MediaItem, List<AiringScheduleItem>> = emptyMap(),
+    val timeInMinutes: Long = 0L,
+    val errorItem: ErrorItem? = null
+)

@@ -1,9 +1,9 @@
-package com.iskorsukov.aniwatcher.ui.permission
+package com.iskorsukov.aniwatcher.ui.main.screen.notifications
 
 import androidx.compose.runtime.Composable
 import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.ui.base.permission.PermissionRationaleDialog
-import com.iskorsukov.aniwatcher.ui.main.NotificationsPermissionState
+import com.iskorsukov.aniwatcher.ui.main.state.NotificationsPermissionState
 
 @Composable
 fun NotificationsPermissionRationaleDialog(

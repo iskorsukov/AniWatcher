@@ -1,7 +1,7 @@
 package com.iskorsukov.aniwatcher.ui.base.viewmodel.event
 
 import com.iskorsukov.aniwatcher.ui.base.uistate.UiState
-import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
+import com.iskorsukov.aniwatcher.ui.base.sorting.SortingOption
 import javax.inject.Inject
 
 interface SortingOptionsUiState: UiState {

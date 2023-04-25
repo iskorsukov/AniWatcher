@@ -1,4 +1,4 @@
-package com.iskorsukov.aniwatcher.ui.main
+package com.iskorsukov.aniwatcher.ui.main.screen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
@@ -35,21 +35,22 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.ui.base.topbar.SearchField
+import com.iskorsukov.aniwatcher.ui.main.state.MainScreenState
+import com.iskorsukov.aniwatcher.ui.main.state.SearchFieldState
+import com.iskorsukov.aniwatcher.ui.main.state.rememberSearchFieldState
+import com.iskorsukov.aniwatcher.ui.notification.NotificationActivity
+import com.iskorsukov.aniwatcher.ui.settings.SettingsCompatActivity
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 import com.iskorsukov.aniwatcher.ui.theme.LocalTextStyles
 
 @Composable
 fun TopBar(
-    mainScreenState: MainScreenState,
-    mainActivityUiState: MainActivityUiState,
-    onSettingsClicked: () -> Unit,
-    onNotificationsClicked: () -> Unit,
-    onSelectSeasonYearClicked: () -> Unit,
+    mainScreenState: MainScreenState
 ) {
     val focusRequester = remember { FocusRequester() }
 
     val settingsState by mainScreenState.settingsState.collectAsStateWithLifecycle()
-    val unreadNotifications = mainActivityUiState.unreadNotificationsCount
+    val unreadNotifications = mainScreenState.mainScreenData.unreadNotificationsCount
 
     TopAppBar(backgroundColor = LocalColors.current.primary) {
         if (mainScreenState.screen?.hasSearchBar == true) {
@@ -63,7 +64,7 @@ fun TopBar(
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
                     .clickable {
-                        onSelectSeasonYearClicked.invoke()
+                        mainScreenState.seasonYearDialogState.show()
                     },
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -87,7 +88,11 @@ fun TopBar(
                 .weight(1f)
                 .fillMaxHeight()
         )
-        IconButton(onClick = onNotificationsClicked) {
+        IconButton(
+            onClick = {
+                mainScreenState.navigateToActivity(NotificationActivity::class.java)
+            }
+        ) {
             Box {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_baseline_notifications_24),
@@ -109,7 +114,11 @@ fun TopBar(
                 }
             }
         }
-        IconButton(onClick = onSettingsClicked) {
+        IconButton(
+            onClick = {
+                mainScreenState.navigateToActivity(SettingsCompatActivity::class.java)
+            }
+        ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_baseline_settings_24),
                 contentDescription = null,

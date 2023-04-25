@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.sp
 import com.google.accompanist.flowlayout.FlowRow
 import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
-import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
+import com.iskorsukov.aniwatcher.ui.base.sorting.SortingOption
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 
 @Composable

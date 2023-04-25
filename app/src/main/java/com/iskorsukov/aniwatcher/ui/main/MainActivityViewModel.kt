@@ -3,12 +3,14 @@ package com.iskorsukov.aniwatcher.ui.main
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.iskorsukov.aniwatcher.BuildConfig
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
 import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
 import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
 import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
+import com.iskorsukov.aniwatcher.ui.main.state.MainScreenData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -28,19 +30,22 @@ class MainActivityViewModel @Inject constructor(
 
     val settingsState: StateFlow<SettingsState> = settingsRepository.settingsStateFlow
 
-    private val _uiState: MutableStateFlow<MainActivityUiState> = MutableStateFlow(
-        MainActivityUiState()
+    private val _dataFlow: MutableStateFlow<MainScreenData> = MutableStateFlow(
+        MainScreenData()
     )
-    val uiState: StateFlow<MainActivityUiState> = _uiState
-        .combine(notificationsRepository.unreadNotificationsCounterStateFlow) { uiState, unreadNotificationsCount ->
-            uiState.copy(
+    val dataFlow: StateFlow<MainScreenData> = _dataFlow
+        .combine(notificationsRepository.unreadNotificationsCounterStateFlow) { data, unreadNotificationsCount ->
+            data.copy(
                 unreadNotificationsCount = unreadNotificationsCount
             )
         }
-        .stateIn(viewModelScope, SharingStarted.Lazily, MainActivityUiState())
+        .stateIn(
+            viewModelScope,
+            SharingStarted.Lazily, MainScreenData()
+        )
 
     fun loadAiringData() {
-        _uiState.value = _uiState.value.copy(isRefreshing = true)
+        _dataFlow.value = _dataFlow.value.copy(isRefreshing = true)
         onError(null)
         viewModelScope.launch {
             try {
@@ -55,17 +60,19 @@ class MainActivityViewModel @Inject constructor(
                     val seasonYear = settingsState.value.selectedSeasonYear
                     airingRepository.loadSeasonAiringData(seasonYear.year, seasonYear.season.name)
                 }
-                _uiState.value = _uiState.value.copy(isRefreshing = false)
             } catch (throwable: Throwable) {
+                if (!BuildConfig.DEBUG) {
+                    FirebaseCrashlytics.getInstance().recordException(throwable)
+                }
                 throwable.printStackTrace()
-                FirebaseCrashlytics.getInstance().recordException(throwable)
-                _uiState.value = _uiState.value.copy(isRefreshing = false)
                 onError(ErrorItem.ofThrowable(throwable))
+            } finally {
+                _dataFlow.value = _dataFlow.value.copy(isRefreshing = false)
             }
         }
     }
 
     private fun onError(errorItem: ErrorItem?) {
-        _uiState.value = _uiState.value.copy(errorItem = errorItem)
+        _dataFlow.value = _dataFlow.value.copy(errorItem = errorItem)
     }
 }

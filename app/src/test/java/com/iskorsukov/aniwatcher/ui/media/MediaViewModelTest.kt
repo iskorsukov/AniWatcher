@@ -9,7 +9,7 @@ import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.util.DayOfWeekLocal
 import com.iskorsukov.aniwatcher.test.*
 import com.iskorsukov.aniwatcher.ui.base.viewmodel.event.*
-import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
+import com.iskorsukov.aniwatcher.ui.base.sorting.SortingOption
 import io.mockk.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,7 +29,7 @@ class MediaViewModelTest {
         ModelTestDataCreator.baseMediaItem to
                 ModelTestDataCreator.baseAiringScheduleItemList()
     )
-    private val uiStateWithData = MediaUiStateWithData(
+    private val uiStateWithData = MediaScreenData(
         mediaWithNextAiringMap = mapOf(
             ModelTestDataCreator.baseMediaItem to
                     ModelTestDataCreator.baseAiringScheduleItem()

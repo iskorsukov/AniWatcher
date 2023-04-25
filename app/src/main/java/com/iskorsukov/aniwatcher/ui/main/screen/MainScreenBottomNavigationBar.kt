@@ -1,4 +1,4 @@
-package com.iskorsukov.aniwatcher.ui.main
+package com.iskorsukov.aniwatcher.ui.main.screen
 
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -12,6 +12,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.ui.Screen
+import com.iskorsukov.aniwatcher.ui.main.state.MainScreenState
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 
 @Composable

@@ -26,10 +26,10 @@ import com.iskorsukov.aniwatcher.ui.base.fab.ScrollToTopFab
 import com.iskorsukov.aniwatcher.ui.base.header.FilterFormatHeaderChip
 import com.iskorsukov.aniwatcher.ui.base.header.HeaderFlowRow
 import com.iskorsukov.aniwatcher.ui.base.header.SortingOptionHeaderChip
-import com.iskorsukov.aniwatcher.ui.format.FilterFormatDialog
-import com.iskorsukov.aniwatcher.ui.main.SearchFieldState
-import com.iskorsukov.aniwatcher.ui.main.rememberSearchFieldState
-import com.iskorsukov.aniwatcher.ui.sorting.SelectSortingOptionDialog
+import com.iskorsukov.aniwatcher.ui.base.format.FilterFormatDialog
+import com.iskorsukov.aniwatcher.ui.main.state.SearchFieldState
+import com.iskorsukov.aniwatcher.ui.main.state.rememberSearchFieldState
+import com.iskorsukov.aniwatcher.ui.base.sorting.SelectSortingOptionDialog
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -43,7 +43,7 @@ fun MediaScreen(
     onMediaClicked: (MediaItem) -> Unit,
     onRefresh: () -> Unit
 ) {
-    val mediaUiStateWithData by viewModel.uiStateWithDataFlow
+    val mediaUiStateWithData by viewModel.dataFlow
         .collectAsStateWithLifecycle()
     val mediaScreenState = rememberMediaScreenState(
         uiState = mediaUiStateWithData,
@@ -156,7 +156,7 @@ private fun MediaScreenContent(
 fun MediaScreenPreview() {
     MediaScreenContent(
         mediaScreenState = rememberMediaScreenState(
-            uiState = MediaUiStateWithData(
+            uiState = MediaScreenData(
                 mapOf(
                     ModelTestDataCreator.baseMediaItem to
                             ModelTestDataCreator.baseAiringScheduleItemList()

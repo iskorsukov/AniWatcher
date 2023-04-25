@@ -1,18 +1,18 @@
 package com.iskorsukov.aniwatcher.ui.base.viewmodel.event
 
 import com.google.common.truth.Truth.assertThat
-import com.iskorsukov.aniwatcher.ui.main.MainActivityUiState
+import com.iskorsukov.aniwatcher.ui.main.MainScreenData
 import org.junit.Test
 
 class SearchTextEventHandlerTest {
-    private val searchTextEventHandler: SearchTextEventHandler<MainActivityUiState> = SearchTextEventHandler()
+    private val searchTextEventHandler: SearchTextEventHandler<MainScreenData> = SearchTextEventHandler()
 
     @Test
     fun handleEvent_searchTextChanged() {
         val searchText = "search"
         val uiState = searchTextEventHandler.handleEvent(
             SearchTextChangedInputEvent(searchText),
-            MainActivityUiState.DEFAULT
+            MainScreenData.DEFAULT
         )
         assertThat(uiState.searchText).isEqualTo(searchText)
     }
@@ -22,7 +22,7 @@ class SearchTextEventHandlerTest {
         val searchText = "search"
         var uiState = searchTextEventHandler.handleEvent(
             AppendSearchTextInputEvent(searchText),
-            MainActivityUiState.DEFAULT
+            MainScreenData.DEFAULT
         )
         assertThat(uiState.searchText).isEqualTo(searchText)
 
@@ -37,7 +37,7 @@ class SearchTextEventHandlerTest {
     fun handleEvent_searchFieldVisibilityChanged() {
         val uiState = searchTextEventHandler.handleEvent(
             SearchFieldVisibilityChangedInputEvent(true),
-            MainActivityUiState.DEFAULT
+            MainScreenData.DEFAULT
         )
         assertThat(uiState.searchFieldOpen).isEqualTo(true)
     }
@@ -46,8 +46,8 @@ class SearchTextEventHandlerTest {
     fun handleEvent_resetSearchText() {
         val uiState = searchTextEventHandler.handleEvent(
             ResetSearchTextInputEvent,
-            MainActivityUiState.DEFAULT.copy(searchText = "search", searchFieldOpen = true)
+            MainScreenData.DEFAULT.copy(searchText = "search", searchFieldOpen = true)
         )
-        assertThat(uiState).isEqualTo(MainActivityUiState.DEFAULT)
+        assertThat(uiState).isEqualTo(MainScreenData.DEFAULT)
     }
 }

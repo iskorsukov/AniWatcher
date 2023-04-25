@@ -1,4 +1,4 @@
-package com.iskorsukov.aniwatcher.ui.format
+package com.iskorsukov.aniwatcher.ui.base.format
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue

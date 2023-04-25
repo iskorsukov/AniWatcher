@@ -24,7 +24,7 @@ class NotificationsPermissionEventHandlerTest {
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
         val uiState = notificationsPermissionEventHandler.handleEvent(
             NotificationsPermissionMissing,
-            MainActivityUiState.DEFAULT,
+            MainScreenData.DEFAULT,
             settingsRepository
         )
         advanceUntilIdle()
@@ -40,7 +40,7 @@ class NotificationsPermissionEventHandlerTest {
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
         val uiState = notificationsPermissionEventHandler.handleEvent(
             NotificationsPermissionGrantClicked,
-            MainActivityUiState.DEFAULT,
+            MainScreenData.DEFAULT,
             settingsRepository
         )
         advanceUntilIdle()
@@ -54,7 +54,7 @@ class NotificationsPermissionEventHandlerTest {
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
         val uiState = notificationsPermissionEventHandler.handleEvent(
             NotificationsPermissionDisableClicked,
-            MainActivityUiState.DEFAULT,
+            MainScreenData.DEFAULT,
             settingsRepository
         )
         advanceUntilIdle()
@@ -71,7 +71,7 @@ class NotificationsPermissionEventHandlerTest {
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
         val uiState = notificationsPermissionEventHandler.handleEvent(
             NotificationsPermissionGranted,
-            MainActivityUiState.DEFAULT,
+            MainScreenData.DEFAULT,
             settingsRepository
         )
         advanceUntilIdle()
@@ -88,7 +88,7 @@ class NotificationsPermissionEventHandlerTest {
         Dispatchers.setMain(StandardTestDispatcher(testScheduler))
         val uiState = notificationsPermissionEventHandler.handleEvent(
             NotificationsPermissionDenied,
-            MainActivityUiState.DEFAULT,
+            MainScreenData.DEFAULT,
             settingsRepository
         )
         advanceUntilIdle()

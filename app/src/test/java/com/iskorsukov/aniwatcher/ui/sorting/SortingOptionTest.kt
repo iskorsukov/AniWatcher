@@ -2,6 +2,7 @@ package com.iskorsukov.aniwatcher.ui.sorting
 
 import com.google.common.truth.Truth.assertThat
 import com.iskorsukov.aniwatcher.test.*
+import com.iskorsukov.aniwatcher.ui.base.sorting.SortingOption
 import org.junit.Test
 
 class SortingOptionTest {

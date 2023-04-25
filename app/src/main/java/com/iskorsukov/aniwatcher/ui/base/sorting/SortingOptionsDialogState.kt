@@ -1,11 +1,10 @@
-package com.iskorsukov.aniwatcher.ui.sorting
+package com.iskorsukov.aniwatcher.ui.base.sorting
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.iskorsukov.aniwatcher.ui.sorting.SortingOption
 
 @Composable
 fun rememberSortingOptionsDialogState(): SortingOptionsDialogState {

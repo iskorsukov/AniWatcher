@@ -1,5 +1,6 @@
-package com.iskorsukov.aniwatcher.ui.main
+package com.iskorsukov.aniwatcher.ui.main.screen
 
+import android.os.Bundle
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -22,29 +23,25 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
-import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.ui.airing.AiringScreen
 import com.iskorsukov.aniwatcher.ui.airing.AiringViewModel
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
 import com.iskorsukov.aniwatcher.ui.base.error.ErrorPopupDialogSurface
+import com.iskorsukov.aniwatcher.ui.details.DetailsActivity
 import com.iskorsukov.aniwatcher.ui.following.FollowingScreen
 import com.iskorsukov.aniwatcher.ui.following.FollowingViewModel
+import com.iskorsukov.aniwatcher.ui.main.screen.notifications.NotificationsPermissionRationaleDialog
+import com.iskorsukov.aniwatcher.ui.main.screen.season.SelectSeasonYearDialog
+import com.iskorsukov.aniwatcher.ui.main.state.MainScreenState
 import com.iskorsukov.aniwatcher.ui.media.MediaScreen
 import com.iskorsukov.aniwatcher.ui.media.MediaViewModel
-import com.iskorsukov.aniwatcher.ui.permission.NotificationsPermissionRationaleDialog
-import com.iskorsukov.aniwatcher.ui.season.SelectSeasonYearDialog
 import com.iskorsukov.aniwatcher.ui.theme.AniWatcherTheme
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 
 @Composable
 fun MainScreen(
-    uiState: MainActivityUiState,
     mainScreenState: MainScreenState,
-    settingsState: SettingsState,
     onRefresh: () -> Unit,
-    onStartSettings: () -> Unit,
-    onStartNotifications: () -> Unit,
-    onStartDetails: (MediaItem) -> Unit,
     mediaItemMapper: MediaItemMapper,
     mediaViewModel: MediaViewModel = viewModel(),
     airingViewModel: AiringViewModel = viewModel(),
@@ -52,8 +49,8 @@ fun MainScreen(
 ) {
     val scaffoldState = rememberScaffoldState()
 
-    var shouldShowErrorDialog by rememberSaveable(uiState.errorItem) {
-        mutableStateOf(uiState.errorItem != null)
+    var shouldShowErrorDialog by rememberSaveable(mainScreenState.shouldShowErrorDialog) {
+        mutableStateOf(mainScreenState.shouldShowErrorDialog)
     }
     val shouldShowNotificationsRationaleDialog by mainScreenState
         .notificationsPermissionState
@@ -63,17 +60,21 @@ fun MainScreen(
         .seasonYearDialogState
         .showSelectSeasonYearDialog
 
+    val navigateToDetails: (MediaItem) -> Unit = { mediaItem ->
+        mainScreenState.navigateToActivity(
+            DetailsActivity::class.java,
+            Bundle().apply {
+                putInt(DetailsActivity.MEDIA_ITEM_ID_EXTRA, mediaItem.id)
+            }
+        )
+    }
+
+    val settingsState by mainScreenState.settingsState.collectAsStateWithLifecycle()
     AniWatcherTheme(settingsState.darkModeOption) {
         Scaffold(
             topBar = {
                 TopBar(
-                    mainScreenState = mainScreenState,
-                    mainActivityUiState = uiState,
-                    onSettingsClicked = onStartSettings,
-                    onNotificationsClicked = onStartNotifications,
-                    onSelectSeasonYearClicked = {
-                        mainScreenState.seasonYearDialogState.showSelectSeasonYearDialog = true
-                    }
+                    mainScreenState = mainScreenState
                 )
             },
             bottomBar = {
@@ -107,8 +108,8 @@ fun MainScreen(
                     composable("media") {
                         MediaScreen(
                             viewModel = mediaViewModel,
-                            isRefreshing = uiState.isRefreshing,
-                            onMediaClicked = onStartDetails,
+                            isRefreshing = mainScreenState.mainScreenData.isRefreshing,
+                            onMediaClicked = navigateToDetails,
                             onRefresh = onRefresh,
                             mediaItemMapper = mediaItemMapper,
                             searchFieldState = mainScreenState.searchFieldState,
@@ -119,9 +120,9 @@ fun MainScreen(
                         AiringScreen(
                             viewModel = airingViewModel,
                             mediaItemMapper = mediaItemMapper,
-                            isRefreshing = uiState.isRefreshing,
+                            isRefreshing = mainScreenState.mainScreenData.isRefreshing,
                             settingsState = settingsState,
-                            onMediaClicked = onStartDetails,
+                            onMediaClicked = navigateToDetails,
                             onRefresh = onRefresh
                         )
                     }
@@ -130,7 +131,7 @@ fun MainScreen(
                             viewModel = followingViewModel,
                             mediaItemMapper = mediaItemMapper,
                             settingsState = settingsState,
-                            onMediaClicked = onStartDetails,
+                            onMediaClicked = navigateToDetails,
                             searchFieldState = mainScreenState.searchFieldState
                         )
                     }
@@ -138,7 +139,7 @@ fun MainScreen(
 
                 AnimatedErrorDialogSurface(
                     isVisible = shouldShowErrorDialog,
-                    errorItem = uiState.errorItem,
+                    errorItem = mainScreenState.mainScreenData.errorItem,
                     onRefresh = onRefresh,
                     onDismiss = { shouldShowErrorDialog = false },
                     modifier = Modifier.align(Alignment.BottomCenter)

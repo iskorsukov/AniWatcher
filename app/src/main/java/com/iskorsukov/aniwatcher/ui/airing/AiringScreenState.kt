@@ -7,13 +7,14 @@ import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.util.DateTimeHelper
 import com.iskorsukov.aniwatcher.domain.util.DayOfWeekLocal
+import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
 import com.iskorsukov.aniwatcher.ui.base.util.filterFormatMediaFlow
-import com.iskorsukov.aniwatcher.ui.format.FilterFormatDialogState
-import com.iskorsukov.aniwatcher.ui.format.rememberFilterFormatDialogState
+import com.iskorsukov.aniwatcher.ui.base.format.FilterFormatDialogState
+import com.iskorsukov.aniwatcher.ui.base.format.rememberFilterFormatDialogState
 
 @Composable
 fun rememberAiringScreenState(
-    uiStateWithData: AiringUiStateWithData,
+    uiStateWithData: AiringScreenData,
     mediaItemMapper: MediaItemMapper,
     filterFormatDialogState: FilterFormatDialogState = rememberFilterFormatDialogState()
 ): AiringScreenState {
@@ -31,7 +32,7 @@ fun rememberAiringScreenState(
 }
 
 class AiringScreenState(
-    val uiStateWithData: AiringUiStateWithData,
+    val uiStateWithData: AiringScreenData,
     val filterFormatDialogState: FilterFormatDialogState,
     val mediaItemMapper: MediaItemMapper
 ) {
@@ -70,3 +71,9 @@ class AiringScreenState(
         filterFormatDialogState.deselectedFormats.clear()
     }
 }
+
+data class AiringScreenData(
+    val mediaWithSchedulesMap: Map<MediaItem, List<AiringScheduleItem>> = emptyMap(),
+    val timeInMinutes: Long = 0L,
+    val errorItem: ErrorItem? = null
+)

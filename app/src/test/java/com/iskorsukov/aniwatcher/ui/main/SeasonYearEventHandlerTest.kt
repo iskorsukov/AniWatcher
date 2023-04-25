@@ -25,12 +25,12 @@ class SeasonYearEventHandlerTest {
         val selectedSeasonYear = DateTimeHelper.SeasonYear(DateTimeHelper.Season.WINTER, 2023)
         val uiState = seasonYearEventHandler.handleEvent(
             SeasonYearSelectedEvent(selectedSeasonYear),
-            MainActivityUiState.DEFAULT,
+            MainScreenData.DEFAULT,
             settingsRepository
         )
         advanceUntilIdle()
 
-        assertThat(uiState).isEqualTo(MainActivityUiState.DEFAULT)
+        assertThat(uiState).isEqualTo(MainScreenData.DEFAULT)
         coVerify {
             settingsRepository.setSelectedSeasonYear(selectedSeasonYear)
         }
