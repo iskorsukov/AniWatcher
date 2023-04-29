@@ -159,8 +159,8 @@ fun MediaItemCardCollapsed(
 @Preview
 private fun MediaItemCardCollapsedPreview() {
     MediaItemCardCollapsed(
-        airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
-        mediaItem = ModelTestDataCreator.baseMediaItem,
+        airingScheduleItem = ModelTestDataCreator.previewData().second.first(),
+        mediaItem = ModelTestDataCreator.previewData().first,
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         onFollowClicked = { },
         onMediaClicked = { },
@@ -172,8 +172,9 @@ private fun MediaItemCardCollapsedPreview() {
 @Preview
 private fun MediaItemCardCollapsedFinishedAiringPreview() {
     MediaItemCardCollapsed(
-        airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
-        mediaItem = ModelTestDataCreator.baseMediaItem.copy(status = MediaItem.LocalStatus.FINISHED),
+        airingScheduleItem = ModelTestDataCreator.previewData().second.first(),
+        mediaItem = ModelTestDataCreator.previewData().first
+            .copy(status = MediaItem.LocalStatus.FINISHED),
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         onFollowClicked = { },
         onMediaClicked = { },

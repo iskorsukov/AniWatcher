@@ -17,7 +17,6 @@ import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.domain.settings.SettingsState
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
-import com.iskorsukov.aniwatcher.test.isFollowing
 import com.iskorsukov.aniwatcher.ui.base.header.FilterFormatHeaderChip
 import com.iskorsukov.aniwatcher.ui.base.header.HeaderFlowRow
 import com.iskorsukov.aniwatcher.ui.base.header.SortingOptionHeaderChip
@@ -152,8 +151,7 @@ private fun FollowingScreenPreview() {
     val followingScreenState = rememberFollowingScreenState(
         uiStateWithData = FollowingScreenData(
             mediaWithSchedulesMap = mapOf(
-                ModelTestDataCreator.baseMediaItem.isFollowing(true) to
-                        ModelTestDataCreator.baseAiringScheduleItemList()
+                ModelTestDataCreator.previewData(true)
             ),
             timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES
         ),

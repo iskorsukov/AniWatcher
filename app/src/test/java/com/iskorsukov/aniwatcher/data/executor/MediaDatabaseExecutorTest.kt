@@ -24,8 +24,15 @@ class MediaDatabaseExecutorTest {
 
     private lateinit var mediaDatabaseExecutor: MediaDatabaseExecutor
 
-    private val mediaFlowPair =
-        EntityTestDataCreator.baseMediaItemEntity() to EntityTestDataCreator.baseAiringScheduleEntityList()
+    private val mediaFlowPair = Pair(
+        EntityTestDataCreator.mediaItemEntity(mediaId = 1),
+        listOf(
+            EntityTestDataCreator.airingScheduleEntity(
+                airingScheduleEntityId = 1,
+                mediaItemRelationId = 1
+            )
+        )
+    )
     private val mediaFlowData = mapOf(mediaFlowPair)
 
     private fun initMocks(testScheduler: TestCoroutineScheduler) {
@@ -52,20 +59,6 @@ class MediaDatabaseExecutorTest {
     }
 
     @Test
-    fun mediaDataFlow() = runTest {
-        initMocks(testScheduler)
-
-        val entity = mediaDatabaseExecutor.mediaDataFlow.first()
-
-        assertThat(entity)
-            .isEqualTo(mediaFlowData)
-
-        coVerify { mediaDao.getAll() }
-
-        cleanupMocks()
-    }
-
-    @Test
     fun getMediaWithAiringSchedules() = runTest {
         initMocks(testScheduler)
 
@@ -87,19 +80,14 @@ class MediaDatabaseExecutorTest {
     fun updateMedia() = runTest {
         initMocks(testScheduler)
 
-        val entityMap = mapOf(
-            EntityTestDataCreator.baseMediaItemEntity() to
-                    EntityTestDataCreator.baseAiringScheduleEntityList()
-        )
-
-        mediaDatabaseExecutor.updateMedia(entityMap)
+        mediaDatabaseExecutor.updateMedia(mediaFlowData)
         advanceUntilIdle()
 
-        coVerify {
-            mediaDao.clearMedia()
+        coVerifyOrder {
             mediaDao.clearAiringSchedules()
-            mediaDao.insertMedia(entityMap.keys.toList())
-            mediaDao.insertSchedules(entityMap.values.flatten())
+            mediaDao.clearMedia()
+            mediaDao.insertMedia(mediaFlowData.keys.toList())
+            mediaDao.insertSchedules(mediaFlowData.values.flatten())
         }
 
         cleanupMocks()

@@ -19,9 +19,6 @@ import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.settings.NamingScheme
 import com.iskorsukov.aniwatcher.test.ModelTestDataCreator
-import com.iskorsukov.aniwatcher.test.description
-import com.iskorsukov.aniwatcher.test.meanScore
-import com.iskorsukov.aniwatcher.test.popularity
 import com.iskorsukov.aniwatcher.ui.base.text.HtmlText
 import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 import com.iskorsukov.aniwatcher.ui.theme.LocalTextStyles
@@ -258,10 +255,11 @@ private fun MediaItemOverlayTitle(
 @Composable
 @Preview
 fun MediaItemCardExtendedPreview() {
-    val mediaItemWithLongDescription = ModelTestDataCreator.baseMediaItem.description("Word ".repeat(50))
+    val mediaItemWithLongDescription = ModelTestDataCreator.previewData().first
+        .copy(description = "Word ".repeat(50))
     MediaItemCardExtended(
         mediaItem = mediaItemWithLongDescription,
-        airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
+        airingScheduleItem = ModelTestDataCreator.previewData().second.first(),
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         onFollowClicked = {},
         onMediaClicked = {}
@@ -271,10 +269,11 @@ fun MediaItemCardExtendedPreview() {
 @Composable
 @Preview
 fun MediaItemCardExtendedFinishedAiringPreview() {
-    val mediaItemWithLongDescription = ModelTestDataCreator.baseMediaItem.description("Word ".repeat(50))
+    val mediaItemWithLongDescription = ModelTestDataCreator.previewData().first
+        .copy(description = "Word ".repeat(50))
     MediaItemCardExtended(
         mediaItem = mediaItemWithLongDescription.copy(status = MediaItem.LocalStatus.FINISHED),
-        airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
+        airingScheduleItem = ModelTestDataCreator.previewData().second.first(),
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         onFollowClicked = {},
         onMediaClicked = {}
@@ -284,7 +283,8 @@ fun MediaItemCardExtendedFinishedAiringPreview() {
 @Composable
 @Preview
 fun MediaItemCardExtendedPreview_noAiringSchedule() {
-    val mediaItemWithLongDescription = ModelTestDataCreator.baseMediaItem.description("Word ".repeat(50))
+    val mediaItemWithLongDescription = ModelTestDataCreator.previewData().first
+        .copy(description = "Word ".repeat(50))
     MediaItemCardExtended(
         mediaItem = mediaItemWithLongDescription,
         airingScheduleItem = null,
@@ -297,13 +297,15 @@ fun MediaItemCardExtendedPreview_noAiringSchedule() {
 @Composable
 @Preview
 fun MediaItemCardExtendedPreview_noRankScore() {
-    val mediaItemLongDescriptionNoRankScore = ModelTestDataCreator.baseMediaItem
-        .description("Word ".repeat(50))
-        .popularity(null)
-        .meanScore(null)
+    val mediaItemLongDescriptionNoRankScore = ModelTestDataCreator.previewData().first
+        .copy(
+            description = "Word ".repeat(50),
+            popularity = null,
+            meanScore = null
+        )
     MediaItemCardExtended(
         mediaItem = mediaItemLongDescriptionNoRankScore,
-        airingScheduleItem = ModelTestDataCreator.baseAiringScheduleItem(),
+        airingScheduleItem = ModelTestDataCreator.previewData().second.first(),
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         onFollowClicked = {},
         onMediaClicked = {}
@@ -313,10 +315,12 @@ fun MediaItemCardExtendedPreview_noRankScore() {
 @Composable
 @Preview
 fun MediaItemCardExtendedPreview_noAiringSchedule_noRankScore() {
-    val mediaItemLongDescriptionNoRankScore = ModelTestDataCreator.baseMediaItem
-        .description("Word ".repeat(50))
-        .popularity(null)
-        .meanScore(null)
+    val mediaItemLongDescriptionNoRankScore = ModelTestDataCreator.previewData().first
+        .copy(
+            description = "Word ".repeat(50),
+            popularity = null,
+            meanScore = null
+        )
     MediaItemCardExtended(
         mediaItem = mediaItemLongDescriptionNoRankScore,
         airingScheduleItem = null,

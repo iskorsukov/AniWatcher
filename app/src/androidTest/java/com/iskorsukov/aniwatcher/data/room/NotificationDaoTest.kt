@@ -38,9 +38,17 @@ class NotificationDaoTest {
 
     @Test
     fun getAll(): Unit = runBlocking {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
-        val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
-        val notificationEntity = EntityTestDataCreator.baseNotificationEntity()
+        val mediaItemEntity = EntityTestDataCreator.mediaItemEntity(mediaId = 1)
+        val airingScheduleEntityList = listOf(
+            EntityTestDataCreator.airingScheduleEntity(
+                airingScheduleEntityId = 1,
+                mediaItemRelationId = 1
+            )
+        )
+        val notificationEntity = EntityTestDataCreator.notificationItemEntity(
+            notificationItemId = 1,
+            airingScheduleItemRelationId = 1
+        )
 
         persistentMediaDao.insertMedia(mediaItemEntity)
         persistentMediaDao.insertSchedules(airingScheduleEntityList)
@@ -54,7 +62,7 @@ class NotificationDaoTest {
         )
         assertThat(mediaWithAiringSchedulesAndNotificationsEntity.values.flatten()).containsExactly(
             AiringScheduleAndNotificationEntity(
-                EntityTestDataCreator.baseAiringScheduleEntity(),
+                airingScheduleEntityList.first(),
                 notificationEntity
             )
         )
@@ -62,9 +70,17 @@ class NotificationDaoTest {
 
     @Test
     fun insertNotification(): Unit = runBlocking {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
-        val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
-        val notificationEntity = EntityTestDataCreator.baseNotificationEntity()
+        val mediaItemEntity = EntityTestDataCreator.mediaItemEntity(mediaId = 1)
+        val airingScheduleEntityList = listOf(
+            EntityTestDataCreator.airingScheduleEntity(
+                airingScheduleEntityId = 1,
+                mediaItemRelationId = 1
+            )
+        )
+        val notificationEntity = EntityTestDataCreator.notificationItemEntity(
+            notificationItemId = 1,
+            airingScheduleItemRelationId = 1
+        )
 
         persistentMediaDao.insertMedia(mediaItemEntity)
         persistentMediaDao.insertSchedules(airingScheduleEntityList)
@@ -85,7 +101,7 @@ class NotificationDaoTest {
         assertThat(mediaWithAiringSchedulesAndNotificationsEntity.keys).containsExactly(mediaItemEntity)
         assertThat(mediaWithAiringSchedulesAndNotificationsEntity.values.flatten()).containsExactly(
             AiringScheduleAndNotificationEntity(
-                EntityTestDataCreator.baseAiringScheduleEntity(),
+                airingScheduleEntityList.first(),
                 notificationEntity
             )
         )
@@ -93,8 +109,13 @@ class NotificationDaoTest {
 
     @Test
     fun getPending(): Unit = runBlocking {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
-        val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
+        val mediaItemEntity = EntityTestDataCreator.mediaItemEntity(mediaId = 1)
+        val airingScheduleEntityList = listOf(
+            EntityTestDataCreator.airingScheduleEntity(
+                airingScheduleEntityId = 1,
+                mediaItemRelationId = 1
+            )
+        )
 
         persistentMediaDao.insertMedia(mediaItemEntity)
         persistentMediaDao.insertSchedules(airingScheduleEntityList)
@@ -109,9 +130,16 @@ class NotificationDaoTest {
 
     @Test
     fun getPending_ignoresFired(): Unit = runBlocking {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
-        val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
-        val notificationEntity = EntityTestDataCreator.baseNotificationEntity()
+        val mediaItemEntity = EntityTestDataCreator.mediaItemEntity(mediaId = 1)
+        val airingScheduleEntityList = listOf(
+            EntityTestDataCreator.airingScheduleEntity(
+                airingScheduleEntityId = 1,
+                mediaItemRelationId = 1
+            )
+        )
+        val notificationEntity = EntityTestDataCreator.notificationItemEntity(
+            airingScheduleItemRelationId = 1
+        )
 
         persistentMediaDao.insertMedia(mediaItemEntity)
         persistentMediaDao.insertSchedules(airingScheduleEntityList)

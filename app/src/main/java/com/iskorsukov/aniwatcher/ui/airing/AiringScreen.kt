@@ -147,8 +147,7 @@ fun AiringScreenPreview() {
     val airingScreenState = rememberAiringScreenState(
         uiStateWithData = AiringScreenData(
             mediaWithSchedulesMap = mapOf(
-                ModelTestDataCreator.baseMediaItem to
-                        ModelTestDataCreator.baseAiringScheduleItemList()
+                ModelTestDataCreator.previewData()
             ),
             timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES
         ),

@@ -34,10 +34,11 @@ class SettingsRepositoryTest {
         every { sharedPreferences.getString("naming_scheme", any()) } returns NamingScheme.ROMAJI.name
         settingsRepository.onPreferenceChanged()
 
-        every { sharedPreferences.getString("dark_mode", any()) } returns DarkModeOption.SYSTEM.name
+        every { sharedPreferences.getString("dark_mode", any()) } returns DarkModeOption.DARK.name
         settingsRepository.onPreferenceChanged()
 
         state = settingsRepository.settingsStateFlow.value
         assertThat(state.preferredNamingScheme).isEqualTo(NamingScheme.ROMAJI)
+        assertThat(state.darkModeOption).isEqualTo(DarkModeOption.DARK)
     }
 }

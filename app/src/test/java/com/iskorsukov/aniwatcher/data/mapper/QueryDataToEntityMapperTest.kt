@@ -5,7 +5,6 @@ import com.iskorsukov.aniwatcher.RangeAiringDataQuery
 import com.iskorsukov.aniwatcher.SeasonAiringDataQuery
 import com.iskorsukov.aniwatcher.test.EntityTestDataCreator
 import com.iskorsukov.aniwatcher.test.QueryTestDataCreator
-import com.iskorsukov.aniwatcher.test.nullAiringSchedule
 import org.junit.Test
 
 class QueryDataToEntityMapperTest {
@@ -20,18 +19,58 @@ class QueryDataToEntityMapperTest {
                     currentPage = 1,
                     hasNextPage = true
                 ),
-                media = listOf(QueryTestDataCreator.baseSeasonAiringDataMedium())
+                media = listOf(
+                    QueryTestDataCreator.seasonAiringDataMedium(
+                        id = 1,
+                        airingSchedule = QueryTestDataCreator.seasonAiringDataSchedule(
+                            listOf(
+                                QueryTestDataCreator.seasonAiringDataScheduleNode(
+                                    id = 1,
+                                    mediaId = 1
+                                )
+                            )
+                        )
+                    ),
+                    QueryTestDataCreator.seasonAiringDataMedium(
+                        id = 2,
+                        airingSchedule = QueryTestDataCreator.seasonAiringDataSchedule(
+                            listOf(
+                                QueryTestDataCreator.seasonAiringDataScheduleNode(
+                                    id = 2,
+                                    mediaId = 2
+                                ),
+                                QueryTestDataCreator.seasonAiringDataScheduleNode(
+                                    id = 3,
+                                    mediaId = 2
+                                )
+                            )
+                        )
+                    )
+                )
             )
         )
 
         val entityMap = mapper.mapMediaWithSchedulesList(data)
 
-        assertThat(entityMap.size).isEqualTo(1)
-        assertThat(entityMap.keys).containsExactly(EntityTestDataCreator.baseMediaItemEntity())
-        assertThat(entityMap.values.flatten()).containsExactlyElementsIn(
-            EntityTestDataCreator.baseAiringScheduleEntityList()
+        assertThat(entityMap.size).isEqualTo(2)
+        assertThat(entityMap.keys).containsExactly(
+            EntityTestDataCreator.mediaItemEntity(mediaId = 1),
+            EntityTestDataCreator.mediaItemEntity(mediaId = 2)
         )
-
+        assertThat(entityMap.values.flatten()).containsExactly(
+            EntityTestDataCreator.airingScheduleEntity(
+                airingScheduleEntityId = 1,
+                mediaItemRelationId = 1
+            ),
+            EntityTestDataCreator.airingScheduleEntity(
+                airingScheduleEntityId = 2,
+                mediaItemRelationId = 2
+            ),
+            EntityTestDataCreator.airingScheduleEntity(
+                airingScheduleEntityId = 3,
+                mediaItemRelationId = 2
+            )
+        )
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -42,7 +81,9 @@ class QueryDataToEntityMapperTest {
                     currentPage = 1,
                     hasNextPage = true
                 ),
-                media = listOf(QueryTestDataCreator.baseSeasonAiringDataMedium().nullAiringSchedule())
+                media = listOf(
+                    QueryTestDataCreator.seasonAiringDataMedium(id = 1)
+                )
             )
         )
 
@@ -60,7 +101,35 @@ class QueryDataToEntityMapperTest {
                 airingSchedules = listOf(
                     RangeAiringDataQuery.AiringSchedule(
                         id = 1,
-                        media = QueryTestDataCreator.baseRangeAiringDataMedium()
+                        media = QueryTestDataCreator.rangeAiringDataMedia(
+                            id = 1,
+                            airingSchedule = QueryTestDataCreator.rangeAiringDataSchedule(
+                                listOf(
+                                    QueryTestDataCreator.rangeAiringDataScheduleNode(
+                                        id = 1,
+                                        mediaId = 1
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    RangeAiringDataQuery.AiringSchedule(
+                        id = 2,
+                        media = QueryTestDataCreator.rangeAiringDataMedia(
+                            id = 2,
+                            airingSchedule = QueryTestDataCreator.rangeAiringDataSchedule(
+                                listOf(
+                                    QueryTestDataCreator.rangeAiringDataScheduleNode(
+                                        id = 2,
+                                        mediaId = 2
+                                    ),
+                                    QueryTestDataCreator.rangeAiringDataScheduleNode(
+                                        id = 3,
+                                        mediaId = 2
+                                    )
+                                )
+                            )
+                        )
                     )
                 )
             )
@@ -68,14 +137,25 @@ class QueryDataToEntityMapperTest {
 
         val entityMap = mapper.mapMediaWithSchedulesList(data)
 
-        assertThat(entityMap.size).isEqualTo(1)
+        assertThat(entityMap.size).isEqualTo(2)
         assertThat(entityMap.keys).containsExactly(
-            EntityTestDataCreator.baseMediaItemEntity()
+            EntityTestDataCreator.mediaItemEntity(mediaId = 1),
+            EntityTestDataCreator.mediaItemEntity(mediaId = 2)
         )
-        assertThat(entityMap.values.flatten()).containsExactlyElementsIn(
-            EntityTestDataCreator.baseAiringScheduleEntityList()
+        assertThat(entityMap.values.flatten()).containsExactly(
+            EntityTestDataCreator.airingScheduleEntity(
+                airingScheduleEntityId = 1,
+                mediaItemRelationId = 1
+            ),
+            EntityTestDataCreator.airingScheduleEntity(
+                airingScheduleEntityId = 2,
+                mediaItemRelationId = 2
+            ),
+            EntityTestDataCreator.airingScheduleEntity(
+                airingScheduleEntityId = 3,
+                mediaItemRelationId = 2
+            )
         )
-
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -89,8 +169,7 @@ class QueryDataToEntityMapperTest {
                 airingSchedules = listOf(
                     RangeAiringDataQuery.AiringSchedule(
                         id = 1,
-                        media = QueryTestDataCreator.baseRangeAiringDataMedium()
-                            .nullAiringSchedule()
+                        media = QueryTestDataCreator.rangeAiringDataMedia(id = 1)
                     )
                 )
             )
@@ -110,7 +189,33 @@ class QueryDataToEntityMapperTest {
                 airingSchedules = listOf(
                     RangeAiringDataQuery.AiringSchedule(
                         id = 1,
-                        media = QueryTestDataCreator.baseRangeAiringDataMedium().copy(isAdult = true)
+                        media = QueryTestDataCreator.rangeAiringDataMedia(
+                            id = 1,
+                            isAdult = true,
+                            airingSchedule = QueryTestDataCreator.rangeAiringDataSchedule(
+                                listOf(
+                                    QueryTestDataCreator.rangeAiringDataScheduleNode(
+                                        id = 1,
+                                        mediaId = 1
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    RangeAiringDataQuery.AiringSchedule(
+                        id = 2,
+                        media = QueryTestDataCreator.rangeAiringDataMedia(
+                            id = 2,
+                            isAdult = null,
+                            airingSchedule = QueryTestDataCreator.rangeAiringDataSchedule(
+                                listOf(
+                                    QueryTestDataCreator.rangeAiringDataScheduleNode(
+                                        id = 2,
+                                        mediaId = 2
+                                    )
+                                )
+                            )
+                        )
                     )
                 )
             )
@@ -118,7 +223,7 @@ class QueryDataToEntityMapperTest {
 
         val entityMap = mapper.mapMediaWithSchedulesList(data)
 
-        assertThat(entityMap.size).isEqualTo(0)
+        assertThat(entityMap).isEmpty()
     }
 
 }

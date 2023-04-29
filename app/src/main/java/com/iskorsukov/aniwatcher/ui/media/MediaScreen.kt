@@ -158,8 +158,7 @@ fun MediaScreenPreview() {
         mediaScreenState = rememberMediaScreenState(
             uiState = MediaScreenData(
                 mapOf(
-                    ModelTestDataCreator.baseMediaItem to
-                            ModelTestDataCreator.baseAiringScheduleItemList()
+                    ModelTestDataCreator.previewData()
                 ),
                 ModelTestDataCreator.TIME_IN_MINUTES
             ),

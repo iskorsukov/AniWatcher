@@ -73,7 +73,8 @@ class AiringRepositoryImpl @Inject constructor(
     override fun getMediaWithAiringSchedules(mediaItemId: Int): Flow<Pair<MediaItem, List<AiringScheduleItem>>?> {
         return mediaDatabaseExecutor.getMediaWithAiringSchedules(mediaItemId)
             .combine(persistentMediaDatabaseExecutor.followedMediaFlow) { mediaToAiringSchedules, followedEntityMap ->
-                val persistedMedia: MediaItemEntity? = followedEntityMap.keys.find { entity -> entity.mediaId == mediaItemId }
+                val persistedMedia: MediaItemEntity? =
+                    followedEntityMap.keys.find { entity -> entity.mediaId == mediaItemId }
 
                 val mediaItemEntity: MediaItemEntity
                 val scheduleEntitiesList: List<AiringScheduleEntity>
@@ -82,7 +83,8 @@ class AiringRepositoryImpl @Inject constructor(
                     scheduleEntitiesList = mediaToAiringSchedules.second
                 } else if (persistedMedia != null) {
                     mediaItemEntity = persistedMedia
-                    scheduleEntitiesList = followedEntityMap.getOrDefault(persistedMedia, emptyList())
+                    scheduleEntitiesList =
+                        followedEntityMap.getOrDefault(persistedMedia, emptyList())
                 } else {
                     return@combine null
                 }
@@ -122,7 +124,11 @@ class AiringRepositoryImpl @Inject constructor(
             } catch (e: Exception) {
                 throw ApolloException(e)
             }
-            entities.putAll(mapper.mapMediaWithSchedulesList(data))
+            try {
+                entities.putAll(mapper.mapMediaWithSchedulesList(data))
+            } catch (e: Exception) {
+                throw ApolloException(e)
+            }
             page++
             yield()
             if (!coroutineContext.isActive) return
@@ -146,7 +152,11 @@ class AiringRepositoryImpl @Inject constructor(
             } catch (e: Exception) {
                 throw ApolloException(e)
             }
-            entities.putAll(mapper.mapMediaWithSchedulesList(data))
+            try {
+                entities.putAll(mapper.mapMediaWithSchedulesList(data))
+            } catch (e: Exception) {
+                throw ApolloException(e)
+            }
             page++
             yield()
             if (!coroutineContext.isActive) return
@@ -171,7 +181,9 @@ class AiringRepositoryImpl @Inject constructor(
                         scheduleEntity.airingAt > TimeUnit.MINUTES.toSeconds(timeInMinutesFlow.value)
                     }
                 )
-                persistentMediaDatabaseExecutor.saveMediaWithSchedules(mediaItemWithUpcomingSchedules)
+                persistentMediaDatabaseExecutor.saveMediaWithSchedules(
+                    mediaItemWithUpcomingSchedules
+                )
             }
         } catch (e: Exception) {
             throw RoomException(e)
@@ -186,8 +198,6 @@ class AiringRepositoryImpl @Inject constructor(
         }
     }
 
-
-
     /**
      * Reassigns base popularity value (number of interactions with media) to index in sorted by popularity list
      *
@@ -196,16 +206,18 @@ class AiringRepositoryImpl @Inject constructor(
      */
     private fun reassignPopularityToMedia(map: Map<MediaItemEntity, List<AiringScheduleEntity>>): Map<MediaItemEntity, List<AiringScheduleEntity>> {
         // sort map by popularity value descending
-        val sortedMap = map.toSortedMap { first, second ->
-            val firstRank = first.popularity ?: 0
-            val secondRank = second.popularity ?: 0
-            val diff = secondRank - firstRank
-            if (diff == 0) {
-                -1
-            } else {
-                diff
-            }
-        }
+        val sortedMap = map.toSortedMap(
+            Comparator<MediaItemEntity> { first, second ->
+                val firstRank = first.popularity ?: 0
+                val secondRank = second.popularity ?: 0
+                val diff = firstRank - secondRank
+                if (diff == 0) {
+                    1
+                } else {
+                    diff
+                }
+            }.reversed()
+        )
         // reassign popularity value to index from sorted map
         val updatedMap = mutableMapOf<MediaItemEntity, List<AiringScheduleEntity>>()
         sortedMap.onEachIndexed { index, entry ->

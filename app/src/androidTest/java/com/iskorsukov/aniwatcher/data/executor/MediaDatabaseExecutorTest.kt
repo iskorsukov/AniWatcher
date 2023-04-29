@@ -49,8 +49,13 @@ class MediaDatabaseExecutorTest {
 
     @Test
     fun mediaDataFlow(): Unit = runBlocking {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
-        val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
+        val mediaItemEntity = EntityTestDataCreator.mediaItemEntity(mediaId = 1)
+        val airingScheduleEntityList = listOf(
+            EntityTestDataCreator.airingScheduleEntity(
+                airingScheduleEntityId = 1,
+                mediaItemRelationId = 1
+            )
+        )
 
         mediaDao.insertMedia(listOf(mediaItemEntity))
         mediaDao.insertSchedules(airingScheduleEntityList)
@@ -65,7 +70,7 @@ class MediaDatabaseExecutorTest {
 
     @Test
     fun mediaDataFlow_emptySchedules(): Unit = runBlocking {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
+        val mediaItemEntity = EntityTestDataCreator.mediaItemEntity(mediaId = 1)
 
         mediaDao.insertMedia(listOf(mediaItemEntity))
 
@@ -77,8 +82,13 @@ class MediaDatabaseExecutorTest {
 
     @Test
     fun getMediaWithAiringSchedules(): Unit = runBlocking {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
-        val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
+        val mediaItemEntity = EntityTestDataCreator.mediaItemEntity(mediaId = 1)
+        val airingScheduleEntityList = listOf(
+            EntityTestDataCreator.airingScheduleEntity(
+                airingScheduleEntityId = 1,
+                mediaItemRelationId = 1
+            )
+        )
 
         mediaDao.insertMedia(listOf(mediaItemEntity))
         mediaDao.insertSchedules(airingScheduleEntityList)
@@ -94,8 +104,13 @@ class MediaDatabaseExecutorTest {
 
     @Test
     fun getMediaWithAiringSchedules_notFound(): Unit = runBlocking {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
-        val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
+        val mediaItemEntity = EntityTestDataCreator.mediaItemEntity(mediaId = 1)
+        val airingScheduleEntityList = listOf(
+            EntityTestDataCreator.airingScheduleEntity(
+                airingScheduleEntityId = 1,
+                mediaItemRelationId = 1
+            )
+        )
         val missingId = 1337
 
         mediaDao.insertMedia(listOf(mediaItemEntity))
@@ -110,8 +125,13 @@ class MediaDatabaseExecutorTest {
 
     @Test
     fun updateMedia(): Unit = runBlocking {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
-        val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
+        val mediaItemEntity = EntityTestDataCreator.mediaItemEntity(mediaId = 1)
+        val airingScheduleEntityList = listOf(
+            EntityTestDataCreator.airingScheduleEntity(
+                airingScheduleEntityId = 1,
+                mediaItemRelationId = 1
+            )
+        )
 
         val entityMap = mapOf(
             mediaItemEntity to airingScheduleEntityList

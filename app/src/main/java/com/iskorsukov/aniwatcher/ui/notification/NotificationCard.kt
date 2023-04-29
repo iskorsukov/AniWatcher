@@ -88,7 +88,11 @@ fun NotificationCard(
 @Preview
 private fun NotificationCardPreview() {
     NotificationCard(
-        notificationItem = ModelTestDataCreator.baseNotificationItem(),
+        notificationItem = ModelTestDataCreator.notificationItem(
+            id = 1,
+            airingScheduleItem = ModelTestDataCreator.previewData().second.first(),
+            mediaItem = ModelTestDataCreator.previewData().first
+        ),
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         preferredNamingScheme = NamingScheme.ENGLISH
     )

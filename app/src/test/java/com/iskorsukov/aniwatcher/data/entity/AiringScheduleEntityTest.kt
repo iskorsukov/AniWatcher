@@ -9,11 +9,44 @@ import org.junit.Test
 class AiringScheduleEntityTest {
 
     @Test
-    fun fromData() {
-        val data = QueryTestDataCreator.baseSeasonAiringDataNode()
+    fun fromData_season() {
+        val data = QueryTestDataCreator.seasonAiringDataScheduleNode(
+            id = 1,
+            airingAt = 1,
+            episode = 1,
+            mediaId = 1
+        )
 
         val entity = AiringScheduleEntity.fromData(data)
 
-        assertThat(entity).isEqualTo(EntityTestDataCreator.baseAiringScheduleEntity())
+        assertThat(entity).isEqualTo(
+            EntityTestDataCreator.airingScheduleEntity(
+                airingScheduleEntityId = 1,
+                airingAt = 1,
+                episode = 1,
+                mediaItemRelationId = 1
+            )
+        )
+    }
+
+    @Test
+    fun fromData_range() {
+        val data = QueryTestDataCreator.rangeAiringDataScheduleNode(
+            id = 1,
+            airingAt = 1,
+            episode = 1,
+            mediaId = 1
+        )
+
+        val entity = AiringScheduleEntity.fromData(data)
+
+        assertThat(entity).isEqualTo(
+            EntityTestDataCreator.airingScheduleEntity(
+                airingScheduleEntityId = 1,
+                airingAt = 1,
+                episode = 1,
+                mediaItemRelationId = 1
+            )
+        )
     }
 }

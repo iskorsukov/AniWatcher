@@ -17,7 +17,7 @@ class MediaItemMapper @Inject constructor() {
         val dayOfWeekSchedulesMap =
             mutableMapOf<DayOfWeekLocal, List<Pair<AiringScheduleItem, MediaItem>>>()
         mediaItemToAiringSchedulesMap.forEach { entry ->
-            val currentDayOfWeek = DayOfWeekLocal.ofCalendar(Calendar.getInstance())
+            val currentDayOfWeek = DateTimeHelper.currentDayOfWeek()
             val currentDayEndInSeconds = DateTimeHelper.currentDayEndSeconds(Calendar.getInstance())
 
             // map media entry schedules to days of week

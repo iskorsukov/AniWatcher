@@ -35,8 +35,13 @@ class PersistentMediaDaoTest {
 
     @Test
     fun getAll(): Unit = runBlocking {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
-        val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
+        val mediaItemEntity = EntityTestDataCreator.mediaItemEntity(mediaId = 1)
+        val airingScheduleEntityList = listOf(
+            EntityTestDataCreator.airingScheduleEntity(
+                airingScheduleEntityId = 1,
+                mediaItemRelationId = 1
+            )
+        )
 
         persistentMediaDao.insertMedia(mediaItemEntity)
         persistentMediaDao.insertSchedules(airingScheduleEntityList)
@@ -50,8 +55,13 @@ class PersistentMediaDaoTest {
 
     @Test
     fun getById(): Unit = runBlocking {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
-        val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
+        val mediaItemEntity = EntityTestDataCreator.mediaItemEntity(mediaId = 1)
+        val airingScheduleEntityList = listOf(
+            EntityTestDataCreator.airingScheduleEntity(
+                airingScheduleEntityId = 1,
+                mediaItemRelationId = 1
+            )
+        )
 
         persistentMediaDao.insertMedia(mediaItemEntity)
         persistentMediaDao.insertSchedules(airingScheduleEntityList)
@@ -65,8 +75,14 @@ class PersistentMediaDaoTest {
 
     @Test
     fun getById_notFound(): Unit = runBlocking {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
-        val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
+        val mediaItemEntity = EntityTestDataCreator.mediaItemEntity(mediaId = 1)
+        val airingScheduleEntityList = listOf(
+            EntityTestDataCreator.airingScheduleEntity(
+                airingScheduleEntityId = 1,
+                mediaItemRelationId = 1
+            )
+        )
+
         val missingId = 1337
 
         persistentMediaDao.insertMedia(mediaItemEntity)
@@ -79,7 +95,7 @@ class PersistentMediaDaoTest {
 
     @Test
     fun insertMedia(): Unit = runBlocking {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
+        val mediaItemEntity = EntityTestDataCreator.mediaItemEntity(mediaId = 1)
 
         persistentMediaDao.insertMedia(mediaItemEntity)
 
@@ -91,8 +107,13 @@ class PersistentMediaDaoTest {
 
     @Test
     fun insertSchedules(): Unit = runBlocking {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
-        val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
+        val mediaItemEntity = EntityTestDataCreator.mediaItemEntity(mediaId = 1)
+        val airingScheduleEntityList = listOf(
+            EntityTestDataCreator.airingScheduleEntity(
+                airingScheduleEntityId = 1,
+                mediaItemRelationId = 1
+            )
+        )
 
         persistentMediaDao.insertMedia(mediaItemEntity)
 
@@ -106,8 +127,13 @@ class PersistentMediaDaoTest {
 
     @Test
     fun deleteMedia(): Unit = runBlocking {
-        val mediaItemEntity = EntityTestDataCreator.baseMediaItemEntity()
-        val airingScheduleEntityList = EntityTestDataCreator.baseAiringScheduleEntityList()
+        val mediaItemEntity = EntityTestDataCreator.mediaItemEntity(mediaId = 1)
+        val airingScheduleEntityList = listOf(
+            EntityTestDataCreator.airingScheduleEntity(
+                airingScheduleEntityId = 1,
+                mediaItemRelationId = 1
+            )
+        )
 
         persistentMediaDao.insertMedia(mediaItemEntity)
         persistentMediaDao.insertSchedules(airingScheduleEntityList)

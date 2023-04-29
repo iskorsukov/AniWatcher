@@ -75,7 +75,11 @@ fun NotificationsScreenContent(
 private fun NotificationsScreenPreview() {
     NotificationsScreenContent(
         notificationsList = listOf(
-            ModelTestDataCreator.baseNotificationItem()
+            ModelTestDataCreator.notificationItem(
+                id = 1,
+                airingScheduleItem = ModelTestDataCreator.previewData().second.first(),
+                mediaItem = ModelTestDataCreator.previewData().first
+            )
         ),
         timeInMinutes = ModelTestDataCreator.TIME_IN_MINUTES,
         preferredNamingScheme = NamingScheme.ENGLISH,
