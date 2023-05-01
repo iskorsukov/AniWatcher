@@ -52,10 +52,9 @@ fun MainScreen(
     var shouldShowErrorDialog by rememberSaveable(mainScreenState.shouldShowErrorDialog) {
         mutableStateOf(mainScreenState.shouldShowErrorDialog)
     }
-    val shouldShowNotificationsRationaleDialog by mainScreenState
+    val shouldShowNotificationsRationaleDialog = mainScreenState
         .notificationsPermissionState
         .showNotificationsRationaleDialog
-        .collectAsStateWithLifecycle()
     val shouldShowSeasonYearDialog = mainScreenState
         .seasonYearDialogState
         .showSelectSeasonYearDialog

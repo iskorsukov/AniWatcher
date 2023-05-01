@@ -1,80 +1,67 @@
 package com.iskorsukov.aniwatcher.ui.main.state
 
-import android.Manifest
-import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.core.content.ContextCompat
 import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 
 @Composable
 fun rememberNotificationsPermissionState(
-    context: Context,
     settingsRepository: SettingsRepository,
-    permissionRequestResultGranted: Boolean?,
-    coroutineScope: CoroutineScope = rememberCoroutineScope()
+    notificationsEnabled: Boolean,
+    notificationsPermissionGranted: Boolean,
+    shouldShowRationale: Boolean,
+    permissionRequestResultGranted: Boolean?
 ): NotificationsPermissionState {
-    val notificationsPermissionGranted = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED || permissionRequestResultGranted == true
     return remember(
-        context,
         settingsRepository,
-        permissionRequestResultGranted
+        notificationsEnabled,
+        notificationsPermissionGranted,
+        permissionRequestResultGranted,
+        shouldShowRationale
     ) {
         NotificationsPermissionState(
             notificationsPermissionGranted = notificationsPermissionGranted,
-            settingsRepository = settingsRepository,
-            coroutineScope = coroutineScope
+            permissionRequestResultGranted = permissionRequestResultGranted,
+            notificationsEnabled = notificationsEnabled,
+            shouldShowRationale = shouldShowRationale,
+            settingsRepository = settingsRepository
         )
     }
 }
 
 class NotificationsPermissionState(
-    coroutineScope: CoroutineScope,
+    notificationsEnabled: Boolean,
     notificationsPermissionGranted: Boolean,
+    permissionRequestResultGranted: Boolean?,
+    shouldShowRationale: Boolean,
     private val settingsRepository: SettingsRepository
 ) {
 
     init {
-        if (!notificationsPermissionGranted) {
+        if (permissionRequestResultGranted == false && notificationsEnabled && !shouldShowRationale) {
             settingsRepository.setNotificationsEnabled(false)
         }
     }
 
     var notificationsPermissionGranted by mutableStateOf(notificationsPermissionGranted)
         private set
-    var showNotificationsRationaleDialog = settingsRepository.settingsStateFlow
-        .map { it.notificationsEnabled && !notificationsPermissionGranted }
-        .stateIn(
-            coroutineScope,
-            SharingStarted.WhileSubscribed(5_000),
-            !notificationsPermissionGranted
-        )
-    var launchNotificationsPermissionRequest by mutableStateOf(false)
+    var showNotificationsRationaleDialog by mutableStateOf(
+        shouldShowRationale && notificationsEnabled
+    )
+    var launchNotificationsPermissionRequest by mutableStateOf(
+        !notificationsPermissionGranted && !shouldShowRationale
+    )
         private set
 
-    fun onNotificationsPermissionGranted() {
-        launchNotificationsPermissionRequest = false
-        notificationsPermissionGranted = true
-        settingsRepository.setNotificationsEnabled(true)
+    fun onNotificationsPermissionGrant() {
+        launchNotificationsPermissionRequest = true
     }
 
-    fun onNotificationsPermissionDenied() {
+    fun onNotificationsPermissionDeny() {
         launchNotificationsPermissionRequest = false
-        notificationsPermissionGranted = false
         settingsRepository.setNotificationsEnabled(false)
     }
 }

@@ -67,6 +67,7 @@
 
     <string name="settings_notifications_enabled_key">notifications_enabled</string>
     <string name="settings_notifications_enabled_label">Notifications enabled</string>
+    <string name="settings_notifications_enabled_permission_block">To use notifications, grant notifications permission in Device Settings</string>
 
     <string name="settings_dark_mode_key">dark_mode</string>
     <string name="settings_dark_mode_label">App theme</string>

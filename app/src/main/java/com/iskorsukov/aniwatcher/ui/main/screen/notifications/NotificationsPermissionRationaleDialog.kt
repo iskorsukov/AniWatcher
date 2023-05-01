@@ -14,13 +14,13 @@ fun NotificationsPermissionRationaleDialog(
         textResId = R.string.notifications_permission_text,
         denyTextResId = R.string.notifications_permission_disable,
         onPermissionGranted = {
-            notificationsPermissionState.onNotificationsPermissionGranted()
+            notificationsPermissionState.onNotificationsPermissionGrant()
         },
         onPermissionDenied = {
-            notificationsPermissionState.onNotificationsPermissionDenied()
+            notificationsPermissionState.onNotificationsPermissionDeny()
         },
         onDismissRequest = {
-            notificationsPermissionState.onNotificationsPermissionDenied()
+            notificationsPermissionState.showNotificationsRationaleDialog = false
         }
     )
 }

@@ -13,9 +13,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
 import com.iskorsukov.aniwatcher.domain.notification.alarm.NotificationsAlarmBuilder
@@ -41,31 +45,61 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        var permissionRequestResultGranted: Boolean? by mutableStateOf(null)
+        val permissionRequestResultGrantedState: MutableState<Boolean?> =
+            mutableStateOf(null)
 
         val requestNotificationsPermissionLauncher =
             registerForActivityResult(
                 ActivityResultContracts.RequestPermission()
             ) { isGranted: Boolean ->
-                permissionRequestResultGranted = isGranted
+                permissionRequestResultGrantedState.value = isGranted
             }
 
         setContent {
             val mainScreenData by mainActivityViewModel.dataFlow
                 .collectAsStateWithLifecycle()
+
+            var permissionRequestResultGranted by remember(permissionRequestResultGrantedState.value) {
+                permissionRequestResultGrantedState
+            }
+            val settingsState by settingsRepository.settingsStateFlow.collectAsStateWithLifecycle()
+            val notificationsEnabled by remember {
+                derivedStateOf {
+                    settingsState.notificationsEnabled
+                }
+            }
+
+            val notificationsPermissionGranted by remember(permissionRequestResultGranted) {
+                mutableStateOf(
+                    Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                            ActivityCompat.checkSelfPermission(
+                                this,
+                                Manifest.permission.POST_NOTIFICATIONS
+                            ) == PackageManager.PERMISSION_GRANTED
+                )
+            }
+            val shouldShowRationale by remember(permissionRequestResultGranted) {
+                mutableStateOf(
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                            ActivityCompat.shouldShowRequestPermissionRationale(
+                                this,
+                                Manifest.permission.POST_NOTIFICATIONS
+                            )
+                )
+            }
+
             val notificationsPermissionState = rememberNotificationsPermissionState(
-                context = this,
                 settingsRepository = settingsRepository,
-                permissionRequestResultGranted = permissionRequestResultGranted
+                notificationsEnabled = notificationsEnabled,
+                notificationsPermissionGranted = notificationsPermissionGranted,
+                permissionRequestResultGranted = permissionRequestResultGranted,
+                shouldShowRationale = shouldShowRationale
             )
             val mainScreenState = rememberMainScreenState(
                 settingsRepository = settingsRepository,
                 notificationsPermissionState = notificationsPermissionState,
                 mainScreenData = mainScreenData
             )
-            val settingsState by mainScreenState
-                .settingsState
-                .collectAsStateWithLifecycle()
 
             LaunchedEffect(
                 settingsState.selectedSeasonYear
@@ -75,6 +109,7 @@ class MainActivity : ComponentActivity() {
 
             LaunchedEffect(notificationsPermissionState.launchNotificationsPermissionRequest) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && notificationsPermissionState.launchNotificationsPermissionRequest) {
+                    permissionRequestResultGranted = null
                     requestNotificationsPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                 }
             }
