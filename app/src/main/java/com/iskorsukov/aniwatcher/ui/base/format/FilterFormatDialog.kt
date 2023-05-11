@@ -14,6 +14,8 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,7 +34,11 @@ import com.iskorsukov.aniwatcher.ui.theme.LocalTextStyles
 fun FilterFormatDialog(
     filterFormatDialogState: FilterFormatDialogState
 ) {
-    val deselectedFormats = filterFormatDialogState.deselectedFormats
+    val deselectedFormats: MutableList<MediaItem.LocalFormat> = remember {
+        mutableStateListOf(
+            *filterFormatDialogState.deselectedFormats.toTypedArray()
+        )
+    }
     Dialog(onDismissRequest = filterFormatDialogState::dismiss) {
         Surface(
             shape = RoundedCornerShape(8.dp),
@@ -88,6 +94,8 @@ fun FilterFormatDialog(
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .clickable {
+                            filterFormatDialogState.deselectedFormats.clear()
+                            filterFormatDialogState.deselectedFormats.addAll(deselectedFormats)
                             filterFormatDialogState.dismiss()
                         }
                         .fillMaxWidth()

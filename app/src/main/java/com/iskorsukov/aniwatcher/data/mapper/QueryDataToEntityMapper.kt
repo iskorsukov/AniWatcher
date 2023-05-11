@@ -4,6 +4,7 @@ import com.iskorsukov.aniwatcher.RangeAiringDataQuery
 import com.iskorsukov.aniwatcher.SeasonAiringDataQuery
 import com.iskorsukov.aniwatcher.data.entity.base.AiringScheduleEntity
 import com.iskorsukov.aniwatcher.data.entity.base.MediaItemEntity
+import com.iskorsukov.aniwatcher.type.MediaFormat
 import javax.inject.Inject
 
 class QueryDataToEntityMapper @Inject constructor() {
@@ -43,6 +44,7 @@ class QueryDataToEntityMapper @Inject constructor() {
         return data.Page.airingSchedules
             .filterNotNull()
             .filter { it.media?.isAdult != null && it.media.isAdult == false } // filter adult media
+            .filter { it.media?.format != MediaFormat.ONA }
             .associate { outerSchedule ->
                 val queryMedia = outerSchedule.media!! // non-nullability enforced by earlier check
                 Pair(

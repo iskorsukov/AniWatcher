@@ -60,7 +60,6 @@ data class MediaItem(
         TV(R.string.format_tv),
         TV_SHORT(R.string.format_tv_short),
         OVA(R.string.format_ova),
-        ONA(R.string.format_ona),
         MOVIE(R.string.format_movie),
         SPECIAL(R.string.format_special),
         UNKNOWN(R.string.format_unknown);

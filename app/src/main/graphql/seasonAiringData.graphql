@@ -4,7 +4,7 @@ query SeasonAiringData($year: Int!, $season: MediaSeason!, $page: Int!) {
             currentPage
             hasNextPage
         }
-        media(season: $season, seasonYear: $year, sort: START_DATE, status_in: [RELEASING, NOT_YET_RELEASED], format_in: [TV, TV_SHORT, MOVIE, SPECIAL, OVA, ONA], isAdult: false) {
+        media(season: $season, seasonYear: $year, sort: START_DATE, status_in: [RELEASING, NOT_YET_RELEASED], format_in: [TV, TV_SHORT, MOVIE, SPECIAL, OVA], isAdult: false) {
             id
             title {
                 romaji
