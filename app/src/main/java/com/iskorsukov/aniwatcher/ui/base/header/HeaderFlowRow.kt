@@ -110,7 +110,7 @@ fun HeaderFlowRowPreview() {
         SortingOptionHeaderChip(selectedSortingOption = SortingOption.SCORE) {
 
         }
-        FilterFormatHeaderChip(deselectedFormats = listOf(MediaItem.LocalFormat.TV, MediaItem.LocalFormat.ONA)) {
+        FilterFormatHeaderChip(deselectedFormats = listOf(MediaItem.LocalFormat.TV, MediaItem.LocalFormat.TV_SHORT)) {
 
         }
     }
