@@ -24,7 +24,7 @@ class NotificationsAlarmReceiver : BroadcastReceiver() {
             // Reschedule alarm
             (context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager)
                 ?.setAndAllowWhileIdle(
-                    AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                    AlarmManager.ELAPSED_REALTIME,
                     SystemClock.elapsedRealtime() + AlarmManager.INTERVAL_HALF_HOUR,
                     NotificationsAlarmBuilder.buildAlarmIntent(context)
                 )

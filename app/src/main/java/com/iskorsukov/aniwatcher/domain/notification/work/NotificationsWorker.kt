@@ -9,6 +9,7 @@ import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.model.NotificationItem
 import com.iskorsukov.aniwatcher.domain.notification.NotificationsInteractor
 import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
+import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
 import com.iskorsukov.aniwatcher.domain.util.LocalClockSystem
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -30,13 +31,16 @@ class NotificationsWorker @AssistedInject constructor(
     @Assisted workerParams: WorkerParameters,
     private val clock: LocalClockSystem,
     private val notificationsRepository: NotificationsRepository,
-    private val notificationsInteractor: NotificationsInteractor
+    private val notificationsInteractor: NotificationsInteractor,
+    private val settingsRepository: SettingsRepository
 ): CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
         notificationsInteractor.createNotificationsChannel()
         val pendingNotifications = notificationsRepository.getPendingSchedulesToNotify()
-        notificationsInteractor.fireAiredNotifications(pendingNotifications)
+        if (settingsRepository.settingsStateFlow.value.notificationsEnabled) {
+            notificationsInteractor.fireAiredNotifications(pendingNotifications)
+        }
         saveNotifications(pendingNotifications)
         return Result.success()
     }

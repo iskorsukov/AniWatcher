@@ -114,8 +114,8 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            LaunchedEffect(notificationsPermissionState.notificationsPermissionGranted) {
-                if (notificationsPermissionState.notificationsPermissionGranted) {
+            LaunchedEffect(settingsState.notificationsEnabled) {
+                if (settingsState.notificationsEnabled) {
                     enableBootReceiver()
                     scheduleNotificationChecks()
                 } else {
@@ -155,7 +155,7 @@ class MainActivity : ComponentActivity() {
     private fun scheduleNotificationChecks() {
         (getSystemService(Context.ALARM_SERVICE) as? AlarmManager)
             ?.setAndAllowWhileIdle(
-                AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                AlarmManager.ELAPSED_REALTIME,
                 SystemClock.elapsedRealtime() + AlarmManager.INTERVAL_FIFTEEN_MINUTES,
                 NotificationsAlarmBuilder.buildAlarmIntent(this)
             )
