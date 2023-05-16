@@ -15,13 +15,6 @@
         android:entryValues="@array/naming_scheme_values"
         android:defaultValue="@string/naming_scheme_default_value" />
 
-    <ListPreference
-        android:key="@string/settings_schedule_type_key"
-        android:title="@string/settings_schedule_type_label"
-        android:entries="@array/schedule_type_labels"
-        android:entryValues="@array/schedule_type_values"
-        android:defaultValue="@string/schedule_type_default_value" />
-
     <SwitchPreference
         android:key="@string/settings_notifications_enabled_key"
         android:title="@string/settings_notifications_enabled_label"

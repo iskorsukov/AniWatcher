@@ -54,11 +54,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
             summaryProvider = ListPreference.SimpleSummaryProvider.getInstance()
         }
         findPreference<ListPreference>(
-            getString(R.string.settings_schedule_type_key)
-        )?.apply {
-            summaryProvider = ListPreference.SimpleSummaryProvider.getInstance()
-        }
-        findPreference<ListPreference>(
             getString(R.string.settings_dark_mode_key)
         )?.apply {
             summaryProvider = ListPreference.SimpleSummaryProvider.getInstance()
