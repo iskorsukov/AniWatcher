@@ -17,8 +17,8 @@ import com.iskorsukov.aniwatcher.ui.base.error.ErrorItem
 @Composable
 fun rememberMainScreenState(
     settingsRepository: SettingsRepository,
-    notificationsPermissionState: NotificationsPermissionState,
     mainScreenData: MainScreenData,
+    notificationsRationaleDialogState: NotificationsRationaleDialogState,
     navController: NavHostController = rememberNavController(),
     searchFieldState: SearchFieldState = rememberSearchFieldState(),
     seasonYearDialogState: SeasonYearDialogState = rememberSeasonYearDialogState(
@@ -27,11 +27,11 @@ fun rememberMainScreenState(
 ): MainScreenState {
     return remember(
         settingsRepository,
-        notificationsPermissionState,
         mainScreenData,
         navController,
         searchFieldState,
-        seasonYearDialogState
+        seasonYearDialogState,
+        notificationsRationaleDialogState
     ) {
         MainScreenState(
             settingsRepository = settingsRepository,
@@ -39,7 +39,7 @@ fun rememberMainScreenState(
             navController = navController,
             searchFieldState = searchFieldState,
             seasonYearDialogState = seasonYearDialogState,
-            notificationsPermissionState = notificationsPermissionState,
+            notificationsRationaleDialogState = notificationsRationaleDialogState
         )
     }
 }
@@ -50,7 +50,7 @@ class MainScreenState(
     val navController: NavHostController,
     val searchFieldState: SearchFieldState,
     val seasonYearDialogState: SeasonYearDialogState,
-    val notificationsPermissionState: NotificationsPermissionState
+    val notificationsRationaleDialogState: NotificationsRationaleDialogState
 ) {
     val currentDestination: NavDestination?
         @Composable get() = navController

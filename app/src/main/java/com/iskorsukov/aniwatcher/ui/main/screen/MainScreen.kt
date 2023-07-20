@@ -42,6 +42,7 @@ import com.iskorsukov.aniwatcher.ui.theme.LocalColors
 fun MainScreen(
     mainScreenState: MainScreenState,
     onRefresh: () -> Unit,
+    onFollowMedia: (MediaItem) -> Unit,
     mediaItemMapper: MediaItemMapper,
     mediaViewModel: MediaViewModel = viewModel(),
     airingViewModel: AiringViewModel = viewModel(),
@@ -52,9 +53,6 @@ fun MainScreen(
     var shouldShowErrorDialog by rememberSaveable(mainScreenState.shouldShowErrorDialog) {
         mutableStateOf(mainScreenState.shouldShowErrorDialog)
     }
-    val shouldShowNotificationsRationaleDialog = mainScreenState
-        .notificationsPermissionState
-        .showNotificationsRationaleDialog
     val shouldShowSeasonYearDialog = mainScreenState
         .seasonYearDialogState
         .showSelectSeasonYearDialog
@@ -94,9 +92,9 @@ fun MainScreen(
                         mainScreenState.seasonYearDialogState
                     )
                 }
-                if (shouldShowNotificationsRationaleDialog) {
+                if (mainScreenState.notificationsRationaleDialogState.showNotificationsRationaleDialog) {
                     NotificationsPermissionRationaleDialog(
-                        mainScreenState.notificationsPermissionState
+                        mainScreenState.notificationsRationaleDialogState
                     )
                 }
 
@@ -109,6 +107,7 @@ fun MainScreen(
                             viewModel = mediaViewModel,
                             isRefreshing = mainScreenState.mainScreenData.isRefreshing,
                             onMediaClicked = navigateToDetails,
+                            onFollowMedia = onFollowMedia,
                             onRefresh = onRefresh,
                             mediaItemMapper = mediaItemMapper,
                             searchFieldState = mainScreenState.searchFieldState,
@@ -122,6 +121,7 @@ fun MainScreen(
                             isRefreshing = mainScreenState.mainScreenData.isRefreshing,
                             settingsState = settingsState,
                             onMediaClicked = navigateToDetails,
+                            onFollowMedia = onFollowMedia,
                             onRefresh = onRefresh
                         )
                     }
@@ -131,6 +131,7 @@ fun MainScreen(
                             mediaItemMapper = mediaItemMapper,
                             settingsState = settingsState,
                             onMediaClicked = navigateToDetails,
+                            onFollowMedia = onFollowMedia,
                             searchFieldState = mainScreenState.searchFieldState
                         )
                     }

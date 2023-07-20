@@ -25,8 +25,8 @@ fun PermissionRationaleDialog(
     @StringRes textResId: Int,
     @StringRes grantTextResId: Int = R.string.permission_grant,
     @StringRes denyTextResId: Int = R.string.permission_deny,
-    onPermissionGranted: () -> Unit,
-    onPermissionDenied: () -> Unit,
+    onPermissionGrant: () -> Unit,
+    onPermissionDeny: () -> Unit,
     onDismissRequest: () -> Unit
 ) {
     val properties = DialogProperties(dismissOnClickOutside = false)
@@ -58,7 +58,7 @@ fun PermissionRationaleDialog(
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .clickable {
-                            onPermissionGranted.invoke()
+                            onPermissionGrant.invoke()
                             onDismissRequest.invoke()
                         }
                         .fillMaxWidth()
@@ -71,7 +71,7 @@ fun PermissionRationaleDialog(
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .clickable {
-                            onPermissionDenied.invoke()
+                            onPermissionDeny.invoke()
                             onDismissRequest.invoke()
                         }
                         .fillMaxWidth()
@@ -88,8 +88,8 @@ fun PermissionRationaleDialogPreview() {
     PermissionRationaleDialog(
         titleResId = R.string.notifications_permission_title,
         textResId = R.string.notifications_permission_text,
-        onPermissionGranted = { },
-        onPermissionDenied = { },
+        onPermissionGrant = { },
+        onPermissionDeny = { },
         onDismissRequest = { },
     )
 }

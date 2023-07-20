@@ -39,6 +39,7 @@ fun AiringScreen(
     isRefreshing: Boolean,
     settingsState: SettingsState,
     onMediaClicked: (MediaItem) -> Unit,
+    onFollowMedia: (MediaItem) -> Unit,
     onRefresh: () -> Unit
 ) {
     val airingScreenData by viewModel.dataFlow
@@ -60,9 +61,7 @@ fun AiringScreen(
         AiringScreenContent(
             lazyListState = lazyListState,
             airingScreenState = airingScreenState,
-            onFollowClicked = {
-                viewModel.onFollowMedia(it)
-            },
+            onFollowClicked = onFollowMedia,
             onMediaClicked = onMediaClicked,
             preferredNamingScheme = settingsState.preferredNamingScheme,
         )

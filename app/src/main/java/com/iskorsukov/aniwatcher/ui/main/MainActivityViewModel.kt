@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.iskorsukov.aniwatcher.BuildConfig
 import com.iskorsukov.aniwatcher.domain.airing.AiringRepository
+import com.iskorsukov.aniwatcher.domain.model.MediaItem
 import com.iskorsukov.aniwatcher.domain.notification.NotificationsRepository
 import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
 import com.iskorsukov.aniwatcher.domain.settings.SettingsState
@@ -68,6 +69,24 @@ class MainActivityViewModel @Inject constructor(
                 onError(ErrorItem.ofThrowable(throwable))
             } finally {
                 _dataFlow.value = _dataFlow.value.copy(isRefreshing = false)
+            }
+        }
+    }
+
+    fun onFollowMedia(mediaItem: MediaItem) {
+        viewModelScope.launch {
+            try {
+                if (mediaItem.isFollowing) {
+                    airingRepository.unfollowMedia(mediaItem)
+                } else {
+                    airingRepository.followMedia(mediaItem)
+                }
+            } catch (e: Exception) {
+                if (!BuildConfig.DEBUG) {
+                    FirebaseCrashlytics.getInstance().recordException(e)
+                }
+                e.printStackTrace()
+                onError(ErrorItem.ofThrowable(e))
             }
         }
     }

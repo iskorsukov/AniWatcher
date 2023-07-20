@@ -6,8 +6,8 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.model.AiringScheduleItem
 import com.iskorsukov.aniwatcher.domain.model.MediaItem
@@ -39,7 +39,7 @@ class NotificationsInteractorImpl @Inject constructor(
             val notification = NotificationBuilderHelper.buildNotification(
                 context, airingScheduleItem.first, airingScheduleItem.second
             )
-            if (ActivityCompat.checkSelfPermission(
+            if (ContextCompat.checkSelfPermission(
                     context,
                     Manifest.permission.POST_NOTIFICATIONS
                 ) == PackageManager.PERMISSION_GRANTED
@@ -56,7 +56,7 @@ class NotificationsInteractorImpl @Inject constructor(
             airingSchedulePairList
         )
         if (notification != null) {
-            if (ActivityCompat.checkSelfPermission(
+            if (ContextCompat.checkSelfPermission(
                     context,
                     Manifest.permission.POST_NOTIFICATIONS
                 ) == PackageManager.PERMISSION_GRANTED

@@ -3,9 +3,8 @@ package com.iskorsukov.aniwatcher.ui.settings
 import android.Manifest
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
-import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
@@ -41,13 +40,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.main_menu_settings, rootKey)
 
-        val notificationsPermissionBlocked = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-                ActivityCompat.checkSelfPermission(
-                    requireContext(),
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED &&
-                !shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)
-
         findPreference<ListPreference>(
             getString(R.string.settings_naming_scheme_key)
         )?.apply {
@@ -61,8 +53,12 @@ class SettingsFragment : PreferenceFragmentCompat() {
         findPreference<SwitchPreference>(
             getString(R.string.settings_notifications_enabled_key)
         )?.apply {
-            if (notificationsPermissionBlocked) {
-                isEnabled = false
+            if (
+                ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
                 summary = getString(R.string.settings_notifications_enabled_permission_block)
             }
         }

@@ -33,7 +33,8 @@ fun FollowingScreen(
     mediaItemMapper: MediaItemMapper,
     searchFieldState: SearchFieldState,
     settingsState: SettingsState,
-    onMediaClicked: (MediaItem) -> Unit
+    onMediaClicked: (MediaItem) -> Unit,
+    onFollowMedia: (MediaItem) -> Unit
 ) {
     val followingScreenData by viewModel.dataFlow
         .collectAsStateWithLifecycle()
@@ -52,7 +53,7 @@ fun FollowingScreen(
     Box(modifier = Modifier.fillMaxSize()) {
         FollowingScreenContent(
             followingScreenState = followingScreenState,
-            onFollowClicked = { viewModel.onFollowMedia(it) },
+            onFollowClicked = onFollowMedia,
             preferredNamingScheme = settingsState.preferredNamingScheme,
             onMediaClicked = onMediaClicked,
             listState = listState,

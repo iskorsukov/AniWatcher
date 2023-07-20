@@ -5,29 +5,25 @@ import android.app.AlarmManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.iskorsukov.aniwatcher.R
 import com.iskorsukov.aniwatcher.domain.mapper.MediaItemMapper
 import com.iskorsukov.aniwatcher.domain.notification.alarm.NotificationsAlarmBuilder
 import com.iskorsukov.aniwatcher.domain.notification.alarm.NotificationsBootReceiver
 import com.iskorsukov.aniwatcher.domain.settings.SettingsRepository
 import com.iskorsukov.aniwatcher.ui.main.screen.MainScreen
 import com.iskorsukov.aniwatcher.ui.main.state.rememberMainScreenState
-import com.iskorsukov.aniwatcher.ui.main.state.rememberNotificationsPermissionState
+import com.iskorsukov.aniwatcher.ui.main.state.rememberNotificationsRationaleDialogState
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -42,76 +38,39 @@ class MainActivity : ComponentActivity() {
 
     private val mainActivityViewModel: MainActivityViewModel by viewModels()
 
+    private val requestNotificationsPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            settingsRepository.setNotificationsEnabled(isGranted)
+            if (!isGranted) {
+                Toast.makeText(this, R.string.notifications_disabled, Toast.LENGTH_SHORT)
+                    .show()
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        val permissionRequestResultGrantedState: MutableState<Boolean?> =
-            mutableStateOf(null)
-
-        val requestNotificationsPermissionLauncher =
-            registerForActivityResult(
-                ActivityResultContracts.RequestPermission()
-            ) { isGranted: Boolean ->
-                permissionRequestResultGrantedState.value = isGranted
-            }
 
         setContent {
             val mainScreenData by mainActivityViewModel.dataFlow
                 .collectAsStateWithLifecycle()
 
-            var permissionRequestResultGranted by remember(permissionRequestResultGrantedState.value) {
-                permissionRequestResultGrantedState
-            }
             val settingsState by settingsRepository.settingsStateFlow.collectAsStateWithLifecycle()
-            val notificationsEnabled by remember {
-                derivedStateOf {
-                    settingsState.notificationsEnabled
-                }
-            }
-
-            val notificationsPermissionGranted by remember(permissionRequestResultGranted) {
-                mutableStateOf(
-                    Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
-                            ActivityCompat.checkSelfPermission(
-                                this,
-                                Manifest.permission.POST_NOTIFICATIONS
-                            ) == PackageManager.PERMISSION_GRANTED
-                )
-            }
-            val shouldShowRationale by remember(permissionRequestResultGranted) {
-                mutableStateOf(
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-                            ActivityCompat.shouldShowRequestPermissionRationale(
-                                this,
-                                Manifest.permission.POST_NOTIFICATIONS
-                            )
-                )
-            }
-
-            val notificationsPermissionState = rememberNotificationsPermissionState(
-                settingsRepository = settingsRepository,
-                notificationsEnabled = notificationsEnabled,
-                notificationsPermissionGranted = notificationsPermissionGranted,
-                permissionRequestResultGranted = permissionRequestResultGranted,
-                shouldShowRationale = shouldShowRationale
+            val notificationsRationaleDialogState = rememberNotificationsRationaleDialogState(
+                requestLauncher = requestNotificationsPermissionLauncher
             )
+
             val mainScreenState = rememberMainScreenState(
                 settingsRepository = settingsRepository,
-                notificationsPermissionState = notificationsPermissionState,
-                mainScreenData = mainScreenData
+                mainScreenData = mainScreenData,
+                notificationsRationaleDialogState = notificationsRationaleDialogState
             )
 
             LaunchedEffect(
                 settingsState.selectedSeasonYear
             ) {
                 mainActivityViewModel.loadAiringData()
-            }
-
-            LaunchedEffect(notificationsPermissionState.launchNotificationsPermissionRequest) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && notificationsPermissionState.launchNotificationsPermissionRequest) {
-                    permissionRequestResultGranted = null
-                    requestNotificationsPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                }
             }
 
             LaunchedEffect(settingsState.notificationsEnabled) {
@@ -126,7 +85,28 @@ class MainActivity : ComponentActivity() {
 
             MainScreen(
                 mainScreenState = mainScreenState,
-                onRefresh = { mainActivityViewModel.loadAiringData() },
+                onRefresh = mainActivityViewModel::loadAiringData,
+                onFollowMedia = { mediaItem ->
+                    mainActivityViewModel.onFollowMedia(mediaItem)
+                    if (!mediaItem.isFollowing) {
+                        when {
+                            ContextCompat.checkSelfPermission(
+                                this,
+                                Manifest.permission.POST_NOTIFICATIONS
+                            ) == PackageManager.PERMISSION_GRANTED -> {
+                                // do nothing, permission granted
+                            }
+                            shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS) -> {
+                                // show rationale for the notifications permission
+                                mainScreenState.notificationsRationaleDialogState.show()
+                            }
+                            else -> {
+                                // request permission
+                                mainScreenState.notificationsRationaleDialogState.launchRequest()
+                            }
+                        }
+                    }
+                },
                 mediaItemMapper = mediaItemMapper
             )
         }

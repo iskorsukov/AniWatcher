@@ -41,6 +41,7 @@ fun MediaScreen(
     searchFieldState: SearchFieldState,
     preferredNamingScheme: NamingScheme,
     onMediaClicked: (MediaItem) -> Unit,
+    onFollowMedia: (MediaItem) -> Unit,
     onRefresh: () -> Unit
 ) {
     val mediaUiStateWithData by viewModel.dataFlow
@@ -74,7 +75,7 @@ fun MediaScreen(
             mediaScreenState = mediaScreenState,
             preferredNamingScheme = preferredNamingScheme,
             listState = listState,
-            onFollowClicked = { viewModel.onFollowMedia(it) },
+            onFollowClicked = onFollowMedia,
             onMediaClicked = onMediaClicked,
         )
         ScrollToTopFab(
